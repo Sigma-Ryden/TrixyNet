@@ -76,10 +76,13 @@ public:
 
     void setEachActivationFunction(
         const Collection<function::Activation<Vector, Args...>>& activation_set);
+
     void setActivationFunction(
         const function::Activation<Vector, Args...>& activation_function);
     void setNormalizationFunction(
         const function::Activation<Vector, Args...>& normalization_function);
+    void setLossFunction(
+        const function::Loss<Vector, Args...>& loss_function);
 
     void setActivationFunction(
         Vector<double, Args...> (*function)(const Vector<double, Args...>&),
@@ -87,14 +90,11 @@ public:
     void setNormalizationFunction(
         Vector<double, Args...> (*function)(const Vector<double, Args...>&),
         Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&));
-
     void setLossFunction(
         double (*function)(
             const Vector<double, Args...>&, const Vector<double, Args...>&),
         Vector<double, Args...> (*function_derived)(
             const Vector<double, Args...>&, const Vector<double, Args...>&));
-    void setLossFunction(
-        const function::Loss<Vector, Args...>& loss_function);
 
     const Collection<Matrix<double, Args...>>& getInnerWeight() const;
     const Collection<Vector<double, Args...>>& getInnerBias() const;

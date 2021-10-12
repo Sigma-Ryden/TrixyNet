@@ -223,7 +223,7 @@ void test13()
 
     NeuralFeedForward network = { input_size, 352, 352, out_size };
     network.initializeInnerStruct(random_real);
-    network.setActivationFunction(tr::set::activation::th, tr::set::activation::th_derived);
+    network.setActivationFunction(tr::set::activation::tanh, tr::set::activation::tanh_derived);
     network.setNormalizationFunction(tr::set::activation::softmax, tr::set::activation::softmax_derived);
     network.setLossFunction(tr::set::loss::cross_entropy, tr::set::loss::cross_entropy_derived);
 

@@ -59,7 +59,7 @@ Vector<double, Args...> sigma_derived(const Vector<double, Args...>& vector)
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> th(const Vector<double, Args...>& vector)
+Vector<double, Args...> tanh(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
@@ -69,12 +69,76 @@ Vector<double, Args...> th(const Vector<double, Args...>& vector)
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> th_derived(const Vector<double, Args...>& vector)
+Vector<double, Args...> tanh_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
         new_vector(i) = 1.0 - std::pow(std::tanh(vector(i)), 2.0);
 
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> softsign(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) / (std::fabs(vector(i)) + 1);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> softsign_derived(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = 1.0 / std::pow(std::fabs(vector(i)) + 1, 2);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> softplus(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = std::log(std::exp(vector(i)) + 1);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> softplus_derived(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = 1.0 / (std::exp(-vector(i)) + 1);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> swish(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) / (std::exp(-vector(i)) + 1.0);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> swish_derived(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    double sigma;
+
+    for(std::size_t i = 0; i < vector.size(); ++i)
+    {
+        sigma = 1.0 / (std::exp(-vector(i)) + 1.0);
+        new_vector(i) = sigma + vector(i) * sigma * (1.0 - sigma);
+    }
     return new_vector;
 }
 
@@ -124,7 +188,6 @@ Vector<double, Args...> softmax_derived(const Vector<double, Args...>& vector)
 
     return new_vector;
 }
-
 
 } // namespace activation
 
@@ -219,12 +282,15 @@ FunctionData<Vector, Args...> get(const char* activation_function_name)
     using namespace set::activation;
     using namespace set::data;
 
-    static constexpr std::size_t activation_data_list_size = 5;
+    static constexpr std::size_t activation_data_list_size = 8;
     static ActivationData<Vector, Args...> activation_data[activation_data_list_size] =
     {
         { "sigma", sigma, sigma_derived },
-        { "th", th, th_derived },
+        { "tanh", tanh, tanh_derived },
         { "relu", relu, relu_derived },
+        { "softsign", softsign, softsign_derived },
+        { "softplus", softplus, softplus_derived },
+        { "swish", swish, swish_derived },
         { "softmax", softmax, softmax_derived },
         { "stable_softmax", stable_softmax, softmax_derived }
     };

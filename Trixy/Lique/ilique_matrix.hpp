@@ -7,25 +7,25 @@ namespace ilique
 {
 
 template <template <typename T> class Tensor, typename Type>
-class IMatrix
+class Matrix
 {
 protected:
     class Shape;
-    virtual ~IMatrix();
+    virtual ~Matrix();
 
 protected:
     Type** data_;
     Shape shape_;
 
 public:
-    IMatrix();
-    IMatrix(std::size_t m, size_t n);
-    IMatrix(const Shape& shape);
-    IMatrix(const IMatrix&);
-    IMatrix(IMatrix&&);
+    Matrix();
+    Matrix(std::size_t m, size_t n);
+    Matrix(const Shape& shape);
+    Matrix(const Matrix&);
+    Matrix(Matrix&&);
 
-    IMatrix& operator= (const IMatrix&);
-    IMatrix& operator= (IMatrix&&);
+    Matrix& operator= (const Matrix&);
+    Matrix& operator= (Matrix&&);
 
     Type& operator() (std::size_t i, std::size_t j);
     const Type& operator() (std::size_t i, std::size_t j) const;
@@ -40,9 +40,9 @@ public:
 };
 
 template <template <typename T> class Tensor, typename Type>
-class IMatrix<Tensor, Type>::Shape
+class Matrix<Tensor, Type>::Shape
 {
-friend IMatrix<Tensor, Type>;
+friend Matrix<Tensor, Type>;
 friend Tensor<Type>;
 
 private:
@@ -58,12 +58,12 @@ public:
 };
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::IMatrix() : data_(nullptr), shape_(0, 0)
+Matrix<Tensor, Type>::Matrix() : data_(nullptr), shape_(0, 0)
 {
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::~IMatrix()
+Matrix<Tensor, Type>::~Matrix()
 {
     if(data_ != nullptr)
     {
@@ -74,7 +74,7 @@ IMatrix<Tensor, Type>::~IMatrix()
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::IMatrix(std::size_t m, std::size_t n)
+Matrix<Tensor, Type>::Matrix(std::size_t m, std::size_t n)
     : data_(new Type* [m]), shape_(m, n)
 {
     for(std::size_t i = 0; i < shape_.row_; ++i)
@@ -82,7 +82,7 @@ IMatrix<Tensor, Type>::IMatrix(std::size_t m, std::size_t n)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::IMatrix(const Shape& s)
+Matrix<Tensor, Type>::Matrix(const Shape& s)
     : data_(new Type* [s.row_]), shape_(s)
 {
     for(std::size_t i = 0; i < shape_.row_; ++i)
@@ -90,7 +90,7 @@ IMatrix<Tensor, Type>::IMatrix(const Shape& s)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::IMatrix(const IMatrix& matrix)
+Matrix<Tensor, Type>::Matrix(const Matrix& matrix)
     : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
 {
     for(std::size_t i = 0; i < shape_.row_; ++i)
@@ -102,14 +102,14 @@ IMatrix<Tensor, Type>::IMatrix(const IMatrix& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>::IMatrix(IMatrix&& matrix)
+Matrix<Tensor, Type>::Matrix(Matrix&& matrix)
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>& IMatrix<Tensor, Type>::operator= (const IMatrix& matrix)
+Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (const Matrix& matrix)
 {
     if(this == &matrix)
         return *this;
@@ -135,7 +135,7 @@ IMatrix<Tensor, Type>& IMatrix<Tensor, Type>::operator= (const IMatrix& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IMatrix<Tensor, Type>& IMatrix<Tensor, Type>::operator= (IMatrix&& matrix)
+Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix)
 {
     if(this == &matrix)
         return *this;
@@ -156,19 +156,19 @@ IMatrix<Tensor, Type>& IMatrix<Tensor, Type>::operator= (IMatrix&& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& IMatrix<Tensor, Type>::operator() (std::size_t i, std::size_t j)
+Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j)
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& IMatrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const
+const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const typename IMatrix<Tensor, Type>::Shape& IMatrix<Tensor, Type>::size() const
+const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const
 {
     return shape_;
 }

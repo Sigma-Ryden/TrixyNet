@@ -7,23 +7,23 @@ namespace ilique
 {
 
 template <template <typename T> class Tensor, typename Type>
-class IVector
+class Vector
 {
 protected:
     Type* data_;
     std::size_t size_;
 
 protected:
-    virtual ~IVector();
+    virtual ~Vector();
 
 public:
-    IVector();
-    IVector(std::size_t size);
-    IVector(const IVector&);
-    IVector(IVector&&);
+    Vector();
+    Vector(std::size_t size);
+    Vector(const Vector&);
+    Vector(Vector&&);
 
-    IVector& operator= (const IVector&);
-    IVector& operator= (IVector&&);
+    Vector& operator= (const Vector&);
+    Vector& operator= (Vector&&);
 
     Type& operator() (std::size_t i);
     const Type& operator() (std::size_t i) const;
@@ -34,24 +34,24 @@ public:
 };
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>::IVector() : data_(nullptr), size_(0)
+Vector<Tensor, Type>::Vector() : data_(nullptr), size_(0)
 {
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>::~IVector()
+Vector<Tensor, Type>::~Vector()
 {
     delete[] data_;
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>::IVector(std::size_t size)
+Vector<Tensor, Type>::Vector(std::size_t size)
     : data_(new Type[size]), size_(size)
 {
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>::IVector(const IVector& vector)
+Vector<Tensor, Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
     for(std::size_t i = 0; i < size_; ++i)
@@ -59,14 +59,14 @@ IVector<Tensor, Type>::IVector(const IVector& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>::IVector(IVector&& vector)
+Vector<Tensor, Type>::Vector(Vector&& vector)
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>& IVector<Tensor, Type>::operator= (const IVector& vector)
+Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
 {
     if(this == &vector)
         return *this;
@@ -83,7 +83,7 @@ IVector<Tensor, Type>& IVector<Tensor, Type>::operator= (const IVector& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-IVector<Tensor, Type>& IVector<Tensor, Type>::operator= (IVector&& vector)
+Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector)
 {
     if(this == &vector)
         return *this;
@@ -99,19 +99,19 @@ IVector<Tensor, Type>& IVector<Tensor, Type>::operator= (IVector&& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& IVector<Tensor, Type>::operator() (std::size_t i)
+Type& Vector<Tensor, Type>::operator() (std::size_t i)
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& IVector<Tensor, Type>::operator() (std::size_t i) const
+const Type& Vector<Tensor, Type>::operator() (std::size_t i) const
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-std::size_t IVector<Tensor, Type>::size() const
+std::size_t Vector<Tensor, Type>::size() const
 {
     return size_;
 }
