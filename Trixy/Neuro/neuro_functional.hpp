@@ -358,6 +358,8 @@ Vector<double, Args...> mean_absolute_error_derived(
     Vector<double, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
+
+    return loss_vector;
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
@@ -372,7 +374,7 @@ double mean_squared_logarithmic_error(
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-double mean_squared_logarithmic_error_derived(
+Vector<double, Args...> mean_squared_logarithmic_error_derived(
     const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
 {
     Vector<double, Args...> loss_vector(y_true.size());
@@ -396,11 +398,6 @@ double binary_cross_entropy(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double binary_cross_entropy(
-    const Vector<double, Args...>& y_true, const Vector<double ,Args...>& y_pred)
-{
-}
 */
 } // namespace loss
 
