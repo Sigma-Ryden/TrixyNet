@@ -1,7 +1,8 @@
 #ifndef COLLECTION_HPP
 #define COLLECTION_HPP
 
-#include <cstddef>
+#include <cstddef> // size_t
+#include <initializer_list> // initializer_list
 
 template <typename T>
 class Collection
@@ -15,6 +16,7 @@ public:
     Collection(std::size_t size_);
     Collection(const Collection<T>&);
     Collection(Collection<T>&&);
+    Collection(const std::initializer_list<T>&);
 
     Collection<T>& operator= (const Collection<T>&);
     Collection<T>& operator= (Collection<T>&&);
@@ -51,6 +53,19 @@ Collection<T>::Collection(Collection<T>&& collection)
 
     collection.data_ = nullptr;
 }
+
+template <typename Type>
+Collection<Type>::Collection(const std::initializer_list<Type>& list)
+    : data_(new Type[list.size()]), size_(list.size())
+{
+    std::size_t i = 0;
+    for(const auto& arg: list)
+    {
+        data_[i] = arg;
+        ++i;
+    }
+}
+
 
 template <typename T>
 Collection<T>& Collection<T>::operator= (const Collection<T>& collection)

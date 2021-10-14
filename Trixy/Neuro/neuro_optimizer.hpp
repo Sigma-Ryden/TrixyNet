@@ -1,7 +1,7 @@
 #ifndef NEURO_OPTIMIZER_HPP
 #define NEURO_OPTIMIZER_HPP
 
-#include <cmath>
+#include <cmath> // pow
 
 namespace trixy
 {

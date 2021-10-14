@@ -1,8 +1,8 @@
 #ifndef LIQUE_MATRIX_HPP
 #define LIQUE_MATRIX_HPP
 
-#include <cstddef>
-#include <initializer_list>
+#include <cstddef> // size_t
+#include <initializer_list> // initializer_list
 
 namespace lique
 {

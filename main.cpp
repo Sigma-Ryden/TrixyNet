@@ -20,8 +20,6 @@
 #include "Trixy/Lique/ilique_matrix.hpp"
 #include "Trixy/Lique/ilique_vector.hpp"
 
-#include "Trixy/Lique/ilique_linear.hpp"
-
 #include "Trixy/Neuro/neuro_functional.hpp"
 
 namespace tr = trixy;
@@ -144,6 +142,22 @@ void show_image_batch(const li::Matrix<unsigned char>& data)
     }
 }
 //>
+
+void network_size(const Collection<std::size_t>& topology)
+{
+    std::size_t count = 0;
+    for(std::size_t i = 1; i < topology.size(); ++i)
+       count += (topology[i - 1] + 1) * topology[i];
+
+    count += topology.size();
+
+    count *= 8;
+
+    std::cout << (count / 1024) / 1024 << " MByte(s) "
+              << (count / 1024) % 1024 << " KByte(s) "
+              << count % 1024 << " Byte(s)\n";
+}
+
 void test9()
 {
     using NeuralFeedForward
@@ -155,7 +169,7 @@ void test9()
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("cross_entropy"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
 
     //old_softmax: 7.209624 - deprecated
     //stable_softmax: 6.841548 - for ActFunc like RELU
@@ -201,7 +215,7 @@ void test13()
     auto dataset =
         mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 2500;
+    std::size_t train_batch_size = 10000;
     std::size_t test_batch_size = 10000;
     std::size_t input_size = 784;
     std::size_t out_size = 10;
@@ -221,30 +235,33 @@ void test13()
     using NeuralFeedForward
          = trixy::Neuro<li::Matrix, li::Vector, li::Linear, Collection>;
 
-    NeuralFeedForward network = { input_size, 352, 352, out_size };
+    NeuralFeedForward network = { input_size, 350, 150, out_size };
+
     network.initializeInnerStruct(random_real);
-    network.setActivationFunction(tr::set::activation::tanh, tr::set::activation::tanh_derived);
-    network.setNormalizationFunction(tr::set::activation::softmax, tr::set::activation::softmax_derived);
-    network.setLossFunction(tr::set::loss::cross_entropy, tr::set::loss::cross_entropy_derived);
+
+    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("sigmoid"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("softmax"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
 
 //  Train network:
-    std::size_t times = 10;
+    std::size_t times = 15;
     for(std::size_t i = 0; i < times; ++i)
     {
         std::cout << "start train [" << i + 1 << "]:\n";
         Timer t;
-        network.trainMiniBatch(train_in, train_out, 0.25, 100, 32);
+        //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32);
+        network.trainStochastic(train_in, train_out, 0.15, 5000);
         std::cout << t.elapsed() << '\n';
         std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
     }
 //  Test train_batch aft
-    std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.25) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
+    std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.25) << '\n';
     std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.25) << '\n';
 //  Test test_batch aft
     std::cout << "NNetwork test loss: " << network.loss(test_in, test_out) << '\n';
-    std::cout << "NNetwork test global accuracy: " << network.globalAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << "NNetwork test normal accuracy: " << network.normalAccuracy(test_in, test_out) << '\n';
+    std::cout << "NNetwork test global accuracy: " << network.globalAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
 }
 
@@ -254,9 +271,10 @@ void test10()
     tr::Neuro<li::Matrix, li::Vector, li::Linear, Collection> network = {2, 2, 2};
 
     network.initializeInnerStruct(random_real);
-    network.setActivationFunction(tr::set::activation::relu, tr::set::activation::relu_derived);
-    network.setNormalizationFunction(tr::set::activation::softmax, tr::set::activation::softmax_derived);
-    network.setLossFunction(tr::set::loss::cross_entropy, tr::set::loss::cross_entropy_derived);
+
+    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
 
 // Train set (in/out)
     li::Matrix<double> train_in
@@ -290,10 +308,10 @@ int main()
 {
     srand(static_cast<unsigned>(time(0)));
 
-    std::cout << std::fixed << std::setprecision(6);
+    std::cout << std::fixed << std::setprecision(9);
     //std::cout.setf(std::ios::showpos);
 
-    test9();
+    test13();
 
     return 0;
 }

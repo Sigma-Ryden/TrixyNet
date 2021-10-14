@@ -1,9 +1,9 @@
 #ifndef NEURO_FUNCTIONAL_HPP
 #define NEURO_FUNCTIONAL_HPP
 
-#include <cstddef>
-#include <cmath>
-#include <type_traits>
+#include <cstddef> // size_t
+#include <cmath> // pow, exp, log, fabs, tanh
+#include <type_traits> // enable_if, is_same
 
 namespace trixy
 {
@@ -19,23 +19,123 @@ Vector<double, Args...> relu(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0 ? vector(i) : 0.0;
+        new_vector(i) = vector(i) > 0.0
+                        ? vector(i)
+                        : 0.0;
 
     return new_vector;
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> relu_derived(const Vector<double, Args...> & vector)
+Vector<double, Args...> relu_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0 ? 1.0 : 0.0;
+        new_vector(i) = vector(i) > 0.0
+                        ? 1.0
+                        : 0.0;
 
     return new_vector;
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> sigma(const Vector<double, Args...>& vector)
+Vector<double, Args...> elu(const Vector<double, Args...>& vector)
+{
+    static const double alpha = 0.2;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? vector(i)
+                        : alpha * (std::exp(vector(i)) - 1.0);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> elu_derived(const Vector<double, Args...>& vector)
+{
+    static const double alpha = 0.2;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? 1.0
+                        : alpha * std::exp(vector(i));
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> lrelu(const Vector<double, Args...>& vector)
+{
+    static const double alpha = 0.01;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? vector(i)
+                        : alpha;
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> lrelu_derived(const Vector<double, Args...>& vector)
+{
+    static const double alpha = 0.01;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? 1.0
+                        : alpha;
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> selu(const Vector<double, Args...>& vector)
+{
+    static const double lambda = 1.0507009873554804934193349852946;
+    static const double beta   = 1.6732632423543772848170429916717 * lambda;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? lambda * vector(i)
+                        : beta * (std::exp(vector(i)) - 1.0);
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> selu_derived(const Vector<double, Args...>& vector)
+{
+    static const double lambda = 1.0507009873554804934193349852946;
+    static const double beta   = 1.6732632423543772848170429916717 * lambda;
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = vector(i) > 0.0
+                        ? lambda
+                        : beta * std::exp(vector(i));
+
+    return new_vector;
+}
+/*
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> gelu(const Vector<double, Args...>& vector)
+{
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> gelu_derived(const Vector<double, Args...>& vector)
+{
+}
+*/
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> sigmoid(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
@@ -45,7 +145,7 @@ Vector<double, Args...> sigma(const Vector<double, Args...>& vector)
 }
 
 template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> sigma_derived(const Vector<double, Args...>& vector)
+Vector<double, Args...> sigmoid_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     double sigma;
@@ -198,7 +298,7 @@ template <template <typename T, typename...> class Vector, typename... Args>
 double cross_entropy(
     const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
 {
-    static double epsilon = 1e-9;
+    static const double epsilon = 1e-9;
     double result = 0.0;
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -240,6 +340,68 @@ Vector<double, Args...> mean_squared_error_derived(
     return loss_vector;
 }
 
+template <template <typename T, typename...> class Vector, typename... Args>
+double mean_absolute_error(
+    const Vector<double, Args...>& y_true, const Vector<double ,Args...>& y_pred)
+{
+    double result = 0.0;
+    for(std::size_t i = 0; i < y_true.size(); ++i)
+        result += std::fabs(y_true(i) - y_pred(i));
+
+    return result;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> mean_absolute_error_derived(
+    const Vector<double, Args...>& y_true, const Vector<double ,Args...>& y_pred)
+{
+    Vector<double, Args...> loss_vector(y_true.size());
+    for(std::size_t i = 0; i < y_true.size(); ++i)
+        loss_vector(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+double mean_squared_logarithmic_error(
+    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+{
+    double result = 0.0;
+    for(std::size_t i = 0; i < y_true.size(); ++i)
+        result += std::pow(std::log( (y_pred(i) + 1.0) / (y_true(i) + 1.0) ), 2.0);
+
+    return result / 2.0;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+double mean_squared_logarithmic_error_derived(
+    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+{
+    Vector<double, Args...> loss_vector(y_true.size());
+
+    for(std::size_t i = 0; i < y_true.size(); ++i)
+    {
+        loss_vector(i) = y_pred(i) + 1.0;
+        loss_vector(i) /= std::log(loss_vector(i) / (y_true(i) + 1.0));
+    }
+    return loss_vector;
+}
+/*
+template <template <typename T, typename...> class Vector, typename... Args>
+double binary_cross_entropy(
+    const Vector<double, Args...>& y_true, const Vector<double ,Args...>& y_pred)
+{
+    double result = 0.0;
+    for(std::size_t i = 0; i < y_true.size(); ++i)
+        result -= y_true(i) * std::log(y_pred(i)) + (1 - y_true(i)) * log(1 - y_pred(i));
+
+    return result;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+double binary_cross_entropy(
+    const Vector<double, Args...>& y_true, const Vector<double ,Args...>& y_pred)
+{
+}
+*/
 } // namespace loss
 
 namespace data
@@ -273,26 +435,30 @@ template <template <template <typename T, typename...> class V, typename...>
           typename... Args,
           typename std::enable_if<
                    std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().f),
-                           Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value &&
+                                Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value &&
                    std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().df),
-                           Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value,
+                                Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value,
                    int>::type = 0>
 FunctionData<Vector, Args...> get(const char* activation_function_name)
 {
     using namespace set::activation;
     using namespace set::data;
 
-    static constexpr std::size_t activation_data_list_size = 8;
+    static constexpr std::size_t activation_data_list_size = 11;
     static ActivationData<Vector, Args...> activation_data[activation_data_list_size] =
     {
-        { "sigma", sigma, sigma_derived },
-        { "tanh", tanh, tanh_derived },
-        { "relu", relu, relu_derived },
-        { "softsign", softsign, softsign_derived },
-        { "softplus", softplus, softplus_derived },
-        { "swish", swish, swish_derived },
-        { "softmax", softmax, softmax_derived },
-        { "stable_softmax", stable_softmax, softmax_derived }
+        { "sigmoid",        sigmoid,        sigmoid_derived  },
+        { "tanh",           tanh,           tanh_derived     },
+        { "relu",           relu,           relu_derived     },
+        { "elu",            elu,            elu_derived      },
+        { "leaky_relu",     lrelu,          lrelu_derived    },
+        { "selu",           selu,           selu_derived     },
+        //{ "gelu",           gelu,           gelu_derived     },
+        { "softsign",       softsign,       softsign_derived },
+        { "softplus",       softplus,       softplus_derived },
+        { "swish",          swish,          swish_derived    },
+        { "softmax",        softmax,        softmax_derived  },
+        { "stable_softmax", stable_softmax, softmax_derived  }
     };
 
     for(std::size_t i = 0; i < activation_data_list_size; ++i)
@@ -308,20 +474,22 @@ template <template <template <typename T, typename...> class V, typename...>
           typename... Args,
           typename std::enable_if<
                    std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().f),
-                           double (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value &&
+                                double (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value &&
                    std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().df),
-                           Vector<double, Args...> (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value,
+                                Vector<double, Args...> (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value,
                    int>::type = 0>
 FunctionData<Vector, Args...> get(const char* loss_function_name)
 {
     using namespace set::loss;
     using namespace set::data;
 
-    static constexpr std::size_t loss_data_list_size = 2;
+    static constexpr std::size_t loss_data_list_size = 4;
     static LossData<Vector, Args...> loss_data[loss_data_list_size] =
     {
-        { "mean_squared_error", mean_squared_error, mean_squared_error_derived },
-        { "cross_entropy", cross_entropy, cross_entropy_derived }
+        { "MSE",  mean_squared_error,             mean_squared_error_derived             },
+        { "MAE",  mean_absolute_error,            mean_absolute_error_derived            },
+        { "MSLE", mean_squared_logarithmic_error, mean_squared_logarithmic_error_derived },
+        { "CE",   cross_entropy,                  cross_entropy_derived                  }
     };
 
     for(std::size_t i = 0; i < loss_data_list_size; ++i)

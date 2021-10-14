@@ -1,7 +1,7 @@
 #ifndef ILIQUE_VECTOR_HPP
 #define ILIQUE_VECTOR_HPP
 
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace ilique
 {

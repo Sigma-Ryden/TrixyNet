@@ -1,10 +1,10 @@
 #ifndef NEURO_CORE_HPP
 #define NEURO_CORE_HPP
 
-#include <cstddef>
-#include <initializer_list>
-#include <cmath>
-#include <random>
+#include <cstddef> // size_t
+#include <initializer_list> // initializer_list
+#include <cmath> // fabs
+#include <random> // rand
 
 namespace trixy
 {

@@ -1,7 +1,7 @@
 #ifndef ILIQUE_MATRIX_HPP
 #define ILIQUE_MATRIX_HPP
 
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace ilique
 {

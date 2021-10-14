@@ -1,7 +1,7 @@
 #ifndef LIQUE_LINEAR_HPP
 #define LIQUE_LINEAR_HPP
 
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace lique
 {
@@ -10,6 +10,12 @@ template <class Matrix, class Vector>
 class Linear
 {
 public:
+    Linear() = default;
+    Linear(const Linear&) = default;
+    Linear(Linear&&) = default;
+    Linear& operator= (const Linear&) = default;
+    Linear& operator= (Linear&&) = default;
+
     Vector get(
         const Matrix& matrix, std::size_t row_number) const;
     Vector dot(

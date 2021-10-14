@@ -1,7 +1,7 @@
 #ifndef ILIQUE_LINEAR_HPP
 #define ILIQUE_LINEAR_HPP
 
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace ilique
 {

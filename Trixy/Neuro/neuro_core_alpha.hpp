@@ -1,10 +1,10 @@
 #ifndef NEURO_NETWORK_ALPHA_HPP
 #define NEURO_NETWORK_ALPHA_HPP
 
-#include <cstddef>
-#include <initializer_list>
-#include <cmath>
-#include <random>
+#include <cstddef> // size_t
+#include <initializer_list> // initializer_list
+#include <cmath> // fabs
+#include <random> // rand
 
 namespace trixy
 {
@@ -29,8 +29,10 @@ template <template <typename T, typename...> class Vector, typename... Args>
 class Loss
 {
 public:
-    double (*f)(const Vector<double, Args...>&, const Vector<double, Args...>&);
-    Vector<double, Args...> (*df)(const Vector<double, Args...>&, const Vector<double, Args...>&);
+    double (*f)(
+        const Vector<double, Args...>&, const Vector<double, Args...>&);
+    Vector<double, Args...> (*df)(
+        const Vector<double, Args...>&, const Vector<double, Args...>&);
 
     Loss(
         double (*function)(
@@ -47,25 +49,18 @@ template <template <typename T, typename...> class Matrix, template <typename T,
 class Neuro
 {
 private:
-    using ActivationFunction = function::Activation<Vector, Args...>;
-    using LossFunction = function::Loss<Vector, Args...>;
-
     Collection<Matrix<double, Args...>> W;
     Collection<Vector<double, Args...>> B;
-    Collection<ActivationFunction> A;
+
+    Collection<function::Activation<Vector, Args...>> A;
+    function::Loss<Vector, Args...> E;
 
     std::size_t N;
 
     Linear<Matrix<double, Args...>, Vector<double, Args...>> li;
 
-    LossFunction E;
-
 public:
     Neuro(const std::initializer_list<std::size_t>& topology);
-    Neuro(
-        const Collection<Matrix<double, Args...>>& innerWeigth,
-        const Collection<Vector<double, Args...>>& innerBias);
-
     Neuro(const Neuro&) = default;
     Neuro(Neuro&&) = default;
     Neuro& operator= (const Neuro&) = default;
@@ -74,9 +69,6 @@ public:
     void initializeInnerStruct(double (*generator)());
     void initializeInnerStruct(double (*generator_weight)(), double (*generator_bias)());
 
-    void setEachActivationFunction(
-        const Collection<function::Activation<Vector, Args...>>& activation_set);
-
     void setActivationFunction(
         const function::Activation<Vector, Args...>& activation_function);
     void setNormalizationFunction(
@@ -84,20 +76,14 @@ public:
     void setLossFunction(
         const function::Loss<Vector, Args...>& loss_function);
 
-    void setActivationFunction(
-        Vector<double, Args...> (*function)(const Vector<double, Args...>&),
-        Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&));
-    void setNormalizationFunction(
-        Vector<double, Args...> (*function)(const Vector<double, Args...>&),
-        Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&));
-    void setLossFunction(
-        double (*function)(
-            const Vector<double, Args...>&, const Vector<double, Args...>&),
-        Vector<double, Args...> (*function_derived)(
-            const Vector<double, Args...>&, const Vector<double, Args...>&));
+    void setEachActivationFunction(
+        const Collection<function::Activation<Vector, Args...>>& activation_set);
 
     const Collection<Matrix<double, Args...>>& getInnerWeight() const;
     const Collection<Vector<double, Args...>>& getInnerBias() const;
+
+    const Collection<function::Activation<Vector, Args...>>& getEachActivationFunction() const;
+    const function::Loss<Vector, Args...>& getLossFunction() const;
 
     Vector<double, Args...> feedforward(const Vector<double, Args...>&) const;
     Matrix<double, Args...> feedforward(const Matrix<double, Args...>&) const;
@@ -133,7 +119,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 Neuro<Matrix, Vector, Linear, Collection, Args...>::Neuro(
     const std::initializer_list<std::size_t>& topology)
-        : W(topology.size() - 1), B(topology.size() - 1), A(topology.size() - 1), N(topology.size() - 1), li()
+        : W(topology.size() - 1), B(topology.size() - 1), A(topology.size() - 1), E(), N(topology.size() - 1), li()
 {
     auto layer = topology.begin() + 1;
     for(std::size_t i = 0; i < N; ++i)
@@ -142,15 +128,6 @@ Neuro<Matrix, Vector, Linear, Collection, Args...>::Neuro(
         B[i] = Vector<double, Args...>(*layer);
         ++layer;
     }
-}
-
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-Neuro<Matrix, Vector, Linear, Collection, Args...>::Neuro(
-    const Collection<Matrix<double, Args...>>& innerWeight,
-    const Collection<Vector<double, Args...>>& innerBias)
-        : W(innerWeight), B(innerBias), A(innerBias.size()), N(innerBias.size()), li()
-{
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
@@ -177,14 +154,6 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
         B[i].fill(generator_bias);
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setEachActivationFunction(
-    const Collection<function::Activation<Vector, Args...>>& activation_set)
-{
-    for(std::size_t i = 0; i < activation_set.size(); ++i)
-        A[i] = activation_set[i];
-}
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
@@ -203,48 +172,21 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::setNormalizationFunctio
     A[N - 1] = normalization_function;
 }
 
-
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setActivationFunction(
-   Vector<double, Args...> (*function)(const Vector<double, Args...>&),
-   Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&))
-{
-    for(std::size_t i = 0; i < N - 1; ++i)
-    {
-        A[i].f = function;
-        A[i].df = function_derived;
-    }
-}
-
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setNormalizationFunction(
-    Vector<double, Args...> (*function)(const Vector<double, Args...>&),
-    Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&))
-{
-    A[N - 1].f = function;
-    A[N - 1].df = function_derived;
-}
-
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setLossFunction(
-    double (*function)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&),
-    Vector<double, Args...> (*function_derived)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&))
-{
-    E.f = function;
-    E.df = function_derived;
-}
-
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::setLossFunction(
     const function::Loss<Vector, Args...>& loss_function)
 {
     E = loss_function;
+}
+
+template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
+    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Args...>::setEachActivationFunction(
+    const Collection<function::Activation<Vector, Args...>>& activation_set)
+{
+    for(std::size_t i = 0; i < activation_set.size(); ++i)
+        A[i] = activation_set[i];
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
@@ -261,6 +203,22 @@ const Collection<Vector<double, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Args...>::getInnerBias() const
 {
     return B;
+}
+
+template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
+    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
+const Collection<function::Activation<Vector, Args...>>&
+    Neuro<Matrix, Vector, Linear, Collection, Args...>::getEachActivationFunction() const
+{
+    return A;
+}
+
+template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
+    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
+const function::Loss<Vector, Args...>&
+    Neuro<Matrix, Vector, Linear, Collection, Args...>::getLossFunction() const
+{
+    return E;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
