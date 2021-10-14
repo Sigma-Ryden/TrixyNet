@@ -75,7 +75,7 @@ Vector<double, Args...> lrelu(const Vector<double, Args...>& vector)
     for(std::size_t i = 0; i < vector.size(); ++i)
         new_vector(i) = vector(i) > 0.0
                         ? vector(i)
-                        : alpha;
+                        : alpha * vector(i);
 
     return new_vector;
 }
@@ -97,8 +97,8 @@ Vector<double, Args...> lrelu_derived(const Vector<double, Args...>& vector)
 template <template <typename T, typename...> class Vector, typename... Args>
 Vector<double, Args...> selu(const Vector<double, Args...>& vector)
 {
-    static const double lambda = 1.0507009873554804934193349852946;
-    static const double beta   = 1.6732632423543772848170429916717 * lambda;
+    static const double lambda = 1.050701;
+    static const double beta   = 1.673263 * lambda;
 
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
@@ -112,8 +112,8 @@ Vector<double, Args...> selu(const Vector<double, Args...>& vector)
 template <template <typename T, typename...> class Vector, typename... Args>
 Vector<double, Args...> selu_derived(const Vector<double, Args...>& vector)
 {
-    static const double lambda = 1.0507009873554804934193349852946;
-    static const double beta   = 1.6732632423543772848170429916717 * lambda;
+    static const double lambda = 1.050701;
+    static const double beta   = 1.673263 * lambda;
 
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
@@ -173,7 +173,7 @@ Vector<double, Args...> tanh_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 - std::pow(std::tanh(vector(i)), 2.0);
+        new_vector(i) = 1.0 - std::pow(std::tanh(vector(i)), 2);
 
     return new_vector;
 }
@@ -183,7 +183,7 @@ Vector<double, Args...> softsign(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) / (std::fabs(vector(i)) + 1);
+        new_vector(i) = vector(i) / (std::fabs(vector(i)) + 1.0);
 
     return new_vector;
 }
@@ -193,7 +193,7 @@ Vector<double, Args...> softsign_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 / std::pow(std::fabs(vector(i)) + 1, 2);
+        new_vector(i) = 1.0 / std::pow(std::fabs(vector(i)) + 1.0, 2);
 
     return new_vector;
 }
@@ -203,7 +203,7 @@ Vector<double, Args...> softplus(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::log(std::exp(vector(i)) + 1);
+        new_vector(i) = std::log(std::exp(vector(i)) + 1.0);
 
     return new_vector;
 }
@@ -213,7 +213,7 @@ Vector<double, Args...> softplus_derived(const Vector<double, Args...>& vector)
 {
     Vector<double, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 / (std::exp(-vector(i)) + 1);
+        new_vector(i) = 1.0 / (std::exp(-vector(i)) + 1.0);
 
     return new_vector;
 }
@@ -324,7 +324,7 @@ double mean_squared_error(
 {
     double result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        result += std::pow(y_true(i) - y_pred(i), 2.0);
+        result += std::pow(y_true(i) - y_pred(i), 2);
 
     return result / 2.0;
 }
@@ -368,7 +368,7 @@ double mean_squared_logarithmic_error(
 {
     double result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        result += std::pow(std::log( (y_pred(i) + 1.0) / (y_true(i) + 1.0) ), 2.0);
+        result += std::pow(std::log( (y_pred(i) + 1.0) / (y_true(i) + 1.0) ), 2);
 
     return result / 2.0;
 }
@@ -499,3 +499,83 @@ FunctionData<Vector, Args...> get(const char* loss_function_name)
 } // namespace trixy
 
 #endif // NEURO_FUNCTIONAL_HPP
+
+/*
+ double relu(double x)
+{
+    return x > 0.0 ? x : 0.0;
+}
+double relu_derived(double x)
+{
+    return x > 0.0 ? 1.0 : 0.0;
+}
+
+double elu(double x)
+{
+    static const double alpha = 0.2;
+    return x > 0.0 ? x : alpha * (std::exp(x) - 1.0);
+}
+double elu_derived(double x)
+{
+    static const double alpha = 0.2;
+    return x > 0.0 ? 1.0 : alpha * std::exp(x);
+}
+
+double lrelu(double x)
+{
+    static const double alpha = 0.01;
+    return x > 0.0 ? x : alpha * x;
+}
+double lrelu_derived(double x)
+{
+    static const double alpha = 0.01;
+    return x > 0.0 ? 1.0 : alpha;
+}
+
+double selu(double x)
+{
+    static const double lambda = 1.050701;
+    static const double beta   = 1.673263 * lambda;
+
+    return x > 0.0 ? lambda * x : beta * (std::exp(x) - 1.0);
+}
+double selu_derived(double x)
+{
+    static const double lambda = 1.050701;
+    static const double beta   = 1.673263 * lambda;
+
+    return x > 0.0 ? lambda : beta * std::exp(x);
+}
+
+double sigmoid(double x)
+{
+    return 1.0 / (std::exp(-x) + 1.0);
+}
+
+double sigmoid_derived(double x)
+{
+    const double f = 1.0 / (std::exp(-x) + 1.0);
+    return f * (1.0 - f);
+}
+
+double tanh(double x)
+{
+    return std::tanh(x);
+}
+
+double tanh_derived(double x)
+{
+    const double f = std::tanh(x);
+    return 1.0 - f * f;
+}
+
+double softsign(double x)
+{
+    return x / (std::fabs(x) + 1);
+}
+
+double softsign_derived(double x)
+{
+     return 1.0 / std::pow(std::fabs(x) + 1.0, 2);
+}
+ */
