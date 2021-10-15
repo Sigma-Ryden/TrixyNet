@@ -17,7 +17,7 @@ public:
     Linear& operator= (Linear&&) = default;
 
     Vector get(
-        const Matrix& matrix, std::size_t row_number) const;
+        const Matrix& matrix, std::size_t row_number) const; // deprecated
     Vector dot(
         const Vector& vector, const Matrix& matrix,
         bool transpose_dot_matrix = false) const;

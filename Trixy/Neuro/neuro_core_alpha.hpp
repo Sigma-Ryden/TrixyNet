@@ -86,33 +86,36 @@ public:
     const function::Loss<Vector, Args...>& getLossFunction() const;
 
     Vector<double, Args...> feedforward(const Vector<double, Args...>&) const;
-    Matrix<double, Args...> feedforward(const Matrix<double, Args...>&) const;
+    Collection<Vector<double, Args...>> feedforward(const Collection<Vector<double, Args...>>&) const;
 
     void trainStochastic(
-        const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata,
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata,
         double learn_rate, std::size_t epoch_size);
     void trainBatch(
-        const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata,
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata,
         double learn_rate, std::size_t epoch_size);
     void trainMiniBatch(
-        const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata,
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata,
         double learn_rate, std::size_t epoch_size, std::size_t mini_batch_size);
 
     double normalAccuracy(
-        const Matrix<double, Args...>& idata,
-        const Matrix<double, Args...>& odata) const;
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata) const;
     double globalAccuracy(
-        const Matrix<double, Args...>& idata,
-        const Matrix<double, Args...>& odata,
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata,
         double range_rate) const;
     double fullAccuracy(
-        const Matrix<double, Args...>& idata,
-        const Matrix<double, Args...>& odata,
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata,
         double range_rate) const;
 
     double loss(
-        const Matrix<double, Args...>& idata,
-        const Matrix<double, Args...>& odata) const;
+        const Collection<Vector<double, Args...>>& idata,
+        const Collection<Vector<double, Args...>>& odata) const;
 };
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
@@ -236,21 +239,13 @@ Vector<double, Args...> Neuro<Matrix, Vector, Linear, Collection, Args...>::feed
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-Matrix<double, Args...> Neuro<Matrix, Vector, Linear, Collection, Args...>::feedforward(
-    const Matrix<double, Args...>& in) const
+Collection<Vector<double, Args...>> Neuro<Matrix, Vector, Linear, Collection, Args...>::feedforward(
+    const Collection<Vector<double, Args...>>& idata) const
 {
-    const std::size_t batch_input_size = in.size().row();
-    const std::size_t batch_output_size = B[N - 1].size();
+    Collection<Vector<double, Args...>> y_pred(idata.size());
 
-    Matrix<double, Args...> y_pred(batch_input_size, batch_output_size);
-    Vector<double, Args...> out;
-
-    for(std::size_t i = 0; i < batch_input_size; ++i)
-    {
-        out = feedforward(li.get(in, i));
-        for(std::size_t j = 0; j < out.size(); ++j)
-            y_pred(i, j) = out(j);
-    }
+    for(std::size_t i = 0; i < idata.size(); ++i)
+        y_pred[i] = feedforward(idata[i]);
 
     return y_pred;
 }
@@ -258,7 +253,8 @@ Matrix<double, Args...> Neuro<Matrix, Vector, Linear, Collection, Args...>::feed
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
-    const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata,
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata,
     double learn_rate, std::size_t epoch_size)
 {
     Collection<Vector<double, Args...>> S(N);
@@ -270,14 +266,14 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
 
     Vector<double, Args...> theta;
 
-    std::size_t within = idata.size().row();
+    std::size_t within = idata.size();
     std::size_t sample;
 
     for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
     {
         sample = rand() % within;
 
-        H[0] = li.get(idata, sample);
+        H[0] = idata[sample];
         for(std::size_t i = 0; i < N; ++i)
         {
             S[i]     = li.dot(H[i], W[i]) + B[i];
@@ -285,7 +281,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
             DH[i]    = A[i].df(S[i]);
         }
 
-        theta = E.df(li.get(odata, sample), H[N]);
+        theta = E.df(odata[sample], H[N]);
         for(std::size_t i = N - 1; i > 0; --i)
         {
             DB[i] = DH[i].multiply(theta);
@@ -307,7 +303,8 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
-    const Matrix<double, Args...> &idata, const Matrix<double, Args...> &odata,
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata,
     double learn_rate, std::size_t epoch_size)
 {
     Collection<Vector<double, Args...>> S(N);
@@ -328,7 +325,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
 
     Vector<double, Args...> theta;
 
-    learn_rate /= idata.size().row();
+    learn_rate /= idata.size();
 
     for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
     {
@@ -338,9 +335,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
             deltaB[i].fill(0.0);
         }
 
-        for(std::size_t sample = 0; sample < idata.size().row(); ++sample)
+        for(std::size_t sample = 0; sample < idata.size(); ++sample)
         {
-            H[0] = li.get(idata, sample);
+            H[0] = idata[sample];
             for(std::size_t i = 0; i < N; ++i)
             {
                 S[i]     = li.dot(H[i], W[i]) + B[i];
@@ -348,7 +345,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
                 DH[i]    = A[i].df(S[i]);
             }
 
-            theta = E.df(li.get(odata, sample), H[N]);
+            theta = E.df(odata[sample], H[N]);
             for(std::size_t i = N - 1; i > 0; --i)
             {
                 DB[i] = DH[i].multiply(theta);
@@ -377,8 +374,10 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
-    const Matrix<double, Args...> &idata, const Matrix<double, Args...> &odata,
-    double learn_rate, std::size_t epoch_size, std::size_t mini_batch_size)
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata,
+    double learn_rate, std::size_t epoch_size,
+    std::size_t mini_batch_size)
 {
     Collection<Vector<double, Args...>> S(N);
     Collection<Vector<double, Args...>> H(N + 1);
@@ -406,7 +405,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
 
     for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
     {
-        sample_part  = rand() % (idata.size().row() / mini_batch_size);
+        sample_part  = rand() % (idata.size() / mini_batch_size);
         sample_begin = sample_part * mini_batch_size;
         sample_end   = sample_begin + mini_batch_size;
 
@@ -418,7 +417,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
 
         while(sample_begin < sample_end)
         {
-            H[0] = li.get(idata, sample_begin);
+            H[0] = idata[sample_begin];
             for(std::size_t i = 0; i < N; ++i)
             {
                 S[i]     = li.dot(H[i], W[i]) + B[i];
@@ -426,7 +425,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
                 DH[i]    = A[i].df(S[i]);
             }
 
-            theta = E.df(li.get(odata, sample_begin), H[N]);
+            theta = E.df(odata[sample_begin], H[N]);
             for(std::size_t i = N - 1; i > 0; --i)
             {
                 DB[i] = DH[i].multiply(theta);
@@ -457,65 +456,82 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Args...>::normalAccuracy(
-    const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata) const
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata) const
 {
-    const Matrix<double, Args...> pred_out = feedforward(idata);
+    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
+
+    const std::size_t batch_size = odata.size();
+    const std::size_t output_size = odata[0].size();
+
     double count = 0.0;
 
     std::size_t max_pred_out;
     std::size_t max_out;
 
-    for(std::size_t i = 0; i < pred_out.size().row(); ++i)
+    for(std::size_t i = 0; i < batch_size; ++i)
     {
         max_pred_out = 0;
         max_out = 0;
 
-        for(std::size_t j = 0; j < pred_out.size().col(); ++j)
-            if(pred_out(i, max_pred_out) < pred_out(i, j))
+        for(std::size_t j = 0; j < output_size; ++j)
+            if(pred_out[i](max_pred_out) < pred_out[i](j))
                 max_pred_out = j;
 
-        for(std::size_t j = 0; j < odata.size().col(); ++j)
-            if(odata(i, max_out) < odata(i, j))
+        for(std::size_t j = 0; j < output_size; ++j)
+            if(odata[i](max_out) < odata[i](j))
                 max_out = j;
 
         if(max_pred_out == max_out)
             ++count;
     }
 
-    return count / odata.size().row();
+    return count / batch_size;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Args...>::globalAccuracy(
-    const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata, double range_rate) const
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata,
+    double range_rate) const
 {
-    const Matrix<double, Args...> pred_out = feedforward(idata);
+    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
+
+    const std::size_t batch_size = odata.size();
+    const std::size_t output_size = odata[0].size();
+
     double count = 0.0;
 
-    for(std::size_t i = 0; i < odata.size().row(); ++i)
-        for(std::size_t j = 0; j < odata.size().col(); ++j)
-            if(std::fabs(pred_out(i, j) - odata(i, j)) < range_rate)
+    for(std::size_t i = 0; i < batch_size; ++i)
+        for(std::size_t j = 0; j < output_size; ++j)
+            if(std::fabs(pred_out[i](j) - odata[i](j)) < range_rate)
                 ++count;
 
-    return count / (odata.size().row() * odata.size().col());
+    return count / (batch_size * output_size);
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Args...>::fullAccuracy(
-    const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata, double range_rate) const
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata,
+    double range_rate) const
 {
-    const Matrix<double, Args...> pred_out = feedforward(idata);
-    double count = 0.0;
+    const Collection<Vector<double, Args...>>& pred_out = feedforward(idata);
 
+    const std::size_t batch_size = odata.size();
+    const std::size_t output_size = odata[0].size();
+
+    double count = 0.0;
     bool answer;
-    for(std::size_t i = 0; i < odata.size().row(); ++i)
+
+    for(std::size_t i = 0; i < batch_size; ++i)
     {
         answer = true;
-        for(std::size_t j = 0; j < odata.size().col(); ++j)
+        for(std::size_t j = 0; j < output_size; ++j)
         {
-            if(std::fabs(pred_out(i, j) - odata(i, j)) > range_rate)
+            if(std::fabs(pred_out[i](j) - odata[i](j)) > range_rate)
             {
                 answer = false;
                 break;
@@ -523,22 +539,22 @@ double Neuro<Matrix, Vector, Linear, Collection, Args...>::fullAccuracy(
         }
         if(answer) ++count;
     }
-    return count / odata.size().row();
+    return count / batch_size;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Args...>::loss(
-    const Matrix<double, Args...>& idata, const Matrix<double, Args...>& odata) const
+    const Collection<Vector<double, Args...>>& idata,
+    const Collection<Vector<double, Args...>>& odata) const
 {
-
-    const Matrix<double, Args...> pred = feedforward(idata);
+    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
     double result = 0.0;
 
-    for(std::size_t i = 0; i < odata.size().row(); ++i)
-        result += E.f(li.get(odata, i), li.get(pred, i));
+    for(std::size_t i = 0; i < odata.size(); ++i)
+        result += E.f(odata[i], pred_out[i]);
 
-    return result / odata.size().row();
+    return result / odata.size();
 }
 
 } // namespace trixy

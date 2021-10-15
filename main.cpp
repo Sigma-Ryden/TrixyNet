@@ -89,57 +89,45 @@ void showInnerStruct(
 
 template <typename Neuro>
 void testNeuro(
-    const Neuro& network, const li::Matrix<double>& in, const li::Matrix<double>& out)
+    const Neuro& network,
+    const Collection<li::Vector<double>>& idata,
+    const Collection<li::Vector<double>>& odata)
 {
-    li::Linear<li::Matrix<double>, li::Vector<double>> li;
-
-    for(std::size_t i = 0; i < in.size().row(); ++i)
+    for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
-            << network.feedforward(li.get(in, i)) << " : "
-                << li.get(out, i) << '\n';
+            << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
 }
 //>
 //<
-li::Matrix<double> initialize_i(
+Collection<li::Vector<double>> initialize_i(
     const std::vector<std::vector<unsigned char>>& data,
     std::size_t batch_size, std::size_t input_size)
 {
-    li::Matrix<double> input_batch(batch_size, input_size);
+    Collection<li::Vector<double>> input_batch(batch_size);
+    for(std::size_t i = 0; i < batch_size; ++i)
+        input_batch[i] = li::Vector<double>(input_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < input_size; ++j)
-            input_batch(i, j) = data[i][j] / 255.0;
+            input_batch[i](j) = data[i][j] / 255.0;
 
     return input_batch;
 }
 
-li::Matrix<double> initialize_o(
-    const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
+Collection<li::Vector<double>> initialize_o(
+    const std::vector<unsigned char>& data,
+    std::size_t batch_size, std::size_t output_size)
 {
-    li::Matrix<double> output_batch(batch_size, output_size);
+    Collection<li::Vector<double>> output_batch(batch_size);
+    for(std::size_t i = 0; i < batch_size; ++i)
+        output_batch[i] = li::Vector<double>(output_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < output_size; ++j)
-            if(data[i] == j)
-                output_batch(i, j) = 1;
-            else
-                output_batch(i, j) = 0;
+            if(data[i] == j) output_batch[i](j) = 1;
+            else output_batch[i](j) = 0;
 
     return output_batch;
-}
-
-void show_image_batch(const li::Matrix<unsigned char>& data)
-{
-    for(std::size_t i = 0; i < data.size().row(); ++i)
-    {
-        for(std::size_t j = 0; j < data.size().col(); ++j)
-        {
-            if(j % 28 == 0)
-                std::cout << '\n';
-            std::cout << (data(i, j) != 0.0 ? '#' : '.') << ' ';
-        }
-        std::cout << '\n';
-    }
 }
 //>
 
@@ -172,9 +160,9 @@ void test9()
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
 
     //old_softmax: 7.209624 - deprecated
-    //stable_softmax: 6.841548 - for ActFunc like RELU
+    //stable_softmax: 6.841548 - for ActFunc like RELU -> new 6.700982
     //softmax: 6.904061 - for ActFunc within [-a, a]
-    li::Matrix<double> train_in_set
+    Collection<li::Vector<double>> train_in_set
     {
         {1, 0, 1, 1},
         {1, 1, 1, 0},
@@ -183,7 +171,7 @@ void test9()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
-    li::Matrix<double> train_out_set
+    Collection<li::Vector<double>> train_out_set
     {
         {1, 0, 0},
         {0, 1, 0},
@@ -221,12 +209,12 @@ void test13()
     std::size_t out_size = 10;
 
 //  Train batch initialize:
-    li::Matrix<double> train_in = initialize_i(dataset.training_images, train_batch_size, input_size);
-    li::Matrix<double> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
+    Collection<li::Vector<double>> train_in = initialize_i(dataset.training_images, train_batch_size, input_size);
+    Collection<li::Vector<double>> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
 
 //  Test batch initialize:
-    li::Matrix<double> test_in = initialize_i(dataset.test_images, test_batch_size, input_size);
-    li::Matrix<double> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
+    Collection<li::Vector<double>> test_in = initialize_i(dataset.test_images, test_batch_size, input_size);
+    Collection<li::Vector<double>> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
 
 //  Show image:
    //show_image_batch(train_in);
@@ -277,7 +265,7 @@ void test10()
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
 
 // Train set (in/out)
-    li::Matrix<double> train_in
+    Collection<li::Vector<double>> train_in
     {
         {-2, -1},
         {23, 6},
@@ -285,15 +273,15 @@ void test10()
         {-15, -6}
     };
 
-    li::Matrix<double> train_out
+    Collection<li::Vector<double>> train_out
     {
         {1, 0},
         {0, 1},
         {0, 1},
         {1, 0}
     };
-
-    train_in.modify([] (double x) { return x / 25.0; });
+    for(std::size_t i = 0; i < train_in.size(); ++i)
+        train_in[i].modify([] (double x) { return x / 25.0; });
 // Full processing
     Timer t;
     network.trainBatch(train_in, train_out, 0.1, 1'000);
@@ -308,10 +296,10 @@ int main()
 {
     srand(static_cast<unsigned>(time(0)));
 
-    std::cout << std::fixed << std::setprecision(9);
+    std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 
-    test9();
+    test13();
 
     return 0;
 }
