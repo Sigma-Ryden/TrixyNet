@@ -20,7 +20,7 @@ public:
     Vector(std::size_t size);
     Vector(const Vector&);
     Vector(Vector&&);
-    Vector(const std::initializer_list<Type>&); // deprecated
+    Vector(const std::initializer_list<Type>&);
 
     Vector& operator= (const Vector&);
     Vector& operator= (Vector&&);

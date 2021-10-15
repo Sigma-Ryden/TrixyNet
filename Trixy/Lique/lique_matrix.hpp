@@ -2,7 +2,6 @@
 #define LIQUE_MATRIX_HPP
 
 #include <cstddef> // size_t
-#include <initializer_list> // initializer_list
 
 namespace lique
 {
@@ -24,7 +23,6 @@ public:
     Matrix(const Shape& shape);
     Matrix(const Matrix&);
     Matrix(Matrix&&);
-    Matrix(const std::initializer_list<std::initializer_list<Type>>&); // deprecated
 
     Matrix& operator= (const Matrix&);
     Matrix& operator= (Matrix&&);
@@ -113,26 +111,6 @@ template <typename Type>
 Matrix<Type>::Matrix(Matrix&& matrix) : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
-}
-
-template <typename Type>
-Matrix<Type>::Matrix(const std::initializer_list<std::initializer_list<Type>>& list)
-    : data_(new Type* [list.size()]), shape_(list.size(), list.begin()->size())
-{
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
-
-    std::size_t i = 0;
-    for(const auto& row: list)
-    {
-        std::size_t j = 0;
-        for(const auto& col: row)
-        {
-            data_[i][j] = col;
-            ++j;
-        }
-        ++i;
-    }
 }
 
 template <typename Type>
