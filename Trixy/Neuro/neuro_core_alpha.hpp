@@ -99,7 +99,8 @@ public:
     void trainMiniBatch(
         const Collection<Vector<double, Args...>>& idata,
         const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_size, std::size_t mini_batch_size);
+        double learn_rate, std::size_t epoch_size,
+        std::size_t mini_batch_size);
 
     double normalAccuracy(
         const Collection<Vector<double, Args...>>& idata,

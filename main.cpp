@@ -157,7 +157,7 @@ void test9()
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CCE"));
 
     //old_softmax: 7.209624 - deprecated
     //stable_softmax: 6.841548 - for ActFunc like RELU -> new 6.700982
@@ -229,7 +229,7 @@ void test13()
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("sigmoid"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("softmax"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CCE"));
 
 //  Train network:
     std::size_t times = 15;
@@ -262,7 +262,7 @@ void test10()
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CE"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CCE"));
 
 // Train set (in/out)
     Collection<li::Vector<double>> train_in
@@ -299,7 +299,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 
-    test13();
+    test9();
 
     return 0;
 }
