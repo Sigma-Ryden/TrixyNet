@@ -156,7 +156,7 @@ void test9()
     network.initializeInnerStruct(random_real);
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("softmax"));
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CCE"));
 
     //old_softmax: 7.209624 - deprecated
@@ -192,8 +192,8 @@ void test9()
     std::cout << "After train\n";
     testNeuro(network, train_in_set, train_out_set);
     std::cout << "Normal accuracy: " << network.normalAccuracy(train_in_set, train_out_set) << '\n';
-    std::cout << "Global accuracy: " << network.globalAccuracy(train_in_set, train_out_set, 0.15) << '\n';
-    std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.15) << '\n';
+    std::cout << "Global accuracy: " << network.globalAccuracy(train_in_set, train_out_set, 0.05) << '\n';
+    std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
 
@@ -261,7 +261,7 @@ void test10()
     network.initializeInnerStruct(random_real);
 
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector>("relu"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("stable_softmax"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector>("softmax"));
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector>("CCE"));
 
 // Train set (in/out)

@@ -19,33 +19,35 @@ public:
         Vector<double, Args...> (*f)(const Vector<double, Args...>&);
         Vector<double, Args...> (*df)(const Vector<double, Args...>&);
 
-    Activation(
-        Vector<double, Args...> (*function)(const Vector<double, Args...>&) = nullptr,
-        Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&) = nullptr)
-        : f(function), df(function_derived) {}
+    Activation(Vector<double, Args...> (*function)(const Vector<double, Args...>&) = nullptr,
+               Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&) = nullptr)
+    : f(function), df(function_derived) {}
 };
 
 template <template <typename T, typename...> class Vector, typename... Args>
 class Loss
 {
 public:
-    double (*f)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&);
-    Vector<double, Args...> (*df)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&);
+    double (*f)(const Vector<double, Args...>&,
+                const Vector<double, Args...>&);
 
-    Loss(
-        double (*function)(
-            const Vector<double, Args...>&, const Vector<double, Args...>&) = nullptr,
-        Vector<double, Args...> (*function_derived)(
-            const Vector<double, Args...>&, const Vector<double, Args...>&) = nullptr)
-        : f(function), df(function_derived) {}
+    Vector<double, Args...> (*df)(const Vector<double, Args...>&,
+                                  const Vector<double, Args...>&);
+
+    Loss(double (*function)(const Vector<double, Args...>&,
+                            const Vector<double, Args...>&) = nullptr,
+        Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&,
+                                                    const Vector<double, Args...>&) = nullptr)
+    : f(function), df(function_derived) {}
 };
 
 } // namespace function
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
+template <template <typename T, typename...> class Matrix,
+          template <typename T, typename...> class Vector,
+          template <class M, class V> class Linear,
+          template <typename...> class Collection,
+          typename... Args>
 class Neuro
 {
 private:
@@ -152,12 +154,11 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
     double (*generator_weigth)(), double (*generator_bias)())
 {
     for(std::size_t i = 0; i < N; ++i)
+    {
         W[i].fill(generator_weigth);
-
-    for(std::size_t i = 0; i < N; ++i)
         B[i].fill(generator_bias);
+    }
 }
-
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
     template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
