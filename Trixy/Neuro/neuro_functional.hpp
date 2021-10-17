@@ -674,7 +674,7 @@ FunctionData<Vector, Args...> get(const char* activation_function_name)
 
     for(std::size_t i = 0; i < activation_data.size(); ++i)
         if(activation_function_name == activation_data[i].name)
-            return FunctionData(activation_data[i].f, activation_data[i].df);
+            return FunctionData<Vector, Args...>(activation_data[i].f, activation_data[i].df);
 
     return FunctionData<Vector, Args...>();
 }
@@ -708,7 +708,7 @@ FunctionData<Vector, Args...> get(const char* loss_function_name)
 
     for(std::size_t i = 0; i < loss_data.size(); ++i)
         if(loss_function_name == loss_data[i].name)
-            return FunctionData(loss_data[i].f, loss_data[i].df);
+            return FunctionData<Vector, Args...>(loss_data[i].f, loss_data[i].df);
 
     return FunctionData<Vector, Args...>();
 }
