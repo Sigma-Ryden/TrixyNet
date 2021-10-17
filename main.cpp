@@ -184,9 +184,10 @@ void test9()
     std::cout << "Before train\n";
     testNeuro(network, train_in_set, train_out_set);
     Timer t;
+    network.trainStochastic(train_in_set, train_out_set, 0.1, 100'000);
     network.trainBatch(train_in_set, train_out_set, 0.15, 100'000);
     network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100'000, 2);
-    network.trainStochastic(train_in_set, train_out_set, 0.1, 100'000);
+
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";

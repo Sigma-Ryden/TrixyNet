@@ -93,15 +93,15 @@ public:
     void trainStochastic(
         const Collection<Vector<double, Args...>>& idata,
         const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_size);
+        double learn_rate, std::size_t epoch_scale);
     void trainBatch(
         const Collection<Vector<double, Args...>>& idata,
         const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_size);
+        double learn_rate, std::size_t epoch_scale);
     void trainMiniBatch(
         const Collection<Vector<double, Args...>>& idata,
         const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_size,
+        double learn_rate, std::size_t epoch_scale,
         std::size_t mini_batch_size);
 
     double normalAccuracy(
@@ -257,7 +257,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
     const Collection<Vector<double, Args...>>& idata,
     const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_size)
+    double learn_rate, std::size_t epoch_scale)
 {
     Collection<Vector<double, Args...>> S(N);
     Collection<Vector<double, Args...>> H(N + 1);
@@ -271,7 +271,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
     std::size_t within = idata.size();
     std::size_t sample;
 
-    for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
+    for(std::size_t n = 0; n < epoch_scale; ++n)
     {
         sample = rand() % within;
 
@@ -287,7 +287,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
         for(std::size_t i = N - 1; i > 0; --i)
         {
             DB[i] = DH[i].multiply(theta);
-            theta = li.dot(DB[i], W[i], 1);
+            theta = li.dot(DB[i], W[i], true);
         }
         DB[0] = DH[0].multiply(theta);
 
@@ -307,7 +307,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
     const Collection<Vector<double, Args...>>& idata,
     const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_size)
+    double learn_rate, std::size_t epoch_scale)
 {
     Collection<Vector<double, Args...>> S(N);
     Collection<Vector<double, Args...>> H(N + 1);
@@ -329,7 +329,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
 
     learn_rate /= idata.size();
 
-    for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
+    for(std::size_t n = 0; n < epoch_scale; ++n)
     {
         for(std::size_t i = 0; i < N; ++i)
         {
@@ -351,12 +351,11 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
             for(std::size_t i = N - 1; i > 0; --i)
             {
                 DB[i] = DH[i].multiply(theta);
-                theta = li.dot(DB[i], W[i], 1);
+                DW[i] = li.tensordot(DB[i], H[i]);
+                theta = li.dot(DB[i], W[i], true);
             }
             DB[0] = DH[0].multiply(theta);
-
-            for(std::size_t i = 0; i < N; ++i)
-                DW[i] = li.tensordot(DB[i], H[i]);
+            DW[0] = li.tensordot(DB[0], H[0]);
 
             for(std::size_t i = 0; i < N; ++i)
             {
@@ -378,7 +377,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
 void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
     const Collection<Vector<double, Args...>>& idata,
     const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_size,
+    double learn_rate, std::size_t epoch_scale,
     std::size_t mini_batch_size)
 {
     Collection<Vector<double, Args...>> S(N);
@@ -405,7 +404,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
 
     learn_rate /= mini_batch_size;
 
-    for(std::size_t epoch = 0; epoch < epoch_size; ++epoch)
+    for(std::size_t n = 0; n < epoch_scale; ++n)
     {
         sample_part  = rand() % (idata.size() / mini_batch_size);
         sample_begin = sample_part * mini_batch_size;
@@ -431,12 +430,11 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
             for(std::size_t i = N - 1; i > 0; --i)
             {
                 DB[i] = DH[i].multiply(theta);
-                theta = li.dot(DB[i], W[i], 1);
+                DW[i] = li.tensordot(DB[i], H[i]);
+                theta = li.dot(DB[i], W[i], true);
             }
             DB[0] = DH[0].multiply(theta);
-
-            for(std::size_t i = 0; i < N; ++i)
-                DW[i] = li.tensordot(DB[i], H[i]);
+            DW[0] = li.tensordot(DB[0], H[0]);
 
             for(std::size_t i = 0; i < N; ++i)
             {

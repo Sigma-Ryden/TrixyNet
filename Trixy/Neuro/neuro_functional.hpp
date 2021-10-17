@@ -4,7 +4,8 @@
 #include <cstddef> // size_t
 #include <cmath> // pow, exp, log, fabs, tanh, cosh
 #include <type_traits> // enable_if, is_same
-#include <vector> // vector
+#include <map> // map
+#include <utility> // declval
 
 namespace trixy
 {
@@ -15,320 +16,7 @@ namespace set
 namespace activation
 {
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> relu(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? vector(i)
-                        : 0.0;
-
-    return new_vector;
-}
-template <template <typename T, typename...> class Vector, typename... Args>
-
-Vector<double, Args...> relu_derived(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? 1.0
-                        : 0.0;
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> elu(const Vector<double, Args...>& vector)
-{
-    static const double alpha = 0.2;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? vector(i)
-                        : alpha * (std::exp(vector(i)) - 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> elu_derived(const Vector<double, Args...>& vector)
-{
-    static const double alpha = 0.2;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? 1.0
-                        : alpha * std::exp(vector(i));
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> lrelu(const Vector<double, Args...>& vector)
-{
-    static const double alpha = 0.01;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? vector(i)
-                        : alpha * vector(i);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> lrelu_derived(const Vector<double, Args...>& vector)
-{
-    static const double alpha = 0.01;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? 1.0
-                        : alpha;
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> selu(const Vector<double, Args...>& vector)
-{
-    static const double lambda = 1.050701;
-    static const double beta   = 1.758099;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? lambda * vector(i)
-                        : beta * (std::exp(vector(i)) - 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> selu_derived(const Vector<double, Args...>& vector)
-{
-    static const double lambda = 1.050701;
-    static const double beta   = 1.758099;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) > 0.0
-                        ? lambda
-                        : beta * std::exp(vector(i));
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> gelu(const Vector<double, Args...>& vector)
-{
-    static const double a = 0.797885;
-    static const double b = 0.0356774;
-
-    static double x;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-    {
-        x = vector(i);
-        new_vector(i) = 0.5 * x * (1.0 + std::tanh(x * a + x * x * x * b));
-    }
-    return new_vector;
-}
-//
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> gelu_derived(const Vector<double, Args...>& vector)
-{
-    static const double a = 0.797885;
-    static const double b = 0.0356774;
-    static const double c = 0.0535161;
-    static const double d = 0.398942;
-
-    static double x;
-    static double x3;
-    static double y;
-    static double sch;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-    {
-        x = vector(i);
-        x3 = x * x * x;
-        y = a * x3 + b * x;
-        sch = 1.0 / std::cosh(y);
-
-        new_vector(i) = 0.5 * std::tanh(y) + (c * x3 + d * x) * sch * sch + 0.5;
-    }
-    return new_vector;
-}
-
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> sigmoid(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 / (std::exp(-vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> sigmoid_derived(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 0.5 / (std::cosh(vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> tanh(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::tanh(vector(i));
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> tanh_derived(const Vector<double, Args...>& vector)
-{
-    static double sch;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-    {
-        sch = 1.0 / std::cosh(vector(i));
-        new_vector(i) = sch * sch;
-    }
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softsign(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) / (std::fabs(vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softsign_derived(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 / std::pow(std::fabs(vector(i)) + 1.0, 2);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softplus(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::log(std::exp(vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softplus_derived(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = 1.0 / (std::exp(-vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> swish(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = vector(i) / (std::exp(-vector(i)) + 1.0);
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> swish_derived(const Vector<double, Args...>& vector)
-{
-    static double x;
-    static double y;
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-    {
-        x = std::exp(-vector(i));
-        y = x + 1;
-        new_vector(i) = (x * vector(i) + y) / ( y * y);
-    }
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> unstable_softmax(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::exp(vector(i));
-
-    double denominator = 0.0;
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        denominator += new_vector(i);
-
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) /= denominator;
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softmax(const Vector<double, Args...>& vector)
-{
-    static double max;
-    static double denominator;
-
-    max = vector(0);
-    for(std::size_t i = 1; i < vector.size(); ++i)
-        if(max < vector(i)) max = vector(i);
-
-    Vector<double, Args...> new_vector(vector.size());
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::exp(vector(i) - max);
-
-    denominator = 0.0;
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        denominator += new_vector(i);
-
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) /= denominator;
-
-    return new_vector;
-}
-
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> vector_of_units(const Vector<double, Args...>& vector)
-{
-    Vector<double, Args...> unit_vector(vector.size());
-    return unit_vector.fill(1.0);
-}
-
-namespace single
+namespace detail
 {
 
 double relu(double x)
@@ -377,14 +65,38 @@ double selu_derived(double x)
     return x > 0.0 ? lambda : beta * std::exp(x);
 }
 
+double gelu(double x)
+{
+    static const double a = 0.797885;
+    static const double b = 0.0356774;
+
+    return 0.5 * x * (std::tanh(x * a + x * x * x * b) + 1.0);
+}
+double gelu_derived(double x)
+{
+    static const double a = 0.797885;
+    static const double b = 0.0356774;
+    static const double c = 0.0535161;
+    static const double d = 0.398942;
+
+    static double x3;
+    static double y;
+    static double sch;
+
+    x3 = x * x * x;
+    y = a * x3 + b * x;
+    sch = 1.0 / std::cosh(y);
+
+    return 0.5 * std::tanh(y) + (c * x3 + d * x) * sch * sch + 0.5;
+}
+
 double sigmoid(double x)
 {
     return 1.0 / (std::exp(-x) + 1.0);
 }
 double sigmoid_derived(double x)
 {
-    const double f = 1.0 / (std::exp(-x) + 1.0);
-    return f * (1.0 - f);
+    return 0.5 / (std::cosh(x) + 1.0);
 }
 
 double tanh(double x)
@@ -393,17 +105,22 @@ double tanh(double x)
 }
 double tanh_derived(double x)
 {
-    const double f = std::tanh(x);
-    return 1.0 - f * f;
+    static double sech;
+    sech = 1.0 / std::cosh(x);
+
+    return sech * sech;
 }
 
 double softsign(double x)
 {
-    return x / (std::fabs(x) + 1);
+    return x / (std::fabs(x) + 1.0);
 }
 double softsign_derived(double x)
 {
-     return 1.0 / std::pow(std::fabs(x) + 1.0, 2);
+    static double f;
+    f = 1.0 / (std::fabs(x) + 1.0);
+
+    return f * f;
 }
 
 double softplus(double x)
@@ -421,10 +138,176 @@ double swish(double x)
 }
 double swish_derived(double x)
 {
-    return 0.5 * x / (std::cosh(x) + 1.0) + 1.0 / (std::exp(-x) + 1.0);
+    static double a;
+    static double b;
+
+    a = std::exp(-x);
+    b = a + 1;
+
+    return (a * x + b) / (b * b);
 }
 
-} // namespace single
+} // namespace detail
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> relu(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::relu);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> relu_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::relu_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> elu(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::elu);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> elu_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::elu_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> lrelu(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::lrelu);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> lrelu_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::lrelu_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> selu(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::selu);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> selu_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::selu_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> gelu(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::gelu);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> gelu_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::gelu_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> sigmoid(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::sigmoid);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> sigmoid_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::sigmoid_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> tanh(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::tanh);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> tanh_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::tanh_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> softsign(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::softsign);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> softsign_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::softsign_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> softplus(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::softplus);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> softplus_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::softplus_derived);
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> swish(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::swish);
+}
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> swish_derived(const Tensor<double, Args...>& tensor)
+{
+    return tensor.apply(detail::swish_derived);
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> unstable_softmax(const Vector<double, Args...>& vector)
+{
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = std::exp(vector(i));
+
+    double denominator = 0.0;
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        denominator += new_vector(i);
+
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) /= denominator;
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Vector, typename... Args>
+Vector<double, Args...> softmax(const Vector<double, Args...>& vector)
+{
+    static double max;
+    static double denominator;
+
+    max = vector(0);
+    for(std::size_t i = 1; i < vector.size(); ++i)
+        if(max < vector(i)) max = vector(i);
+
+    Vector<double, Args...> new_vector(vector.size());
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) = std::exp(vector(i) - max);
+
+    denominator = 0.0;
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        denominator += new_vector(i);
+
+    for(std::size_t i = 0; i < vector.size(); ++i)
+        new_vector(i) /= denominator;
+
+    return new_vector;
+}
+
+template <template <typename T, typename...> class Tensor, typename... Args>
+Tensor<double, Args...> tensor_of_units(const Tensor<double, Args...>& tensor)
+{
+    Tensor<double, Args...> new_tensor(tensor.size());
+    new_tensor.fill(1.0);
+
+    return new_tensor;
+}
 
 } // namespace activation
 
@@ -618,22 +501,20 @@ Vector<double, Args...> logcosh_derived(
 namespace data
 {
 
-template <template <typename T, typename...> class Vector, typename... Args>
+template <template <typename T, typename...> class Tensor, typename... Args>
 struct ActivationData
 {
-    const char* name;
-    Vector<double, Args...> (*f)(const Vector<double, Args...>&);
-    Vector<double, Args...> (*df)(const Vector<double, Args...>&);
+    Tensor<double, Args...> (*f)(const Tensor<double, Args...>&);
+    Tensor<double, Args...> (*df)(const Tensor<double, Args...>&);
 };
 
-template <template <typename T, typename...> class Vector, typename... Args>
+template <template <typename T, typename...> class Tensor, typename... Args>
 struct LossData
 {
-    const char* name;
     double (*f)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&);
-    Vector<double, Args...> (*df)(
-        const Vector<double, Args...>&, const Vector<double, Args...>&);
+        const Tensor<double, Args...>&, const Tensor<double, Args...>&);
+    Tensor<double, Args...> (*df)(
+        const Tensor<double, Args...>&, const Tensor<double, Args...>&);
 };
 
 } // namespace data
@@ -642,75 +523,75 @@ struct LossData
 
 template <template <template <typename T, typename...> class V, typename...>
                     class FunctionData,
-          template <typename U, typename...> class Vector,
+          template <typename U, typename...> class Tensor,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().f),
-                                Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().df),
-                                Vector<double, Args...> (*)(const Vector<double, Args...>&)>::value,
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().f),
+                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&)>::value &&
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().df),
+                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&)>::value,
                    int>::type = 0>
-FunctionData<Vector, Args...> get(const char* activation_function_name)
+FunctionData<Tensor, Args...> get(const char* activation_function_name)
 {
     using namespace set::activation;
     using namespace set::data;
 
-    static std::vector<ActivationData<Vector, Args...>> activation_data =
-    {
-        { "sigmoid",          sigmoid,          sigmoid_derived  },
-        { "sigmoid_bce",      sigmoid,          vector_of_units  },
-        { "tanh",             tanh,             tanh_derived     },
-        { "relu",             relu,             relu_derived     },
-        { "elu",              elu,              elu_derived      },
-        { "leaky_relu",       lrelu,            lrelu_derived    },
-        { "selu",             selu,             selu_derived     },
-        { "gelu",             gelu,             gelu_derived     },
-        { "softsign",         softsign,         softsign_derived },
-        { "softplus",         softplus,         softplus_derived },
-        { "swish",            swish,            swish_derived    },
-        { "unstable_softmax", unstable_softmax, vector_of_units  },
-        { "softmax",          softmax,          vector_of_units  }
-    };
+    static std::map<const char*, ActivationData<Tensor, Args...>> activation_data;
 
-    for(std::size_t i = 0; i < activation_data.size(); ++i)
-        if(activation_function_name == activation_data[i].name)
-            return FunctionData<Vector, Args...>(activation_data[i].f, activation_data[i].df);
+    activation_data["sigmoid"]          = { sigmoid,          sigmoid_derived  };
+    activation_data["sigmoid_bce"]      = { sigmoid,          tensor_of_units  };
+    activation_data["tanh"]             = { tanh,             tanh_derived     };
+    activation_data["relu"]             = { relu,             relu_derived     };
+    activation_data["elu"]              = { elu,              elu_derived      };
+    activation_data["leaky_relu"]       = { lrelu,            lrelu_derived    };
+    activation_data["selu"]             = { selu,             selu_derived     };
+    activation_data["gelu"]             = { gelu,             gelu_derived     };
+    activation_data["softsign"]         = { softsign,         softsign_derived };
+    activation_data["softplus"]         = { softplus,         softplus_derived };
+    activation_data["swish"]            = { swish,            swish_derived    };
+    activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units  };
+    activation_data["softmax"]          = { softmax,          tensor_of_units  };
 
-    return FunctionData<Vector, Args...>();
+    auto i = activation_data.find(activation_function_name);
+
+    if(i != activation_data.end())
+        return FunctionData<Tensor, Args...>(i->second.f, i->second.df);
+
+    return FunctionData<Tensor, Args...>();
 }
 
 template <template <template <typename T, typename...> class V, typename...>
                     class FunctionData,
-          template <typename U, typename...> class Vector,
+          template <typename U, typename...> class Tensor,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().f),
-                                double (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval< FunctionData<Vector, Args...> >().df),
-                                Vector<double, Args...> (*)(const Vector<double, Args...>&, const Vector<double, Args...>&)>::value,
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().f),
+                                double (*)(const Tensor<double, Args...>&, const Tensor<double, Args...>&)>::value &&
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().df),
+                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&, const Tensor<double, Args...>&)>::value,
                    int>::type = 0>
-FunctionData<Vector, Args...> get(const char* loss_function_name)
+FunctionData<Tensor, Args...> get(const char* loss_function_name)
 {
     using namespace set::loss;
     using namespace set::data;
 
-    static std::vector<LossData<Vector, Args...>> loss_data =
-    {
-        { "MSE",  mean_squared_error,             mean_squared_error_derived                },
-        { "MAE",  mean_absolute_error,            mean_absolute_error_derived               },
-        { "MSLE", mean_squared_logarithmic_error, mean_squared_logarithmic_error_derived    },
-        { "*CCE", categorical_cross_entropy,      categorical_cross_entropy_derived         },
-        { "CCE",  categorical_cross_entropy,      categorical_cross_entropy_derived_softmax },
-        { "*BCE", binary_cross_entropy,           binary_cross_entropy_derived              },
-        { "BCE",  binary_cross_entropy,           binary_cross_entropy_derived_sigmoid      },
-        { "LC",   logcosh,                        logcosh_derived                           }
-    };
+    static std::map<const char*, LossData<Tensor, Args...>> loss_data;
 
-    for(std::size_t i = 0; i < loss_data.size(); ++i)
-        if(loss_function_name == loss_data[i].name)
-            return FunctionData<Vector, Args...>(loss_data[i].f, loss_data[i].df);
+    loss_data["MSE"]  = { mean_squared_error,             mean_squared_error_derived                };
+    loss_data["MAE"]  = { mean_absolute_error,            mean_absolute_error_derived               };
+    loss_data["MSLE"] = { mean_squared_logarithmic_error, mean_squared_logarithmic_error_derived    };
+    loss_data["*CCE"] = { categorical_cross_entropy,      categorical_cross_entropy_derived         };
+    loss_data["CCE"]  = { categorical_cross_entropy,      categorical_cross_entropy_derived_softmax };
+    loss_data["*BCE"] = { binary_cross_entropy,           binary_cross_entropy_derived              };
+    loss_data["BCE"]  = { binary_cross_entropy,           binary_cross_entropy_derived_sigmoid      };
+    loss_data["LC"]   = { logcosh,                        logcosh_derived                           };
 
-    return FunctionData<Vector, Args...>();
+    auto i = loss_data.find(loss_function_name);
+
+    if(i != loss_data.end())
+        return FunctionData<Tensor, Args...>(i->second.f, i->second.df);
+
+    return FunctionData<Tensor, Args...>();
 }
 
 } // namespace trixy
