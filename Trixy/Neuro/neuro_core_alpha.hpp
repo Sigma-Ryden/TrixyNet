@@ -12,32 +12,31 @@ namespace trixy
 namespace function
 {
 
-template <template <typename T, typename...> class Vector, typename... Args>
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
 class Activation
 {
 public:
-        Vector<double, Args...> (*f)(const Vector<double, Args...>&);
-        Vector<double, Args...> (*df)(const Vector<double, Args...>&);
+    Vector<Precision, Args...> (*f)(const Vector<Precision, Args...>&);
+    Vector<Precision, Args...> (*df)(const Vector<Precision, Args...>&);
 
-    Activation(Vector<double, Args...> (*function)(const Vector<double, Args...>&) = nullptr,
-               Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&) = nullptr)
+    Activation(Vector<Precision, Args...> (*function)(const Vector<Precision, Args...>&) = nullptr,
+               Vector<Precision, Args...> (*function_derived)(const Vector<Precision, Args...>&) = nullptr)
     : f(function), df(function_derived) {}
 };
 
-template <template <typename T, typename...> class Vector, typename... Args>
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
 class Loss
 {
 public:
-    double (*f)(const Vector<double, Args...>&,
-                const Vector<double, Args...>&);
+    Precision (*f)(const Vector<Precision, Args...>&,
+              const Vector<Precision, Args...>&);
+    Vector<Precision, Args...> (*df)(const Vector<Precision, Args...>&,
+                                     const Vector<Precision, Args...>&);
 
-    Vector<double, Args...> (*df)(const Vector<double, Args...>&,
-                                  const Vector<double, Args...>&);
-
-    Loss(double (*function)(const Vector<double, Args...>&,
-                            const Vector<double, Args...>&) = nullptr,
-        Vector<double, Args...> (*function_derived)(const Vector<double, Args...>&,
-                                                    const Vector<double, Args...>&) = nullptr)
+    Loss(Precision (*function)(const Vector<Precision, Args...>&,
+                            const Vector<Precision, Args...>&) = nullptr,
+        Vector<Precision, Args...> (*function_derived)(const Vector<Precision, Args...>&,
+                                                       const Vector<Precision, Args...>&) = nullptr)
     : f(function), df(function_derived) {}
 };
 
@@ -47,19 +46,19 @@ template <template <typename T, typename...> class Matrix,
           template <typename T, typename...> class Vector,
           template <class M, class V> class Linear,
           template <typename...> class Collection,
-          typename... Args>
+          typename Precision, typename... Args>
 class Neuro
 {
 private:
-    Collection<Matrix<double, Args...>> W;
-    Collection<Vector<double, Args...>> B;
+    Collection<Matrix<Precision, Args...>> W;
+    Collection<Vector<Precision, Args...>> B;
 
-    Collection<function::Activation<Vector, Args...>> A;
-    function::Loss<Vector, Args...> E;
+    Collection<function::Activation<Vector, Precision, Args...>> A;
+    function::Loss<Vector, Precision, Args...> E;
 
     std::size_t N;
 
-    Linear<Matrix<double, Args...>, Vector<double, Args...>> li;
+    Linear<Matrix<Precision, Args...>, Vector<Precision, Args...>> li;
 
 public:
     Neuro(const std::initializer_list<std::size_t>& topology);
@@ -68,78 +67,78 @@ public:
     Neuro& operator= (const Neuro&) = default;
     Neuro& operator= (Neuro&&) = default;
 
-    void initializeInnerStruct(double (*generator)());
-    void initializeInnerStruct(double (*generator_weight)(), double (*generator_bias)());
+    void initializeInnerStruct(Precision (*generator)());
+    void initializeInnerStruct(Precision (*generator_weight)(), Precision (*generator_bias)());
 
     void setActivationFunction(
-        const function::Activation<Vector, Args...>& activation_function);
+        const function::Activation<Vector, Precision, Args...>& activation_function);
     void setNormalizationFunction(
-        const function::Activation<Vector, Args...>& normalization_function);
+        const function::Activation<Vector, Precision, Args...>& normalization_function);
     void setLossFunction(
-        const function::Loss<Vector, Args...>& loss_function);
+        const function::Loss<Vector, Precision, Args...>& loss_function);
 
     void setEachActivationFunction(
-        const Collection<function::Activation<Vector, Args...>>& activation_set);
+        const Collection<function::Activation<Vector, Precision, Args...>>& activation_set);
 
-    const Collection<Matrix<double, Args...>>& getInnerWeight() const;
-    const Collection<Vector<double, Args...>>& getInnerBias() const;
+    const Collection<Matrix<Precision, Args...>>& getInnerWeight() const;
+    const Collection<Vector<Precision, Args...>>& getInnerBias() const;
 
-    const Collection<function::Activation<Vector, Args...>>& getEachActivationFunction() const;
-    const function::Loss<Vector, Args...>& getLossFunction() const;
+    const Collection<function::Activation<Vector, Precision, Args...>>& getEachActivationFunction() const;
+    const function::Loss<Vector, Precision, Args...>& getLossFunction() const;
 
-    Vector<double, Args...> feedforward(const Vector<double, Args...>&) const;
-    Collection<Vector<double, Args...>> feedforward(const Collection<Vector<double, Args...>>&) const;
+    Vector<Precision, Args...> feedforward(const Vector<Precision, Args...>&) const;
+    Collection<Vector<Precision, Args...>> feedforward(const Collection<Vector<Precision, Args...>>&) const;
 
     void trainStochastic(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_scale);
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata,
+        Precision learn_rate, std::size_t epoch_scale);
     void trainBatch(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_scale);
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata,
+        Precision learn_rate, std::size_t epoch_scale);
     void trainMiniBatch(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata,
-        double learn_rate, std::size_t epoch_scale,
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata,
+        Precision learn_rate, std::size_t epoch_scale,
         std::size_t mini_batch_size);
 
     double normalAccuracy(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata) const;
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata) const;
     double globalAccuracy(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata,
-        double range_rate) const;
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata,
+        Precision range_rate) const;
     double fullAccuracy(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata,
-        double range_rate) const;
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata,
+        Precision range_rate) const;
 
     double loss(
-        const Collection<Vector<double, Args...>>& idata,
-        const Collection<Vector<double, Args...>>& odata) const;
+        const Collection<Vector<Precision, Args...>>& idata,
+        const Collection<Vector<Precision, Args...>>& odata) const;
 };
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-Neuro<Matrix, Vector, Linear, Collection, Args...>::Neuro(
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::Neuro(
     const std::initializer_list<std::size_t>& topology)
         : W(topology.size() - 1), B(topology.size() - 1), A(topology.size() - 1), E(), N(topology.size() - 1), li()
 {
     auto layer = topology.begin() + 1;
     for(std::size_t i = 0; i < N; ++i)
     {
-        W[i] = Matrix<double, Args...>(*(layer - 1), *layer);
-        B[i] = Vector<double, Args...>(*layer);
+        W[i] = Matrix<Precision, Args...>(*(layer - 1), *layer);
+        B[i] = Vector<Precision, Args...>(*layer);
         ++layer;
     }
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
-    double (*generator)())
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeInnerStruct(
+    Precision (*generator)())
 {
     for(std::size_t i = 0; i < N; ++i)
     {
@@ -149,9 +148,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
-    double (*generator_weigth)(), double (*generator_bias)())
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeInnerStruct(
+    Precision (*generator_weigth)(), Precision (*generator_bias)())
 {
     for(std::size_t i = 0; i < N; ++i)
     {
@@ -161,77 +160,77 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::initializeInnerStruct(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setActivationFunction(
-    const function::Activation<Vector, Args...>& activation_function)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setActivationFunction(
+    const function::Activation<Vector, Precision, Args...>& activation_function)
 {
     for(std::size_t i = 0; i < N - 1; ++i)
         A[i] = activation_function;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setNormalizationFunction(
-    const function::Activation<Vector, Args...>& normalization_function)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setNormalizationFunction(
+    const function::Activation<Vector,Precision, Args...>& normalization_function)
 {
     A[N - 1] = normalization_function;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setLossFunction(
-    const function::Loss<Vector, Args...>& loss_function)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setLossFunction(
+    const function::Loss<Vector, Precision, Args...>& loss_function)
 {
     E = loss_function;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::setEachActivationFunction(
-    const Collection<function::Activation<Vector, Args...>>& activation_set)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setEachActivationFunction(
+    const Collection<function::Activation<Vector, Precision, Args...>>& activation_set)
 {
     for(std::size_t i = 0; i < activation_set.size(); ++i)
         A[i] = activation_set[i];
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-const Collection<Matrix<double, Args...>>&
-    Neuro<Matrix, Vector, Linear, Collection, Args...>::getInnerWeight() const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+const Collection<Matrix<Precision, Args...>>&
+    Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerWeight() const
 {
     return W;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-const Collection<Vector<double, Args...>>&
-    Neuro<Matrix, Vector, Linear, Collection, Args...>::getInnerBias() const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+const Collection<Vector<Precision, Args...>>&
+    Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerBias() const
 {
     return B;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-const Collection<function::Activation<Vector, Args...>>&
-    Neuro<Matrix, Vector, Linear, Collection, Args...>::getEachActivationFunction() const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+const Collection<function::Activation<Vector,Precision, Args...>>&
+    Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getEachActivationFunction() const
 {
     return A;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-const function::Loss<Vector, Args...>&
-    Neuro<Matrix, Vector, Linear, Collection, Args...>::getLossFunction() const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+const function::Loss<Vector, Precision, Args...>&
+    Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getLossFunction() const
 {
     return E;
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-Vector<double, Args...> Neuro<Matrix, Vector, Linear, Collection, Args...>::feedforward(
-    const Vector<double, Args...>& vector) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+Vector<Precision, Args...> Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::feedforward(
+    const Vector<Precision, Args...>& vector) const
 {
-    Vector<double, Args...> y_pred = vector;
+    Vector<Precision, Args...> y_pred = vector;
 
     for(std::size_t i = 0; i < N; ++i)
         y_pred = A[i].f(li.dot(y_pred, W[i]) + B[i]);
@@ -240,11 +239,11 @@ Vector<double, Args...> Neuro<Matrix, Vector, Linear, Collection, Args...>::feed
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-Collection<Vector<double, Args...>> Neuro<Matrix, Vector, Linear, Collection, Args...>::feedforward(
-    const Collection<Vector<double, Args...>>& idata) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+Collection<Vector<Precision, Args...>> Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::feedforward(
+    const Collection<Vector<Precision, Args...>>& idata) const
 {
-    Collection<Vector<double, Args...>> y_pred(idata.size());
+    Collection<Vector<Precision, Args...>> y_pred(idata.size());
 
     for(std::size_t i = 0; i < idata.size(); ++i)
         y_pred[i] = feedforward(idata[i]);
@@ -253,20 +252,20 @@ Collection<Vector<double, Args...>> Neuro<Matrix, Vector, Linear, Collection, Ar
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_scale)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainStochastic(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision learn_rate, std::size_t epoch_scale)
 {
-    Collection<Vector<double, Args...>> S(N);
-    Collection<Vector<double, Args...>> H(N + 1);
+    Collection<Vector<Precision, Args...>> S(N);
+    Collection<Vector<Precision, Args...>> H(N + 1);
 
-    Collection<Vector<double, Args...>> DH(N);
-    Collection<Matrix<double, Args...>> DW(N);
-    Collection<Vector<double, Args...>> DB(N);
+    Collection<Vector<Precision, Args...>> DH(N);
+    Collection<Matrix<Precision, Args...>> DW(N);
+    Collection<Vector<Precision, Args...>> DB(N);
 
-    Vector<double, Args...> theta;
+    Vector<Precision, Args...> theta;
 
     std::size_t within = idata.size();
     std::size_t sample;
@@ -303,21 +302,21 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainStochastic(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_scale)
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainBatch(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision learn_rate, std::size_t epoch_scale)
 {
-    Collection<Vector<double, Args...>> S(N);
-    Collection<Vector<double, Args...>> H(N + 1);
+    Collection<Vector<Precision, Args...>> S(N);
+    Collection<Vector<Precision, Args...>> H(N + 1);
 
-    Collection<Vector<double, Args...>> DH(N);
-    Collection<Matrix<double, Args...>> DW(N);
-    Collection<Vector<double, Args...>> DB(N);
+    Collection<Vector<Precision, Args...>> DH(N);
+    Collection<Matrix<Precision, Args...>> DW(N);
+    Collection<Vector<Precision, Args...>> DB(N);
 
-    Collection<Matrix<double, Args...>> deltaW(N);
-    Collection<Vector<double, Args...>> deltaB(N);
+    Collection<Matrix<Precision, Args...>> deltaW(N);
+    Collection<Vector<Precision, Args...>> deltaB(N);
 
     for(std::size_t i = 0; i < N; ++i)
     {
@@ -325,7 +324,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
         deltaB[i].resize(B[i].size());
     }
 
-    Vector<double, Args...> theta;
+    Vector<Precision, Args...> theta;
 
     learn_rate /= idata.size();
 
@@ -373,22 +372,22 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainBatch(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata,
-    double learn_rate, std::size_t epoch_scale,
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainMiniBatch(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision learn_rate, std::size_t epoch_scale,
     std::size_t mini_batch_size)
 {
-    Collection<Vector<double, Args...>> S(N);
-    Collection<Vector<double, Args...>> H(N + 1);
+    Collection<Vector<Precision, Args...>> S(N);
+    Collection<Vector<Precision, Args...>> H(N + 1);
 
-    Collection<Vector<double, Args...>> DH(N);
-    Collection<Matrix<double, Args...>> DW(N);
-    Collection<Vector<double, Args...>> DB(N);
+    Collection<Vector<Precision, Args...>> DH(N);
+    Collection<Matrix<Precision, Args...>> DW(N);
+    Collection<Vector<Precision, Args...>> DB(N);
 
-    Collection<Matrix<double, Args...>> deltaW(N);
-    Collection<Vector<double, Args...>> deltaB(N);
+    Collection<Matrix<Precision, Args...>> deltaW(N);
+    Collection<Vector<Precision, Args...>> deltaB(N);
 
     for(std::size_t i = 0; i < N; ++i)
     {
@@ -396,7 +395,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
         deltaB[i].resize(B[i].size());
     }
 
-    Vector<double, Args...> theta;
+    Vector<Precision, Args...> theta;
 
     std::size_t sample_begin;
     std::size_t sample_end;
@@ -454,12 +453,12 @@ void Neuro<Matrix, Vector, Linear, Collection, Args...>::trainMiniBatch(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-double Neuro<Matrix, Vector, Linear, Collection, Args...>::normalAccuracy(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::normalAccuracy(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata) const
 {
-    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
+    const Collection<Vector<Precision, Args...>> pred_out = feedforward(idata);
 
     const std::size_t batch_size = odata.size();
     const std::size_t output_size = odata[0].size();
@@ -490,13 +489,13 @@ double Neuro<Matrix, Vector, Linear, Collection, Args...>::normalAccuracy(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-double Neuro<Matrix, Vector, Linear, Collection, Args...>::globalAccuracy(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata,
-    double range_rate) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::globalAccuracy(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision range_rate) const
 {
-    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
+    const Collection<Vector<Precision, Args...>> pred_out = feedforward(idata);
 
     const std::size_t batch_size = odata.size();
     const std::size_t output_size = odata[0].size();
@@ -512,13 +511,13 @@ double Neuro<Matrix, Vector, Linear, Collection, Args...>::globalAccuracy(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-double Neuro<Matrix, Vector, Linear, Collection, Args...>::fullAccuracy(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata,
-    double range_rate) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::fullAccuracy(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision range_rate) const
 {
-    const Collection<Vector<double, Args...>>& pred_out = feedforward(idata);
+    const Collection<Vector<Precision, Args...>>& pred_out = feedforward(idata);
 
     const std::size_t batch_size = odata.size();
     const std::size_t output_size = odata[0].size();
@@ -543,12 +542,12 @@ double Neuro<Matrix, Vector, Linear, Collection, Args...>::fullAccuracy(
 }
 
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-    template <class M, class V> class Linear, template <typename...> class Collection, typename... Args>
-double Neuro<Matrix, Vector, Linear, Collection, Args...>::loss(
-    const Collection<Vector<double, Args...>>& idata,
-    const Collection<Vector<double, Args...>>& odata) const
+    template <class M, class V> class Linear, template <typename...> class Collection, typename Precision, typename... Args>
+double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::loss(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata) const
 {
-    const Collection<Vector<double, Args...>> pred_out = feedforward(idata);
+    const Collection<Vector<Precision, Args...>> pred_out = feedforward(idata);
     double result = 0.0;
 
     for(std::size_t i = 0; i < odata.size(); ++i)

@@ -19,69 +19,79 @@ namespace activation
 namespace detail
 {
 
-double relu(double x)
+template <typename Precision>
+Precision relu(Precision x)
 {
     return x > 0.0 ? x : 0.0;
 }
-double relu_derived(double x)
+template <typename Precision>
+Precision relu_derived(Precision x)
 {
     return x > 0.0 ? 1.0 : 0.0;
 }
 
-double elu(double x)
+template <typename Precision>
+Precision elu(Precision x)
 {
-    static const double alpha = 0.2;
+    static const Precision alpha = 0.2;
     return x > 0.0 ? x : alpha * (std::exp(x) - 1.0);
 }
-double elu_derived(double x)
+template <typename Precision>
+Precision elu_derived(Precision x)
 {
-    static const double alpha = 0.2;
+    static const Precision alpha = 0.2;
     return x > 0.0 ? 1.0 : alpha * std::exp(x);
 }
 
-double lrelu(double x)
+template <typename Precision>
+Precision lrelu(Precision x)
 {
-    static const double alpha = 0.01;
+    static const Precision alpha = 0.01;
     return x > 0.0 ? x : alpha * x;
 }
-double lrelu_derived(double x)
+template <typename Precision>
+Precision lrelu_derived(Precision x)
 {
-    static const double alpha = 0.01;
+    static const Precision alpha = 0.01;
     return x > 0.0 ? 1.0 : alpha;
 }
 
-double selu(double x)
+template <typename Precision>
+Precision selu(Precision x)
 {
-    static const double lambda = 1.050701;
-    static const double beta   = 1.758099;
+    static const Precision lambda = 1.050701;
+    static const Precision beta   = 1.758099;
 
     return x > 0.0 ? lambda * x : beta * (std::exp(x) - 1.0);
 }
-double selu_derived(double x)
+template <typename Precision>
+Precision selu_derived(Precision x)
 {
-    static const double lambda = 1.050701;
-    static const double beta   = 1.758099;
+    static const Precision lambda = 1.050701;
+    static const Precision beta   = 1.758099;
 
     return x > 0.0 ? lambda : beta * std::exp(x);
 }
 
-double gelu(double x)
+template <typename Precision>
+Precision gelu(Precision x)
 {
-    static const double a = 0.797885;
-    static const double b = 0.0356774;
+    static const Precision a = 0.797885;
+    static const Precision b = 0.0356774;
 
     return 0.5 * x * (std::tanh(x * a + x * x * x * b) + 1.0);
 }
-double gelu_derived(double x)
+template <typename Precision>
+Precision gelu_derived(Precision x)
 {
-    static const double a = 0.797885;
-    static const double b = 0.0356774;
-    static const double c = 0.0535161;
-    static const double d = 0.398942;
+    static const Precision a = 0.797885;
+    static const Precision b = 0.0356774;
+    static const Precision c = 0.0535161;
+    static const Precision d = 0.398942;
 
-    static double x3;
-    static double y;
-    static double sch;
+    static Precision x3;
+    static Precision y;
+    static Precision sch;
 
     x3 = x * x * x;
     y = a * x3 + b * x;
@@ -90,56 +100,66 @@ double gelu_derived(double x)
     return 0.5 * std::tanh(y) + (c * x3 + d * x) * sch * sch + 0.5;
 }
 
-double sigmoid(double x)
+template <typename Precision>
+Precision sigmoid(Precision x)
 {
     return 1.0 / (std::exp(-x) + 1.0);
 }
-double sigmoid_derived(double x)
+template <typename Precision>
+Precision sigmoid_derived(Precision x)
 {
     return 0.5 / (std::cosh(x) + 1.0);
 }
 
-double tanh(double x)
+template <typename Precision>
+Precision tanh(Precision x)
 {
     return std::tanh(x);
 }
-double tanh_derived(double x)
+template <typename Precision>
+Precision tanh_derived(Precision x)
 {
-    static double sech;
+    static Precision sech;
     sech = 1.0 / std::cosh(x);
 
     return sech * sech;
 }
 
-double softsign(double x)
+template <typename Precision>
+Precision softsign(Precision x)
 {
     return x / (std::fabs(x) + 1.0);
 }
-double softsign_derived(double x)
+template <typename Precision>
+Precision softsign_derived(Precision x)
 {
-    static double f;
+    static Precision f;
     f = 1.0 / (std::fabs(x) + 1.0);
 
     return f * f;
 }
 
-double softplus(double x)
+template <typename Precision>
+Precision softplus(Precision x)
 {
     return std::log(std::exp(x) + 1.0);
 }
-double softplus_derived(double x)
+template <typename Precision>
+Precision softplus_derived(Precision x)
 {
     return 1.0 / (std::exp(-x) + 1.0);
 }
 
-double swish(double x)
+template <typename Precision>
+Precision swish(Precision x)
 {
     return x / (std::exp(-x) + 1.0);
 }
-double swish_derived(double x)
+template <typename Precision>
+Precision swish_derived(Precision x)
 {
-    static double a;
-    static double b;
+    static Precision a;
+    static Precision b;
 
     a = std::exp(-x);
     b = a + 1;
@@ -149,124 +169,124 @@ double swish_derived(double x)
 
 } // namespace detail
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> relu(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> relu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::relu);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> relu_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> relu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::relu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> elu(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> elu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::elu);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> elu_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> elu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::elu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> lrelu(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> lrelu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::lrelu);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> lrelu_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> lrelu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::lrelu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> selu(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> selu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::selu);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> selu_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> selu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::selu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> gelu(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> gelu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::gelu);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> gelu_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> gelu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::gelu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> sigmoid(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> sigmoid(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::sigmoid);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> sigmoid_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> sigmoid_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::sigmoid_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> tanh(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> tanh(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::tanh);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> tanh_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> tanh_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::tanh_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> softsign(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> softsign(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softsign);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> softsign_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> softsign_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softsign_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> softplus(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> softplus(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softplus);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> softplus_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> softplus_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softplus_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> swish(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> swish(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::swish);
 }
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> swish_derived(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> swish_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::swish_derived);
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> unstable_softmax(const Vector<double, Args...>& vector)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> unstable_softmax(const Vector<Precision, Args...>& vector)
 {
-    Vector<double, Args...> new_vector(vector.size());
+    Vector<Precision, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
         new_vector(i) = std::exp(vector(i));
 
-    double denominator = 0.0;
+    Precision denominator = 0.0;
     for(std::size_t i = 0; i < vector.size(); ++i)
         denominator += new_vector(i);
 
@@ -276,17 +296,17 @@ Vector<double, Args...> unstable_softmax(const Vector<double, Args...>& vector)
     return new_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> softmax(const Vector<double, Args...>& vector)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> softmax(const Vector<Precision, Args...>& vector)
 {
-    static double max;
-    static double denominator;
+    static Precision max;
+    static Precision denominator;
 
     max = vector(0);
     for(std::size_t i = 1; i < vector.size(); ++i)
         if(max < vector(i)) max = vector(i);
 
-    Vector<double, Args...> new_vector(vector.size());
+    Vector<Precision, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
         new_vector(i) = std::exp(vector(i) - max);
 
@@ -300,10 +320,10 @@ Vector<double, Args...> softmax(const Vector<double, Args...>& vector)
     return new_vector;
 }
 
-template <template <typename T, typename...> class Tensor, typename... Args>
-Tensor<double, Args...> tensor_of_units(const Tensor<double, Args...>& tensor)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> tensor_of_units(const Tensor<Precision, Args...>& tensor)
 {
-    Tensor<double, Args...> new_tensor(tensor.size());
+    Tensor<Precision, Args...> new_tensor(tensor.size());
     new_tensor.fill(1.0);
 
     return new_tensor;
@@ -314,12 +334,12 @@ Tensor<double, Args...> tensor_of_units(const Tensor<double, Args...>& tensor)
 namespace loss
 {
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double categorical_cross_entropy(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision categorical_cross_entropy(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static const double epsilon = 1e-9;
-    static double result;
+    static const Precision epsilon = 1e-9;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -328,35 +348,35 @@ double categorical_cross_entropy(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> categorical_cross_entropy_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> categorical_cross_entropy_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static const double epsilon = 1e-9;
+    static const Precision epsilon = 1e-9;
 
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_true(i) / (y_pred(i) + epsilon);
 
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> categorical_cross_entropy_derived_softmax(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> categorical_cross_entropy_derived_softmax(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_pred(i) - y_true(i);
 
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double mean_squared_error(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision mean_squared_error(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static double result;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -365,22 +385,22 @@ double mean_squared_error(
     return result / 2.0;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> mean_squared_error_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> mean_squared_error_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_pred(i) - y_true(i);
 
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double mean_absolute_error(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision mean_absolute_error(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static double result;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -389,22 +409,22 @@ double mean_absolute_error(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> mean_absolute_error_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> mean_absolute_error_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
 
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double mean_squared_logarithmic_error(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision mean_squared_logarithmic_error(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static double result;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -413,11 +433,11 @@ double mean_squared_logarithmic_error(
     return result / 2.0;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> mean_squared_logarithmic_error_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> mean_squared_logarithmic_error_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
     {
@@ -427,13 +447,13 @@ Vector<double, Args...> mean_squared_logarithmic_error_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double binary_cross_entropy(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision binary_cross_entropy(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static const double epsilon = 1e-9;
-    static const double alpha   = epsilon + 1.0;
-    static double result;
+    static const Precision epsilon = 1e-9;
+    static const Precision alpha   = epsilon + 1.0;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -443,14 +463,14 @@ double binary_cross_entropy(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> binary_cross_entropy_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> binary_cross_entropy_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static const double epsilon = 1e-9;
-    static const double alpha   = epsilon - 1.0;
+    static const Precision epsilon = 1e-9;
+    static const Precision alpha   = epsilon - 1.0;
 
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) =
@@ -459,11 +479,11 @@ Vector<double, Args...> binary_cross_entropy_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> binary_cross_entropy_derived_sigmoid(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> binary_cross_entropy_derived_sigmoid(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
@@ -471,11 +491,11 @@ Vector<double, Args...> binary_cross_entropy_derived_sigmoid(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-double logcosh(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Precision logcosh(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    static double result;
+    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
@@ -484,11 +504,11 @@ double logcosh(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename... Args>
-Vector<double, Args...> logcosh_derived(
-    const Vector<double, Args...>& y_true, const Vector<double, Args...>& y_pred)
+template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+Vector<Precision, Args...> logcosh_derived(
+    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
-    Vector<double, Args...> loss_vector(y_true.size());
+    Vector<Precision, Args...> loss_vector(y_true.size());
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         loss_vector(i) = std::tanh(y_pred(i) - y_true(i));
@@ -501,42 +521,42 @@ Vector<double, Args...> logcosh_derived(
 namespace data
 {
 
-template <template <typename T, typename...> class Tensor, typename... Args>
+template <template <typename T, typename...> class Tensor, class Precision, typename... Args>
 struct ActivationData
 {
-    Tensor<double, Args...> (*f)(const Tensor<double, Args...>&);
-    Tensor<double, Args...> (*df)(const Tensor<double, Args...>&);
+    Tensor<Precision, Args...> (*f)(const Tensor<Precision, Args...>&);
+    Tensor<Precision, Args...> (*df)(const Tensor<Precision, Args...>&);
 };
 
-template <template <typename T, typename...> class Tensor, typename... Args>
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 struct LossData
 {
-    double (*f)(
-        const Tensor<double, Args...>&, const Tensor<double, Args...>&);
-    Tensor<double, Args...> (*df)(
-        const Tensor<double, Args...>&, const Tensor<double, Args...>&);
+    Precision (*f)(
+        const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&);
+    Tensor<Precision, Args...> (*df)(
+        const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&);
 };
 
 } // namespace data
 
 } // namespace set
 
-template <template <template <typename T, typename...> class V, typename...>
-                    class FunctionData,
-          template <typename U, typename...> class Tensor,
+template <template <template <typename, typename...> class V, typename, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
+          typename Precision,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().f),
-                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().df),
-                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&)>::value,
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().f),
+                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&)>::value &&
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().df),
+                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&)>::value,
                    int>::type = 0>
-FunctionData<Tensor, Args...> get(const char* activation_function_name)
+FunctionData<Tensor, Precision, Args...> get(const char* activation_function_name)
 {
     using namespace set::activation;
     using namespace set::data;
 
-    static std::map<const char*, ActivationData<Tensor, Args...>> activation_data;
+    static std::map<const char*, ActivationData<Tensor, Precision, Args...>> activation_data;
 
     activation_data["sigmoid"]          = { sigmoid,          sigmoid_derived  };
     activation_data["sigmoid_bce"]      = { sigmoid,          tensor_of_units  };
@@ -555,27 +575,27 @@ FunctionData<Tensor, Args...> get(const char* activation_function_name)
     auto i = activation_data.find(activation_function_name);
 
     if(i != activation_data.end())
-        return FunctionData<Tensor, Args...>(i->second.f, i->second.df);
+        return FunctionData<Tensor, Precision, Args...>(i->second.f, i->second.df);
 
-    return FunctionData<Tensor, Args...>();
+    return FunctionData<Tensor, Precision, Args...>();
 }
 
-template <template <template <typename T, typename...> class V, typename...>
-                    class FunctionData,
-          template <typename U, typename...> class Tensor,
+template <template <template <typename, typename...> class, typename, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
+          typename Precision,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().f),
-                                double (*)(const Tensor<double, Args...>&, const Tensor<double, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Args...>>().df),
-                                Tensor<double, Args...> (*)(const Tensor<double, Args...>&, const Tensor<double, Args...>&)>::value,
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().f),
+                                Precision (*)(const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&)>::value &&
+                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().df),
+                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&)>::value,
                    int>::type = 0>
-FunctionData<Tensor, Args...> get(const char* loss_function_name)
+FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
 {
     using namespace set::loss;
     using namespace set::data;
 
-    static std::map<const char*, LossData<Tensor, Args...>> loss_data;
+    static std::map<const char*, LossData<Tensor, Precision, Args...>> loss_data;
 
     loss_data["MSE"]  = { mean_squared_error,             mean_squared_error_derived                };
     loss_data["MAE"]  = { mean_absolute_error,            mean_absolute_error_derived               };
@@ -589,9 +609,9 @@ FunctionData<Tensor, Args...> get(const char* loss_function_name)
     auto i = loss_data.find(loss_function_name);
 
     if(i != loss_data.end())
-        return FunctionData<Tensor, Args...>(i->second.f, i->second.df);
+        return FunctionData<Tensor, Precision, Args...>(i->second.f, i->second.df);
 
-    return FunctionData<Tensor, Args...>();
+    return FunctionData<Tensor, Precision, Args...>();
 }
 
 } // namespace trixy
