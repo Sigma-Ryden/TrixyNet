@@ -356,7 +356,7 @@ Vector<Precision, Args...> categorical_cross_entropy_derived(
 
     Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = y_true(i) / (y_pred(i) + epsilon);
+        loss_vector(i) = - y_true(i) / (y_pred(i) + epsilon);
 
     return loss_vector;
 }

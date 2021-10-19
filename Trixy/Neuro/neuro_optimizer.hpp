@@ -1,7 +1,7 @@
 #ifndef NEURO_OPTIMIZER_HPP
 #define NEURO_OPTIMIZER_HPP
 
-#include <cmath> // pow
+#include <cmath> // sqrt
 
 namespace trixy
 {
@@ -9,49 +9,61 @@ namespace trixy
 namespace optimization
 {
 
-template <template <typename T, typename...> class Array, typename... Args>
-Array<double, Args...> momentum(
-    const Array<double, Args...>& grad, Array<double, Args...>& m, double beta = 0.9)
+namespace detail
 {
-    m = m.join(beta) + grad.join(1 - beta);
+
+template <typename Precision>
+Precision invertSqrt(Precision x)
+{
+    return 1.0 / std::sqrt(1e-9 + x);
+}
+
+} // namespace detail
+
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> momentum(
+    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& m)
+{
+    static const Precision beta = 0.9;
+
+    m = m.join(beta) + g.join(1.0 - beta);
 
     return m;
 }
 
-template <template <typename T, typename...> class Array, typename... Args>
-Array<double, Args...> rms_prop(
-    const Array<double, Args...>& grad, Array<double, Args...>& v, double beta = 0.9)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> rms_prop(
+    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& v)
 {
-    v = v.join(beta) + grad.multiply(grad.join(1 - beta));
+    static const Precision beta = 0.9;
 
-    return grad.multiply(
-        v.apply([] (double x) { return std::pow(1e-9 + x, -0.5); })
-    );
+    v = v.join(beta) + g.multiply(g.join(1.0 - beta));
+
+    return g.multiply(v.apply(detail::invertSqrt));
 }
 
-template <template <typename T, typename...> class Array, typename... Args>
-Array<double, Args...> ada_grad(
-    const Array<double, Args...>& grad, Array<double, Args...>& v)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> ada_grad(
+    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& v)
 {
-    v = v + grad.multiply(grad);
+    v = v + g.multiply(g);
 
-    return grad.multiply(
-        v.apply([] (double x) { return std::pow(1e-9 + x, -0.5); })
-    );
+    return g.multiply(v.apply(detail::invertSqrt));
 }
 
-template <template <typename T, typename...> class Array, typename... Args>
-Array<double, Args...> adam(
-    const Array<double, Args...>& grad,
-    Array<double, Args...>& m, Array<double, Args...>& v,
-    double beta_1 = 0.9, double beta_2 = 0.999)
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+Tensor<Precision, Args...> adam(
+    const Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& m,
+    Tensor<Precision, Args...>& v)
 {
-    m = m.join(beta_1) + grad.join(1 - beta_1);
-    v = v.join(beta_2) + grad.multiply(grad.join(1 - beta_2));
+    static const Precision beta_1 = 0.9;
+    static const Precision beta_2 = 0.999;
 
-    return grad.multiply(
-        m.multiply( v.apply([] (double x) { return std::pow(1e-9 + x, -0.5); }) )
-    );
+    m = m.join(beta_1) + g.join(1 - beta_1);
+    v = v.join(beta_2) + g.multiply(g.join(1 - beta_2));
+
+    return g.multiply(m.multiply(v.apply(detail::invertSqrt)));
 }
 
 } // namespace optimization

@@ -30,7 +30,7 @@ template <typename Precision>
 Precision random_real()
 {
     static int within = 1'000;
-    return static_cast<Precision>(rand() % (2 * within + 1) - within) / (within * within);
+    return static_cast<Precision>(rand() % (2 * within + 1) - within) / (within);
 }
 template <typename Precision>
 Precision random_normal()
@@ -330,7 +330,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 
-    test13<float>();
+    test9<float>();
 
     return 0;
 }
