@@ -600,9 +600,9 @@ FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
     loss_data["MSE"]  = { mean_squared_error,             mean_squared_error_derived                };
     loss_data["MAE"]  = { mean_absolute_error,            mean_absolute_error_derived               };
     loss_data["MSLE"] = { mean_squared_logarithmic_error, mean_squared_logarithmic_error_derived    };
-    loss_data["*CCE"] = { categorical_cross_entropy,      categorical_cross_entropy_derived         };
+    loss_data["*CCE"] = { categorical_cross_entropy,      categorical_cross_entropy_derived         }; // deprecated
     loss_data["CCE"]  = { categorical_cross_entropy,      categorical_cross_entropy_derived_softmax };
-    loss_data["*BCE"] = { binary_cross_entropy,           binary_cross_entropy_derived              };
+    loss_data["*BCE"] = { binary_cross_entropy,           binary_cross_entropy_derived              }; // deprecated
     loss_data["BCE"]  = { binary_cross_entropy,           binary_cross_entropy_derived_sigmoid      };
     loss_data["LC"]   = { logcosh,                        logcosh_derived                           };
 
