@@ -1,36 +1,29 @@
-#include <random>
-#include <ctime>
-#include <iostream>
-#include <iomanip>
-#include <cstddef>
+#include <random> // rand, srand
+#include <ctime> // time
+#include <iostream> // cin, cout
+#include <iomanip> // setprecision, fixed
+#include <cstddef> // size_t
 
-#include "Trixy/Lique/lique_linear.hpp"
-#include "Trixy/Lique/lique_matrix.hpp"
-#include "Trixy/Lique/lique_vector.hpp"
+#include "Trixy/Lique/lique_linear.hpp" // Linear
+#include "Trixy/Lique/lique_matrix.hpp" // Matrix
+#include "Trixy/Lique/lique_vector.hpp" // Vector
 
-#include "Trixy/Neuro/neuro_core_alpha.hpp"
-#include "Trixy/Neuro/neuro_functional.hpp"
+#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss
+#include "Trixy/Neuro/neuro_functional.hpp" // get
 
-#include "Trixy/Collection/collection.hpp"
+#include "Trixy/Collection/collection.hpp" // Collection
 
-#include "Include/MnistMaster/mnist_reader.hpp"
-#include "Include/Timer/timer.h"
-
-#include "Trixy/Lique/ilique_base.hpp"
-#include "Trixy/Lique/ilique_matrix.hpp"
-#include "Trixy/Lique/ilique_vector.hpp"
-
-#include "Trixy/Neuro/neuro_functional.hpp"
+#include "Include/MnistMaster/mnist_reader.hpp" // read_dataset
+#include "Include/Timer/timer.h" // Timer
 
 namespace tr = trixy;
 namespace li = lique;
-namespace il = ilique;
 
 template <typename Precision>
 Precision random_real()
 {
     static int within = 1'000;
-    return static_cast<Precision>(rand() % (2 * within + 1) - within) / (within);
+    return static_cast<Precision>(rand() % (2 * within + 1) - within) / within;
 }
 template <typename Precision>
 Precision random_normal()
@@ -266,46 +259,6 @@ void test13()
     std::cout << t.elapsed() << '\n';
 }
 
-template <typename Precision>
-void test10()
-{
-// Creating Neural Network
-    tr::Neuro<li::Matrix, li::Vector, li::Linear, Collection, Precision> network = {2, 2, 2};
-
-    network.initializeInnerStruct(random_real);
-
-    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("gelu"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
-
-// Train set (in/out)
-    Collection<li::Vector<Precision>> train_in
-    {
-        {-2, -1},
-        {23, 6},
-        {10, 4},
-        {-15, -6}
-    };
-
-    Collection<li::Vector<Precision>> train_out
-    {
-        {1, 0},
-        {0, 1},
-        {0, 1},
-        {1, 0}
-    };
-    for(std::size_t i = 0; i < train_in.size(); ++i)
-        train_in[i].modify([] (Precision x) -> Precision { return x / 25.0; });
-// Full processing
-    Timer t;
-    network.trainBatch(train_in, train_out, 0.1, 1'000);
-    std::cout << t.elapsed() << '\n';
-    testNeuro(network, train_in, train_out);
-    std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.05) << '\n';
-    std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
-    std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.05) << '\n';
-}
-
 /*
 FLOAT:
 4.810986
@@ -324,8 +277,7 @@ NNetwork test normal accuracy: 0.753600
 
 int main()
 {
-    srand(static_cast<unsigned>(time(0)));
-
+    srand(static_cast<unsigned int>(time(0)));
 
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
@@ -548,4 +500,44 @@ struct is_same<T, T>
 {
     constexpr static bool value = true;
 };
+
+template <typename Precision>
+void test10()
+{
+// Creating Neural Network
+    tr::Neuro<li::Matrix, li::Vector, li::Linear, Collection, Precision> network = {2, 2, 2};
+
+    network.initializeInnerStruct(random_real);
+
+    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("gelu"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
+
+// Train set (in/out)
+    Collection<li::Vector<Precision>> train_in
+    {
+        {-2, -1},
+        {23, 6},
+        {10, 4},
+        {-15, -6}
+    };
+
+    Collection<li::Vector<Precision>> train_out
+    {
+        {1, 0},
+        {0, 1},
+        {0, 1},
+        {1, 0}
+    };
+    for(std::size_t i = 0; i < train_in.size(); ++i)
+        train_in[i].modify([] (Precision x) -> Precision { return x / 25.0; });
+// Full processing
+    Timer t;
+    network.trainBatch(train_in, train_out, 0.1, 1'000);
+    std::cout << t.elapsed() << '\n';
+    testNeuro(network, train_in, train_out);
+    std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
+    std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.05) << '\n';
+}
 */
