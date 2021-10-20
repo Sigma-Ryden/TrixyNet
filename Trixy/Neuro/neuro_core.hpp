@@ -29,12 +29,12 @@ class Loss
 {
 public:
     Precision (*f)(const Vector<Precision, Args...>&,
-              const Vector<Precision, Args...>&);
+                   const Vector<Precision, Args...>&);
     Vector<Precision, Args...> (*df)(const Vector<Precision, Args...>&,
                                      const Vector<Precision, Args...>&);
 
     Loss(Precision (*function)(const Vector<Precision, Args...>&,
-                            const Vector<Precision, Args...>&) = nullptr,
+                               const Vector<Precision, Args...>&) = nullptr,
         Vector<Precision, Args...> (*function_derived)(const Vector<Precision, Args...>&,
                                                        const Vector<Precision, Args...>&) = nullptr)
     : f(function), df(function_derived) {}
@@ -179,7 +179,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setNormalizationFunction(
-    const function::Activation<Vector,Precision, Args...>& normalization_function)
+    const function::Activation<Vector, Precision, Args...>& normalization_function)
 {
     A[N - 1] = normalization_function;
 }
@@ -224,7 +224,7 @@ const Collection<Vector<Precision, Args...>>&
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-const Collection<function::Activation<Vector,Precision, Args...>>&
+const Collection<function::Activation<Vector, Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getEachActivationFunction() const
 {
     return A;
