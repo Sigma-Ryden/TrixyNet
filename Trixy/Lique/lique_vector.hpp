@@ -15,27 +15,27 @@ protected:
     std::size_t size_;
 
 public:
-    Vector();
+    Vector() noexcept;
     ~Vector();
-    Vector(std::size_t size);
+    explicit Vector(std::size_t size);
     Vector(const Vector&);
-    Vector(Vector&&);
+    Vector(Vector&&) noexcept;
     Vector(const std::initializer_list<Type>&);
 
     Vector& operator= (const Vector&);
-    Vector& operator= (Vector&&);
+    Vector& operator= (Vector&&) noexcept;
 
-    std::size_t size() const;
+    std::size_t size() const noexcept;
     Vector& resize(std::size_t new_size);
 
-    Type& operator() (std::size_t i);
-    const Type& operator() (std::size_t i) const;
+    Type& operator() (std::size_t i) noexcept;
+    const Type& operator() (std::size_t i) const noexcept;
 
-    Vector& fill(Type (*generator)());
-    Vector& fill(Type value);
+    Vector& fill(Type (*generator)()) noexcept;
+    Vector& fill(Type value) noexcept;
 
     Vector apply(Type (*function)(Type)) const;
-    Vector& modify(Type (*function)(Type));
+    Vector& modify(Type (*function)(Type)) noexcept;
 
     Type dot(const Vector&) const;
     Vector multiply(const Vector&) const;
@@ -43,12 +43,12 @@ public:
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
-    Vector& operator+= (const Vector&);
-    Vector& operator-= (const Vector&);
+    Vector& operator+= (const Vector&) noexcept;
+    Vector& operator-= (const Vector&) noexcept;
 };
 
 template <typename Type>
-Vector<Type>::Vector() : data_(nullptr), size_(0)
+Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
@@ -73,18 +73,18 @@ Vector<Type>::Vector(const Vector& vector)
 }
 
 template <typename Type>
-Vector<Type>::Vector(Vector&& vector)
+Vector<Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
 template <typename Type>
-Vector<Type>::Vector(const std::initializer_list<Type>& list)
-    : data_(new Type[list.size()]), size_(list.size())
+Vector<Type>::Vector(const std::initializer_list<Type>& init)
+    : data_(new Type[init.size()]), size_(init.size())
 {
     std::size_t i = 0;
-    for(const auto& arg: list)
+    for(const auto& arg: init)
     {
         data_[i] = arg;
         ++i;
@@ -109,7 +109,7 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::operator= (Vector&& vector)
+Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -125,7 +125,7 @@ Vector<Type>& Vector<Type>::operator= (Vector&& vector)
 }
 
 template <typename Type>
-std::size_t Vector<Type>::size() const
+std::size_t Vector<Type>::size() const noexcept
 {
     return size_;
 }
@@ -142,19 +142,19 @@ Vector<Type>& Vector<Type>::resize(std::size_t new_size)
 }
 
 template <typename Type>
-Type& Vector<Type>::operator() (std::size_t i)
+Type& Vector<Type>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
 template <typename Type>
-const Type& Vector<Type>::operator() (std::size_t i) const
+const Type& Vector<Type>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::fill(Type (*generator)())
+Vector<Type>& Vector<Type>::fill(Type (*generator)()) noexcept
 {
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] = generator();
@@ -163,7 +163,7 @@ Vector<Type>& Vector<Type>::fill(Type (*generator)())
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::fill(Type value)
+Vector<Type>& Vector<Type>::fill(Type value) noexcept
 {
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] = value;
@@ -183,7 +183,7 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::modify(Type (*function)(Type))
+Vector<Type>& Vector<Type>::modify(Type (*function)(Type)) noexcept
 {
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] = function(data_[i]);
@@ -247,7 +247,7 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::operator+= (const Vector& vector)
+Vector<Type>& Vector<Type>::operator+= (const Vector& vector) noexcept
 {
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] += vector.data_[i];
@@ -256,7 +256,7 @@ Vector<Type>& Vector<Type>::operator+= (const Vector& vector)
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::operator-= (const Vector& vector)
+Vector<Type>& Vector<Type>::operator-= (const Vector& vector) noexcept
 {
      for(std::size_t i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];

@@ -18,19 +18,19 @@ protected:
     Shape shape_;
 
 public:
-    Matrix();
-    Matrix(std::size_t m, size_t n);
+    Matrix() noexcept;
+    explicit Matrix(std::size_t m, size_t n);
     Matrix(const Shape& shape);
     Matrix(const Matrix&);
-    Matrix(Matrix&&);
+    Matrix(Matrix&&) noexcept;
 
     Matrix& operator= (const Matrix&);
-    Matrix& operator= (Matrix&&);
+    Matrix& operator= (Matrix&&) noexcept;
 
-    Type& operator() (std::size_t i, std::size_t j);
-    const Type& operator() (std::size_t i, std::size_t j) const;
+    Type& operator() (std::size_t i, std::size_t j) noexcept;
+    const Type& operator() (std::size_t i, std::size_t j) const noexcept;
 
-    const Shape& size() const;
+    const Shape& size() const noexcept;
 
     virtual Tensor<Type>& resize(std::size_t m, std::size_t n) = 0;
     virtual Tensor<Type>& resize(const Shape& new_shape) = 0;
@@ -50,15 +50,15 @@ private:
     std::size_t col_;
 
 public:
-    Shape(size_t m, size_t n) : row_(m), col_(n) {}
-    Shape(const Shape& shape) : row_(shape.row_), col_(shape.col_) {}
+    explicit Shape(size_t m, size_t n) noexcept : row_(m), col_(n) {}
+    explicit Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
 
-    std::size_t row() const { return row_; }
-    std::size_t col() const { return col_; }
+    std::size_t row() const noexcept { return row_; }
+    std::size_t col() const noexcept { return col_; }
 };
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>::Matrix() : data_(nullptr), shape_(0, 0)
+Matrix<Tensor, Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
@@ -102,7 +102,7 @@ Matrix<Tensor, Type>::Matrix(const Matrix& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>::Matrix(Matrix&& matrix)
+Matrix<Tensor, Type>::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
@@ -135,7 +135,7 @@ Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (const Matrix& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix)
+Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix) noexcept
 {
     if(this == &matrix)
         return *this;
@@ -156,19 +156,19 @@ Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j)
+Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) noexcept
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const
+const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const noexcept
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const
+const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const noexcept
 {
     return shape_;
 }

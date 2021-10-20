@@ -17,24 +17,24 @@ protected:
     virtual ~Vector();
 
 public:
-    Vector();
-    Vector(std::size_t size);
+    Vector() noexcept;
+    explicit Vector(std::size_t size);
     Vector(const Vector&);
-    Vector(Vector&&);
+    Vector(Vector&&) noexcept;
 
     Vector& operator= (const Vector&);
-    Vector& operator= (Vector&&);
+    Vector& operator= (Vector&&) noexcept;
 
-    Type& operator() (std::size_t i);
-    const Type& operator() (std::size_t i) const;
+    Type& operator() (std::size_t i) noexcept;
+    const Type& operator() (std::size_t i) const noexcept;
 
-    std::size_t size() const;
+    std::size_t size() const noexcept;
     virtual Tensor<Type>& resize(std::size_t new_size) = 0;
     virtual Type dot(const Tensor<Type>&) const = 0;
 };
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::Vector() : data_(nullptr), size_(0)
+Vector<Tensor, Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
@@ -59,7 +59,7 @@ Vector<Tensor, Type>::Vector(const Vector& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::Vector(Vector&& vector)
+Vector<Tensor, Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
@@ -83,7 +83,7 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector)
+Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -99,19 +99,19 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& Vector<Tensor, Type>::operator() (std::size_t i)
+Type& Vector<Tensor, Type>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& Vector<Tensor, Type>::operator() (std::size_t i) const
+const Type& Vector<Tensor, Type>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-std::size_t Vector<Tensor, Type>::size() const
+std::size_t Vector<Tensor, Type>::size() const noexcept
 {
     return size_;
 }

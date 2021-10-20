@@ -16,6 +16,13 @@
 #include "Include/MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Include/Timer/timer.h" // Timer
 
+/*
+#include "Trixy/Lique/ilique_base.hpp"
+#include "Trixy/Lique/ilique_linear.hpp"
+#include "Trixy/Lique/ilique_matrix.hpp"
+#include "Trixy/Lique/ilique_vector.hpp"
+*/
+
 namespace tr = trixy;
 namespace li = lique;
 
@@ -190,12 +197,12 @@ void test9()
 
     std::cout << "After train\n";
     testNeuro(network, train_in_set, train_out_set);
-    std::cout << "Normal accuracy: " << network.normalAccuracy(train_in_set, train_out_set) << '\n';
+    std::cout << "Normal accuracy: " << network.accuracy(train_in_set, train_out_set) << '\n';
     std::cout << "Global accuracy: " << network.globalAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
-
+/*
 template <typename Precision>
 void test13()
 {
@@ -246,19 +253,19 @@ void test13()
 
 //  Test train_batch aft
     //std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
-    std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
+    std::cout << "NNetwork tarin normal accuracy: " << network.accuracy(train_in, train_out) << '\n';
     //std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.25) << '\n';
     //std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
     t.reset();
 //  Test test_batch aft
     //std::cout << "NNetwork test loss: " << network.loss(test_in, test_out) << '\n';
-    std::cout << "NNetwork test normal accuracy: " << network.normalAccuracy(test_in, test_out) << '\n';
+    std::cout << "NNetwork test normal accuracy: " << network.accuracy(test_in, test_out) << '\n';
     //std::cout << "NNetwork test global accuracy: " << network.globalAccuracy(test_in, test_out, 0.25) << '\n';
     //std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-
+*/
 /*
 FLOAT:
 4.810986
@@ -536,7 +543,7 @@ void test10()
     network.trainBatch(train_in, train_out, 0.1, 1'000);
     std::cout << t.elapsed() << '\n';
     testNeuro(network, train_in, train_out);
-    std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "NNetwork tarin global accuracy: " << network.accuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
     std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.05) << '\n';
 }
