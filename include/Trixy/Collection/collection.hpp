@@ -21,10 +21,10 @@ public:
     Collection<T>& operator= (const Collection<T>&);
     Collection<T>& operator= (Collection<T>&&) noexcept;
 
-    std::size_t size() const;
+    std::size_t size() const noexcept;
 
-    T& operator[] (std::size_t i);
-    const T& operator[] (std::size_t i) const;
+    T& operator[] (std::size_t i) noexcept;
+    const T& operator[] (std::size_t i) const noexcept;
 };
 
 template <typename T>
@@ -97,18 +97,18 @@ Collection<T>& Collection<T>::operator= (Collection<T>&& collection) noexcept
 }
 
 template <typename T>
-std::size_t Collection<T>::size() const
+std::size_t Collection<T>::size() const noexcept
 {
     return size_;
 }
 
 template <typename T>
-T& Collection<T>::operator[] (std::size_t i)
+T& Collection<T>::operator[] (std::size_t i) noexcept
 {
     return data_[i];
 }
 template <typename T>
-const T& Collection<T>::operator[] (std::size_t i) const
+const T& Collection<T>::operator[] (std::size_t i) const noexcept
 {
     return data_[i];
 }

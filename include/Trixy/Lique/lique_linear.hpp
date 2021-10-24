@@ -15,6 +15,7 @@ public:
     Linear(Linear&&) noexcept = default;
     Linear& operator= (const Linear&) = default;
     Linear& operator= (Linear&&) noexcept = default;
+    ~Linear() = default;
 
     Vector get(
         const Matrix& matrix, std::size_t row_number) const; // deprecated

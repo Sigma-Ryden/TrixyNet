@@ -10,7 +10,7 @@ template <class Matrix, class Vector>
 class ILinear
 {
 protected:
-    virtual ~ILinear() {}
+    virtual ~ILinear() = default;
 
 public:
     virtual Vector get(
