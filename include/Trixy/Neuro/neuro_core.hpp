@@ -71,9 +71,10 @@ private:
 public:
     Neuro(const initializer_list_t& topology);
     Neuro(const Neuro&) = default;
-    Neuro(Neuro&&) = default;
+    Neuro(Neuro&&) noexcept = default;
     Neuro& operator= (const Neuro&) = default;
-    Neuro& operator= (Neuro&&) = default;
+    Neuro& operator= (Neuro&&) noexcept = default;
+    ~Neuro() = default;
 
     void initializeInnerStruct(GeneratorFloat generator) noexcept;
     void initializeInnerStruct(

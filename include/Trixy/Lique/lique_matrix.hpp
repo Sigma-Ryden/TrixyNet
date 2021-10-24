@@ -61,7 +61,7 @@ private:
 
 public:
     explicit Shape(size_t m, size_t n) noexcept : row_(m), col_(n) {}
-    explicit Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
+    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
 
     std::size_t row() const noexcept { return row_; }
     std::size_t col() const noexcept { return col_; }

@@ -10,7 +10,7 @@ template <template <typename T, typename...> class Tensor, typename Type, typena
 class ILiqueBase
 {
 protected:
-    virtual ~ILiqueBase() {}
+    virtual ~ILiqueBase() = default;
 
 public:
     virtual Tensor<Type, Args...>& fill(Type value) noexcept = 0;
@@ -32,7 +32,7 @@ template <template <typename T, typename...> class Tensor, typename Type, typena
 class IVector
 {
 protected:
-    virtual ~IVector() {}
+    virtual ~IVector() = default;
 
 public:
     virtual Type& operator() (std::size_t i) noexcept = 0;
@@ -47,7 +47,7 @@ template <template <typename T, typename...> class Tensor, typename Type, typena
 class IMatrix
 {
 protected:
-    virtual ~IMatrix() {}
+    virtual ~IMatrix() = default;
     class Shape;
 
 public:
@@ -60,7 +60,7 @@ public:
     virtual Tensor<Type, Args...>& resize(const Shape& new_shape) = 0;
 
     virtual Tensor<Type, Args...> dot(const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...> transpoce() const = 0;
+    virtual Tensor<Type, Args...> transpose() const = 0;
 };
 
 template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
@@ -75,7 +75,7 @@ private:
 
 public:
     explicit Shape(size_t m, size_t n) noexcept : row_(m), col_(n) {}
-    explicit Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
+    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
 
     std::size_t row() const noexcept { return row_; }
     std::size_t col() const noexcept { return col_; }

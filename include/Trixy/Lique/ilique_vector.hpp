@@ -79,7 +79,7 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 
-    return this;
+    return *this;
 }
 
 template <template <typename T> class Tensor, typename Type>

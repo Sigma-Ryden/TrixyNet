@@ -12,9 +12,9 @@ class Linear
 public:
     Linear() = default;
     Linear(const Linear&) = default;
-    Linear(Linear&&) = default;
+    Linear(Linear&&) noexcept = default;
     Linear& operator= (const Linear&) = default;
-    Linear& operator= (Linear&&) = default;
+    Linear& operator= (Linear&&) noexcept = default;
 
     Vector get(
         const Matrix& matrix, std::size_t row_number) const; // deprecated

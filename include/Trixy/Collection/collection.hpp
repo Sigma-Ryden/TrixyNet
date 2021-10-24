@@ -12,14 +12,14 @@ private:
     std::size_t size_;
 
 public:
-    Collection();
-    Collection(std::size_t size_);
+    Collection() noexcept;
+    explicit Collection(std::size_t size_);
     Collection(const Collection<T>&);
-    Collection(Collection<T>&&);
+    Collection(Collection<T>&&) noexcept;
     Collection(const std::initializer_list<T>&);
 
     Collection<T>& operator= (const Collection<T>&);
-    Collection<T>& operator= (Collection<T>&&);
+    Collection<T>& operator= (Collection<T>&&) noexcept;
 
     std::size_t size() const;
 
@@ -28,7 +28,7 @@ public:
 };
 
 template <typename T>
-Collection<T>::Collection() : data_(nullptr), size_(0)
+Collection<T>::Collection() noexcept : data_(nullptr), size_(0)
 {
 }
 
@@ -46,7 +46,7 @@ Collection<T>::Collection(const Collection<T>& collection)
 }
 
 template <typename T>
-Collection<T>::Collection(Collection<T>&& collection)
+Collection<T>::Collection(Collection<T>&& collection) noexcept
 {
     size_ = collection.size_;
     data_ = collection.data_;
@@ -83,7 +83,7 @@ Collection<T>& Collection<T>::operator= (const Collection<T>& collection)
 }
 
 template <typename T>
-Collection<T>& Collection<T>::operator= (Collection<T>&& collection)
+Collection<T>& Collection<T>::operator= (Collection<T>&& collection) noexcept
 {
     if(this == &collection)
         return *this;
