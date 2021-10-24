@@ -1,5 +1,5 @@
-#ifndef NEURO_NETWORK_HPP
-#define NEURO_NETWORK_HPP
+#ifndef NEURO_CORE_HPP
+#define NEURO_CORE_HPP
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
@@ -91,7 +91,7 @@ public:
     const Collection<ActivationFunction>& getEachActivationFunction() const noexcept;
     const LossFunction& getLossFunction() const noexcept;
 
-    Vector<Precision, Args...> feedforward(const Vector<Precision, Args...>&) const;
+    Tensor1D feedforward(const Tensor1D&) const;
     Collection<Tensor1D> feedforward(const Collection<Tensor1D>&) const;
 
     void trainStochastic(
@@ -580,4 +580,4 @@ double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::loss(
 
 } // namespace trixy
 
-#endif // NEURO_NETWORK_HPP
+#endif // NEURO_CORE_HPP
