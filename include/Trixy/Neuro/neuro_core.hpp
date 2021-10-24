@@ -4,7 +4,6 @@
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 #include <cmath> // fabs
-#include <random> // rand
 
 namespace trixy
 {
@@ -55,7 +54,8 @@ private:
     using LossFunction = function::Loss<Vector, Precision, Args...>;
 
     using initializer_list_t = std::initializer_list<std::size_t>;
-    using GeneratorFunction = Precision (*)();
+    using GeneratorInteger = int (*)();
+    using GeneratorFloat = Precision (*)();
     using size_type = std::size_t;
 
     Collection<Tensor2D> W;
@@ -75,9 +75,9 @@ public:
     Neuro& operator= (const Neuro&) = default;
     Neuro& operator= (Neuro&&) = default;
 
-    void initializeInnerStruct(GeneratorFunction generator) noexcept;
+    void initializeInnerStruct(GeneratorFloat generator) noexcept;
     void initializeInnerStruct(
-        GeneratorFunction generator_weight, GeneratorFunction generator_bias) noexcept;
+        GeneratorFloat generator_weight, GeneratorFloat generator_bias) noexcept;
 
     void setActivationFunction(const ActivationFunction& activation_function) noexcept;
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
@@ -96,14 +96,14 @@ public:
 
     void trainStochastic(
         const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
-        Precision learn_rate, size_type epoch_scale);
-    void trainBatch(
+        Precision learn_rate, size_type epoch_scale, GeneratorInteger generator);
+        void trainBatch(
         const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
         Precision learn_rate, size_type epoch_scale);
     void trainMiniBatch(
         const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
-        Precision learn_rate, size_type epoch_scale,
-        size_type mini_batch_size);
+        Precision learn_rate, size_type epoch_scale, size_type mini_batch_size,
+        GeneratorInteger generator);
 
     double accuracy(
         const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata) const;
@@ -273,7 +273,7 @@ template <template <typename T, typename...> class Matrix, template <typename T,
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainStochastic(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
-    Precision learn_rate, std::size_t epoch_scale)
+    Precision learn_rate, std::size_t epoch_scale, int (*generator)())
 {
     Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
@@ -289,7 +289,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainStochas
 
     for(size_type n = 0; n < epoch_scale; ++n)
     {
-        sample = rand() % within;
+        sample = generator() % within;
 
         H[0] = idata[sample];
         for(size_type i = 0; i < N; ++i)
@@ -395,7 +395,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainMiniBat
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate, std::size_t epoch_scale,
-    std::size_t mini_batch_size)
+    std::size_t mini_batch_size, int (*generator)())
 {
     Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
@@ -423,7 +423,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainMiniBat
 
     for(size_type n = 0; n < epoch_scale; ++n)
     {
-        sample_part  = rand() % (idata.size() / mini_batch_size);
+        sample_part  = generator() % (idata.size() / mini_batch_size);
         sample_begin = sample_part * mini_batch_size;
         sample_end   = sample_begin + mini_batch_size;
 

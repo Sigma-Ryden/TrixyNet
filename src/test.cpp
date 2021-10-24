@@ -1,4 +1,4 @@
-#include <random> // rand, srand
+#include <cstdlib> // rand, srand
 #include <ctime> // time
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
@@ -30,14 +30,14 @@ template <typename Precision>
 Precision random_real()
 {
     static int within = 1'000;
-    return static_cast<Precision>(rand() % (2 * within + 1) - within) / within;
+    return static_cast<Precision>(std::rand() % (2 * within + 1) - within) / within;
 }
 template <typename Precision>
 Precision random_normal()
 {
     static int within = 1'000;
     static double pi = 3.14159265;
-    Precision x = static_cast<Precision>(rand() % (2 * within + 1) - within) / within;
+    Precision x = static_cast<Precision>(std::rand() % (2 * within + 1) - within) / within;
 
     return std::exp(- x * x) / std::sqrt(2 * pi);
 }
@@ -190,9 +190,10 @@ void test9()
     testNeuro(network, train_in_set, train_out_set);
 
     Timer t;
-    network.trainStochastic(train_in_set, train_out_set, 0.1, 100'000);
+
+    network.trainStochastic(train_in_set, train_out_set, 0.1, 100'000, std::rand);
     network.trainBatch(train_in_set, train_out_set, 0.15, 100'000);
-    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100'000, 2);
+    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100'000, 2, std::rand);
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -202,7 +203,7 @@ void test9()
     std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
-/*
+
 template <typename Precision>
 void test13()
 {
@@ -244,9 +245,8 @@ void test13()
     for(std::size_t i = 0; i < times; ++i)
     {
         std::cout << "start train [" << i + 1 << "]:\n";
-
-        //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32);
-        network.trainStochastic(train_in, train_out, 0.5, 1000);
+        //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32, std::rand);
+        network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
     t.reset();
@@ -265,7 +265,7 @@ void test13()
     //std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-*/
+
 /*
 FLOAT:
 4.810986
@@ -284,15 +284,13 @@ NNetwork test normal accuracy: 0.753600
 
 int main()
 {
-    srand(static_cast<unsigned int>(time(0)));
-
+    std::srand(static_cast<unsigned int>(std::time(0)));
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 
-    test9<float>();
+    //test9<double>();
 
     std::cin.get();
-
     return 0;
 }
 
