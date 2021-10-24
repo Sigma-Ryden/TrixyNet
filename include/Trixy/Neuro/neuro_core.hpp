@@ -156,11 +156,11 @@ template <template <typename T, typename...> class Matrix, template <typename T,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeInnerStruct(
-    Precision (*generator_weigth)(), Precision (*generator_bias)()) noexcept
+    Precision (*generator_weight)(), Precision (*generator_bias)()) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
-        W[i].fill(generator_weigth);
+        W[i].fill(generator_weight);
         B[i].fill(generator_bias);
     }
 }
