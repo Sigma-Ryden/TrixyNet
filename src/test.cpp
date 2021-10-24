@@ -288,7 +288,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 
-    //test9<double>();
+    test9<double>();
 
     std::cin.get();
     return 0;
