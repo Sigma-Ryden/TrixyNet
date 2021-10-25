@@ -48,18 +48,18 @@ public:
 };
 
 template <typename Type>
-Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
+inline Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
 template <typename Type>
-Vector<Type>::~Vector()
+inline Vector<Type>::~Vector()
 {
     delete[] data_;
 }
 
 template <typename Type>
-Vector<Type>::Vector(std::size_t size)
+inline Vector<Type>::Vector(std::size_t size)
     : data_(new Type[size]), size_(size)
 {
 }
@@ -125,7 +125,7 @@ Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
 }
 
 template <typename Type>
-std::size_t Vector<Type>::size() const noexcept
+inline std::size_t Vector<Type>::size() const noexcept
 {
     return size_;
 }
@@ -142,13 +142,13 @@ Vector<Type>& Vector<Type>::resize(std::size_t new_size)
 }
 
 template <typename Type>
-Type& Vector<Type>::operator() (std::size_t i) noexcept
+inline Type& Vector<Type>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
 template <typename Type>
-const Type& Vector<Type>::operator() (std::size_t i) const noexcept
+inline const Type& Vector<Type>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }

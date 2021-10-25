@@ -23,7 +23,7 @@ namespace mnist {
 /*!
  * \brief Extract the MNIST header from the given buffer
  * \param buffer The current buffer
- * \param position The current reading positoin
+ * \param position The current reading position
  * \return The value of the mnist header
  */
 inline uint32_t read_header(const std::unique_ptr<char[]>& buffer, size_t position) {

@@ -68,8 +68,7 @@ public:
 };
 
 template <typename Type>
-Matrix<Type>::Matrix() noexcept
-    : data_(nullptr), shape_(0, 0)
+inline Matrix<Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
@@ -163,7 +162,7 @@ Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
 }
 
 template <typename Type>
-const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
+inline const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
 {
     return shape_;
 }
@@ -236,13 +235,13 @@ Matrix<Type>& Matrix<Type>::modify(Type (*function)(Type)) noexcept
 }
 
 template <typename Type>
-Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) noexcept
+inline Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) noexcept
 {
     return data_[i][j];
 }
 
 template <typename Type>
-const Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) const noexcept
+inline const Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) const noexcept
 {
     return data_[i][j];
 }

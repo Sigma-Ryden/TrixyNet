@@ -34,18 +34,18 @@ public:
 };
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::Vector() noexcept : data_(nullptr), size_(0)
+inline Vector<Tensor, Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::~Vector()
+inline Vector<Tensor, Type>::~Vector()
 {
     delete[] data_;
 }
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::Vector(std::size_t size)
+inline Vector<Tensor, Type>::Vector(std::size_t size)
     : data_(new Type[size]), size_(size)
 {
 }
@@ -99,19 +99,19 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector) noexcept
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& Vector<Tensor, Type>::operator() (std::size_t i) noexcept
+inline Type& Vector<Tensor, Type>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& Vector<Tensor, Type>::operator() (std::size_t i) const noexcept
+inline const Type& Vector<Tensor, Type>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
 template <template <typename T> class Tensor, typename Type>
-std::size_t Vector<Tensor, Type>::size() const noexcept
+inline std::size_t Vector<Tensor, Type>::size() const noexcept
 {
     return size_;
 }

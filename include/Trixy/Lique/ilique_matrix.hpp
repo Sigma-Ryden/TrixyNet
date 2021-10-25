@@ -156,19 +156,19 @@ Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix) noexcept
 }
 
 template <template <typename T> class Tensor, typename Type>
-Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) noexcept
+inline Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) noexcept
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const noexcept
+inline const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const noexcept
 {
     return data_[i][j];
 }
 
 template <template <typename T> class Tensor, typename Type>
-const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const noexcept
+inline const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const noexcept
 {
     return shape_;
 }

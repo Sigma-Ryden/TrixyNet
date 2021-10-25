@@ -207,7 +207,7 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setEachActiv
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-const Collection<Matrix<Precision, Args...>>&
+inline const Collection<Matrix<Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerWeight() const noexcept
 {
     return W;
@@ -216,7 +216,7 @@ const Collection<Matrix<Precision, Args...>>&
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-const Collection<Vector<Precision, Args...>>&
+inline const Collection<Vector<Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerBias() const noexcept
 {
     return B;
@@ -225,7 +225,7 @@ const Collection<Vector<Precision, Args...>>&
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-const Collection<function::Activation<Vector, Precision, Args...>>&
+inline const Collection<function::Activation<Vector, Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getEachActivationFunction() const noexcept
 {
     return A;
@@ -234,7 +234,7 @@ const Collection<function::Activation<Vector, Precision, Args...>>&
 template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
           template <class M, class V> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-const function::Loss<Vector, Precision, Args...>&
+inline const function::Loss<Vector, Precision, Args...>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getLossFunction() const noexcept
 {
     return E;

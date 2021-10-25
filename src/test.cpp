@@ -284,7 +284,7 @@ NNetwork test normal accuracy: 0.753600
 
 int main()
 {
-    std::srand(static_cast<unsigned int>(std::time(0)));
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
     //std::cout.setf(std::ios::showpos);
 

@@ -28,12 +28,12 @@ public:
 };
 
 template <typename T>
-Collection<T>::Collection() noexcept : data_(nullptr), size_(0)
+inline Collection<T>::Collection() noexcept : data_(nullptr), size_(0)
 {
 }
 
 template <typename T>
-Collection<T>::Collection(std::size_t size) : data_(new T [size]), size_(size)
+inline Collection<T>::Collection(std::size_t size) : data_(new T [size]), size_(size)
 {
 }
 
@@ -54,9 +54,9 @@ Collection<T>::Collection(Collection<T>&& collection) noexcept
     collection.data_ = nullptr;
 }
 
-template <typename Type>
-Collection<Type>::Collection(const std::initializer_list<Type>& list)
-    : data_(new Type[list.size()]), size_(list.size())
+template <typename T>
+Collection<T>::Collection(const std::initializer_list<T>& list)
+    : data_(new T[list.size()]), size_(list.size())
 {
     std::size_t i = 0;
     for(const auto& arg: list)
@@ -97,18 +97,18 @@ Collection<T>& Collection<T>::operator= (Collection<T>&& collection) noexcept
 }
 
 template <typename T>
-std::size_t Collection<T>::size() const noexcept
+inline std::size_t Collection<T>::size() const noexcept
 {
     return size_;
 }
 
 template <typename T>
-T& Collection<T>::operator[] (std::size_t i) noexcept
+inline T& Collection<T>::operator[] (std::size_t i) noexcept
 {
     return data_[i];
 }
 template <typename T>
-const T& Collection<T>::operator[] (std::size_t i) const noexcept
+inline const T& Collection<T>::operator[] (std::size_t i) const noexcept
 {
     return data_[i];
 }
