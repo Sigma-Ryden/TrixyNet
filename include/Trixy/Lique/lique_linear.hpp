@@ -6,7 +6,7 @@
 namespace lique
 {
 
-template <class Matrix, class Vector>
+template <class Vector, class Matrix>
 class Linear
 {
 public:
@@ -17,18 +17,20 @@ public:
     Linear& operator= (Linear&&) noexcept = default;
     ~Linear() = default;
 
-    Vector get(
-        const Matrix& matrix, std::size_t row_number) const; // deprecated
-    Vector dot(
-        const Vector& vector, const Matrix& matrix,
-        bool transpose_dot_matrix = false) const;
-    Matrix tensordot(
-        const Vector& left_side_vector, const Vector& right_side_vector,
-        bool return_transpose_matrix = false) const;
+    Vector get(const Matrix& matrix,
+               std::size_t row_number) const; // deprecated
+
+    Vector dot(const Vector& vector,
+               const Matrix& matrix,
+               bool transpose_dot_matrix = false) const;
+
+    Matrix tensordot(const Vector& left_side_vector,
+                     const Vector& right_side_vector,
+                     bool return_transpose_matrix = false) const;
 };
 
-template <class Matrix, class Vector>
-Vector Linear<Matrix, Vector>::get(const Matrix& matrix, std::size_t row_number) const
+template <class Vector, class Matrix>
+Vector Linear<Vector, Matrix>::get(const Matrix& matrix, std::size_t row_number) const
 {
     Vector new_vector(matrix.size().col());
 
@@ -38,8 +40,8 @@ Vector Linear<Matrix, Vector>::get(const Matrix& matrix, std::size_t row_number)
     return new_vector;
 }
 
-template <class Matrix, class Vector>
-Vector Linear<Matrix, Vector>::dot(
+template <class Vector, class Matrix>
+Vector Linear<Vector, Matrix>::dot(
     const Vector& vector, const Matrix& matrix, bool transpose_dot_matrix) const
 {
     double result = 0.0;
@@ -75,8 +77,8 @@ Vector Linear<Matrix, Vector>::dot(
     }
 }
 
-template <class Matrix, class Vector>
-Matrix Linear<Matrix, Vector>::tensordot(
+template <class Vector, class Matrix>
+Matrix Linear<Vector, Matrix>::tensordot(
     const Vector& left_side_vector, const Vector& right_side_vector,
     bool return_transpose_matrix) const
 {
