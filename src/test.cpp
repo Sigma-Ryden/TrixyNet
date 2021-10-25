@@ -29,13 +29,13 @@ namespace li = lique;
 template <typename Precision>
 Precision random_real()
 {
-    static int within = 1'000;
+    static int within = 1000;
     return static_cast<Precision>(std::rand() % (2 * within + 1) - within) / within;
 }
 template <typename Precision>
 Precision random_normal()
 {
-    static int within = 1'000;
+    static int within = 1000;
     static double pi = 3.14159265;
     Precision x = static_cast<Precision>(std::rand() % (2 * within + 1) - within) / within;
 
@@ -191,9 +191,9 @@ void test9()
 
     Timer t;
 
-    network.trainStochastic(train_in_set, train_out_set, 0.1, 100'000, std::rand);
-    network.trainBatch(train_in_set, train_out_set, 0.15, 100'000);
-    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100'000, 2, std::rand);
+    network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+    network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
+    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";
