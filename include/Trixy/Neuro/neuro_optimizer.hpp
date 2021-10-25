@@ -20,7 +20,7 @@ Precision invertSqrt(Precision x)
 
 } // namespace detail
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+template <template <typename, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> momentum(
     const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& m)
 {
@@ -31,7 +31,7 @@ Tensor<Precision, Args...> momentum(
     return m;
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+template <template <typename, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> rms_prop(
     const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& v)
 {
@@ -42,7 +42,7 @@ Tensor<Precision, Args...> rms_prop(
     return g.multiply(v.apply(detail::invertSqrt));
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+template <template <typename, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> ada_grad(
     const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& v)
 {
@@ -51,7 +51,7 @@ Tensor<Precision, Args...> ada_grad(
     return g.multiply(v.apply(detail::invertSqrt));
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+template <template <typename, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> adam(
     const Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& m,

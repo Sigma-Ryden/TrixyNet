@@ -6,7 +6,7 @@
 namespace ilique
 {
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 class Matrix
 {
 protected:
@@ -39,7 +39,7 @@ public:
     virtual Tensor<Type> transpose() const = 0;
 };
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 class Matrix<Tensor, Type>::Shape
 {
 friend Matrix<Tensor, Type>;
@@ -57,12 +57,12 @@ public:
     std::size_t col() const noexcept { return col_; }
 };
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::~Matrix()
 {
     if(data_ != nullptr)
@@ -73,7 +73,7 @@ Matrix<Tensor, Type>::~Matrix()
     }
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::Matrix(std::size_t m, std::size_t n)
     : data_(new Type* [m]), shape_(m, n)
 {
@@ -81,7 +81,7 @@ Matrix<Tensor, Type>::Matrix(std::size_t m, std::size_t n)
         data_[i] = new Type[shape_.col_];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::Matrix(const Shape& shape)
     : data_(new Type* [shape.row_]), shape_(shape)
 {
@@ -89,7 +89,7 @@ Matrix<Tensor, Type>::Matrix(const Shape& shape)
         data_[i] = new Type[shape_.col_];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::Matrix(const Matrix& matrix)
     : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
 {
@@ -101,7 +101,7 @@ Matrix<Tensor, Type>::Matrix(const Matrix& matrix)
             data_[i][j] = matrix.data_[i][j];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
@@ -134,7 +134,7 @@ Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (const Matrix& matrix)
     return *this;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix) noexcept
 {
     if(this == &matrix)
@@ -155,19 +155,19 @@ Matrix<Tensor, Type>& Matrix<Tensor, Type>::operator= (Matrix&& matrix) noexcept
     return *this;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) noexcept
 {
     return data_[i][j];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline const Type& Matrix<Tensor, Type>::operator() (std::size_t i, std::size_t j) const noexcept
 {
     return data_[i][j];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const noexcept
 {
     return shape_;

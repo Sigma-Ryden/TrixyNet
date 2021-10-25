@@ -6,7 +6,7 @@
 namespace ilique
 {
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename, typename...> class Tensor, typename Type, typename... Args>
 class ILiqueBase
 {
 protected:
@@ -28,7 +28,7 @@ public:
     virtual Tensor<Type, Args...>& operator-= (const Tensor<Type, Args...>&) noexcept = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename, typename...> class Tensor, typename Type, typename... Args>
 class IVector
 {
 protected:
@@ -43,7 +43,7 @@ public:
     virtual Type dot(const Tensor<Type, Args...>&) const = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename, typename...> class Tensor, typename Type, typename... Args>
 class IMatrix
 {
 protected:
@@ -63,7 +63,7 @@ public:
     virtual Tensor<Type, Args...> transpose() const = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename, typename...> class Tensor, typename Type, typename... Args>
 class IMatrix<Tensor, Type, Args...>::Shape
 {
 friend IMatrix<Tensor, Type, Args...>;

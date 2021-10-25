@@ -6,7 +6,7 @@
 namespace ilique
 {
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 class Vector
 {
 protected:
@@ -33,24 +33,24 @@ public:
     virtual Type dot(const Tensor<Type>&) const = 0;
 };
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline Vector<Tensor, Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline Vector<Tensor, Type>::~Vector()
 {
     delete[] data_;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline Vector<Tensor, Type>::Vector(std::size_t size)
     : data_(new Type[size]), size_(size)
 {
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Vector<Tensor, Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
@@ -58,14 +58,14 @@ Vector<Tensor, Type>::Vector(const Vector& vector)
         data_[i] = vector.data_[i];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Vector<Tensor, Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
 {
     if(this == &vector)
@@ -82,7 +82,7 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
     return *this;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector) noexcept
 {
     if(this == &vector)
@@ -98,19 +98,19 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (Vector&& vector) noexcept
     return *this;
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline Type& Vector<Tensor, Type>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline const Type& Vector<Tensor, Type>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
-template <template <typename T> class Tensor, typename Type>
+template <template <typename> class Tensor, typename Type>
 inline std::size_t Vector<Tensor, Type>::size() const noexcept
 {
     return size_;

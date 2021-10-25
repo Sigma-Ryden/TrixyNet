@@ -11,7 +11,7 @@ namespace trixy
 namespace function
 {
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+template <template <typename, typename...> class Vector, typename Precision, typename... Args>
 class Activation
 {
 public:
@@ -25,7 +25,7 @@ public:
     : f(function), df(function_derived) {}
 };
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+template <template <typename, typename...> class Vector, typename Precision, typename... Args>
 class Loss
 {
 public:
@@ -41,8 +41,8 @@ public:
 
 } // namespace function
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+          template <class, class> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 class Neuro
 {
@@ -119,9 +119,9 @@ public:
         const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata) const;
 };
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::Neuro(
     const std::initializer_list<std::size_t>& topology)
         : W(topology.size() - 1)
@@ -140,9 +140,9 @@ Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::Neuro(
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeInnerStruct(
     Precision (*generator)()) noexcept
 {
@@ -153,9 +153,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeIn
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeInnerStruct(
     Precision (*generator_weight)(), Precision (*generator_bias)()) noexcept
 {
@@ -166,9 +166,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::initializeIn
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setActivationFunction(
     const function::Activation<Vector, Precision, Args...>& activation_function) noexcept
 {
@@ -176,27 +176,27 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setActivatio
         A[i] = activation_function;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setNormalizationFunction(
     const function::Activation<Vector, Precision, Args...>& normalization_function) noexcept
 {
     A[N - 1] = normalization_function;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setLossFunction(
     const function::Loss<Vector, Precision, Args...>& loss_function) noexcept
 {
     E = loss_function;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setEachActivationFunction(
     const Collection<function::Activation<Vector, Precision, Args...>>& activation_set) noexcept
 {
@@ -204,45 +204,45 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::setEachActiv
         A[i] = activation_set[i];
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 inline const Collection<Matrix<Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerWeight() const noexcept
 {
     return W;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 inline const Collection<Vector<Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getInnerBias() const noexcept
 {
     return B;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 inline const Collection<function::Activation<Vector, Precision, Args...>>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getEachActivationFunction() const noexcept
 {
     return A;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 inline const function::Loss<Vector, Precision, Args...>&
     Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::getLossFunction() const noexcept
 {
     return E;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 Vector<Precision, Args...> Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::feedforward(
     const Vector<Precision, Args...>& vector) const
 {
@@ -254,9 +254,9 @@ Vector<Precision, Args...> Neuro<Matrix, Vector, Linear, Collection, Precision, 
     return y_pred;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 Collection<Vector<Precision, Args...>> Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::feedforward(
     const Collection<Vector<Precision, Args...>>& idata) const
 {
@@ -268,9 +268,9 @@ Collection<Vector<Precision, Args...>> Neuro<Matrix, Vector, Linear, Collection,
     return y_pred;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainStochastic(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
@@ -318,9 +318,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainStochas
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
@@ -389,9 +389,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainBatch(
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainMiniBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
@@ -471,9 +471,9 @@ void Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::trainMiniBat
     }
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::accuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata) const
@@ -508,9 +508,9 @@ double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::accuracy(
     return count / batch_size;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::globalAccuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
@@ -531,9 +531,9 @@ double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::globalAccu
     return count / (batch_size * output_size);
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::fullAccuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
@@ -563,9 +563,9 @@ double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::fullAccura
     return count / batch_size;
 }
 
-template <template <typename T, typename...> class Matrix, template <typename T, typename...> class Vector,
-          template <class M, class V> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+template <template <typename, typename...> class Matrix, template <typename, typename...> class Vector,
+        template <class, class> class Linear, template <typename...> class Collection,
+        typename Precision, typename... Args>
 double Neuro<Matrix, Vector, Linear, Collection, Precision, Args...>::loss(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata) const
