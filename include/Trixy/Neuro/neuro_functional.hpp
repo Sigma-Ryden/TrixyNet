@@ -532,9 +532,12 @@ template <template <typename T, typename...> class Tensor, typename Precision, t
 struct LossData
 {
     Precision (*f)(
-        const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&);
+        const Tensor<Precision, Args...>&,
+        const Tensor<Precision, Args...>&);
+
     Tensor<Precision, Args...> (*df)(
-        const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&);
+        const Tensor<Precision, Args...>&,
+        const Tensor<Precision, Args...>&);
 };
 
 } // namespace data

@@ -54,7 +54,8 @@ public:
 template <typename Type>
 class Matrix<Type>::Shape
 {
-friend Matrix;
+friend Matrix<Type>;
+
 private:
     std::size_t row_;
     std::size_t col_;

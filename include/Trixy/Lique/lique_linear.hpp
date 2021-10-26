@@ -17,16 +17,19 @@ public:
     Linear& operator= (Linear&&) noexcept = default;
     ~Linear() = default;
 
-    Vector get(const Matrix& matrix,
-               std::size_t row_number) const; // deprecated
+    Vector get(
+        const Matrix& matrix,
+        std::size_t row_number) const; // deprecated
 
-    Vector dot(const Vector& vector,
-               const Matrix& matrix,
-               bool transpose_dot_matrix = false) const;
+    Vector dot(
+        const Vector& vector,
+        const Matrix& matrix,
+        bool transpose_dot_matrix = false) const;
 
-    Matrix tensordot(const Vector& left_side_vector,
-                     const Vector& right_side_vector,
-                     bool return_transpose_matrix = false) const;
+    Matrix tensordot(
+        const Vector& left_side_vector,
+        const Vector& right_side_vector,
+        bool return_transpose_matrix = false) const;
 };
 
 template <class Vector, class Matrix>

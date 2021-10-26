@@ -20,8 +20,9 @@ public:
     Tensor1D (*f)(const Tensor1D&);
     Tensor1D (*df)(const Tensor1D&);
 
-    explicit Activation(Tensor1D (*function)(const Tensor1D&) = nullptr,
-               Tensor1D (*function_derived)(const Tensor1D&) = nullptr) noexcept
+    explicit Activation(
+        Tensor1D (*function)(const Tensor1D&) = nullptr,
+        Tensor1D (*function_derived)(const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -34,8 +35,9 @@ public:
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     Tensor1D (*df)(const Tensor1D&, const Tensor1D&);
 
-    explicit Loss(Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
-         Tensor1D (*function_derived)(const Tensor1D&, const Tensor1D&) = nullptr) noexcept
+    explicit Loss(
+        Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
+        Tensor1D (*function_derived)(const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -78,7 +80,8 @@ public:
 
     void initializeInnerStruct(GeneratorFloat generator) noexcept;
     void initializeInnerStruct(
-        GeneratorFloat generator_bias, GeneratorFloat generator_weight) noexcept;
+        GeneratorFloat generator_bias,
+        GeneratorFloat generator_weight) noexcept;
 
     void setActivationFunction(const ActivationFunction& activation_function) noexcept;
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
@@ -96,27 +99,43 @@ public:
     Collection<Tensor1D> feedforward(const Collection<Tensor1D>&) const;
 
     void trainStochastic(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
-        Precision learn_rate, size_type epoch_scale, GeneratorInteger generator);
-        void trainBatch(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
-        Precision learn_rate, size_type epoch_scale);
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
+        Precision learn_rate,
+        size_type epoch_scale,
+        GeneratorInteger generator);
+
+    void trainBatch(
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
+        Precision learn_rate,
+        size_type epoch_scale);
+
     void trainMiniBatch(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
-        Precision learn_rate, size_type epoch_scale, size_type mini_batch_size,
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
+        Precision learn_rate,
+        size_type epoch_scale,
+        size_type mini_batch_size,
         GeneratorInteger generator);
 
     double accuracy(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata) const;
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata) const;
+
     double globalAccuracy(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
         Precision range_rate) const;
+
     double fullAccuracy(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata,
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
         Precision range_rate) const;
 
     double loss(
-        const Collection<Tensor1D>& idata, const Collection<Tensor1D>& odata) const;
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata) const;
 };
 
 template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
@@ -156,7 +175,8 @@ template <template <typename T, typename...> class Vector, template <typename T,
           template <class V, class M> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::initializeInnerStruct(
-    Precision (*generator_bias)(), Precision (*generator_weight)()) noexcept
+    Precision (*generator_bias)(),
+    Precision (*generator_weight)()) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -273,7 +293,9 @@ template <template <typename T, typename...> class Vector, template <typename T,
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainStochastic(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
-    Precision learn_rate, std::size_t epoch_scale, int (*generator)())
+    Precision learn_rate,
+    std::size_t epoch_scale,
+    int (*generator)())
 {
     Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
@@ -323,7 +345,8 @@ template <template <typename T, typename...> class Vector, template <typename T,
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
-    Precision learn_rate, std::size_t epoch_scale)
+    Precision learn_rate,
+    std::size_t epoch_scale)
 {
     Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
@@ -394,8 +417,10 @@ template <template <typename T, typename...> class Vector, template <typename T,
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
-    Precision learn_rate, std::size_t epoch_scale,
-    std::size_t mini_batch_size, int (*generator)())
+    Precision learn_rate,
+    std::size_t epoch_scale,
+    std::size_t mini_batch_size,
+    int (*generator)())
 {
     Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);

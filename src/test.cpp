@@ -1,8 +1,7 @@
-#include <cstdlib> // rand, srand
+#include <cstdlib> // rand, srand, size_t
 #include <ctime> // time
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
-#include <cstddef> // size_t
 
 #include "Trixy/Lique/lique_linear.hpp" // Linear
 #include "Trixy/Lique/lique_matrix.hpp" // Matrix
