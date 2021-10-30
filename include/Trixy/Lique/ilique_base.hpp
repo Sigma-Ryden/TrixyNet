@@ -39,7 +39,7 @@ public:
     virtual const Type& operator() (std::size_t i) const noexcept = 0;
 
     virtual std::size_t size() const noexcept = 0;
-    virtual Tensor<Type, Args...>& resize(std::size_t new_size) = 0;
+    virtual void resize(std::size_t new_size) = 0;
     virtual Type dot(const Tensor<Type, Args...>&) const = 0;
 };
 
@@ -56,8 +56,8 @@ public:
 
     virtual const Shape& size() const noexcept = 0;
 
-    virtual Tensor<Type, Args...>& resize(std::size_t m, std::size_t n) = 0;
-    virtual Tensor<Type, Args...>& resize(const Shape& new_shape) = 0;
+    virtual void resize(std::size_t m, std::size_t n) = 0;
+    virtual void resize(const Shape& new_shape) = 0;
 
     virtual Tensor<Type, Args...> dot(const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...> transpose() const = 0;

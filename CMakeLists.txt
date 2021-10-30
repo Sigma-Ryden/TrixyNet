@@ -26,11 +26,12 @@ set(TRIXY_NEURO
 set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp
     include/MnistMaster/mnist_reader_common.hpp
+    include/MnistMaster/mnist_reader_less.hpp
     include/MnistMaster/mnist_utils.hpp
 )
 set(TIMER include/Timer/timer.h)
 
-add_executable(Trixy
+add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${TRIXY_COLLECTION}
     ${TRIXY_LIQUE}

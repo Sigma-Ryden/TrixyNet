@@ -29,7 +29,7 @@ public:
     const Type& operator() (std::size_t i) const noexcept;
 
     std::size_t size() const noexcept;
-    virtual Tensor<Type>& resize(std::size_t new_size) = 0;
+    virtual void resize(std::size_t new_size) = 0;
     virtual Type dot(const Tensor<Type>&) const = 0;
 };
 
@@ -59,7 +59,7 @@ Vector<Tensor, Type>::Vector(const Vector& vector)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Vector<Tensor, Type>::Vector(Vector&& vector) noexcept
+inline Vector<Tensor, Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;

@@ -26,7 +26,7 @@ public:
     Vector& operator= (Vector&&) noexcept;
 
     std::size_t size() const noexcept;
-    Vector& resize(std::size_t new_size);
+    void resize(std::size_t new_size);
 
     Type& operator() (std::size_t i) noexcept;
     const Type& operator() (std::size_t i) const noexcept;
@@ -73,7 +73,7 @@ Vector<Type>::Vector(const Vector& vector)
 }
 
 template <typename Type>
-Vector<Type>::Vector(Vector&& vector) noexcept
+inline Vector<Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
@@ -131,14 +131,12 @@ inline std::size_t Vector<Type>::size() const noexcept
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::resize(std::size_t new_size)
+void Vector<Type>::resize(std::size_t new_size)
 {
     delete[] data_;
 
     size_ = new_size;
     data_ = new Type[size_];
-
-    return *this;
 }
 
 template <typename Type>

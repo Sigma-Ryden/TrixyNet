@@ -7,13 +7,16 @@
 template <typename T>
 class Collection
 {
+public:
+    class iterator;
+
 private:
     T* data_;
     std::size_t size_;
 
 public:
     Collection() noexcept;
-    explicit Collection(std::size_t size_);
+    explicit Collection(std::size_t size);
     Collection(const Collection<T>&);
     Collection(Collection<T>&&) noexcept;
     Collection(const std::initializer_list<T>&);
@@ -22,9 +25,31 @@ public:
     Collection<T>& operator= (Collection<T>&&) noexcept;
 
     std::size_t size() const noexcept;
+    void resize(std::size_t new_size);
+
+    iterator begin() const noexcept;
+    iterator end() const noexcept;
 
     T& operator[] (std::size_t i) noexcept;
     const T& operator[] (std::size_t i) const noexcept;
+};
+
+template <typename T>
+class Collection<T>::iterator
+{
+private:
+    T* ptr_;
+
+public:
+    iterator(T* ptr) noexcept : ptr_(ptr) {}
+
+    T& operator* () noexcept { return *ptr_; }
+    T* operator-> () noexcept { return ptr_; }
+
+    bool operator!= (const iterator& it) const noexcept { return ptr_ != it.ptr_; }
+
+    iterator operator++ () noexcept { ++ptr_; return *this; }
+    iterator operator-- () noexcept { --ptr_; return *this; }
 };
 
 template <typename T>
@@ -66,12 +91,13 @@ Collection<T>::Collection(const std::initializer_list<T>& list)
     }
 }
 
-
 template <typename T>
 Collection<T>& Collection<T>::operator= (const Collection<T>& collection)
 {
     if(this == &collection)
         return *this;
+
+    delete[] data_;
 
     size_ = collection.size_;
     data_ = new T[size_];
@@ -88,6 +114,8 @@ Collection<T>& Collection<T>::operator= (Collection<T>&& collection) noexcept
     if(this == &collection)
         return *this;
 
+    delete[] data_;
+
     size_ = collection.size_;
     data_ = collection.data_;
 
@@ -103,10 +131,32 @@ inline std::size_t Collection<T>::size() const noexcept
 }
 
 template <typename T>
+void Collection<T>::resize(std::size_t new_size)
+{
+    delete[] data_;
+
+    size_ = new_size;
+    data_ = new T[size_];
+}
+
+template <typename T>
+inline typename Collection<T>::iterator Collection<T>::begin() const noexcept
+{
+    return data_;
+}
+
+template <typename T>
+inline typename Collection<T>::iterator Collection<T>::end() const noexcept
+{
+    return data_ + size_;
+}
+
+template <typename T>
 inline T& Collection<T>::operator[] (std::size_t i) noexcept
 {
     return data_[i];
 }
+
 template <typename T>
 inline const T& Collection<T>::operator[] (std::size_t i) const noexcept
 {

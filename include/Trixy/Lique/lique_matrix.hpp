@@ -28,8 +28,8 @@ public:
     Matrix& operator= (Matrix&&) noexcept;
 
     const Shape& size() const noexcept;
-    Matrix& resize(std::size_t m, std::size_t n);
-    Matrix& resize(const Shape& new_shape);
+    void resize(std::size_t m, std::size_t n);
+    void resize(const Shape& new_shape);
 
     Matrix& fill(Type (*generator)()) noexcept;
     Matrix& fill(Type value) noexcept;
@@ -109,7 +109,7 @@ Matrix<Type>::Matrix(const Matrix& matrix)
 }
 
 template <typename Type>
-Matrix<Type>::Matrix(Matrix&& matrix) noexcept
+inline Matrix<Type>::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
@@ -169,7 +169,7 @@ inline const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
 }
 
 template <typename Type>
-Matrix<Type>& Matrix<Type>::resize(std::size_t m, std::size_t n)
+void Matrix<Type>::resize(std::size_t m, std::size_t n)
 {
     if(data_ != nullptr)
     {
@@ -183,14 +183,22 @@ Matrix<Type>& Matrix<Type>::resize(std::size_t m, std::size_t n)
     data_ = new Type* [shape_.row_];
     for(std::size_t i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
-
-    return *this;
 }
 
 template <typename Type>
-Matrix<Type>& Matrix<Type>::resize(const Shape& shape)
+void Matrix<Type>::resize(const Shape& shape)
 {
-    return resize(shape.row_, shape.col_);
+    if(data_ != nullptr)
+    {
+        for(std::size_t i = 0; i < shape_.row_; ++i)
+            delete[] data_[i];
+        delete[] data_;
+    }
+
+    shape_ = shape;
+    data_ = new Type* [shape_.row_];
+    for(std::size_t i = 0; i < shape_.row_; ++i)
+        data_[i] = new Type[shape_.col_];
 }
 
 template <typename Type>

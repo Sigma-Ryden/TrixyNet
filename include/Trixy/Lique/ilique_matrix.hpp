@@ -32,8 +32,8 @@ public:
 
     const Shape& size() const noexcept;
 
-    virtual Tensor<Type>& resize(std::size_t m, std::size_t n) = 0;
-    virtual Tensor<Type>& resize(const Shape& new_shape) = 0;
+    virtual void resize(std::size_t m, std::size_t n) = 0;
+    virtual void resize(const Shape& new_shape) = 0;
 
     virtual Tensor<Type> dot(const Tensor<Type>&) const = 0;
     virtual Tensor<Type> transpose() const = 0;
@@ -58,7 +58,7 @@ public:
 };
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
+inline Matrix<Tensor, Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
@@ -102,7 +102,7 @@ Matrix<Tensor, Type>::Matrix(const Matrix& matrix)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>::Matrix(Matrix&& matrix) noexcept
+inline Matrix<Tensor, Type>::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
