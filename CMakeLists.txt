@@ -7,8 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
-set(SOURCES src/test.cpp)
-set(TRIXY_COLLECTION include/Trixy/Collection/collection.hpp)
+set(TESTING
+    src/simple_test.cpp
+    src/mnist_test.cpp
+)
+set(TRIXY_COLLECTION
+    include/Trixy/Collection/collection.hpp
+)
 set(TRIXY_LIQUE
     include/Trixy/Lique/ilique_base.hpp
     include/Trixy/Lique/ilique_linear.hpp
@@ -29,13 +34,20 @@ set(MNIST_MASTER
     include/MnistMaster/mnist_reader_less.hpp
     include/MnistMaster/mnist_utils.hpp
 )
-set(TIMER include/Timer/timer.h)
+set(TIMER
+    include/Timer/timer.h
+)
+
+set(UTILS
+    include/UtilityMaster/utils.hpp
+)
 
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
     ${TRIXY_COLLECTION}
     ${TRIXY_LIQUE}
     ${TRIXY_NEURO}
     ${MNIST_MASTER}
     ${TIMER}
+    ${UTILS}
+    ${TESTING}
 )
