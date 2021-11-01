@@ -21,6 +21,8 @@
 #include "Trixy/Lique/ilique_linear.hpp"
 #include "Trixy/Lique/ilique_matrix.hpp"
 #include "Trixy/Lique/ilique_vector.hpp"
+
+#include "Trixy/Neuro/neuro_optimizer.hpp"
 */
 
 namespace tr = trixy;
