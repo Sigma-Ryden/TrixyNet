@@ -60,6 +60,7 @@ private:
     using GeneratorFloat = Precision (*)();
     using size_type = std::size_t;
 
+private:
     Collection<Tensor1D> B;
     Collection<Tensor2D> W;
 
@@ -72,13 +73,11 @@ private:
 
 public:
     Neuro(const initializer_list_t& topology);
-    Neuro(const Neuro&) = default;
-    Neuro(Neuro&&) noexcept = default;
-    Neuro& operator= (const Neuro&) = default;
-    Neuro& operator= (Neuro&&) noexcept = default;
     ~Neuro() = default;
 
-    void initializeInnerStruct(GeneratorFloat generator) noexcept;
+    void initializeInnerStruct(
+        GeneratorFloat generator) noexcept;
+
     void initializeInnerStruct(
         GeneratorFloat generator_bias,
         GeneratorFloat generator_weight) noexcept;
@@ -86,16 +85,15 @@ public:
     void setActivationFunction(const ActivationFunction& activation_function) noexcept;
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
     void setLossFunction(const LossFunction& loss_function) noexcept;
-
     void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
 
     const Collection<Tensor1D>& getInnerBias() const noexcept;
     const Collection<Tensor2D>& getInnerWeight() const noexcept;
 
     const Collection<ActivationFunction>& getEachActivationFunction() const noexcept;
-    const LossFunction& getLossFunction() const noexcept;
+    const LossFunction&                   getLossFunction() const noexcept;
 
-    Tensor1D feedforward(const Tensor1D&) const;
+    Tensor1D             feedforward(const Tensor1D&) const;
     Collection<Tensor1D> feedforward(const Collection<Tensor1D>&) const;
 
     void trainStochastic(

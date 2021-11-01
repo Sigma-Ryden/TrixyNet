@@ -79,7 +79,7 @@ void simple_test()
     };
 
     std::cout << "Before train\n";
-    testNeuro(network, train_in_set, train_out_set);
+    utils::testNeuro(network, train_in_set, train_out_set);
 
     Timer t;
 
@@ -89,7 +89,7 @@ void simple_test()
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";
-    testNeuro(network, train_in_set, train_out_set);
+    utils::testNeuro(network, train_in_set, train_out_set);
     std::cout << "Normal accuracy: " << network.accuracy(train_in_set, train_out_set) << '\n';
     std::cout << "Global accuracy: " << network.globalAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';

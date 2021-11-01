@@ -2,18 +2,21 @@
 #define UTILS_HPP
 
 #include <cstddef> // size_t
-#include <iostream> // cout
+#include <iostream> // ostream
 #include <type_traits> // enable_if, is_same
 #include <utility> // declval
 
-template <template <typename T, typename...> class Vector,
+namespace utils
+{
+
+template <template <typename T, typename...> class Tensor1D,
           typename Type,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype( std::declval<Vector<Type, Args...>>().operator()(std::size_t()) ),
+                   std::is_same<decltype( std::declval<Tensor1D<Type, Args...>>().operator()(std::size_t()) ),
                                 Type&>::value, int>::type = 0>
 std::ostream& operator<< (
-    std::ostream& out, const Vector<Type, Args...>& vector)
+    std::ostream& out, const Tensor1D<Type, Args...>& vector)
 {
     out << '[';
     for(std::size_t i = 0; i < vector.size() - 1; ++i)
@@ -24,14 +27,14 @@ std::ostream& operator<< (
     return out;
 }
 
-template <template <typename T, typename...> class Matrix,
+template <template <typename T, typename...> class Tensor2D,
           typename Type,
           typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype( std::declval<Matrix<Type, Args...>>().operator()(std::size_t(), std::size_t()) ),
+                   std::is_same<decltype( std::declval<Tensor2D<Type, Args...>>().operator()(std::size_t(), std::size_t()) ),
                                 Type&>::value, int>::type = 0>
 std::ostream& operator<< (
-    std::ostream& out, const Matrix<Type, Args...>& matrix)
+    std::ostream& out, const Tensor2D<Type, Args...>& matrix)
 {
     out << '[';
     for(std::size_t i = 0; i < matrix.size().row() - 1; ++i)
@@ -53,14 +56,14 @@ std::ostream& operator<< (
 }
 
 template <typename Neuro,
-          template <typename T, typename...> class Vector,
+          template <typename T, typename...> class Tensor1D,
           template <typename...> class Collection,
           typename Type,
           typename... Args>
 void testNeuro(
     const Neuro& network,
-    const Collection<Vector<Type, Args...>>& idata,
-    const Collection<Vector<Type, Args...>>& odata)
+    const Collection<Tensor1D<Type, Args...>>& idata,
+    const Collection<Tensor1D<Type, Args...>>& odata)
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
@@ -92,5 +95,7 @@ void network_size(const Collection<std::size_t>& topology)
               << (count / 1024) % 1024 << " KByte(s) "
               << count % 1024 << " Byte(s)\n";
 }
+
+} // namespace utils
 
 #endif // UTILS_HPP
