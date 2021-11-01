@@ -117,7 +117,7 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -130,7 +130,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 FLOAT:
 4.810986

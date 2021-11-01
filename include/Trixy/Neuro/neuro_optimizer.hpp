@@ -74,35 +74,25 @@ Tensor<Precision, Args...> adam(
 
 } // namespace set
 
-namespace meta
-{
-
-template <typename T>
-struct size_type_of_
-{
-    using type = decltype(std::declval<T>().size());
-};
-
-template <typename T>
-using size_type_of = typename size_type_of_<T>::type;
-
-} // namespace meta
-
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 class Optimizer
 {
 private:
     using TensorND = Tensor<Precision, Args...>;
+    using tensor_size_type = decltype(std::declval<TensorND>().size());
 
-    Tensor<Precision, Args...> retain_;
-    TensorND (*optimizer_)(const TensorND&, TensorND&);
+    TensorND retain_;
+    TensorND (*optimizer_)(const TensorND&, TensorND&, Precision);
     Precision alpha_;
 
 public:
-    Optimizer(TensorND (*optimizer)(const TensorND&, TensorND&) = nullptr, Precision alpha = 0.0)
+    explicit Optimizer(
+        Tensor<Precision, Args...> (*optimizer)(
+            const Tensor<Precision, Args...>&, Tensor<Precision, Args...>&, Precision) = nullptr,
+        Precision alpha = 0.0)
     : retain_(), optimizer_(optimizer), alpha_(alpha) {}
 
-    void reset(meta::size_type_of<Tensor<Precision, Args...>> new_size)
+    void reset(tensor_size_type new_size)
     {
         retain_.resize(new_size);
         retain_.fill(0.0);
@@ -110,7 +100,7 @@ public:
 
     Tensor<Precision, Args...> optomize(const Tensor<Precision, Args...>& grad)
     {
-        return optimizer_(retain_, grad, alpha_);
+        return optimizer_(grad, retain_, alpha_);
     }
 };
 
