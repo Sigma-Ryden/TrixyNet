@@ -9,9 +9,9 @@
 
 #include "Trixy/Collection/collection.hpp" // Collection
 
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss
+#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // get
-
+#include "Trixy/Neuro/neuro_optimizer.hpp" // get
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
 #include "Timer/timer.h" // Timer
@@ -63,7 +63,7 @@ void mnist_test()
 //  Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 60000;
+    std::size_t train_batch_size = 5000;
     std::size_t test_batch_size = 10000;
     std::size_t input_size = 784;
     std::size_t out_size = 10;
@@ -87,6 +87,7 @@ void mnist_test()
 
     network.initializeInnerStruct(random_real);
 
+    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("sigmoid"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("sigmoid"));
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("MSE"));
@@ -98,7 +99,9 @@ void mnist_test()
     {
         std::cout << "start train [" << i + 1 << "]:\n";
         //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32, std::rand);
-        network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
+        network.trainMiniBatchOptimize(train_in, train_out, 0.1, 100, 100, std::rand);
+        //std::cout << "Loss: " << network.loss(train_in, train_out) << '\n';
+        //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
     t.reset();
@@ -117,7 +120,7 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -130,7 +133,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 FLOAT:
 4.810986

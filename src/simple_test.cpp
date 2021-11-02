@@ -7,8 +7,9 @@
 #include "Trixy/Lique/lique_matrix.hpp" // Matrix
 #include "Trixy/Lique/lique_vector.hpp" // Vector
 
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss
+#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // get
+#include "Trixy/Neuro/neuro_optimizer.hpp" // get
 
 #include "Trixy/Collection/collection.hpp" // Collection
 
@@ -21,8 +22,6 @@
 #include "Trixy/Lique/ilique_linear.hpp"
 #include "Trixy/Lique/ilique_matrix.hpp"
 #include "Trixy/Lique/ilique_vector.hpp"
-
-#include "Trixy/Neuro/neuro_optimizer.hpp"
 */
 
 namespace tr = trixy;
@@ -53,7 +52,7 @@ void simple_test()
     NeuralFeedForward network = {4, 4, 5, 4, 3};
 
     network.initializeInnerStruct(random_real);
-
+    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
@@ -85,9 +84,15 @@ void simple_test()
 
     Timer t;
 
-    network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
-    network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
-    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
+    //network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+    //network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
+    for(int i = 1; i <= 200; ++i)
+    {
+        //network.trainMiniBatch(train_in_set, train_out_set, 0.15, 10, 6, std::rand);
+        network.trainMiniBatchOptimize(train_in_set, train_out_set, 0.1, 10, 6, std::rand);
+        std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
+    }
+
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";

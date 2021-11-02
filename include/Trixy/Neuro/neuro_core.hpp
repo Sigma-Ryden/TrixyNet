@@ -2,8 +2,9 @@
 #define NEURO_CORE_HPP
 
 #include <cstddef> // size_t
-#include <initializer_list> // initializer_list
 #include <cmath> // fabs
+#include <initializer_list> // initializer_list
+#include <utility> // declval
 
 namespace trixy
 {
@@ -14,9 +15,10 @@ namespace function
 template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
 class Activation
 {
-public:
+private:
     using Tensor1D = Vector<Precision, Args...>;
 
+public:
     Tensor1D (*f)(const Tensor1D&);
     Tensor1D (*df)(const Tensor1D&);
 
@@ -29,9 +31,10 @@ public:
 template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
 class Loss
 {
-public:
+private:
     using Tensor1D = Vector<Precision, Args...>;
 
+public:
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     Tensor1D (*df)(const Tensor1D&, const Tensor1D&);
 
@@ -40,6 +43,64 @@ public:
         Tensor1D (*function_derived)(const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          typename Precision, typename... Args>
+class Optimization
+{
+private:
+    using Tensor1D = Vector<Precision, Args...>;
+    using Tensor2D = Matrix<Precision, Args...>;
+
+public:
+    Tensor1D (*f1D)(const Tensor1D&, Tensor1D&);
+    Tensor2D (*f2D)(const Tensor2D&, Tensor2D&);
+
+    explicit Optimization(
+        Tensor1D (*vector_optimizer)(const Tensor1D&, Tensor1D&) = nullptr,
+        Tensor2D (*matrix_optimizer)(const Tensor2D&, Tensor2D&) = nullptr) noexcept
+    : f1D(vector_optimizer), f2D(matrix_optimizer) {}
+};
+
+namespace detail
+{
+
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+class Optimizer
+{
+private:
+    using TensorND = Tensor<Precision, Args...>;
+    using tensor_size_type = decltype(std::declval<TensorND>().size());
+
+    TensorND retain_;
+    TensorND (*optimizer_)(const TensorND&, TensorND&);
+
+public:
+    Optimizer() = default;
+    explicit Optimizer(TensorND (*optimizer)(const TensorND&, TensorND&), tensor_size_type retain_size)
+        : retain_(retain_size), optimizer_(optimizer)
+    {
+        retain_.fill(0.0);
+    }
+
+    void change(TensorND (*new_optimizer)(const TensorND&, TensorND&))
+    {
+        optimizer_ = new_optimizer;
+    }
+
+    void reset(tensor_size_type new_size)
+    {
+        retain_.resize(new_size);
+        retain_.fill(0.0);
+    }
+
+    TensorND update(const TensorND& grad)
+    {
+        return optimizer_(grad, retain_);
+    }
+};
+
+} // namespace detail
 
 } // namespace function
 
@@ -54,6 +115,10 @@ private:
 
     using ActivationFunction = function::Activation<Vector, Precision, Args...>;
     using LossFunction = function::Loss<Vector, Precision, Args...>;
+    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
+
+    using Optimizer1D = function::detail::Optimizer<Vector, Precision, Args...>;
+    using Optimizer2D = function::detail::Optimizer<Matrix, Precision, Args...>;
 
     using initializer_list_t = std::initializer_list<std::size_t>;
     using GeneratorInteger = int (*)();
@@ -66,6 +131,7 @@ private:
 
     Collection<ActivationFunction> A;
     LossFunction E;
+    OptimizationFunction O;
 
     size_type N;
 
@@ -87,13 +153,15 @@ public:
     void setLossFunction(const LossFunction& loss_function) noexcept;
     void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
 
+    void setOptimizationFunction(const OptimizationFunction& optimization_function) noexcept;
+
     const Collection<Tensor1D>& getInnerBias() const noexcept;
     const Collection<Tensor2D>& getInnerWeight() const noexcept;
 
     const Collection<ActivationFunction>& getEachActivationFunction() const noexcept;
-    const LossFunction&                   getLossFunction() const noexcept;
+    const LossFunction& getLossFunction() const noexcept;
 
-    Tensor1D             feedforward(const Tensor1D&) const;
+    Tensor1D feedforward(const Tensor1D&) const;
     Collection<Tensor1D> feedforward(const Collection<Tensor1D>&) const;
 
     void trainStochastic(
@@ -110,6 +178,14 @@ public:
         size_type epoch_scale);
 
     void trainMiniBatch(
+        const Collection<Tensor1D>& idata,
+        const Collection<Tensor1D>& odata,
+        Precision learn_rate,
+        size_type epoch_scale,
+        size_type mini_batch_size,
+        GeneratorInteger generator);
+
+    void trainMiniBatchOptimize(
         const Collection<Tensor1D>& idata,
         const Collection<Tensor1D>& odata,
         Precision learn_rate,
@@ -145,6 +221,7 @@ Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::Neuro(
         , W(topology.size() - 1)
         , A(topology.size() - 1)
         , E()
+        , O()
         , N(topology.size() - 1)
         , li()
 {
@@ -219,6 +296,15 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setEachActiv
 {
     for(size_type i = 0; i < activation_set.size(); ++i)
         A[i] = activation_set[i];
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setOptimizationFunction(
+    const OptimizationFunction& optimization_function) noexcept
+{
+    O = optimization_function;
 }
 
 template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
@@ -489,6 +575,100 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
         {
             B[i] -= deltaB[i].join(learn_rate);
             W[i] -= deltaW[i].join(learn_rate);
+        }
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBatchOptimize(
+    const Collection<Vector<Precision, Args...>>& idata,
+    const Collection<Vector<Precision, Args...>>& odata,
+    Precision learn_rate,
+    std::size_t epoch_scale,
+    std::size_t mini_batch_size,
+    int (*generator)())
+{
+    Collection<Tensor1D> S(N);
+    Collection<Tensor1D> H(N + 1);
+
+    Collection<Tensor1D> DH(N);
+    Collection<Tensor1D> DB(N);
+    Collection<Tensor2D> DW(N);
+
+    Collection<Tensor1D> deltaB(N);
+    Collection<Tensor2D> deltaW(N);
+
+    Collection<Optimizer1D> OB(N);
+    Collection<Optimizer2D> OW(N);
+
+    for(size_type i = 0; i < N; ++i)
+    {
+        deltaB[i].resize(B[i].size());
+        deltaW[i].resize(W[i].size());
+
+        OB[i] = Optimizer1D(O.f1D, B[i].size());
+        OW[i] = Optimizer2D(O.f2D, W[i].size());
+    }
+
+    Tensor1D theta;
+
+    size_type sample_begin;
+    size_type sample_end;
+    size_type sample_part;
+
+    for(size_type n = 0; n < epoch_scale; ++n)
+    {
+        sample_part  = generator() % (idata.size() / mini_batch_size);
+        sample_begin = sample_part * mini_batch_size;
+        sample_end   = sample_begin + mini_batch_size;
+
+        for(size_type i = 0; i < N; ++i)
+        {
+            deltaB[i].fill(0.0);
+            deltaW[i].fill(0.0);
+        }
+
+        while(sample_begin < sample_end)
+        {
+            H[0] = idata[sample_begin];
+            for(size_type i = 0; i < N; ++i)
+            {
+                S[i]     = li.dot(H[i], W[i]) + B[i];
+                H[i + 1] = A[i].f(S[i]);
+                DH[i]    = A[i].df(S[i]);
+            }
+
+            theta = E.df(odata[sample_begin], H[N]);
+            for(size_type i = N - 1; i > 0; --i)
+            {
+                DB[i] = DH[i].multiply(theta);
+                DW[i] = li.tensordot(DB[i], H[i]);
+                theta = li.dot(DB[i], W[i], true);
+            }
+            DB[0] = DH[0].multiply(theta);
+            DW[0] = li.tensordot(DB[0], H[0]);
+
+            for(size_type i = 0; i < N; ++i)
+            {
+                deltaB[i] += DB[i];
+                deltaW[i] += DW[i];
+            }
+
+            ++sample_begin;
+        }
+
+        for(size_type i = 0; i < N; ++i)
+        {
+            deltaB[i] = deltaB[i].join(1.0 / mini_batch_size);
+            deltaW[i] = deltaW[i].join(1.0 / mini_batch_size);
+        }
+
+        for(size_type i = 0; i < N; ++i)
+        {
+            B[i] -= OB[i].update(deltaB[i]).join(learn_rate);
+            W[i] -= OW[i].update(deltaW[i]).join(learn_rate);
         }
     }
 }

@@ -61,7 +61,7 @@ private:
     std::size_t col_;
 
 public:
-    explicit Shape(size_t m, size_t n) noexcept : row_(m), col_(n) {}
+    explicit Shape(size_t m = 0, size_t n = 0) noexcept : row_(m), col_(n) {}
     Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
 
     std::size_t row() const noexcept { return row_; }
@@ -69,7 +69,7 @@ public:
 };
 
 template <typename Type>
-inline Matrix<Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
+inline Matrix<Type>::Matrix() noexcept : data_(nullptr), shape_()
 {
 }
 

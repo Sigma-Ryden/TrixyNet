@@ -3,6 +3,8 @@
 
 #include <cmath> // sqrt
 #include <utility> // declval
+#include <type_traits> // enable_if, is_same
+#include <map> // map
 
 namespace trixy
 {
@@ -26,24 +28,28 @@ Precision invertSqrt(Precision x)
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> momentum(
-    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& s)
+    const Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& s)
 {
-    static const Precision beta = 0.9;
+    static const Precision beta1 = 0.9;
+    static const Precision beta2 = 1.0 - beta1;
 
-    s = s.join(beta) + g.join(1.0 - beta);
+    s = s.join(beta1) + g.join(beta2);
 
     return s;
 }
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> rms_prop(
-    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& v)
+    const Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& s)
 {
-    static const Precision beta = 0.9;
+    static const Precision beta1 = 0.9;
+    static const Precision beta2 = 1.0 - beta1;
 
-    v = v.join(beta) + g.multiply(g.join(1.0 - beta));
+    s = s.join(beta1) + g.multiply(g.join(beta2));
 
-    return g.multiply(v.apply(detail::invertSqrt));
+    return g.multiply(s.apply(detail::invertSqrt));
 }
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
@@ -58,51 +64,67 @@ Tensor<Precision, Args...> ada_grad(
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> adam(
     const Tensor<Precision, Args...>& g,
-    Tensor<Precision, Args...>& m,
-    Tensor<Precision, Args...>& v)
+    Tensor<Precision, Args...>& s1,
+    Tensor<Precision, Args...>& s2)
 {
-    static const Precision beta_1 = 0.9;
-    static const Precision beta_2 = 0.999;
+    static const Precision beta1 = 0.9;
+    static const Precision beta2 = 0.999;
 
-    m = m.join(beta_1) + g.join(1 - beta_1);
-    v = v.join(beta_2) + g.multiply(g.join(1 - beta_2));
+    s1 = s1.join(beta1) + g.join(1 - beta1);
+    s2 = s2.join(beta2) + g.multiply(g.join(1 - beta2));
 
-    return g.multiply(m.multiply(v.apply(detail::invertSqrt)));
+    return g.multiply(s1.multiply(s2.apply(detail::invertSqrt)));
 }
 
 } // namespace optimization
 
+namespace data
+{
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          typename Precision, typename... Args>
+struct OptimizationData
+{
+     Vector<Precision, Args...> (*f1D)(const Vector<Precision, Args...>&, Vector<Precision, Args...>&);
+     Matrix<Precision, Args...> (*f2D)(const Matrix<Precision, Args...>&, Matrix<Precision, Args...>&);
+};
+
+} // namespace
+
 } // namespace set
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-class Optimizer
+template <template <template <typename T, typename...> class V,
+                    template <typename T, typename...> class M,
+                    typename P,
+                    typename...> class FunctionData,
+          template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args,
+          typename std::enable_if<
+                   std::is_same<decltype(std::declval<FunctionData<Vector, Matrix, Precision, Args...>>().f1D),
+                                Vector<Precision, Args...> (*)(const Vector<Precision, Args...>&, Vector<Precision, Args...>&)>::value &&
+                   std::is_same<decltype(std::declval<FunctionData<Vector, Matrix, Precision, Args...>>().f2D),
+                            Matrix<Precision, Args...> (*)(const Matrix<Precision, Args...>&, Matrix<Precision, Args...>&)>::value,
+                   int>::type = 0>
+FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name)
 {
-private:
-    using TensorND = Tensor<Precision, Args...>;
-    using tensor_size_type = decltype(std::declval<TensorND>().size());
+    using namespace set::optimization;
+    using namespace set::data;
 
-    TensorND retain_;
-    TensorND (*optimizer_)(const TensorND&, TensorND&, Precision);
-    Precision alpha_;
+    static std::map<const char*, OptimizationData<Vector, Matrix, Precision, Args...>> optimization_data;
 
-public:
-    explicit Optimizer(
-        Tensor<Precision, Args...> (*optimizer)(
-            const Tensor<Precision, Args...>&, Tensor<Precision, Args...>&, Precision) = nullptr,
-        Precision alpha = 0.0)
-    : retain_(), optimizer_(optimizer), alpha_(alpha) {}
+    optimization_data["momentum"] = { momentum, momentum };
+    optimization_data["rms_prop"] = { rms_prop, rms_prop };
+    optimization_data["ada_grad"] = { ada_grad, ada_grad };
 
-    void reset(tensor_size_type new_size)
-    {
-        retain_.resize(new_size);
-        retain_.fill(0.0);
-    }
+    auto it = optimization_data.find(optimization_function_name);
 
-    Tensor<Precision, Args...> optomize(const Tensor<Precision, Args...>& grad)
-    {
-        return optimizer_(grad, retain_, alpha_);
-    }
-};
+    if(it != optimization_data.end())
+        return FunctionData<Vector, Matrix, Precision, Args...>(it->second.f1D, it->second.f2D);
+
+    return FunctionData<Vector, Matrix, Precision, Args...>();
+}
 
 } // namespace trixy
 

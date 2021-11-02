@@ -4,8 +4,8 @@
 #include <cstddef> // size_t
 #include <cmath> // pow, exp, log, fabs, tanh, cosh
 #include <type_traits> // enable_if, is_same
-#include <map> // map
 #include <utility> // declval
+#include <map> // map
 
 namespace trixy
 {
@@ -544,7 +544,9 @@ struct LossData
 
 } // namespace set
 
-template <template <template <typename T, typename...> class V, typename T, typename...> class FunctionData,
+template <template <template <typename T, typename...> class V,
+                    typename T,
+                    typename...> class FunctionData,
           template <typename T, typename...> class Tensor,
           typename Precision,
           typename... Args,
@@ -575,15 +577,17 @@ FunctionData<Tensor, Precision, Args...> get(const char* activation_function_nam
     activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units  };
     activation_data["softmax"]          = { softmax,          tensor_of_units  };
 
-    auto i = activation_data.find(activation_function_name);
+    auto it = activation_data.find(activation_function_name);
 
-    if(i != activation_data.end())
-        return FunctionData<Tensor, Precision, Args...>(i->second.f, i->second.df);
+    if(it != activation_data.end())
+        return FunctionData<Tensor, Precision, Args...>(it->second.f, it->second.df);
 
     return FunctionData<Tensor, Precision, Args...>();
 }
 
-template <template <template <typename T, typename...> class V, typename T, typename...> class FunctionData,
+template <template <template <typename T, typename...> class V,
+                    typename T,
+                    typename...> class FunctionData,
           template <typename T, typename...> class Tensor,
           typename Precision,
           typename... Args,
@@ -609,10 +613,10 @@ FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
     loss_data["BCE"]  = { binary_cross_entropy,           binary_cross_entropy_derived_sigmoid      };
     loss_data["LC"]   = { logcosh,                        logcosh_derived                           };
 
-    auto i = loss_data.find(loss_function_name);
+    auto it = loss_data.find(loss_function_name);
 
-    if(i != loss_data.end())
-        return FunctionData<Tensor, Precision, Args...>(i->second.f, i->second.df);
+    if(it != loss_data.end())
+        return FunctionData<Tensor, Precision, Args...>(it->second.f, it->second.df);
 
     return FunctionData<Tensor, Precision, Args...>();
 }
