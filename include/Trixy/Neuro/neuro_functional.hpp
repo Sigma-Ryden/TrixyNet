@@ -3,8 +3,8 @@
 
 #include <cstddef> // size_t
 #include <cmath> // pow, exp, log, fabs, tanh, cosh
-#include <type_traits> // enable_if, is_same
 #include <utility> // declval
+#include <type_traits> // enable_if, is_same
 #include <map> // map
 
 namespace trixy

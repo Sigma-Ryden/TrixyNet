@@ -90,7 +90,7 @@ void simple_test()
     {
         //network.trainMiniBatch(train_in_set, train_out_set, 0.15, 10, 6, std::rand);
         network.trainMiniBatchOptimize(train_in_set, train_out_set, 0.1, 10, 6, std::rand);
-        std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
+        //std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
     }
 
     std::cout << t.elapsed() << '\n';

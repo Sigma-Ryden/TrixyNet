@@ -663,10 +663,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
         {
             deltaB[i] = deltaB[i].join(1.0 / mini_batch_size);
             deltaW[i] = deltaW[i].join(1.0 / mini_batch_size);
-        }
 
-        for(size_type i = 0; i < N; ++i)
-        {
             B[i] -= OB[i].update(deltaB[i]).join(learn_rate);
             W[i] -= OW[i].update(deltaW[i]).join(learn_rate);
         }
