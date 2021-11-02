@@ -77,7 +77,8 @@ private:
 
 public:
     Optimizer() = default;
-    explicit Optimizer(TensorND (*optimizer)(const TensorND&, TensorND&), tensor_size_type retain_size)
+    explicit Optimizer(
+        TensorND (*optimizer)(const TensorND&, TensorND&), tensor_size_type retain_size)
         : retain_(retain_size), optimizer_(optimizer)
     {
         retain_.fill(0.0);
@@ -152,7 +153,6 @@ public:
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
     void setLossFunction(const LossFunction& loss_function) noexcept;
     void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
-
     void setOptimizationFunction(const OptimizationFunction& optimization_function) noexcept;
 
     const Collection<Tensor1D>& getInnerBias() const noexcept;

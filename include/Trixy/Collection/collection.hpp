@@ -41,7 +41,7 @@ private:
     T* ptr_;
 
 public:
-    iterator(T* ptr) noexcept : ptr_(ptr) {}
+    explicit iterator(T* ptr) noexcept : ptr_(ptr) {}
 
     T& operator* () noexcept { return *ptr_; }
     T* operator-> () noexcept { return ptr_; }
@@ -142,13 +142,13 @@ void Collection<T>::resize(std::size_t new_size)
 template <typename T>
 inline typename Collection<T>::iterator Collection<T>::begin() const noexcept
 {
-    return data_;
+    return iterator(data_);
 }
 
 template <typename T>
 inline typename Collection<T>::iterator Collection<T>::end() const noexcept
 {
-    return data_ + size_;
+    return iterator(data_ + size_);
 }
 
 template <typename T>
