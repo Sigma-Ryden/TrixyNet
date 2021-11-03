@@ -24,6 +24,12 @@ Precision invertSqrt(Precision x)
     return 1.0 / std::sqrt(1e-9 + x);
 }
 
+template <typename T>
+inline const T& call_const(T& obj)
+{
+    return const_cast<const T&>(obj);
+}
+
 } // namespace detail
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
@@ -47,9 +53,10 @@ Tensor<Precision, Args...> rms_prop(
     static const Precision beta1 = 0.9;
     static const Precision beta2 = 1.0 - beta1;
 
-    s = s.join(beta1) + g.multiply(g.join(beta2));
+    s = s.join(beta1) + detail::call_const(g).multiply(detail::call_const(g).join(beta2));
+    g.multiply(s.apply(detail::invertSqrt));
 
-    return g.multiply(s.apply(detail::invertSqrt));
+    return g;
 }
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
@@ -57,9 +64,10 @@ Tensor<Precision, Args...> ada_grad(
     Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
 {
-    s = s + g.multiply(g);
+    s = s + detail::call_const(g).multiply(g);
+    g.multiply(s.apply(detail::invertSqrt));
 
-    return g.multiply(s.apply(detail::invertSqrt));
+    return g;
 }
 
 } // namespace optimization
