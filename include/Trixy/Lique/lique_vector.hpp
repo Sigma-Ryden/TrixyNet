@@ -38,8 +38,12 @@ public:
     Vector& modify(Type (*function)(Type)) noexcept;
 
     Type dot(const Vector&) const;
+
     Vector multiply(const Vector&) const;
+    Vector& multiply(const Vector&) noexcept;
+
     Vector join(Type value) const;
+    Vector& join(Type value) noexcept;
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
@@ -212,6 +216,15 @@ Vector<Type> Vector<Type>::multiply(const Vector& vector) const
 }
 
 template <typename Type>
+Vector<Type>& Vector<Type>::multiply(const Vector& vector) noexcept
+{
+    for(std::size_t i = 0; i < size_; ++i)
+        data_[i] *= vector.data_[i];
+
+    return *this;
+}
+
+template <typename Type>
 Vector<Type> Vector<Type>::join(Type value) const
 {
     Vector new_vector(size_);
@@ -220,6 +233,15 @@ Vector<Type> Vector<Type>::join(Type value) const
         new_vector.data_[i] = data_[i] * value;
 
     return new_vector;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::join(Type value) noexcept
+{
+    for(std::size_t i = 0; i < size_; ++i)
+        data_[i] *= value;
+
+    return *this;
 }
 
 template <typename Type>

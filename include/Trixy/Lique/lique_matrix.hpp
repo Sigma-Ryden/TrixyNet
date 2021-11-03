@@ -41,8 +41,13 @@ public:
     const Type& operator() (std::size_t i, std::size_t j) const noexcept;
 
     Matrix dot(const Matrix&) const;
+
     Matrix multiply(const Matrix&) const;
+    Matrix& multiply(const Matrix&) noexcept;
+
     Matrix join(Type value) const;
+    Matrix& join(Type value) noexcept;
+
     Matrix transpose() const;
 
     Matrix operator+ (const Matrix&) const;
@@ -289,15 +294,35 @@ Matrix<Type> Matrix<Type>::multiply(const Matrix& matrix) const
 }
 
 template <typename Type>
+Matrix<Type>& Matrix<Type>::multiply(const Matrix& matrix) noexcept
+{
+    for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(std::size_t j = 0; j < shape_.col_; ++j)
+            data_[i][j] *= matrix.data_[i][j];
+
+    return *this;
+}
+
+template <typename Type>
 Matrix<Type> Matrix<Type>::join(Type value) const
 {
-    Matrix<Type> new_matrix(shape_);
+    Matrix new_matrix(shape_);
 
     for(std::size_t i = 0; i < shape_.row_; ++i)
         for(std::size_t j = 0; j < shape_.col_; ++j)
-            new_matrix.data_[i][j] = data_[i][j] * value;
+            new_matrix.data_[i][j] = data_[i][j] *= value;
 
     return new_matrix;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::join(Type value) noexcept
+{
+    for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(std::size_t j = 0; j < shape_.col_; ++j)
+            data_[i][j] *= value;
+
+    return *this;
 }
 
 template <typename Type>

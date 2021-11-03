@@ -28,7 +28,7 @@ Precision invertSqrt(Precision x)
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> momentum(
-    const Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
 {
     static const Precision beta1 = 0.9;
@@ -41,7 +41,7 @@ Tensor<Precision, Args...> momentum(
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> rms_prop(
-    const Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
 {
     static const Precision beta1 = 0.9;
@@ -54,26 +54,12 @@ Tensor<Precision, Args...> rms_prop(
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 Tensor<Precision, Args...> ada_grad(
-    const Tensor<Precision, Args...>& g, Tensor<Precision, Args...>& s)
+    Tensor<Precision, Args...>& g,
+    Tensor<Precision, Args...>& s)
 {
     s = s + g.multiply(g);
 
     return g.multiply(s.apply(detail::invertSqrt));
-}
-
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-Tensor<Precision, Args...> adam(
-    const Tensor<Precision, Args...>& g,
-    Tensor<Precision, Args...>& s1,
-    Tensor<Precision, Args...>& s2)
-{
-    static const Precision beta1 = 0.9;
-    static const Precision beta2 = 0.999;
-
-    s1 = s1.join(beta1) + g.join(1 - beta1);
-    s2 = s2.join(beta2) + g.multiply(g.join(1 - beta2));
-
-    return g.multiply(s1.multiply(s2.apply(detail::invertSqrt)));
 }
 
 } // namespace optimization
@@ -85,8 +71,8 @@ template <template <typename T, typename...> class Vector, template <typename T,
           typename Precision, typename... Args>
 struct OptimizationData
 {
-     Vector<Precision, Args...> (*f1D)(const Vector<Precision, Args...>&, Vector<Precision, Args...>&);
-     Matrix<Precision, Args...> (*f2D)(const Matrix<Precision, Args...>&, Matrix<Precision, Args...>&);
+     Vector<Precision, Args...> (*f1D)(Vector<Precision, Args...>&, Vector<Precision, Args...>&);
+     Matrix<Precision, Args...> (*f2D)(Matrix<Precision, Args...>&, Matrix<Precision, Args...>&);
 };
 
 } // namespace
@@ -103,9 +89,9 @@ template <template <template <typename T, typename...> class V,
           typename... Args,
           typename std::enable_if<
                    std::is_same<decltype(std::declval<FunctionData<Vector, Matrix, Precision, Args...>>().f1D),
-                                Vector<Precision, Args...> (*)(const Vector<Precision, Args...>&, Vector<Precision, Args...>&)>::value &&
+                                Vector<Precision, Args...> (*)(Vector<Precision, Args...>&, Vector<Precision, Args...>&)>::value &&
                    std::is_same<decltype(std::declval<FunctionData<Vector, Matrix, Precision, Args...>>().f2D),
-                            Matrix<Precision, Args...> (*)(const Matrix<Precision, Args...>&, Matrix<Precision, Args...>&)>::value,
+                            Matrix<Precision, Args...> (*)(Matrix<Precision, Args...>&, Matrix<Precision, Args...>&)>::value,
                    int>::type = 0>
 FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name)
 {

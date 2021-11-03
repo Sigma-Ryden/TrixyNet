@@ -20,7 +20,10 @@ public:
     virtual Tensor<Type, Args...>& modify(Type (*function)(Type)) noexcept = 0;
 
     virtual Tensor<Type, Args...> multiply(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>& multiply(const Tensor<Type, Args...>&) noexcept = 0;
+
     virtual Tensor<Type, Args...> join(Type value) const = 0;
+    virtual Tensor<Type, Args...>& join(Type value) noexcept = 0;
 
     virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...> operator- (const Tensor<Type, Args...>&) const = 0;

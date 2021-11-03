@@ -4,7 +4,7 @@
 #include <cstddef> // size_t
 #include <cmath> // fabs
 #include <initializer_list> // initializer_list
-#include <utility> // declval
+#include <utility> // declval, move
 
 namespace trixy
 {
@@ -53,12 +53,12 @@ private:
     using Tensor2D = Matrix<Precision, Args...>;
 
 public:
-    Tensor1D (*f1D)(const Tensor1D&, Tensor1D&);
-    Tensor2D (*f2D)(const Tensor2D&, Tensor2D&);
+    Tensor1D (*f1D)(Tensor1D&, Tensor1D&);
+    Tensor2D (*f2D)(Tensor2D&, Tensor2D&);
 
     explicit Optimization(
-        Tensor1D (*vector_optimizer)(const Tensor1D&, Tensor1D&) = nullptr,
-        Tensor2D (*matrix_optimizer)(const Tensor2D&, Tensor2D&) = nullptr) noexcept
+        Tensor1D (*vector_optimizer)(Tensor1D&, Tensor1D&) = nullptr,
+        Tensor2D (*matrix_optimizer)(Tensor2D&, Tensor2D&) = nullptr) noexcept
     : f1D(vector_optimizer), f2D(matrix_optimizer) {}
 };
 
@@ -73,18 +73,18 @@ private:
     using tensor_size_type = decltype(std::declval<TensorND>().size());
 
     TensorND retain_;
-    TensorND (*optimizer_)(const TensorND&, TensorND&);
+    TensorND (*optimizer_)(TensorND&, TensorND&);
 
 public:
     Optimizer() = default;
     explicit Optimizer(
-        TensorND (*optimizer)(const TensorND&, TensorND&), tensor_size_type retain_size)
+        TensorND (*optimizer)(TensorND&, TensorND&), tensor_size_type retain_size)
         : retain_(retain_size), optimizer_(optimizer)
     {
         retain_.fill(0.0);
     }
 
-    void change(TensorND (*new_optimizer)(const TensorND&, TensorND&))
+    void change(TensorND (*new_optimizer)(TensorND&, TensorND&))
     {
         optimizer_ = new_optimizer;
     }
@@ -95,7 +95,7 @@ public:
         retain_.fill(0.0);
     }
 
-    TensorND update(const TensorND& grad)
+    TensorND update(TensorND& grad)
     {
         return optimizer_(grad, retain_);
     }
@@ -210,13 +210,13 @@ private:
 
     void backPropagation(const Tensor1D& odata_sample,
                          const Collection<Tensor1D>& H,
-                         const Collection<Tensor1D>& DH,
+                         Collection<Tensor1D>& DH,
                          Collection<Tensor1D>& DB,
                          Collection<Tensor2D>& DW,
                          Collection<Tensor1D>& theta) const;
 
-    void updateNormalize(const Collection<Tensor1D>& deltaB,
-                         const Collection<Tensor2D>& deltaW,
+    void updateNormalize(Collection<Tensor1D>& deltaB,
+                         Collection<Tensor2D>& deltaW,
                          Collection<Optimizer1D>& OB,
                          Collection<Optimizer2D>& OW,
                          Precision learn_rate,
@@ -227,8 +227,8 @@ private:
                      Collection<Tensor1D>& deltaB,
                      Collection<Tensor2D>& deltaW) const noexcept;
 
-    void updateInnerStruct(const Collection<Tensor1D>& deltaB,
-                           const Collection<Tensor2D>& deltaW,
+    void updateInnerStruct(Collection<Tensor1D>& deltaB,
+                           Collection<Tensor2D>& deltaW,
                            Precision learn_rate);
 
     void startOptimizer(Collection<Optimizer1D>& OB,
@@ -696,7 +696,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedForward(
     H[0] = idata_sample;
     for(size_type i = 0; i < N; ++i)
     {
-        S[i]     = B[i] + li.dot(H[i], W[i]);
+        S[i]     = li.dot(H[i], W[i]) + B[i];
         H[i + 1] = A[i].f(S[i]);
         DH[i]    = A[i].df(S[i]);
     }
@@ -708,7 +708,7 @@ template <template <typename T, typename...> class Vector, template <typename T,
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::backPropagation(
     const Tensor1D& odata_sample,
     const Collection<Vector<Precision, Args...>>& H,
-    const Collection<Vector<Precision, Args...>>& DH,
+    Collection<Vector<Precision, Args...>>& DH,
     Collection<Vector<Precision, Args...>>& DB,
     Collection<Matrix<Precision, Args...>>& DW,
     Collection<Vector<Precision, Args...>>& theta) const
@@ -716,11 +716,11 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::backPropagat
     theta[N - 1] = E.df(odata_sample, H[N]);
     for(size_type i = N - 1; i > 0; --i)
     {
-        DB[i]        = DH[i].multiply(theta[i]);
+        DB[i]        = std::move(DH[i].multiply(theta[i]));
         DW[i]        = li.tensordot(DB[i], H[i]);
         theta[i - 1] = li.dot(DB[i], W[i], true);
     }
-    DB[0] = DH[0].multiply(theta[0]);
+    DB[0] = std::move(DH[0].multiply(theta[0]));
     DW[0] = li.tensordot(DB[0], H[0]);
 }
 
@@ -728,8 +728,8 @@ template <template <typename T, typename...> class Vector, template <typename T,
           template <class V, class M> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateInnerStruct(
-    const Collection<Vector<Precision, Args...>>& deltaB,
-    const Collection<Matrix<Precision, Args...>>& deltaW,
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW,
     Precision learn_rate)
 {
     for(size_type i = 0; i < N; ++i)
@@ -759,8 +759,8 @@ template <template <typename T, typename...> class Vector, template <typename T,
           template <class V, class M> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateNormalize(
-    const Collection<Vector<Precision, Args...>>& deltaB,
-    const Collection<Matrix<Precision, Args...>>& deltaW,
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW,
     Collection<function::detail::Optimizer<Vector, Precision, Args...>>& OB,
     Collection<function::detail::Optimizer<Matrix, Precision, Args...>>& OW,
     Precision learn_rate,
