@@ -114,27 +114,27 @@ private:
     using Tensor1D = Vector<Precision, Args...>;
     using Tensor2D = Matrix<Precision, Args...>;
 
-    using ActivationFunction = function::Activation<Vector, Precision, Args...>;
-    using LossFunction = function::Loss<Vector, Precision, Args...>;
-    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
-
     using Optimizer1D = function::detail::Optimizer<Vector, Precision, Args...>;
     using Optimizer2D = function::detail::Optimizer<Matrix, Precision, Args...>;
 
+    using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
+    using LossFunction         = function::Loss<Vector, Precision, Args...>;
+    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
+
+    using size_type          = std::size_t;
     using initializer_list_t = std::initializer_list<std::size_t>;
-    using GeneratorInteger = int (*)();
-    using GeneratorFloat = Precision (*)();
-    using size_type = std::size_t;
+    using GeneratorInteger   = int (*)();
+    using GeneratorFloat     = Precision (*)();
+
 
 private:
     Collection<Tensor1D> B;
     Collection<Tensor2D> W;
+    size_type N;
 
     Collection<ActivationFunction> A;
     LossFunction E;
     OptimizationFunction O;
-
-    size_type N;
 
     Linear<Tensor1D, Tensor2D> li;
 
@@ -142,18 +142,17 @@ public:
     Neuro(const initializer_list_t& topology);
     ~Neuro() = default;
 
-    void initializeInnerStruct(
-        GeneratorFloat generator) noexcept;
+    void initializeInnerStruct(GeneratorFloat generator) noexcept;
 
-    void initializeInnerStruct(
-        GeneratorFloat generator_bias,
-        GeneratorFloat generator_weight) noexcept;
+    void initializeInnerStruct(GeneratorFloat generator_bias,
+                               GeneratorFloat generator_weight) noexcept;
 
     void setActivationFunction(const ActivationFunction& activation_function) noexcept;
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
     void setLossFunction(const LossFunction& loss_function) noexcept;
-    void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
     void setOptimizationFunction(const OptimizationFunction& optimization_function) noexcept;
+
+    void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
 
     const Collection<Tensor1D>& getInnerBias() const noexcept;
     const Collection<Tensor2D>& getInnerWeight() const noexcept;
@@ -164,52 +163,82 @@ public:
     Tensor1D feedforward(const Tensor1D&) const;
     Collection<Tensor1D> feedforward(const Collection<Tensor1D>&) const;
 
-    void trainStochastic(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision learn_rate,
-        size_type epoch_scale,
-        GeneratorInteger generator);
+    void trainStochastic(const Collection<Tensor1D>& idata,
+                         const Collection<Tensor1D>& odata,
+                         Precision learn_rate,
+                         size_type epoch_scale,
+                         GeneratorInteger generator);
 
-    void trainBatch(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision learn_rate,
-        size_type epoch_scale);
+    void trainBatch(const Collection<Tensor1D>& idata,
+                    const Collection<Tensor1D>& odata,
+                    Precision learn_rate,
+                    size_type epoch_scale);
 
-    void trainMiniBatch(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision learn_rate,
-        size_type epoch_scale,
-        size_type mini_batch_size,
-        GeneratorInteger generator);
+    void trainMiniBatch(const Collection<Tensor1D>& idata,
+                        const Collection<Tensor1D>& odata,
+                        Precision learn_rate,
+                        size_type epoch_scale,
+                        size_type mini_batch_size,
+                        GeneratorInteger generator);
 
-    void trainMiniBatchOptimize(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision learn_rate,
-        size_type epoch_scale,
-        size_type mini_batch_size,
-        GeneratorInteger generator);
+    void trainOptimize(const Collection<Tensor1D>& idata,
+                       const Collection<Tensor1D>& odata,
+                       Precision learn_rate,
+                       size_type epoch_scale,
+                       size_type mini_batch_size,
+                       GeneratorInteger generator);
 
-    double accuracy(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata) const;
+    double accuracy(const Collection<Tensor1D>& idata,
+                    const Collection<Tensor1D>& odata) const;
 
-    double globalAccuracy(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision range_rate) const;
+    double globalAccuracy(const Collection<Tensor1D>& idata,
+                          const Collection<Tensor1D>& odata,
+                          Precision range_rate) const;
 
-    double fullAccuracy(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata,
-        Precision range_rate) const;
+    double fullAccuracy(const Collection<Tensor1D>& idata,
+                        const Collection<Tensor1D>& odata,
+                        Precision range_rate) const;
 
-    double loss(
-        const Collection<Tensor1D>& idata,
-        const Collection<Tensor1D>& odata) const;
+    double loss(const Collection<Tensor1D>& idata,
+                const Collection<Tensor1D>& odata) const;
+
+private:
+    void feedForward(const Tensor1D& idata_sample,
+                     Collection<Tensor1D>& H,
+                     Collection<Tensor1D>& DH,
+                     Collection<Tensor1D>& S) const;
+
+    void backPropagation(const Tensor1D& odata_sample,
+                         const Collection<Tensor1D>& H,
+                         const Collection<Tensor1D>& DH,
+                         Collection<Tensor1D>& DB,
+                         Collection<Tensor2D>& DW,
+                         Collection<Tensor1D>& theta) const;
+
+    void updateNormalize(const Collection<Tensor1D>& deltaB,
+                         const Collection<Tensor2D>& deltaW,
+                         Collection<Optimizer1D>& OB,
+                         Collection<Optimizer2D>& OW,
+                         Precision learn_rate,
+                         size_type batch_size);
+
+    void updateDelta(const Collection<Tensor1D>& DB,
+                     const Collection<Tensor2D>& DW,
+                     Collection<Tensor1D>& deltaB,
+                     Collection<Tensor2D>& deltaW) const noexcept;
+
+    void updateInnerStruct(const Collection<Tensor1D>& deltaB,
+                           const Collection<Tensor2D>& deltaW,
+                           Precision learn_rate);
+
+    void startOptimizer(Collection<Optimizer1D>& OB,
+                        Collection<Optimizer2D>& OW) const;
+
+    void resetDelta(Collection<Tensor1D>& deltaB,
+                    Collection<Tensor2D>& deltaW) const noexcept;
+
+    void startDelta(Collection<Tensor1D>& deltaB,
+                    Collection<Tensor2D>& deltaW) const;
 };
 
 template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
@@ -217,19 +246,24 @@ template <template <typename T, typename...> class Vector, template <typename T,
           typename Precision, typename... Args>
 Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::Neuro(
     const std::initializer_list<std::size_t>& topology)
-        : B(topology.size() - 1)
-        , W(topology.size() - 1)
-        , A(topology.size() - 1)
-        , E()
-        , O()
-        , N(topology.size() - 1)
-        , li()
+    : B(topology.size() - 1)
+    , W(topology.size() - 1)
+    , N(topology.size() - 1)
+    , A(topology.size() - 1)
+    , E()
+    , O()
+    , li()
 {
-    auto layer = topology.begin() + 1;
-    for(size_type i = 0; i < N; ++i, ++layer)
+    auto lsh = topology.begin();
+    auto rsh = topology.begin() + 1;
+
+    for(size_type i = 0; i < N; ++i)
     {
-        B[i] = Tensor1D(*layer);
-        W[i] = Tensor2D(*(layer - 1), *layer);
+        B[i] = Tensor1D(*rsh);
+        W[i] = Tensor2D(*lsh, *rsh);
+
+        ++lsh;
+        ++rsh;
     }
 }
 
@@ -381,45 +415,21 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainStochas
     std::size_t epoch_scale,
     int (*generator)())
 {
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
-
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
 
-    Tensor1D theta;
+    Collection<Tensor1D> S(N);
+    Collection<Tensor1D> theta(N);
 
-    size_type within = idata.size();
-    size_type sample;
-
-    for(size_type n = 0; n < epoch_scale; ++n)
+    for(size_type n = 0, sample; n < epoch_scale; ++n)
     {
-        sample = generator() % within;
+        sample = generator() % idata.size();
 
-        H[0] = idata[sample];
-        for(size_type i = 0; i < N; ++i)
-        {
-            S[i]     = li.dot(H[i], W[i]) + B[i];
-            H[i + 1] = A[i].f(S[i]);
-            DH[i]    = A[i].df(S[i]);
-        }
-
-        theta = E.df(odata[sample], H[N]);
-        for(size_type i = N - 1; i > 0; --i)
-        {
-            DB[i] = DH[i].multiply(theta);
-            DW[i] = li.tensordot(DB[i], H[i]);
-            theta = li.dot(DB[i], W[i], true);
-        }
-        DB[0] = DH[0].multiply(theta);
-        DW[0] = li.tensordot(DB[0], H[0]);
-
-        for(size_type i = 0; i < N; ++i)
-        {
-            B[i] -= DB[i].join(learn_rate);
-            W[i] -= DW[i].join(learn_rate);
-        }
+        feedForward(idata[sample], H, DH, S);
+        backPropagation(odata[sample], H, DH, DB, DW, theta);
+        updateInnerStruct(DB, DW, learn_rate);
     }
 }
 
@@ -432,9 +442,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainBatch(
     Precision learn_rate,
     std::size_t epoch_scale)
 {
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
-
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -442,56 +450,25 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainBatch(
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        deltaB[i].resize(B[i].size());
-        deltaW[i].resize(W[i].size());
-    }
-
-    Tensor1D theta;
+    Collection<Tensor1D> S(N);
+    Collection<Tensor1D> theta(N);
 
     learn_rate /= idata.size();
 
+    startDelta(deltaB, deltaW);
+
     for(size_type n = 0; n < epoch_scale; ++n)
     {
-        for(size_type i = 0; i < N; ++i)
-        {
-            deltaB[i].fill(0.0);
-            deltaW[i].fill(0.0);
-        }
+        resetDelta(deltaB, deltaW);
 
         for(size_type sample = 0; sample < idata.size(); ++sample)
         {
-            H[0] = idata[sample];
-            for(size_type i = 0; i < N; ++i)
-            {
-                S[i]     = li.dot(H[i], W[i]) + B[i];
-                H[i + 1] = A[i].f(S[i]);
-                DH[i]    = A[i].df(S[i]);
-            }
-
-            theta = E.df(odata[sample], H[N]);
-            for(size_type i = N - 1; i > 0; --i)
-            {
-                DB[i] = DH[i].multiply(theta);
-                DW[i] = li.tensordot(DB[i], H[i]);
-                theta = li.dot(DB[i], W[i], true);
-            }
-            DB[0] = DH[0].multiply(theta);
-            DW[0] = li.tensordot(DB[0], H[0]);
-
-            for(size_type i = 0; i < N; ++i)
-            {
-                deltaB[i] += DB[i];
-                deltaW[i] += DW[i];
-            }
+            feedForward(idata[sample], H, DH, S);
+            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            updateDelta(DB, DW, deltaB, deltaW);
         }
 
-        for(size_type i = 0; i < N; ++i)
-        {
-            B[i] -= deltaB[i].join(learn_rate);
-            W[i] -= deltaW[i].join(learn_rate);
-        }
+        updateInnerStruct(deltaB, deltaW, learn_rate);
     }
 }
 
@@ -506,9 +483,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
     std::size_t mini_batch_size,
     int (*generator)())
 {
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
-
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -516,73 +491,42 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        deltaB[i].resize(B[i].size());
-        deltaW[i].resize(W[i].size());
-    }
+    Collection<Tensor1D> S(N);
+    Collection<Tensor1D> theta(N);
 
-    Tensor1D theta;
-
-    size_type sample_begin;
+    size_type sample;
     size_type sample_end;
     size_type sample_part;
 
     learn_rate /= mini_batch_size;
 
+    startDelta(deltaB, deltaW);
+
     for(size_type n = 0; n < epoch_scale; ++n)
     {
-        sample_part  = generator() % (idata.size() / mini_batch_size);
-        sample_begin = sample_part * mini_batch_size;
-        sample_end   = sample_begin + mini_batch_size;
+        sample_part = generator() % (idata.size() / mini_batch_size);
+        sample      = sample_part * mini_batch_size;
+        sample_end  = sample + mini_batch_size;
 
-        for(size_type i = 0; i < N; ++i)
+        resetDelta(deltaB, deltaW);
+
+        while(sample < sample_end)
         {
-            deltaB[i].fill(0.0);
-            deltaW[i].fill(0.0);
+            feedForward(idata[sample], H, DH, S);
+            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            updateDelta(DB, DW, deltaB, deltaW);
+
+            ++sample;
         }
 
-        while(sample_begin < sample_end)
-        {
-            H[0] = idata[sample_begin];
-            for(size_type i = 0; i < N; ++i)
-            {
-                S[i]     = li.dot(H[i], W[i]) + B[i];
-                H[i + 1] = A[i].f(S[i]);
-                DH[i]    = A[i].df(S[i]);
-            }
-
-            theta = E.df(odata[sample_begin], H[N]);
-            for(size_type i = N - 1; i > 0; --i)
-            {
-                DB[i] = DH[i].multiply(theta);
-                DW[i] = li.tensordot(DB[i], H[i]);
-                theta = li.dot(DB[i], W[i], true);
-            }
-            DB[0] = DH[0].multiply(theta);
-            DW[0] = li.tensordot(DB[0], H[0]);
-
-            for(size_type i = 0; i < N; ++i)
-            {
-                deltaB[i] += DB[i];
-                deltaW[i] += DW[i];
-            }
-
-            ++sample_begin;
-        }
-
-        for(size_type i = 0; i < N; ++i)
-        {
-            B[i] -= deltaB[i].join(learn_rate);
-            W[i] -= deltaW[i].join(learn_rate);
-        }
+        updateInnerStruct(deltaB, deltaW, learn_rate);
     }
 }
 
 template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
           template <class V, class M> class Linear, template <typename...> class Collection,
           typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBatchOptimize(
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainOptimize(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
@@ -590,9 +534,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
     std::size_t mini_batch_size,
     int (*generator)())
 {
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> H(N + 1);
-
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -603,70 +545,34 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
     Collection<Optimizer1D> OB(N);
     Collection<Optimizer2D> OW(N);
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        deltaB[i].resize(B[i].size());
-        deltaW[i].resize(W[i].size());
+    Collection<Tensor1D> S(N);
+    Collection<Tensor1D> theta(N);
 
-        OB[i] = Optimizer1D(O.f1D, B[i].size());
-        OW[i] = Optimizer2D(O.f2D, W[i].size());
-    }
-
-    Tensor1D theta;
-
-    size_type sample_begin;
+    size_type sample;
     size_type sample_end;
     size_type sample_part;
 
+    startDelta(deltaB, deltaW);
+    startOptimizer(OB, OW);
+
     for(size_type n = 0; n < epoch_scale; ++n)
     {
-        sample_part  = generator() % (idata.size() / mini_batch_size);
-        sample_begin = sample_part * mini_batch_size;
-        sample_end   = sample_begin + mini_batch_size;
+        sample_part = generator() % (idata.size() / mini_batch_size);
+        sample      = sample_part * mini_batch_size;
+        sample_end  = sample + mini_batch_size;
 
-        for(size_type i = 0; i < N; ++i)
+        resetDelta(deltaB, deltaW);
+
+        while(sample < sample_end)
         {
-            deltaB[i].fill(0.0);
-            deltaW[i].fill(0.0);
+            feedForward(idata[sample], H, DH, S);
+            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            updateDelta(DB, DW, deltaB, deltaW);
+
+            ++sample;
         }
 
-        while(sample_begin < sample_end)
-        {
-            H[0] = idata[sample_begin];
-            for(size_type i = 0; i < N; ++i)
-            {
-                S[i]     = li.dot(H[i], W[i]) + B[i];
-                H[i + 1] = A[i].f(S[i]);
-                DH[i]    = A[i].df(S[i]);
-            }
-
-            theta = E.df(odata[sample_begin], H[N]);
-            for(size_type i = N - 1; i > 0; --i)
-            {
-                DB[i] = DH[i].multiply(theta);
-                DW[i] = li.tensordot(DB[i], H[i]);
-                theta = li.dot(DB[i], W[i], true);
-            }
-            DB[0] = DH[0].multiply(theta);
-            DW[0] = li.tensordot(DB[0], H[0]);
-
-            for(size_type i = 0; i < N; ++i)
-            {
-                deltaB[i] += DB[i];
-                deltaW[i] += DW[i];
-            }
-
-            ++sample_begin;
-        }
-
-        for(size_type i = 0; i < N; ++i)
-        {
-            deltaB[i] = deltaB[i].join(1.0 / mini_batch_size);
-            deltaW[i] = deltaW[i].join(1.0 / mini_batch_size);
-
-            B[i] -= OB[i].update(deltaB[i]).join(learn_rate);
-            W[i] -= OW[i].update(deltaW[i]).join(learn_rate);
-        }
+        updateNormalize(deltaB, deltaW, OB, OW, learn_rate, mini_batch_size);
     }
 }
 
@@ -679,7 +585,7 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::accuracy(
 {
     const Collection<Tensor1D> pred_out = feedforward(idata);
 
-    const size_type batch_size = odata.size();
+    const size_type batch_size  = odata.size();
     const size_type output_size = odata[0].size();
 
     double count = 0.0;
@@ -690,7 +596,7 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::accuracy(
     for(size_type i = 0; i < batch_size; ++i)
     {
         max_pred_out = 0;
-        max_out = 0;
+        max_out      = 0;
 
         for(size_type j = 0; j < output_size; ++j)
             if(pred_out[i](max_pred_out) < pred_out[i](j))
@@ -717,7 +623,7 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::globalAccu
 {
     const Collection<Tensor1D> pred_out = feedforward(idata);
 
-    const size_type batch_size = odata.size();
+    const size_type batch_size  = odata.size();
     const size_type output_size = odata[0].size();
 
     double count = 0.0;
@@ -776,6 +682,137 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::loss(
         result += E.f(odata[i], pred_out[i]);
 
     return result / odata.size();
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedForward(
+    const Vector<Precision, Args...>& idata_sample,
+    Collection<Vector<Precision, Args...>>& H,
+    Collection<Vector<Precision, Args...>>& DH,
+    Collection<Vector<Precision, Args...>>& S) const
+{
+    H[0] = idata_sample;
+    for(size_type i = 0; i < N; ++i)
+    {
+        S[i]     = B[i] + li.dot(H[i], W[i]);
+        H[i + 1] = A[i].f(S[i]);
+        DH[i]    = A[i].df(S[i]);
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::backPropagation(
+    const Tensor1D& odata_sample,
+    const Collection<Vector<Precision, Args...>>& H,
+    const Collection<Vector<Precision, Args...>>& DH,
+    Collection<Vector<Precision, Args...>>& DB,
+    Collection<Matrix<Precision, Args...>>& DW,
+    Collection<Vector<Precision, Args...>>& theta) const
+{
+    theta[N - 1] = E.df(odata_sample, H[N]);
+    for(size_type i = N - 1; i > 0; --i)
+    {
+        DB[i]        = DH[i].multiply(theta[i]);
+        DW[i]        = li.tensordot(DB[i], H[i]);
+        theta[i - 1] = li.dot(DB[i], W[i], true);
+    }
+    DB[0] = DH[0].multiply(theta[0]);
+    DW[0] = li.tensordot(DB[0], H[0]);
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateInnerStruct(
+    const Collection<Vector<Precision, Args...>>& deltaB,
+    const Collection<Matrix<Precision, Args...>>& deltaW,
+    Precision learn_rate)
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        B[i] -= deltaB[i].join(learn_rate);
+        W[i] -= deltaW[i].join(learn_rate);
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateDelta(
+    const Collection<Vector<Precision, Args...>>& DB,
+    const Collection<Matrix<Precision, Args...>>& DW,
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW) const noexcept
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        deltaB[i] += DB[i];
+        deltaW[i] += DW[i];
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateNormalize(
+    const Collection<Vector<Precision, Args...>>& deltaB,
+    const Collection<Matrix<Precision, Args...>>& deltaW,
+    Collection<function::detail::Optimizer<Vector, Precision, Args...>>& OB,
+    Collection<function::detail::Optimizer<Matrix, Precision, Args...>>& OW,
+    Precision learn_rate,
+    size_type batch_size)
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        B[i] -= OB[i].update(deltaB[i].join(1.0 / batch_size)).join(learn_rate);
+        W[i] -= OW[i].update(deltaW[i].join(1.0 / batch_size)).join(learn_rate);
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::resetDelta(
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW) const noexcept
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        deltaB[i].fill(0.0);
+        deltaW[i].fill(0.0);
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startDelta(
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW) const
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        deltaB[i].resize(B[i].size());
+        deltaW[i].resize(W[i].size());
+    }
+}
+
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear, template <typename...> class Collection,
+          typename Precision, typename... Args>
+void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startOptimizer(
+    Collection<function::detail::Optimizer<Vector, Precision, Args...>>& OB,
+    Collection<function::detail::Optimizer<Matrix, Precision, Args...>>& OW) const
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        OB[i] = Optimizer1D(O.f1D, B[i].size());
+        OW[i] = Optimizer2D(O.f2D, W[i].size());
+    }
 }
 
 } // namespace trixy

@@ -84,15 +84,17 @@ void simple_test()
 
     Timer t;
 
-    //network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
-    //network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
+    network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
+    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
+    network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+    /*
     for(int i = 1; i <= 200; ++i)
     {
-        //network.trainMiniBatch(train_in_set, train_out_set, 0.15, 10, 6, std::rand);
-        network.trainMiniBatchOptimize(train_in_set, train_out_set, 0.1, 10, 6, std::rand);
+
+        network.trainOptimize(train_in_set, train_out_set, 0.1, 50, 6, std::rand);
         //std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
     }
-
+    */
     std::cout << t.elapsed() << '\n';
 
     std::cout << "After train\n";

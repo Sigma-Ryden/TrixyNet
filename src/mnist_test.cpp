@@ -99,7 +99,7 @@ void mnist_test()
     {
         std::cout << "start train [" << i + 1 << "]:\n";
         //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32, std::rand);
-        network.trainMiniBatchOptimize(train_in, train_out, 0.1, 100, 100, std::rand);
+        network.trainOptimize(train_in, train_out, 0.1, 100, 100, std::rand);
         //std::cout << "Loss: " << network.loss(train_in, train_out) << '\n';
         //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
