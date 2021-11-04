@@ -544,18 +544,44 @@ struct LossData
 
 } // namespace set
 
-template <template <template <typename T, typename...> class V,
-                    typename T,
-                    typename...> class FunctionData,
-          template <typename T, typename...> class Tensor,
+namespace meta
+{
+
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
+          typename Precision,
+          typename... Args>
+struct is_activation_data
+{
+using Tensor_t       = Tensor<Precision, Args...>;
+using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+
+constexpr static bool value =
+    std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t (*)(const Tensor_t&)>::value &&
+    std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&)>::value;
+};
+
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
+          typename Precision,
+          typename... Args>
+struct is_loss_data
+{
+using Tensor_t       = Tensor<Precision, Args...>;
+using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+
+constexpr static bool value =
+    std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
+    std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&, const Tensor_t&)>::value;
+};
+
+} // namespace meta
+
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
           typename Precision,
           typename... Args,
-          typename std::enable_if<
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().f),
-                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().df),
-                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&)>::value,
-                   int>::type = 0>
+          typename std::enable_if<meta::is_activation_data<FunctionData, Tensor, Precision, Args...>::value, int>::type = 0>
 FunctionData<Tensor, Precision, Args...> get(const char* activation_function_name)
 {
     using namespace set::activation;
@@ -585,18 +611,11 @@ FunctionData<Tensor, Precision, Args...> get(const char* activation_function_nam
     return FunctionData<Tensor, Precision, Args...>();
 }
 
-template <template <template <typename T, typename...> class V,
-                    typename T,
-                    typename...> class FunctionData,
-          template <typename T, typename...> class Tensor,
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          template <typename, typename...> class Tensor,
           typename Precision,
           typename... Args,
-          typename std::enable_if<
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().f),
-                                Precision (*)(const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&)>::value &&
-                   std::is_same<decltype(std::declval<FunctionData<Tensor, Precision, Args...>>().df),
-                                Tensor<Precision, Args...> (*)(const Tensor<Precision, Args...>&, const Tensor<Precision, Args...>&)>::value,
-                   int>::type = 0>
+          typename std::enable_if<meta::is_loss_data<FunctionData, Tensor, Precision, Args...>::value, int>::type = 0>
 FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
 {
     using namespace set::loss;
