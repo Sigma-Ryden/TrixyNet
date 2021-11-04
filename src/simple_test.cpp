@@ -88,6 +88,7 @@ void simple_test()
     network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
     network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
     network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+
     /*
     for(int i = 1; i <= 200; ++i)
     {
@@ -105,7 +106,7 @@ void simple_test()
     std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
-//
+//z
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));

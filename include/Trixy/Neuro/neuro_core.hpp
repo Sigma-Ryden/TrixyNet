@@ -110,7 +110,7 @@ template <template <typename T, typename...> class Vector, template <typename T,
           typename Precision, typename... Args>
 class Neuro
 {
-private:
+public:
     using Tensor1D = Vector<Precision, Args...>;
     using Tensor2D = Matrix<Precision, Args...>;
 
@@ -122,10 +122,8 @@ private:
     using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
 
     using size_type          = std::size_t;
-    using initializer_list_t = std::initializer_list<std::size_t>;
     using GeneratorInteger   = int (*)();
     using GeneratorFloat     = Precision (*)();
-
 
 private:
     Collection<Tensor1D> B;
@@ -139,7 +137,7 @@ private:
     Linear<Tensor1D, Tensor2D> li;
 
 public:
-    Neuro(const initializer_list_t& topology);
+    Neuro(const std::initializer_list<size_type>& topology);
     ~Neuro() = default;
 
     void initializeInnerStruct(GeneratorFloat generator) noexcept;

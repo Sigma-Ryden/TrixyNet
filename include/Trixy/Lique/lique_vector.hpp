@@ -10,6 +10,11 @@ namespace lique
 template <typename Type>
 class Vector
 {
+public:
+    using reference = Type&;
+    using const_reference = const Type&;
+    using size_type = std::size_t;
+
 protected:
     Type* data_;
     std::size_t size_;
@@ -17,7 +22,7 @@ protected:
 public:
     Vector() noexcept;
     ~Vector();
-    explicit Vector(std::size_t size);
+    explicit Vector(size_type size);
     Vector(const Vector&);
     Vector(Vector&&) noexcept;
     Vector(const std::initializer_list<Type>&);
@@ -25,11 +30,11 @@ public:
     Vector& operator= (const Vector&);
     Vector& operator= (Vector&&) noexcept;
 
-    std::size_t size() const noexcept;
-    void resize(std::size_t new_size);
+    size_type size() const noexcept;
+    void resize(size_type new_size);
 
-    Type& operator() (std::size_t i) noexcept;
-    const Type& operator() (std::size_t i) const noexcept;
+    reference operator() (size_type i) noexcept;
+    const_reference operator() (size_type i) const noexcept;
 
     Vector& fill(Type (*generator)()) noexcept;
     Vector& fill(Type value) noexcept;

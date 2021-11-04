@@ -8,6 +8,10 @@ template <typename T>
 class Collection
 {
 public:
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = std::size_t;
+
     class iterator;
 
 private:
@@ -24,14 +28,14 @@ public:
     Collection<T>& operator= (const Collection<T>&);
     Collection<T>& operator= (Collection<T>&&) noexcept;
 
-    std::size_t size() const noexcept;
+    size_type size() const noexcept;
     void resize(std::size_t new_size);
 
     iterator begin() const noexcept;
     iterator end() const noexcept;
 
-    T& operator[] (std::size_t i) noexcept;
-    const T& operator[] (std::size_t i) const noexcept;
+    reference operator[] (std::size_t i) noexcept;
+    const_reference operator[] (std::size_t i) const noexcept;
 };
 
 template <typename T>

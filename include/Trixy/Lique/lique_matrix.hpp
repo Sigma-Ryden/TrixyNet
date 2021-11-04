@@ -9,6 +9,11 @@ namespace lique
 template <typename Type>
 class Matrix
 {
+public:
+    using reference = Type&;
+    using const_reference = const Type&;
+    using size_type = std::size_t;
+
 private:
     class Shape;
 
@@ -19,7 +24,7 @@ protected:
 public:
     Matrix() noexcept;
     ~Matrix();
-    explicit Matrix(std::size_t m, size_t n);
+    explicit Matrix(size_type m, size_type n);
     explicit Matrix(const Shape& shape);
     Matrix(const Matrix&);
     Matrix(Matrix&&) noexcept;
@@ -28,7 +33,7 @@ public:
     Matrix& operator= (Matrix&&) noexcept;
 
     const Shape& size() const noexcept;
-    void resize(std::size_t m, std::size_t n);
+    void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
 
     Matrix& fill(Type (*generator)()) noexcept;
@@ -37,8 +42,8 @@ public:
     Matrix apply(Type (*function)(Type)) const;
     Matrix& modify(Type (*function)(Type)) noexcept;
 
-    Type& operator() (std::size_t i, std::size_t j) noexcept;
-    const Type& operator() (std::size_t i, std::size_t j) const noexcept;
+    reference operator() (size_type i, size_type j) noexcept;
+    const_reference operator() (size_type i, size_type j) const noexcept;
 
     Matrix dot(const Matrix&) const;
 
