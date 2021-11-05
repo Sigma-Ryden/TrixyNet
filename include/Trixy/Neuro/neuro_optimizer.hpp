@@ -6,6 +6,11 @@
 #include <type_traits> // enable_if, is_same
 #include <map> // map
 
+#define TRIXY_TENSOR_FUNCTION_DECLARATION                      \
+    template <template <typename T, typename...> class Tensor, \
+              typename Precision,                              \
+              typename... Args>
+
 namespace trixy
 {
 
@@ -32,7 +37,7 @@ inline const T& call_const(T& obj)
 
 } // namespace detail
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> momentum(
     Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
@@ -45,7 +50,7 @@ Tensor<Precision, Args...> momentum(
     return s;
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> rms_prop(
     Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
@@ -59,7 +64,7 @@ Tensor<Precision, Args...> rms_prop(
     return g;
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> ada_grad(
     Tensor<Precision, Args...>& g,
     Tensor<Precision, Args...>& s)
@@ -100,13 +105,13 @@ template <template <template <typename, typename...> class V,
           typename... Args>
 struct is_optimization_data
 {
-using Vector_t       = Vector<Precision, Args...>;
-using Matrix_t       = Matrix<Precision, Args...>;
-using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
+    using Vector_t       = Vector<Precision, Args...>;
+    using Matrix_t       = Matrix<Precision, Args...>;
+    using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
 
-constexpr static bool value =
-    std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t (*)(Vector_t&, Vector_t&)>::value &&
-    std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t (*)(Matrix_t&, Matrix_t&)>::value;
+    static constexpr bool value =
+        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t (*)(Vector_t&, Vector_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t (*)(Matrix_t&, Matrix_t&)>::value;
 };
 
 } // namespace meta
@@ -140,5 +145,8 @@ FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_fu
 }
 
 } // namespace trixy
+
+// clean up
+#undef TRIXY_TENSOR_FUNCTION_DECLARATION
 
 #endif // NEURO_OPTIMIZER_HPP

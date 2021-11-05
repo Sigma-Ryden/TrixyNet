@@ -9,10 +9,87 @@
 namespace trixy
 {
 
+template <template <typename T, typename...> class Vector,
+          template <typename T, typename...> class Matrix,
+          template <class V, class M> class Linear,
+          template <typename...> class Collection,
+          typename Precision,
+          typename... Args>
+class Neuro;
+
 namespace function
 {
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+template <template <typename T, typename...> class Vector,
+          typename Precision,
+          typename... Args>
+class Activation;
+
+template <template <typename T, typename...> class Vector,
+          typename Precision,
+          typename... Args>
+class Loss;
+
+template <template <typename T, typename...> class Vector,
+          template <typename T, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
+class Optimization;
+
+namespace detail
+{
+
+template <template <typename T, typename...> class Tensor,
+          typename Precision,
+          typename... Args>
+class Optimizer;
+
+} // namespace detail
+
+} // namespace function
+
+} // namespace trixy
+
+#define TRIXY_NEURO_TPL_DECLARATION                            \
+    template <template <typename T, typename...> class Vector, \
+              template <typename T, typename...> class Matrix, \
+              template <class V, class M> class Linear,        \
+              template <typename...> class Collection,         \
+              typename Precision,                              \
+              typename... Args>
+
+#define TRIXY_NEURO_TPL                                        \
+    Neuro<Vector, Matrix, Linear,                              \
+    Collection, Precision, Args...>                            \
+
+#define TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION              \
+    template <template <typename T, typename...> class Vector, \
+        typename Precision,                                    \
+        typename... Args>
+
+#define TRIXY_FUNCTION_LOSS_TPL_DECLARATION                    \
+    template <template <typename T, typename...> class Vector, \
+              typename Precision,                              \
+              typename... Args>
+
+#define TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION            \
+    template <template <typename T, typename...> class Vector, \
+              template <typename T, typename...> class Matrix, \
+              typename Precision,                              \
+              typename... Args>
+
+#define TRIXY_FUNCTION_OPTIMIZER_TPL_DECLARATION               \
+    template <template <typename T, typename...> class Tensor, \
+              typename Precision,                              \
+              typename... Args>
+
+namespace trixy
+{
+
+namespace function
+{
+
+TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION
 class Activation
 {
 private:
@@ -28,7 +105,7 @@ public:
     : f(function), df(function_derived) {}
 };
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_FUNCTION_LOSS_TPL_DECLARATION
 class Loss
 {
 private:
@@ -44,8 +121,7 @@ public:
     : f(function), df(function_derived) {}
 };
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          typename Precision, typename... Args>
+TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
 class Optimization
 {
 private:
@@ -65,12 +141,18 @@ public:
 namespace detail
 {
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+template <typename Tensor>
+struct size_type_of
+{
+    using type = decltype(std::declval<Tensor>().size());
+};
+
+TRIXY_FUNCTION_OPTIMIZER_TPL_DECLARATION
 class Optimizer
 {
 private:
     using TensorND = Tensor<Precision, Args...>;
-    using tensor_size_type = decltype(std::declval<TensorND>().size());
+    using tensor_size_type = size_type_of<Tensor<Precision, Args...>>;
 
     TensorND retain_;
     TensorND (*optimizer_)(TensorND&, TensorND&);
@@ -105,9 +187,7 @@ public:
 
 } // namespace function
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 class Neuro
 {
 public:
@@ -121,9 +201,9 @@ public:
     using LossFunction         = function::Loss<Vector, Precision, Args...>;
     using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
 
-    using size_type          = std::size_t;
-    using GeneratorInteger   = int (*)();
-    using GeneratorFloat     = Precision (*)();
+    using size_type        = std::size_t;
+    using GeneratorInteger = int (*)();
+    using GeneratorFloat   = Precision (*)();
 
 private:
     Collection<Tensor1D> B;
@@ -239,10 +319,8 @@ private:
                     Collection<Tensor2D>& deltaW) const;
 };
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::Neuro(
+TRIXY_NEURO_TPL_DECLARATION
+TRIXY_NEURO_TPL::Neuro(
     const std::initializer_list<std::size_t>& topology)
     : B(topology.size() - 1)
     , W(topology.size() - 1)
@@ -265,10 +343,8 @@ Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::Neuro(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::initializeInnerStruct(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::initializeInnerStruct(
     Precision (*generator)()) noexcept
 {
     for(size_type i = 0; i < N; ++i)
@@ -278,10 +354,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::initializeIn
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::initializeInnerStruct(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::initializeInnerStruct(
     Precision (*generator_bias)(),
     Precision (*generator_weight)()) noexcept
 {
@@ -292,93 +366,73 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::initializeIn
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setActivationFunction(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::setActivationFunction(
     const function::Activation<Vector, Precision, Args...>& activation_function) noexcept
 {
     for(size_type i = 0; i < N - 1; ++i)
         A[i] = activation_function;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setNormalizationFunction(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::setNormalizationFunction(
     const function::Activation<Vector, Precision, Args...>& normalization_function) noexcept
 {
     A[N - 1] = normalization_function;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setLossFunction(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::setLossFunction(
     const function::Loss<Vector, Precision, Args...>& loss_function) noexcept
 {
     E = loss_function;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setEachActivationFunction(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::setEachActivationFunction(
     const Collection<function::Activation<Vector, Precision, Args...>>& activation_set) noexcept
 {
     for(size_type i = 0; i < activation_set.size(); ++i)
         A[i] = activation_set[i];
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::setOptimizationFunction(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::setOptimizationFunction(
     const OptimizationFunction& optimization_function) noexcept
 {
     O = optimization_function;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 inline const Collection<Vector<Precision, Args...>>&
-    Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::getInnerBias() const noexcept
+    TRIXY_NEURO_TPL::getInnerBias() const noexcept
 {
     return B;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 inline const Collection<Matrix<Precision, Args...>>&
-    Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::getInnerWeight() const noexcept
+    TRIXY_NEURO_TPL::getInnerWeight() const noexcept
 {
     return W;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 inline const Collection<function::Activation<Vector, Precision, Args...>>&
-    Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::getEachActivationFunction() const noexcept
+    TRIXY_NEURO_TPL::getEachActivationFunction() const noexcept
 {
     return A;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 inline const function::Loss<Vector, Precision, Args...>&
-    Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::getLossFunction() const noexcept
+    TRIXY_NEURO_TPL::getLossFunction() const noexcept
 {
     return E;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-Vector<Precision, Args...> Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedforward(
+TRIXY_NEURO_TPL_DECLARATION
+Vector<Precision, Args...> TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const
 {
     Tensor1D y_pred = vector;
@@ -389,10 +443,8 @@ Vector<Precision, Args...> Neuro<Vector, Matrix, Linear, Collection, Precision, 
     return y_pred;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-Collection<Vector<Precision, Args...>> Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedforward(
+TRIXY_NEURO_TPL_DECLARATION
+Collection<Vector<Precision, Args...>> TRIXY_NEURO_TPL::feedforward(
     const Collection<Vector<Precision, Args...>>& idata) const
 {
     Collection<Tensor1D> y_pred(idata.size());
@@ -403,10 +455,8 @@ Collection<Vector<Precision, Args...>> Neuro<Vector, Matrix, Linear, Collection,
     return y_pred;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainStochastic(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::trainStochastic(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
@@ -431,10 +481,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainStochas
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainBatch(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::trainBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
@@ -470,10 +518,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainBatch(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBatch(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::trainMiniBatch(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
@@ -521,10 +567,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainMiniBat
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainOptimize(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::trainOptimize(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
@@ -574,10 +618,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::trainOptimiz
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::accuracy(
+TRIXY_NEURO_TPL_DECLARATION
+double TRIXY_NEURO_TPL::accuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata) const
 {
@@ -611,10 +653,8 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::accuracy(
     return count / batch_size;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::globalAccuracy(
+TRIXY_NEURO_TPL_DECLARATION
+double TRIXY_NEURO_TPL::globalAccuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision range_rate) const
@@ -634,10 +674,8 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::globalAccu
     return count / (batch_size * output_size);
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::fullAccuracy(
+TRIXY_NEURO_TPL_DECLARATION
+double TRIXY_NEURO_TPL::fullAccuracy(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata,
     Precision range_rate) const
@@ -666,10 +704,8 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::fullAccura
     return count / batch_size;
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::loss(
+TRIXY_NEURO_TPL_DECLARATION
+double TRIXY_NEURO_TPL::loss(
     const Collection<Vector<Precision, Args...>>& idata,
     const Collection<Vector<Precision, Args...>>& odata) const
 {
@@ -682,10 +718,8 @@ double Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::loss(
     return result / odata.size();
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedForward(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::feedForward(
     const Vector<Precision, Args...>& idata_sample,
     Collection<Vector<Precision, Args...>>& H,
     Collection<Vector<Precision, Args...>>& DH,
@@ -700,10 +734,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::feedForward(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::backPropagation(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::backPropagation(
     const Tensor1D& odata_sample,
     const Collection<Vector<Precision, Args...>>& H,
     Collection<Vector<Precision, Args...>>& DH,
@@ -722,9 +754,7 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::backPropagat
     DW[0] = li.tensordot(DB[0], H[0]);
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
+TRIXY_NEURO_TPL_DECLARATION
 void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateInnerStruct(
     Collection<Vector<Precision, Args...>>& deltaB,
     Collection<Matrix<Precision, Args...>>& deltaW,
@@ -737,10 +767,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateInnerS
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateDelta(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::updateDelta(
     const Collection<Vector<Precision, Args...>>& DB,
     const Collection<Matrix<Precision, Args...>>& DW,
     Collection<Vector<Precision, Args...>>& deltaB,
@@ -753,10 +781,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateDelta(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateNormalize(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::updateNormalize(
     Collection<Vector<Precision, Args...>>& deltaB,
     Collection<Matrix<Precision, Args...>>& deltaW,
     Collection<function::detail::Optimizer<Vector, Precision, Args...>>& OB,
@@ -771,10 +797,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::updateNormal
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::resetDelta(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::resetDelta(
     Collection<Vector<Precision, Args...>>& deltaB,
     Collection<Matrix<Precision, Args...>>& deltaW) const noexcept
 {
@@ -785,10 +809,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::resetDelta(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startDelta(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::startDelta(
     Collection<Vector<Precision, Args...>>& deltaB,
     Collection<Matrix<Precision, Args...>>& deltaW) const
 {
@@ -799,10 +821,8 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startDelta(
     }
 }
 
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          template <class V, class M> class Linear, template <typename...> class Collection,
-          typename Precision, typename... Args>
-void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startOptimizer(
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::startOptimizer(
     Collection<function::detail::Optimizer<Vector, Precision, Args...>>& OB,
     Collection<function::detail::Optimizer<Matrix, Precision, Args...>>& OW) const
 {
@@ -814,5 +834,13 @@ void Neuro<Vector, Matrix, Linear, Collection, Precision, Args...>::startOptimiz
 }
 
 } // namespace trixy
+
+// clean up
+#undef TRIXY_NEURO_TPL_DECLARATION
+#undef TRIXY_NEURO_TPL
+#undef TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION
+#undef TRIXY_FUNCTION_LOSS_TPL_DECLARATION
+#undef TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
+#undef TRIXY_FUNCTION_OPTIMIZER_TPL_DECLARATION
 
 #endif // NEURO_CORE_HPP

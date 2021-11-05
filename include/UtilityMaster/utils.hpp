@@ -9,9 +9,7 @@
 namespace utils
 {
 
-template <template <typename T, typename...> class Tensor1D,
-          typename Type,
-          typename... Args,
+template <template <typename T, typename...> class Tensor1D, typename Type, typename... Args,
           typename std::enable_if<
                    std::is_same<decltype( std::declval<Tensor1D<Type, Args...>>().operator()(std::size_t()) ),
                                 Type&>::value, int>::type = 0>
@@ -27,9 +25,7 @@ std::ostream& operator<< (
     return out;
 }
 
-template <template <typename T, typename...> class Tensor2D,
-          typename Type,
-          typename... Args,
+template <template <typename T, typename...> class Tensor2D, typename Type, typename... Args,
           typename std::enable_if<
                    std::is_same<decltype( std::declval<Tensor2D<Type, Args...>>().operator()(std::size_t(), std::size_t()) ),
                                 Type&>::value, int>::type = 0>

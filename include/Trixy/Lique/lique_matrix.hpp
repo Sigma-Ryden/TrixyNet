@@ -66,16 +66,19 @@ class Matrix<Type>::Shape
 {
 friend Matrix<Type>;
 
+public:
+    using size_type = std::size_t;
+
 private:
-    std::size_t row_;
-    std::size_t col_;
+    size_type row_;
+    size_type col_;
 
 public:
-    explicit Shape(size_t m, size_t n) noexcept : row_(m), col_(n) {}
+    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n) {}
     Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
 
-    std::size_t row() const noexcept { return row_; }
-    std::size_t col() const noexcept { return col_; }
+    size_type row() const noexcept { return row_; }
+    size_type col() const noexcept { return col_; }
 };
 
 template <typename Type>
@@ -88,7 +91,7 @@ Matrix<Type>::~Matrix()
 {
     if(data_ != nullptr)
     {
-        for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(size_type i = 0; i < shape_.row_; ++i)
             delete[] data_[i];
         delete[] data_;
     }
@@ -97,24 +100,24 @@ Matrix<Type>::~Matrix()
 template <typename Type>
 Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape_(m, n)
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 template <typename Type>
 Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 template <typename Type>
 Matrix<Type>::Matrix(const Matrix& matrix)
     : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = matrix.data_[i][j];
 }
 
@@ -133,7 +136,7 @@ Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
 
     if(data_ != nullptr)
     {
-        for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(size_type i = 0; i < shape_.row_; ++i)
             delete[] data_[i];
         delete[] data_;
     }
@@ -141,11 +144,11 @@ Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
     shape_ = matrix.shape_;
 
     data_ = new Type* [shape_.row_];
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = matrix.data_[i][j];
 
     return *this;
@@ -159,7 +162,7 @@ Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
 
     if(data_ != nullptr)
     {
-        for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(size_type i = 0; i < shape_.row_; ++i)
             delete[] data_[i];
         delete[] data_;
     }
@@ -179,11 +182,11 @@ inline const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
 }
 
 template <typename Type>
-void Matrix<Type>::resize(std::size_t m, std::size_t n)
+void Matrix<Type>::resize(size_type m, size_type n)
 {
     if(data_ != nullptr)
     {
-        for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(size_type i = 0; i < shape_.row_; ++i)
             delete[] data_[i];
         delete[] data_;
     }
@@ -191,7 +194,7 @@ void Matrix<Type>::resize(std::size_t m, std::size_t n)
     shape_.row_ = m;
     shape_.col_ = n;
     data_ = new Type* [shape_.row_];
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 
@@ -200,22 +203,22 @@ void Matrix<Type>::resize(const Shape& shape)
 {
     if(data_ != nullptr)
     {
-        for(std::size_t i = 0; i < shape_.row_; ++i)
+        for(size_type i = 0; i < shape_.row_; ++i)
             delete[] data_[i];
         delete[] data_;
     }
 
     shape_ = shape;
     data_ = new Type* [shape_.row_];
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 
 template <typename Type>
 Matrix<Type>& Matrix<Type>::fill(Type (*generator)()) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = generator();
 
     return *this;
@@ -224,8 +227,8 @@ Matrix<Type>& Matrix<Type>::fill(Type (*generator)()) noexcept
 template <typename Type>
 Matrix<Type>& Matrix<Type>::fill(Type value) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = value;
 
     return *this;
@@ -236,8 +239,8 @@ Matrix<Type> Matrix<Type>::apply(Type (*function)(Type)) const
 {
     Matrix new_matrix(shape_);
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             new_matrix.data_[i][j] = function(data_[i][j]);
 
     return new_matrix;
@@ -246,8 +249,8 @@ Matrix<Type> Matrix<Type>::apply(Type (*function)(Type)) const
 template <typename Type>
 Matrix<Type>& Matrix<Type>::modify(Type (*function)(Type)) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = function(data_[i][j]);
 
     return *this;
@@ -271,11 +274,11 @@ Matrix<Type> Matrix<Type>::dot(const Matrix& matrix) const
     Matrix new_matrix(shape_.row_, matrix.shape_.col_);
     Type result = 0.0;
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
+    for(size_type i = 0; i < shape_.row_; ++i)
     {
-        for(std::size_t j = 0; j <  matrix.shape_.col_; ++j)
+        for(size_type j = 0; j <  matrix.shape_.col_; ++j)
         {
-            for(std::size_t r = 0; r < shape_.col_; ++r)
+            for(size_type r = 0; r < shape_.col_; ++r)
                 result += data_[i][r] * matrix.data_[r][j];
 
             new_matrix.data_[i][j] = result;
@@ -291,8 +294,8 @@ Matrix<Type> Matrix<Type>::multiply(const Matrix& matrix) const
 {
     Matrix new_matrix(matrix.shape_);
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             new_matrix.data_[i][j] = data_[i][j] * matrix.data_[i][j];
 
     return new_matrix;
@@ -301,8 +304,8 @@ Matrix<Type> Matrix<Type>::multiply(const Matrix& matrix) const
 template <typename Type>
 Matrix<Type>& Matrix<Type>::multiply(const Matrix& matrix) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] *= matrix.data_[i][j];
 
     return *this;
@@ -313,8 +316,8 @@ Matrix<Type> Matrix<Type>::join(Type value) const
 {
     Matrix new_matrix(shape_);
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             new_matrix.data_[i][j] = data_[i][j] *= value;
 
     return new_matrix;
@@ -323,8 +326,8 @@ Matrix<Type> Matrix<Type>::join(Type value) const
 template <typename Type>
 Matrix<Type>& Matrix<Type>::join(Type value) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] *= value;
 
     return *this;
@@ -335,8 +338,8 @@ Matrix<Type> Matrix<Type>::transpose() const
 {
     Matrix new_matrix(shape_.col_, shape_.row_);
 
-    for(std::size_t i = 0; i < shape_.col_; ++i)
-        for(std::size_t j = 0; j < shape_.row_; ++j)
+    for(size_type i = 0; i < shape_.col_; ++i)
+        for(size_type j = 0; j < shape_.row_; ++j)
             new_matrix.data_[i][j] = data_[j][i];
 
     return new_matrix;
@@ -347,8 +350,8 @@ Matrix<Type> Matrix<Type>::operator+ (const Matrix& matrix) const
 {
     Matrix new_matrix(shape_);
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             new_matrix.data_[i][j] = data_[i][j] + matrix.data_[i][j];
 
     return new_matrix;
@@ -359,8 +362,8 @@ Matrix<Type> Matrix<Type>::operator- (const Matrix& matrix) const
 {
     Matrix new_matrix(shape_);
 
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             new_matrix.data_[i][j] = data_[i][j] - matrix.data_[i][j];
 
     return new_matrix;
@@ -369,8 +372,8 @@ Matrix<Type> Matrix<Type>::operator- (const Matrix& matrix) const
 template <typename Type>
 Matrix<Type>& Matrix<Type>::operator+= (const Matrix& matrix) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] += matrix.data_[i][j];
 
     return *this;
@@ -379,8 +382,8 @@ Matrix<Type>& Matrix<Type>::operator+= (const Matrix& matrix) noexcept
 template <typename Type>
 Matrix<Type>& Matrix<Type>::operator-= (const Matrix& matrix) noexcept
 {
-    for(std::size_t i = 0; i < shape_.row_; ++i)
-        for(std::size_t j = 0; j < shape_.col_; ++j)
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] -= matrix.data_[i][j];
 
     return *this;

@@ -7,6 +7,16 @@
 #include <type_traits> // enable_if, is_same
 #include <map> // map
 
+#define TRIXY_TENSOR_FUNCTION_DECLARATION                      \
+    template <template <typename T, typename...> class Tensor, \
+              typename Precision,                              \
+              typename... Args>
+
+#define TRIXY_VECTOR_FUNCTION_DECLARATION                      \
+    template <template <typename T, typename...> class Vector, \
+              typename Precision,                              \
+              typename... Args>
+
 namespace trixy
 {
 
@@ -169,117 +179,117 @@ Precision swish_derived(Precision x)
 
 } // namespace detail
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> relu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::relu);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> relu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::relu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> elu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::elu);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> elu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::elu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> lrelu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::lrelu);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> lrelu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::lrelu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> selu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::selu);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> selu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::selu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> gelu(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::gelu);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> gelu_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::gelu_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> sigmoid(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::sigmoid);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> sigmoid_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::sigmoid_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> tanh(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::tanh);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> tanh_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::tanh_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> softsign(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softsign);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> softsign_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softsign_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> softplus(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softplus);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> softplus_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::softplus_derived);
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> swish(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::swish);
 }
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> swish_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::swish_derived);
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> unstable_softmax(const Vector<Precision, Args...>& vector)
 {
     Vector<Precision, Args...> new_vector(vector.size());
@@ -296,7 +306,7 @@ Vector<Precision, Args...> unstable_softmax(const Vector<Precision, Args...>& ve
     return new_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> softmax(const Vector<Precision, Args...>& vector)
 {
     static Precision max;
@@ -320,7 +330,7 @@ Vector<Precision, Args...> softmax(const Vector<Precision, Args...>& vector)
     return new_vector;
 }
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> tensor_of_units(const Tensor<Precision, Args...>& tensor)
 {
     Tensor<Precision, Args...> new_tensor(tensor.size());
@@ -334,7 +344,7 @@ Tensor<Precision, Args...> tensor_of_units(const Tensor<Precision, Args...>& ten
 namespace loss
 {
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision categorical_cross_entropy(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -348,7 +358,7 @@ Precision categorical_cross_entropy(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> categorical_cross_entropy_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -361,7 +371,7 @@ Vector<Precision, Args...> categorical_cross_entropy_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> categorical_cross_entropy_derived_softmax(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -372,7 +382,7 @@ Vector<Precision, Args...> categorical_cross_entropy_derived_softmax(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_error(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -385,7 +395,7 @@ Precision mean_squared_error(
     return result / 2.0;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> mean_squared_error_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -396,7 +406,7 @@ Vector<Precision, Args...> mean_squared_error_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_absolute_error(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -409,7 +419,7 @@ Precision mean_absolute_error(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> mean_absolute_error_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -420,7 +430,7 @@ Vector<Precision, Args...> mean_absolute_error_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_logarithmic_error(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -433,7 +443,7 @@ Precision mean_squared_logarithmic_error(
     return result / 2.0;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> mean_squared_logarithmic_error_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -447,7 +457,7 @@ Vector<Precision, Args...> mean_squared_logarithmic_error_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision binary_cross_entropy(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -463,7 +473,7 @@ Precision binary_cross_entropy(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> binary_cross_entropy_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -479,7 +489,7 @@ Vector<Precision, Args...> binary_cross_entropy_derived(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> binary_cross_entropy_derived_sigmoid(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -491,7 +501,7 @@ Vector<Precision, Args...> binary_cross_entropy_derived_sigmoid(
     return loss_vector;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision logcosh(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -504,7 +514,7 @@ Precision logcosh(
     return result;
 }
 
-template <template <typename T, typename...> class Vector, typename Precision, typename... Args>
+TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...> logcosh_derived(
     const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
 {
@@ -553,12 +563,12 @@ template <template <template <typename, typename...> class T, typename P, typena
           typename... Args>
 struct is_activation_data
 {
-using Tensor_t       = Tensor<Precision, Args...>;
-using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+    using Tensor_t       = Tensor<Precision, Args...>;
+    using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
 
-constexpr static bool value =
-    std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t (*)(const Tensor_t&)>::value &&
-    std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&)>::value;
+    static constexpr bool value =
+        std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t (*)(const Tensor_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&)>::value;
 };
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
@@ -567,12 +577,12 @@ template <template <template <typename, typename...> class T, typename P, typena
           typename... Args>
 struct is_loss_data
 {
-using Tensor_t       = Tensor<Precision, Args...>;
-using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+    using Tensor_t       = Tensor<Precision, Args...>;
+    using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
 
-constexpr static bool value =
-    std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
-    std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&, const Tensor_t&)>::value;
+    static constexpr bool value =
+        std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&, const Tensor_t&)>::value;
 };
 
 } // namespace meta
@@ -641,5 +651,9 @@ FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
 }
 
 } // namespace trixy
+
+// clean up
+#undef TRIXY_TENSOR_FUNCTION_DECLARATION
+#undef TRIXY_VECTOR_FUNCTION_DECLARATION
 
 #endif // NEURO_FUNCTIONAL_HPP

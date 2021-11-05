@@ -17,7 +17,7 @@ public:
 
 protected:
     Type* data_;
-    std::size_t size_;
+    size_type size_;
 
 public:
     Vector() noexcept;
@@ -77,7 +77,7 @@ template <typename Type>
 Vector<Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
 
@@ -92,7 +92,7 @@ template <typename Type>
 Vector<Type>::Vector(const std::initializer_list<Type>& init)
     : data_(new Type[init.size()]), size_(init.size())
 {
-    std::size_t i = 0;
+    size_type i = 0;
     for(const auto& arg: init)
     {
         data_[i] = arg;
@@ -111,7 +111,7 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
     size_ = vector.size_;
     data_ = new Type[size_];
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 
     return *this;
@@ -163,7 +163,7 @@ inline const Type& Vector<Type>::operator() (std::size_t i) const noexcept
 template <typename Type>
 Vector<Type>& Vector<Type>::fill(Type (*generator)()) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = generator();
 
     return *this;
@@ -172,7 +172,7 @@ Vector<Type>& Vector<Type>::fill(Type (*generator)()) noexcept
 template <typename Type>
 Vector<Type>& Vector<Type>::fill(Type value) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = value;
 
     return *this;
@@ -183,7 +183,7 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
 {
     Vector new_vector(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = function(data_[i]);
 
     return new_vector;
@@ -192,7 +192,7 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
 template <typename Type>
 Vector<Type>& Vector<Type>::modify(Type (*function)(Type)) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = function(data_[i]);
 
     return *this;
@@ -203,7 +203,7 @@ Type Vector<Type>::dot(const Vector& vector) const
 {
     double result = 0.0;
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         result += data_[i] * vector.data_[i];
 
     return result;
@@ -214,7 +214,7 @@ Vector<Type> Vector<Type>::multiply(const Vector& vector) const
 {
     Vector new_vector(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] * vector.data_[i];
 
     return new_vector;
@@ -223,7 +223,7 @@ Vector<Type> Vector<Type>::multiply(const Vector& vector) const
 template <typename Type>
 Vector<Type>& Vector<Type>::multiply(const Vector& vector) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] *= vector.data_[i];
 
     return *this;
@@ -234,7 +234,7 @@ Vector<Type> Vector<Type>::join(Type value) const
 {
     Vector new_vector(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] * value;
 
     return new_vector;
@@ -243,7 +243,7 @@ Vector<Type> Vector<Type>::join(Type value) const
 template <typename Type>
 Vector<Type>& Vector<Type>::join(Type value) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] *= value;
 
     return *this;
@@ -254,7 +254,7 @@ Vector<Type> Vector<Type>::operator+ (const Vector& vector) const
 {
     Vector new_vector(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] + vector.data_[i];
 
     return new_vector;
@@ -265,7 +265,7 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
 {
     Vector new_vector(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] - vector.data_[i];
 
     return new_vector;
@@ -274,7 +274,7 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
 template <typename Type>
 Vector<Type>& Vector<Type>::operator+= (const Vector& vector) noexcept
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] += vector.data_[i];
 
     return *this;
@@ -283,7 +283,7 @@ Vector<Type>& Vector<Type>::operator+= (const Vector& vector) noexcept
 template <typename Type>
 Vector<Type>& Vector<Type>::operator-= (const Vector& vector) noexcept
 {
-     for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];
 
     return *this;

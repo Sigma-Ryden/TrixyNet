@@ -16,7 +16,7 @@
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Timer/timer.h" // Timer
 #include "UtilityMaster/utils.hpp" // testNeuro
-
+#include <vector>
 /*
 #include "Trixy/Lique/ilique_base.hpp"
 #include "Trixy/Lique/ilique_linear.hpp"

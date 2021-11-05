@@ -9,27 +9,32 @@ namespace ilique
 template <template <typename T> class Tensor, typename Type>
 class Vector
 {
+public:
+    using reference = Type&;
+    using const_reference = const Type&;
+    using size_type = std::size_t;
+
 protected:
     Type* data_;
-    std::size_t size_;
+    size_type size_;
 
 protected:
     virtual ~Vector();
 
 public:
     Vector() noexcept;
-    explicit Vector(std::size_t size);
+    explicit Vector(size_type size);
     Vector(const Vector&);
     Vector(Vector&&) noexcept;
 
     Vector& operator= (const Vector&);
     Vector& operator= (Vector&&) noexcept;
 
-    Type& operator() (std::size_t i) noexcept;
-    const Type& operator() (std::size_t i) const noexcept;
+    reference operator() (size_type i) noexcept;
+    const_reference operator() (size_type i) const noexcept;
 
-    std::size_t size() const noexcept;
-    virtual void resize(std::size_t new_size) = 0;
+    size_type size() const noexcept;
+    virtual void resize(size_type new_size) = 0;
     virtual Type dot(const Tensor<Type>&) const = 0;
 };
 
@@ -54,7 +59,7 @@ template <template <typename T> class Tensor, typename Type>
 Vector<Tensor, Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
 
@@ -76,7 +81,7 @@ Vector<Tensor, Type>& Vector<Tensor, Type>::operator= (const Vector& vector)
     size_ = vector.size_;
     data_ = new Type[size_];
 
-    for(std::size_t i = 0; i < size_; ++i)
+    for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 
     return *this;
