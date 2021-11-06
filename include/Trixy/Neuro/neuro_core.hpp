@@ -141,18 +141,12 @@ public:
 namespace detail
 {
 
-template <typename Tensor>
-struct size_type_of
-{
-    using type = decltype(std::declval<Tensor>().size());
-};
-
 TRIXY_FUNCTION_OPTIMIZER_TPL_DECLARATION
 class Optimizer
 {
 private:
-    using TensorND = Tensor<Precision, Args...>;
-    using tensor_size_type = size_type_of<Tensor<Precision, Args...>>;
+    using TensorND         = Tensor<Precision, Args...>;
+    using tensor_size_type = decltype(std::declval<Tensor<Precision, Args...>>().size());
 
     TensorND retain_;
     TensorND (*optimizer_)(TensorND&, TensorND&);
@@ -218,7 +212,12 @@ private:
 
 public:
     Neuro(const std::initializer_list<size_type>& topology);
-    ~Neuro() = default;
+
+    Neuro(const Neuro&)     = default;
+    Neuro(Neuro&&) noexcept = default;
+    ~Neuro()                = default;
+    Neuro& operator= (const Neuro&)     = default;
+    Neuro& operator= (Neuro&&) noexcept = default;
 
     void initializeInnerStruct(GeneratorFloat generator) noexcept;
 
@@ -227,10 +226,10 @@ public:
 
     void setActivationFunction(const ActivationFunction& activation_function) noexcept;
     void setNormalizationFunction(const ActivationFunction& normalization_function) noexcept;
+    void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
+
     void setLossFunction(const LossFunction& loss_function) noexcept;
     void setOptimizationFunction(const OptimizationFunction& optimization_function) noexcept;
-
-    void setEachActivationFunction(const Collection<ActivationFunction>& activation_set) noexcept;
 
     const Collection<Tensor1D>& getInnerBias() const noexcept;
     const Collection<Tensor2D>& getInnerWeight() const noexcept;
@@ -284,9 +283,10 @@ private:
     void feedForward(const Tensor1D& idata_sample,
                      Collection<Tensor1D>& H,
                      Collection<Tensor1D>& DH,
-                     Collection<Tensor1D>& S) const;
+                     Collection<Tensor1D>& theta) const;
 
-    void backPropagation(const Tensor1D& odata_sample,
+    void backPropagation(const Tensor1D& idata_sample,
+                         const Tensor1D& odata_sample,
                          const Collection<Tensor1D>& H,
                          Collection<Tensor1D>& DH,
                          Collection<Tensor1D>& DB,
@@ -333,13 +333,10 @@ TRIXY_NEURO_TPL::Neuro(
     auto lsh = topology.begin();
     auto rsh = topology.begin() + 1;
 
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < N; ++i, ++lsh, ++rsh)
     {
         B[i] = Tensor1D(*rsh);
         W[i] = Tensor2D(*lsh, *rsh);
-
-        ++lsh;
-        ++rsh;
     }
 }
 
@@ -435,9 +432,9 @@ TRIXY_NEURO_TPL_DECLARATION
 Vector<Precision, Args...> TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const
 {
-    Tensor1D y_pred = vector;
+    Tensor1D y_pred = A[0].f(li.dot(vector, W[0]) + B[0]);
 
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 1; i < N; ++i)
         y_pred = A[i].f(li.dot(y_pred, W[i]) + B[i]);
 
     return y_pred;
@@ -463,20 +460,19 @@ void TRIXY_NEURO_TPL::trainStochastic(
     std::size_t epoch_scale,
     int (*generator)())
 {
-    Collection<Tensor1D> H(N + 1);
+    Collection<Tensor1D> H(N);
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
 
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> theta(N);
 
     for(size_type n = 0, sample; n < epoch_scale; ++n)
     {
         sample = generator() % idata.size();
 
-        feedForward(idata[sample], H, DH, S);
-        backPropagation(odata[sample], H, DH, DB, DW, theta);
+        feedForward(idata[sample], H, DH, theta);
+        backPropagation(idata[sample], odata[sample], H, DH, DB, DW, theta);
         updateInnerStruct(DB, DW, learn_rate);
     }
 }
@@ -488,7 +484,7 @@ void TRIXY_NEURO_TPL::trainBatch(
     Precision learn_rate,
     std::size_t epoch_scale)
 {
-    Collection<Tensor1D> H(N + 1);
+    Collection<Tensor1D> H(N);
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -496,7 +492,6 @@ void TRIXY_NEURO_TPL::trainBatch(
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> theta(N);
 
     learn_rate /= idata.size();
@@ -509,8 +504,8 @@ void TRIXY_NEURO_TPL::trainBatch(
 
         for(size_type sample = 0; sample < idata.size(); ++sample)
         {
-            feedForward(idata[sample], H, DH, S);
-            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            feedForward(idata[sample], H, DH, theta);
+            backPropagation(idata[sample], odata[sample], H, DH, DB, DW, theta);
             updateDelta(DB, DW, deltaB, deltaW);
         }
 
@@ -527,7 +522,7 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
     std::size_t mini_batch_size,
     int (*generator)())
 {
-    Collection<Tensor1D> H(N + 1);
+    Collection<Tensor1D> H(N);
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -535,7 +530,6 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> theta(N);
 
     size_type sample;
@@ -556,8 +550,8 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
 
         while(sample < sample_end)
         {
-            feedForward(idata[sample], H, DH, S);
-            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            feedForward(idata[sample], H, DH, theta);
+            backPropagation(idata[sample], odata[sample], H, DH, DB, DW, theta);
             updateDelta(DB, DW, deltaB, deltaW);
 
             ++sample;
@@ -576,7 +570,7 @@ void TRIXY_NEURO_TPL::trainOptimize(
     std::size_t mini_batch_size,
     int (*generator)())
 {
-    Collection<Tensor1D> H(N + 1);
+    Collection<Tensor1D> H(N);
     Collection<Tensor1D> DH(N);
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
@@ -587,7 +581,6 @@ void TRIXY_NEURO_TPL::trainOptimize(
     Collection<Optimizer1D> OB(N);
     Collection<Optimizer2D> OW(N);
 
-    Collection<Tensor1D> S(N);
     Collection<Tensor1D> theta(N);
 
     size_type sample;
@@ -607,8 +600,8 @@ void TRIXY_NEURO_TPL::trainOptimize(
 
         while(sample < sample_end)
         {
-            feedForward(idata[sample], H, DH, S);
-            backPropagation(odata[sample], H, DH, DB, DW, theta);
+            feedForward(idata[sample], H, DH, theta);
+            backPropagation(idata[sample], odata[sample], H, DH, DB, DW, theta);
             updateDelta(DB, DW, deltaB, deltaW);
 
             ++sample;
@@ -723,19 +716,25 @@ void TRIXY_NEURO_TPL::feedForward(
     const Vector<Precision, Args...>& idata_sample,
     Collection<Vector<Precision, Args...>>& H,
     Collection<Vector<Precision, Args...>>& DH,
-    Collection<Vector<Precision, Args...>>& S) const
+    Collection<Vector<Precision, Args...>>& theta) const
 {
-    H[0] = idata_sample;
-    for(size_type i = 0; i < N; ++i)
+    size_type lsh = 0;
+
+    theta[0] = li.dot(idata_sample, W[0]) + B[0];
+    for(size_type rhs = 1; rhs < N; ++rhs, ++lsh)
     {
-        S[i]     = li.dot(H[i], W[i]) + B[i];
-        H[i + 1] = A[i].f(S[i]);
-        DH[i]    = A[i].df(S[i]);
+        H[rhs]      = A[lsh].f(theta[lsh]);
+        DH[lsh]     = A[lsh].df(theta[lsh]);
+        theta[rhs]  = li.dot(H[rhs], W[rhs]);
+        theta[rhs] += B[rhs];
     }
+    H[0]    = A[lsh].f(theta[lsh]);
+    DH[lsh] = A[lsh].df(theta[lsh]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::backPropagation(
+    const Tensor1D& idata_sample,
     const Tensor1D& odata_sample,
     const Collection<Vector<Precision, Args...>>& H,
     Collection<Vector<Precision, Args...>>& DH,
@@ -743,7 +742,7 @@ void TRIXY_NEURO_TPL::backPropagation(
     Collection<Matrix<Precision, Args...>>& DW,
     Collection<Vector<Precision, Args...>>& theta) const
 {
-    theta[N - 1] = E.df(odata_sample, H[N]);
+    theta[N - 1] = E.df(odata_sample, H[0]);
     for(size_type i = N - 1; i > 0; --i)
     {
         DB[i]        = std::move(DH[i].multiply(theta[i]));
@@ -751,7 +750,7 @@ void TRIXY_NEURO_TPL::backPropagation(
         theta[i - 1] = li.dot(DB[i], W[i], true);
     }
     DB[0] = std::move(DH[0].multiply(theta[0]));
-    DW[0] = li.tensordot(DB[0], H[0]);
+    DW[0] = li.tensordot(DB[0], idata_sample);
 }
 
 TRIXY_NEURO_TPL_DECLARATION

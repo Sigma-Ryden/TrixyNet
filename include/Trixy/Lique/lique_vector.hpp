@@ -11,9 +11,9 @@ template <typename Type>
 class Vector
 {
 public:
-    using reference = Type&;
+    using reference       = Type&;
     using const_reference = const Type&;
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
 
 protected:
     Type* data_;

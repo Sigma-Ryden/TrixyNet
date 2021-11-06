@@ -8,9 +8,9 @@ template <typename T>
 class Collection
 {
 public:
-    using reference = T&;
+    using reference       = T&;
     using const_reference = const T&;
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
 
     class iterator;
 

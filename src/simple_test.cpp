@@ -106,7 +106,7 @@ void simple_test()
     std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
-//z
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));

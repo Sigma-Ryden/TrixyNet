@@ -13,12 +13,12 @@ public:
     using size_type = std::size_t;
 
 public:
-    Linear() = default;
-    Linear(const Linear&) = default;
+    Linear()                  = default;
+    Linear(const Linear&)     = default;
     Linear(Linear&&) noexcept = default;
-    Linear& operator= (const Linear&) = default;
+    ~Linear()                 = default;
+    Linear& operator= (const Linear&)     = default;
     Linear& operator= (Linear&&) noexcept = default;
-    ~Linear() = default;
 
     Vector get(const Matrix& matrix,
                size_type row_number) const; // deprecated

@@ -94,25 +94,24 @@ void mnist_test()
 
 //  Train network:
     Timer t;
+    //
     std::size_t times = 10;
     for(std::size_t i = 0; i < times; ++i)
     {
         std::cout << "start train [" << i + 1 << "]:\n";
         //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32, std::rand);
-        network.trainOptimize(train_in, train_out, 0.1, 100, 100, std::rand);
+        network.trainOptimize(train_in, train_out, 0.1, 25, 100, std::rand);
         //std::cout << "Loss: " << network.loss(train_in, train_out) << '\n';
         //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
     t.reset();
-
+    //
 //  Test train_batch aft
     //std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << network.accuracy(train_in, train_out) << '\n';
     //std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.25) << '\n';
     //std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.25) << '\n';
-    std::cout << t.elapsed() << '\n';
-    t.reset();
 //  Test test_batch aft
     //std::cout << "NNetwork test loss: " << network.loss(test_in, test_out) << '\n';
     std::cout << "NNetwork test normal accuracy: " << network.accuracy(test_in, test_out) << '\n';

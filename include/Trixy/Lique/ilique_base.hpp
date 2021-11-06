@@ -35,9 +35,9 @@ template <template <typename T, typename...> class Tensor, typename Type, typena
 class IVector
 {
 public:
-    using reference = Type&;
+    using reference       = Type&;
     using const_reference = const Type&;
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
 
 protected:
     virtual ~IVector() = default;
@@ -55,9 +55,9 @@ template <template <typename T, typename...> class Tensor, typename Type, typena
 class IMatrix
 {
 public:
-    using reference = Type&;
+    using reference       = Type&;
     using const_reference = const Type&;
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
 
 protected:
     virtual ~IMatrix() = default;

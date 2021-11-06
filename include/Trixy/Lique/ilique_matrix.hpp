@@ -10,9 +10,9 @@ template <template <typename T> class Tensor, typename Type>
 class Matrix
 {
 public:
-    using reference = Type&;
+    using reference       = Type&;
     using const_reference = const Type&;
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
 
 protected:
     class Shape;

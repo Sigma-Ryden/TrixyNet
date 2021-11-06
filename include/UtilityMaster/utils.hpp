@@ -11,7 +11,7 @@ namespace utils
 
 template <template <typename T, typename...> class Tensor1D, typename Type, typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype( std::declval<Tensor1D<Type, Args...>>().operator()(std::size_t()) ),
+                   std::is_same<decltype(std::declval<Tensor1D<Type, Args...>>().operator()(0)),
                                 Type&>::value, int>::type = 0>
 std::ostream& operator<< (
     std::ostream& out, const Tensor1D<Type, Args...>& vector)
@@ -27,7 +27,7 @@ std::ostream& operator<< (
 
 template <template <typename T, typename...> class Tensor2D, typename Type, typename... Args,
           typename std::enable_if<
-                   std::is_same<decltype( std::declval<Tensor2D<Type, Args...>>().operator()(std::size_t(), std::size_t()) ),
+                   std::is_same<decltype(std::declval<Tensor2D<Type, Args...>>().operator()(0, 0)),
                                 Type&>::value, int>::type = 0>
 std::ostream& operator<< (
     std::ostream& out, const Tensor2D<Type, Args...>& matrix)
