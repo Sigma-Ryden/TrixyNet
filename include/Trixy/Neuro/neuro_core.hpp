@@ -283,7 +283,7 @@ private:
     void feedForward(const Tensor1D& idata_sample,
                      Collection<Tensor1D>& H,
                      Collection<Tensor1D>& DH,
-                     Collection<Tensor1D>& theta) const;
+                     Tensor1D& theta) const;
 
     void backPropagation(const Tensor1D& idata_sample,
                          const Tensor1D& odata_sample,
@@ -291,7 +291,7 @@ private:
                          Collection<Tensor1D>& DH,
                          Collection<Tensor1D>& DB,
                          Collection<Tensor2D>& DW,
-                         Collection<Tensor1D>& theta) const;
+                         Tensor1D& theta) const;
 
     void updateNormalize(Collection<Tensor1D>& deltaB,
                          Collection<Tensor2D>& deltaW,
@@ -465,7 +465,7 @@ void TRIXY_NEURO_TPL::trainStochastic(
     Collection<Tensor1D> DB(N);
     Collection<Tensor2D> DW(N);
 
-    Collection<Tensor1D> theta(N);
+    Tensor1D theta;
 
     for(size_type n = 0, sample; n < epoch_scale; ++n)
     {
@@ -492,7 +492,7 @@ void TRIXY_NEURO_TPL::trainBatch(
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    Collection<Tensor1D> theta(N);
+    Tensor1D theta;
 
     learn_rate /= idata.size();
 
@@ -530,7 +530,7 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
     Collection<Tensor1D> deltaB(N);
     Collection<Tensor2D> deltaW(N);
 
-    Collection<Tensor1D> theta(N);
+    Tensor1D theta;
 
     size_type sample;
     size_type sample_end;
@@ -581,7 +581,7 @@ void TRIXY_NEURO_TPL::trainOptimize(
     Collection<Optimizer1D> OB(N);
     Collection<Optimizer2D> OW(N);
 
-    Collection<Tensor1D> theta(N);
+    Tensor1D theta;
 
     size_type sample;
     size_type sample_end;
@@ -675,7 +675,7 @@ double TRIXY_NEURO_TPL::fullAccuracy(
 {
     const Collection<Tensor1D>& pred_out = feedforward(idata);
 
-    const size_type batch_size = odata.size();
+    const size_type batch_size  = odata.size();
     const size_type output_size = odata[0].size();
 
     double count = 0.0;
@@ -716,20 +716,20 @@ void TRIXY_NEURO_TPL::feedForward(
     const Vector<Precision, Args...>& idata_sample,
     Collection<Vector<Precision, Args...>>& H,
     Collection<Vector<Precision, Args...>>& DH,
-    Collection<Vector<Precision, Args...>>& theta) const
+    Vector<Precision, Args...>& theta) const
 {
     size_type lsh = 0;
 
-    theta[0] = li.dot(idata_sample, W[0]) + B[0];
+    theta = li.dot(idata_sample, W[0]) + B[0];
     for(size_type rhs = 1; rhs < N; ++rhs, ++lsh)
     {
-        H[rhs]      = A[lsh].f(theta[lsh]);
-        DH[lsh]     = A[lsh].df(theta[lsh]);
-        theta[rhs]  = li.dot(H[rhs], W[rhs]);
-        theta[rhs] += B[rhs];
+        H[rhs]  = A[lsh].f(theta);
+        DH[lsh] = A[lsh].df(theta);
+        theta   = li.dot(H[rhs], W[rhs]);
+        theta  += B[rhs];
     }
-    H[0]    = A[lsh].f(theta[lsh]);
-    DH[lsh] = A[lsh].df(theta[lsh]);
+    H[0]    = A[lsh].f(theta);
+    DH[lsh] = A[lsh].df(theta);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -740,16 +740,16 @@ void TRIXY_NEURO_TPL::backPropagation(
     Collection<Vector<Precision, Args...>>& DH,
     Collection<Vector<Precision, Args...>>& DB,
     Collection<Matrix<Precision, Args...>>& DW,
-    Collection<Vector<Precision, Args...>>& theta) const
+    Vector<Precision, Args...>& theta) const
 {
-    theta[N - 1] = E.df(odata_sample, H[0]);
+    theta = E.df(odata_sample, H[0]);
     for(size_type i = N - 1; i > 0; --i)
     {
-        DB[i]        = std::move(DH[i].multiply(theta[i]));
-        DW[i]        = li.tensordot(DB[i], H[i]);
-        theta[i - 1] = li.dot(DB[i], W[i], true);
+        DB[i] = std::move(DH[i].multiply(theta));
+        DW[i] = li.tensordot(DB[i], H[i]);
+        theta = li.dot(DB[i], W[i], true);
     }
-    DB[0] = std::move(DH[0].multiply(theta[0]));
+    DB[0] = std::move(DH[0].multiply(theta));
     DW[0] = li.tensordot(DB[0], idata_sample);
 }
 
