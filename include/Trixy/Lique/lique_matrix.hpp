@@ -9,13 +9,13 @@ namespace lique
 template <typename Type>
 class Matrix
 {
+protected:
+    class Shape;
+
 public:
     using reference       = Type&;
     using const_reference = const Type&;
     using size_type       = std::size_t;
-
-private:
-    class Shape;
 
 protected:
     Type** data_;

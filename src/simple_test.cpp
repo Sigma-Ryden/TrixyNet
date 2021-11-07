@@ -52,9 +52,9 @@ void simple_test()
     NeuralFeedForward network = {4, 4, 5, 4, 3};
 
     network.initializeInnerStruct(random_real);
-    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
-    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
 
+    //network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
+    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
 
@@ -102,11 +102,11 @@ void simple_test()
     std::cout << "After train\n";
     utils::testNeuro(network, train_in_set, train_out_set);
     std::cout << "Normal accuracy: " << network.accuracy(train_in_set, train_out_set) << '\n';
-    std::cout << "Global accuracy: " << network.globalAccuracy(train_in_set, train_out_set, 0.05) << '\n';
-    std::cout << "Full accuracy: " << network.fullAccuracy(train_in_set, train_out_set, 0.05) << '\n';
+    std::cout << "Global accuracy: " << network.accuracyGlobal(train_in_set, train_out_set, 0.05) << '\n';
+    std::cout << "Full accuracy: " << network.accuracyFull(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
 }
-//
+
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));

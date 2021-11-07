@@ -63,7 +63,7 @@ void mnist_test()
 //  Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 5000;
+    std::size_t train_batch_size = 60000;
     std::size_t test_batch_size = 10000;
     std::size_t input_size = 784;
     std::size_t out_size = 10;
@@ -83,25 +83,25 @@ void mnist_test()
     using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
 
 //  NeuralNetwork topology:
-    NeuralFeedForward network = { input_size, 200, out_size };
+    NeuralFeedForward network = { input_size, 256, out_size };
 
     network.initializeInnerStruct(random_real);
 
     network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
-    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("sigmoid"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("sigmoid"));
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("MSE"));
+    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
+    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
+    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
 
 //  Train network:
     Timer t;
     //
-    std::size_t times = 10;
+    std::size_t times = 20;
     for(std::size_t i = 0; i < times; ++i)
     {
-        std::cout << "start train [" << i + 1 << "]:\n";
+        std::cout << "start train [" << i << "]:\n";
         //network.trainMiniBatch(train_in, train_out, 0.1, 100, 32, std::rand);
-        network.trainOptimize(train_in, train_out, 0.1, 25, 100, std::rand);
-        //std::cout << "Loss: " << network.loss(train_in, train_out) << '\n';
+        network.trainOptimize(train_in, train_out, 0.1, 20, 250, std::rand);
+        //if (i % 5 == 0) std::cout << "Accuracy: " << network.accuracy(train_in, train_out) << '\n';
         //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
@@ -110,13 +110,13 @@ void mnist_test()
 //  Test train_batch aft
     //std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << network.accuracy(train_in, train_out) << '\n';
-    //std::cout << "NNetwork tarin global accuracy: " << network.globalAccuracy(train_in, train_out, 0.25) << '\n';
-    //std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.25) << '\n';
+    //std::cout << "NNetwork tarin global accuracy: " << network.accuracyGlobal(train_in, train_out, 0.25) << '\n';
+    //std::cout << "NNetwork tarin full accuracy: " << network.accuracyFull(train_in, train_out, 0.25) << '\n';
 //  Test test_batch aft
     //std::cout << "NNetwork test loss: " << network.loss(test_in, test_out) << '\n';
     std::cout << "NNetwork test normal accuracy: " << network.accuracy(test_in, test_out) << '\n';
-    //std::cout << "NNetwork test global accuracy: " << network.globalAccuracy(test_in, test_out, 0.25) << '\n';
-    //std::cout << "NNetwork test full accuracy: " << network.fullAccuracy(test_in, test_out, 0.25) << '\n';
+    //std::cout << "NNetwork test global accuracy: " << network.accuracyGlobal(test_in, test_out, 0.25) << '\n';
+    //std::cout << "NNetwork test full accuracy: " << network.accuracyFull(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
 /*

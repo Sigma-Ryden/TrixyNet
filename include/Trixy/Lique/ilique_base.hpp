@@ -54,6 +54,9 @@ public:
 template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
 class IMatrix
 {
+protected:
+    class Shape;
+
 public:
     using reference       = Type&;
     using const_reference = const Type&;
@@ -61,7 +64,6 @@ public:
 
 protected:
     virtual ~IMatrix() = default;
-    class Shape;
 
 public:
     virtual reference operator() (size_type i, size_type j) noexcept = 0;

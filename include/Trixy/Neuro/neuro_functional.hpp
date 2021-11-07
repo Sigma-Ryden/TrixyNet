@@ -177,6 +177,38 @@ Precision swish_derived(Precision x)
     return (a * x + b) / (b * b);
 }
 
+template <typename Precision>
+Precision mod_relu(Precision x)
+{
+    if      (x < 0.0) return 0.01 * x;
+    else if (x > 1.0) return 0.99 + 0.01 * x;
+    else              return x;
+}
+template <typename Precision>
+Precision mod_relu_derived(Precision x)
+{
+    if (x < 0.0 || x > 1.0) return 0.01;
+    else return 1.0;
+}
+
+template <typename Precision>
+Precision mod_tanh(Precision x)
+{
+    if (x < 0.0) return 0.01 * std::tanh(x);
+    else         return std::tanh(x);
+}
+template <typename Precision>
+Precision mod_tanh_derived(Precision x)
+{
+    static Precision sech2;
+
+    sech2 = 1.0 / std::cosh(x);
+    sech2 *= sech2;
+
+    if (x < 0.0) return 0.01 * sech2;
+    else         return sech2;
+}
+
 } // namespace detail
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
@@ -287,6 +319,28 @@ TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...> swish_derived(const Tensor<Precision, Args...>& tensor)
 {
     return tensor.apply(detail::swish_derived);
+}
+
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...> mod_relu(const Tensor<Precision, Args...>& tensor)
+{
+    return tensor.apply(detail::mod_relu);
+}
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...> mod_relu_derived(const Tensor<Precision, Args...>& tensor)
+{
+    return tensor.apply(detail::mod_relu_derived);
+}
+
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...> mod_tanh(const Tensor<Precision, Args...>& tensor)
+{
+    return tensor.apply(detail::mod_tanh);
+}
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...> mod_tanh_derived(const Tensor<Precision, Args...>& tensor)
+{
+    return tensor.apply(detail::mod_tanh_derived);
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -610,6 +664,8 @@ FunctionData<Tensor, Precision, Args...> get(const char* activation_function_nam
     activation_data["softsign"]         = { softsign,         softsign_derived };
     activation_data["softplus"]         = { softplus,         softplus_derived };
     activation_data["swish"]            = { swish,            swish_derived    };
+    activation_data["mod_relu"]         = { mod_relu,         mod_relu_derived };
+    activation_data["mod_tanh"]         = { mod_tanh,         mod_tanh_derived };
     activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units  };
     activation_data["softmax"]          = { softmax,          tensor_of_units  };
 
