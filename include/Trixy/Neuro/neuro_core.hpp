@@ -286,14 +286,14 @@ public:
                 const Collection<Tensor1D>& odata) const;
 
 private:
-    void feedForward(InnerManager& im,
-                     const Tensor1D& idata_sample,
-                     Tensor1D& theta) const;
+    void feedForward(const Tensor1D& idata_sample,
+                     Tensor1D& theta,
+                     InnerManager& im) const;
 
-    void backPropagation(InnerManager& im,
-                         const Tensor1D& idata_sample,
+    void backPropagation(const Tensor1D& idata_sample,
                          const Tensor1D& odata_sample,
-                         Tensor1D& theta) const;
+                         Tensor1D& theta,
+                         InnerManager& im) const;
 
     void updateInnerNormalize(Collection<Tensor1D>& deltaB,
                               Collection<Tensor2D>& detlaW,
@@ -347,11 +347,11 @@ public:
                         const Collection<Tensor2D>& W,
                         const OptimizationFunction& O);
 
-    void resetDelta();
-    void resetOptimizer();
+    void resetDelta() noexcept;
+    void resetOptimizer() noexcept;
 
-    void updateDelta();
-    void normalizeDelta(Precision alpha);
+    void updateDelta() noexcept;
+    void normalizeDelta(Precision alpha) noexcept;
 };
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -409,7 +409,7 @@ void TRIXY_NEURO_TPL::InnerManager::startOptimizer(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerManager::resetDelta()
+void TRIXY_NEURO_TPL::InnerManager::resetDelta() noexcept
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -419,7 +419,7 @@ void TRIXY_NEURO_TPL::InnerManager::resetDelta()
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerManager::resetOptimizer()
+void TRIXY_NEURO_TPL::InnerManager::resetOptimizer() noexcept
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -429,7 +429,7 @@ void TRIXY_NEURO_TPL::InnerManager::resetOptimizer()
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerManager::updateDelta()
+void TRIXY_NEURO_TPL::InnerManager::updateDelta() noexcept
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -440,7 +440,7 @@ void TRIXY_NEURO_TPL::InnerManager::updateDelta()
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerManager::normalizeDelta(
-    Precision alpha)
+    Precision alpha) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -599,8 +599,8 @@ void TRIXY_NEURO_TPL::trainStochastic(
     {
         sample = generator() % idata.size();
 
-        feedForward(imanage, idata[sample], theta);
-        backPropagation(imanage, idata[sample], odata[sample], theta);
+        feedForward(idata[sample], theta, imanage);
+        backPropagation(idata[sample], odata[sample], theta, imanage);
         updateInner(imanage.DB, imanage.DW, learn_rate);
     }
 }
@@ -628,8 +628,8 @@ void TRIXY_NEURO_TPL::trainBatch(
 
         for(size_type sample = 0; sample < idata.size(); ++sample)
         {
-            feedForward(imanage, idata[sample], theta);
-            backPropagation(imanage, idata[sample], odata[sample], theta);
+            feedForward(idata[sample], theta, imanage);
+            backPropagation(idata[sample], odata[sample], theta, imanage);
             imanage.updateDelta();
         }
 
@@ -670,8 +670,8 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
 
         while(sample < sample_end)
         {
-            feedForward(imanage, idata[sample], theta);
-            backPropagation(imanage, idata[sample], odata[sample], theta);
+            feedForward(idata[sample], theta, imanage);
+            backPropagation(idata[sample], odata[sample], theta, imanage);
             imanage.updateDelta();
 
             ++sample;
@@ -715,8 +715,8 @@ void TRIXY_NEURO_TPL::trainOptimize(
 
         while(sample < sample_end)
         {
-            feedForward(imanage, idata[sample], theta);
-            backPropagation(imanage, idata[sample], odata[sample], theta);
+            feedForward(idata[sample], theta, imanage);
+            backPropagation(idata[sample], odata[sample], theta, imanage);
             imanage.updateDelta();
 
             ++sample;
@@ -830,9 +830,9 @@ double TRIXY_NEURO_TPL::loss(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::feedForward(
-    InnerManager& im,
     const Vector<Precision, Args...>& idata_sample,
-    Vector<Precision, Args...>& theta) const
+    Vector<Precision, Args...>& theta,
+    InnerManager& im) const
 {
     size_type lsh = 0;
 
@@ -850,10 +850,10 @@ void TRIXY_NEURO_TPL::feedForward(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::backPropagation(
-    InnerManager& im,
     const Tensor1D& idata_sample,
     const Tensor1D& odata_sample,
-    Vector<Precision, Args...>& theta) const
+    Vector<Precision, Args...>& theta,
+    InnerManager& im) const
 {
     theta = E.df(odata_sample, im.H[0]);
     for(size_type i = N - 1; i > 0; --i)

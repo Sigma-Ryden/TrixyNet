@@ -87,10 +87,11 @@ void mnist_test()
 
     network.initializeInnerStruct(random_real);
 
-    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
     network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
+
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
+    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
 
 //  Train network:
     Timer t;
