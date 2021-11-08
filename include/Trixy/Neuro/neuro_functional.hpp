@@ -17,6 +17,18 @@
               typename Precision,                              \
               typename... Args>
 
+#define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
+    template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
+    Tensor<Precision, Args...>& name(                                                                \
+        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) {                \
+        return buff.apply(detail::name, tensor);                                                     \
+    }                                                                                                \
+    template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
+    Tensor<Precision, Args...>& name##_derived(                                                      \
+        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) {                \
+        return buff.apply(detail::name##_derived, tensor);                                           \
+    }
+
 namespace trixy
 {
 
@@ -211,157 +223,41 @@ Precision mod_tanh_derived(Precision x)
 
 } // namespace detail
 
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> relu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::relu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> relu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::relu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> elu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::elu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> elu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::elu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> lrelu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::lrelu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> lrelu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::lrelu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> selu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::selu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> selu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::selu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> gelu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::gelu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> gelu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::gelu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> sigmoid(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::sigmoid);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> sigmoid_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::sigmoid_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> tanh(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::tanh);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> tanh_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::tanh_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> softsign(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::softsign);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> softsign_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::softsign_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> softplus(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::softplus);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> softplus_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::softplus_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> swish(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::swish);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> swish_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::swish_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> mod_relu(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::mod_relu);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> mod_relu_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::mod_relu_derived);
-}
-
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> mod_tanh(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::mod_tanh);
-}
-TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> mod_tanh_derived(const Tensor<Precision, Args...>& tensor)
-{
-    return tensor.apply(detail::mod_tanh_derived);
-}
+TRIXY_FUNCTION_GENERIC_HELPER(relu)
+TRIXY_FUNCTION_GENERIC_HELPER(elu)
+TRIXY_FUNCTION_GENERIC_HELPER(lrelu)
+TRIXY_FUNCTION_GENERIC_HELPER(selu)
+TRIXY_FUNCTION_GENERIC_HELPER(gelu)
+TRIXY_FUNCTION_GENERIC_HELPER(sigmoid)
+TRIXY_FUNCTION_GENERIC_HELPER(tanh)
+TRIXY_FUNCTION_GENERIC_HELPER(softsign)
+TRIXY_FUNCTION_GENERIC_HELPER(softplus)
+TRIXY_FUNCTION_GENERIC_HELPER(swish)
+TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
+TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> unstable_softmax(const Vector<Precision, Args...>& vector)
+Vector<Precision, Args...>& unstable_softmax(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& vector)
 {
-    Vector<Precision, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::exp(vector(i));
+        buff(i) = std::exp(vector(i));
 
     Precision denominator = 0.0;
     for(std::size_t i = 0; i < vector.size(); ++i)
-        denominator += new_vector(i);
+        denominator += buff(i);
 
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) /= denominator;
+        buff(i) /= denominator;
 
-    return new_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> softmax(const Vector<Precision, Args...>& vector)
+Vector<Precision, Args...>& softmax(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& vector)
 {
     static Precision max;
     static Precision denominator;
@@ -370,27 +266,25 @@ Vector<Precision, Args...> softmax(const Vector<Precision, Args...>& vector)
     for(std::size_t i = 1; i < vector.size(); ++i)
         if(max < vector(i)) max = vector(i);
 
-    Vector<Precision, Args...> new_vector(vector.size());
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) = std::exp(vector(i) - max);
+        buff(i) = std::exp(vector(i) - max);
 
     denominator = 0.0;
     for(std::size_t i = 0; i < vector.size(); ++i)
-        denominator += new_vector(i);
+        denominator += buff(i);
 
     for(std::size_t i = 0; i < vector.size(); ++i)
-        new_vector(i) /= denominator;
+        buff(i) /= denominator;
 
-    return new_vector;
+    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...> tensor_of_units(const Tensor<Precision, Args...>& tensor)
+Tensor<Precision, Args...>& tensor_of_units(
+    Tensor<Precision, Args...>& buff,
+    const Tensor<Precision, Args...>&)
 {
-    Tensor<Precision, Args...> new_tensor(tensor.size());
-    new_tensor.fill(1.0);
-
-    return new_tensor;
+    return buff.fill(1.0);
 }
 
 } // namespace activation
@@ -400,7 +294,8 @@ namespace loss
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision categorical_cross_entropy(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static const Precision epsilon = 1e-9;
     static Precision result;
@@ -413,32 +308,35 @@ Precision categorical_cross_entropy(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> categorical_cross_entropy_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& categorical_cross_entropy_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static const Precision epsilon = 1e-9;
 
-    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = - y_true(i) / (y_pred(i) + epsilon);
+        buff(i) = - y_true(i) / (y_pred(i) + epsilon);
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> categorical_cross_entropy_derived_softmax(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& categorical_cross_entropy_derived_softmax(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = y_pred(i) - y_true(i);
+        buff(i) = y_pred(i) - y_true(i);
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_error(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static Precision result;
 
@@ -450,19 +348,21 @@ Precision mean_squared_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> mean_squared_error_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& mean_squared_error_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = y_pred(i) - y_true(i);
+        buff(i) = y_pred(i) - y_true(i);
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_absolute_error(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static Precision result;
 
@@ -474,19 +374,21 @@ Precision mean_absolute_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> mean_absolute_error_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& mean_absolute_error_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
+        buff(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_logarithmic_error(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static Precision result;
 
@@ -498,22 +400,23 @@ Precision mean_squared_logarithmic_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> mean_squared_logarithmic_error_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& mean_squared_logarithmic_error_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
-
     for(std::size_t i = 0; i < y_true.size(); ++i)
     {
-        loss_vector(i) = y_pred(i) + 1.0;
-        loss_vector(i) /= std::log(loss_vector(i) / (y_true(i) + 1.0));
+        buff(i) = y_pred(i) + 1.0;
+        buff(i) /= std::log(buff(i) / (y_true(i) + 1.0));
     }
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision binary_cross_entropy(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static const Precision epsilon = 1e-9;
     static const Precision alpha   = epsilon + 1.0;
@@ -528,36 +431,37 @@ Precision binary_cross_entropy(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> binary_cross_entropy_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& binary_cross_entropy_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static const Precision epsilon = 1e-9;
     static const Precision alpha   = epsilon - 1.0;
 
-    Vector<Precision, Args...> loss_vector(y_true.size());
-
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) =
+        buff(i) =
             (y_true(i) - 1.0) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> binary_cross_entropy_derived_sigmoid(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& binary_cross_entropy_derived_sigmoid(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
-
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
+        buff(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
 
-    return loss_vector;
+    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision logcosh(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
     static Precision result;
 
@@ -569,15 +473,15 @@ Precision logcosh(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...> logcosh_derived(
-    const Vector<Precision, Args...>& y_true, const Vector<Precision, Args...>& y_pred)
+Vector<Precision, Args...>& logcosh_derived(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred)
 {
-    Vector<Precision, Args...> loss_vector(y_true.size());
-
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        loss_vector(i) = std::tanh(y_pred(i) - y_true(i));
+        buff(i) = std::tanh(y_pred(i) - y_true(i));
 
-    return loss_vector;
+    return buff;
 }
 
 } // namespace loss
@@ -588,20 +492,19 @@ namespace data
 template <template <typename T, typename...> class Tensor, class Precision, typename... Args>
 struct ActivationData
 {
-    Tensor<Precision, Args...> (*f)(const Tensor<Precision, Args...>&);
-    Tensor<Precision, Args...> (*df)(const Tensor<Precision, Args...>&);
+    using Tensor_t = Tensor<Precision, Args...>;
+
+    Tensor_t& (*f)(Tensor_t&, const Tensor_t&);
+    Tensor_t& (*df)(Tensor_t&, const Tensor_t&);
 };
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 struct LossData
 {
-    Precision (*f)(
-        const Tensor<Precision, Args...>&,
-        const Tensor<Precision, Args...>&);
+    using Tensor_t = Tensor<Precision, Args...>;
 
-    Tensor<Precision, Args...> (*df)(
-        const Tensor<Precision, Args...>&,
-        const Tensor<Precision, Args...>&);
+    Precision (*f)(const Tensor_t&, const Tensor_t&);
+    Tensor_t& (*df)(Tensor_t&, const Tensor_t&, const Tensor_t&);
 };
 
 } // namespace data
@@ -621,8 +524,8 @@ struct is_activation_data
     using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t (*)(const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t& (*)(Tensor_t&, const Tensor_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t& (*)(Tensor_t&, const Tensor_t&)>::value;
 };
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
@@ -636,7 +539,7 @@ struct is_loss_data
 
     static constexpr bool value =
         std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t (*)(const Tensor_t&, const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t& (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
 };
 
 } // namespace meta
@@ -711,5 +614,6 @@ FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
 // clean up
 #undef TRIXY_TENSOR_FUNCTION_DECLARATION
 #undef TRIXY_VECTOR_FUNCTION_DECLARATION
+#undef TRIXY_FUNCTION_GENERIC_HELPER
 
 #endif // NEURO_FUNCTIONAL_HPP

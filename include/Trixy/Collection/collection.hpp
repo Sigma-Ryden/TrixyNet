@@ -1,6 +1,16 @@
 #ifndef COLLECTION_HPP
 #define COLLECTION_HPP
 
+namespace var_collection
+{
+
+extern int D;
+extern int C;
+extern int CC;
+extern int M;
+
+} // namespace var_collection
+
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 
@@ -59,17 +69,20 @@ public:
 template <typename T>
 inline Collection<T>::Collection() noexcept : data_(nullptr), size_(0)
 {
+    ++var_collection::D;
 }
 
 template <typename T>
 inline Collection<T>::Collection(std::size_t size) : data_(new T [size]), size_(size)
 {
+    ++var_collection::C;
 }
 
 template <typename T>
 Collection<T>::Collection(const Collection<T>& collection)
     : data_(new T[collection.size_]), size_(collection.size_)
 {
+    ++var_collection::CC;
     for(std::size_t i = 0; i < size_; ++i)
         data_[i] = collection.data_[i];
 }
@@ -77,6 +90,7 @@ Collection<T>::Collection(const Collection<T>& collection)
 template <typename T>
 Collection<T>::Collection(Collection<T>&& collection) noexcept
 {
+    ++var_collection::M;
     size_ = collection.size_;
     data_ = collection.data_;
 
@@ -98,6 +112,7 @@ Collection<T>::Collection(const std::initializer_list<T>& list)
 template <typename T>
 Collection<T>& Collection<T>::operator= (const Collection<T>& collection)
 {
+    ++var_collection::CC;
     if(this == &collection)
         return *this;
 
@@ -115,6 +130,7 @@ Collection<T>& Collection<T>::operator= (const Collection<T>& collection)
 template <typename T>
 Collection<T>& Collection<T>::operator= (Collection<T>&& collection) noexcept
 {
+    ++var_collection::M;
     if(this == &collection)
         return *this;
 

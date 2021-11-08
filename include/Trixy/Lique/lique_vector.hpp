@@ -1,6 +1,16 @@
 #ifndef LIQUE_VECTOR_HPP
 #define LIQUE_VECTOR_HPP
 
+namespace var_vector
+{
+
+extern int D;
+extern int C;
+extern int CC;
+extern int M;
+
+} // namespace var_vector
+
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 
@@ -40,6 +50,8 @@ public:
     Vector& fill(Type value) noexcept;
 
     Vector apply(Type (*function)(Type)) const;
+    Vector& apply(Type (*function)(Type), const Vector&) noexcept;
+
     Vector& modify(Type (*function)(Type)) noexcept;
 
     Type dot(const Vector&) const;
@@ -59,6 +71,7 @@ public:
 template <typename Type>
 inline Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
+    ++var_vector::D;
 }
 
 template <typename Type>
@@ -71,12 +84,15 @@ template <typename Type>
 inline Vector<Type>::Vector(std::size_t size)
     : data_(new Type[size]), size_(size)
 {
+    ++var_vector::C;
 }
 
 template <typename Type>
 Vector<Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
+    ++var_vector::CC;
+
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
@@ -85,6 +101,7 @@ template <typename Type>
 inline Vector<Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
+    ++var_vector::M;
     vector.data_ = nullptr;
 }
 
@@ -103,6 +120,7 @@ Vector<Type>::Vector(const std::initializer_list<Type>& init)
 template <typename Type>
 Vector<Type>& Vector<Type>::operator= (const Vector& vector)
 {
+    ++var_vector::CC;
     if(this == &vector)
         return *this;
 
@@ -120,6 +138,7 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
 template <typename Type>
 Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
 {
+    ++var_vector::M;
     if(this == &vector)
         return *this;
 
@@ -189,6 +208,15 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
     return new_vector;
 }
 
+template <typename Type>
+Vector<Type>& Vector<Type>::apply(
+    Type (*function)(Type), const Vector<Type>& vector) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = function(vector.data_[i]);
+
+    return *this;
+}
 template <typename Type>
 Vector<Type>& Vector<Type>::modify(Type (*function)(Type)) noexcept
 {

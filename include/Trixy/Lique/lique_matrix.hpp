@@ -1,6 +1,16 @@
 #ifndef LIQUE_MATRIX_HPP
 #define LIQUE_MATRIX_HPP
 
+namespace var_matrix
+{
+
+extern int D;
+extern int C;
+extern int CC;
+extern int M;
+
+} // namespace var_matrix
+
 #include <cstddef> // size_t
 
 namespace lique
@@ -84,6 +94,7 @@ public:
 template <typename Type>
 inline Matrix<Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
+    ++var_matrix::D;
 }
 
 template <typename Type>
@@ -100,12 +111,14 @@ Matrix<Type>::~Matrix()
 template <typename Type>
 Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape_(m, n)
 {
+    ++var_matrix::C;
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 template <typename Type>
 Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
 {
+    ++var_matrix::C;
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
@@ -113,6 +126,7 @@ template <typename Type>
 Matrix<Type>::Matrix(const Matrix& matrix)
     : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
 {
+    ++var_matrix::CC;
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 
@@ -125,12 +139,14 @@ template <typename Type>
 inline Matrix<Type>::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
+    ++var_matrix::M;
     matrix.data_ = nullptr;
 }
 
 template <typename Type>
 Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
 {
+    ++var_matrix::CC;
     if(this == &matrix)
         return *this;
 
@@ -157,6 +173,7 @@ Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
 template <typename Type>
 Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
 {
+    ++var_matrix::M;
     if(this == &matrix)
         return *this;
 

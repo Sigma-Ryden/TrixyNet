@@ -17,6 +17,7 @@ public:
     virtual Tensor<Type, Args...>& fill(Type (*generator)()) noexcept = 0;
 
     virtual Tensor<Type, Args...> apply(Type (*function)(Type)) const = 0;
+    virtual Tensor<Type, Args...>& apply(Type (*function)(Type), const Tensor<Type, Args...>&) = 0;
     virtual Tensor<Type, Args...>& modify(Type (*function)(Type)) noexcept = 0;
 
     virtual Tensor<Type, Args...> multiply(const Tensor<Type, Args...>&) const = 0;

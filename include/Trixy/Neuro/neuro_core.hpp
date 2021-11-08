@@ -96,12 +96,12 @@ private:
     using Tensor1D = Vector<Precision, Args...>;
 
 public:
-    Tensor1D (*f)(const Tensor1D&);
-    Tensor1D (*df)(const Tensor1D&);
+    Tensor1D& (*f)(Tensor1D&, const Tensor1D&);
+    Tensor1D& (*df)(Tensor1D&, const Tensor1D&);
 
     explicit Activation(
-        Tensor1D (*function)(const Tensor1D&) = nullptr,
-        Tensor1D (*function_derived)(const Tensor1D&) = nullptr) noexcept
+        Tensor1D& (*function)(Tensor1D&, const Tensor1D&) = nullptr,
+        Tensor1D& (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -113,11 +113,11 @@ private:
 
 public:
     Precision (*f)(const Tensor1D&, const Tensor1D&);
-    Tensor1D (*df)(const Tensor1D&, const Tensor1D&);
+    Tensor1D& (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
     explicit Loss(
         Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
-        Tensor1D (*function_derived)(const Tensor1D&, const Tensor1D&) = nullptr) noexcept
+        Tensor1D& (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -206,6 +206,7 @@ public:
     using GeneratorFloat   = Precision (*)();
 
 private:
+    mutable Collection<Tensor1D> buff;
     Collection<Tensor1D> B;
     Collection<Tensor2D> W;
     size_type N;
@@ -286,13 +287,11 @@ public:
                 const Collection<Tensor1D>& odata) const;
 
 private:
-    void feedForward(const Tensor1D& idata_sample,
-                     Tensor1D& theta,
+    void feedforward(const Tensor1D& idata_sample,
                      InnerManager& im) const;
 
     void backPropagation(const Tensor1D& idata_sample,
                          const Tensor1D& odata_sample,
-                         Tensor1D& theta,
                          InnerManager& im) const;
 
     void updateInnerNormalize(Collection<Tensor1D>& deltaB,
@@ -340,6 +339,9 @@ public:
     void initializeDelta();
     void initializeOptimizer();
 
+    void startDefault(const Collection<Tensor1D>& B,
+                      const Collection<Tensor2D>& W);
+
     void startDelta(const Collection<Tensor1D>& B,
                     const Collection<Tensor2D>& W);
 
@@ -381,6 +383,23 @@ void TRIXY_NEURO_TPL::InnerManager::initializeOptimizer()
 {
     OB = Collection<Optimizer1D>(size_);
     OW = Collection<Optimizer2D>(size_);
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerManager::startDefault(
+    const Collection<Tensor1D>& B,
+    const Collection<Tensor2D>& W)
+{
+    H[0].resize(B[size_ - 1].size());
+    for(size_type i = 1; i < size_; ++i)
+        H[i].resize(B[i - 1].size());
+
+    for(size_type i = 0; i < size_; ++i)
+    {
+        DH[i].resize(B[i].size());
+        DB[i].resize(B[i].size());
+        DW[i].resize(W[i].size());
+    }
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -452,7 +471,8 @@ void TRIXY_NEURO_TPL::InnerManager::normalizeDelta(
 TRIXY_NEURO_TPL_DECLARATION
 TRIXY_NEURO_TPL::Neuro(
     const std::initializer_list<std::size_t>& topology)
-    : B(topology.size() - 1)
+    : buff(topology.size() - 1)
+    , B(topology.size() - 1)
     , W(topology.size() - 1)
     , N(topology.size() - 1)
     , A(topology.size() - 1)
@@ -465,6 +485,7 @@ TRIXY_NEURO_TPL::Neuro(
 
     for(size_type i = 0; i < N; ++i, ++lsh, ++rsh)
     {
+        buff[i] = Tensor1D(*rsh);
         B[i] = Tensor1D(*rsh);
         W[i] = Tensor2D(*lsh, *rsh);
     }
@@ -562,12 +583,12 @@ TRIXY_NEURO_TPL_DECLARATION
 Vector<Precision, Args...> TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const
 {
-    Tensor1D y_pred = A[0].f(li.dot(vector, W[0]) + B[0]);
+    A[0].f(buff[0], li.dot(buff[0], vector, W[0]) + B[0]);
 
     for(size_type i = 1; i < N; ++i)
-        y_pred = A[i].f(li.dot(y_pred, W[i]) + B[i]);
+        A[i].f(buff[i], li.dot(buff[i], buff[i - 1], W[i]) + B[i]);
 
-    return y_pred;
+    return buff[N - 1];
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -591,16 +612,16 @@ void TRIXY_NEURO_TPL::trainStochastic(
     int (*generator)())
 {
     InnerManager imanage(N);
-    Tensor1D theta;
 
     imanage.initializeDefault();
+    imanage.startDefault(B, W);
 
     for(size_type epoch = 0, sample; epoch < epoch_scale; ++epoch)
     {
         sample = generator() % idata.size();
 
-        feedForward(idata[sample], theta, imanage);
-        backPropagation(idata[sample], odata[sample], theta, imanage);
+        feedforward(idata[sample], imanage);
+        backPropagation(idata[sample], odata[sample], imanage);
         updateInner(imanage.DB, imanage.DW, learn_rate);
     }
 }
@@ -613,11 +634,11 @@ void TRIXY_NEURO_TPL::trainBatch(
     std::size_t epoch_scale)
 {
     InnerManager imanage(N);
-    Tensor1D theta;
 
     imanage.initializeDefault();
     imanage.initializeDelta();
 
+    imanage.startDefault(B, W);
     imanage.startDelta(B, W);
 
     learn_rate /= idata.size();
@@ -628,8 +649,8 @@ void TRIXY_NEURO_TPL::trainBatch(
 
         for(size_type sample = 0; sample < idata.size(); ++sample)
         {
-            feedForward(idata[sample], theta, imanage);
-            backPropagation(idata[sample], odata[sample], theta, imanage);
+            feedforward(idata[sample], imanage);
+            backPropagation(idata[sample], odata[sample], imanage);
             imanage.updateDelta();
         }
 
@@ -647,7 +668,6 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
     int (*generator)())
 {
     InnerManager imanage(N);
-    Tensor1D theta;
 
     size_type sample;
     size_type sample_end;
@@ -656,6 +676,7 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
     imanage.initializeDefault();
     imanage.initializeDelta();
 
+    imanage.startDefault(B, W);
     imanage.startDelta(B, W);
 
     learn_rate /= mini_batch_size;
@@ -670,8 +691,8 @@ void TRIXY_NEURO_TPL::trainMiniBatch(
 
         while(sample < sample_end)
         {
-            feedForward(idata[sample], theta, imanage);
-            backPropagation(idata[sample], odata[sample], theta, imanage);
+            feedforward(idata[sample], imanage);
+            backPropagation(idata[sample], odata[sample], imanage);
             imanage.updateDelta();
 
             ++sample;
@@ -691,7 +712,6 @@ void TRIXY_NEURO_TPL::trainOptimize(
     int (*generator)())
 {
     InnerManager imanage(N);
-    Tensor1D theta;
 
     size_type sample;
     size_type sample_end;
@@ -701,8 +721,10 @@ void TRIXY_NEURO_TPL::trainOptimize(
     imanage.initializeDelta();
     imanage.initializeOptimizer();
 
+    imanage.startDefault(B, W);
     imanage.startDelta(B, W);
     imanage.startOptimizer(B, W, O);
+
     imanage.resetOptimizer();
 
     for(size_type epoch = 0; epoch < epoch_scale; ++epoch)
@@ -715,8 +737,8 @@ void TRIXY_NEURO_TPL::trainOptimize(
 
         while(sample < sample_end)
         {
-            feedForward(idata[sample], theta, imanage);
-            backPropagation(idata[sample], odata[sample], theta, imanage);
+            feedforward(idata[sample], imanage);
+            backPropagation(idata[sample], odata[sample], imanage);
             imanage.updateDelta();
 
             ++sample;
@@ -829,41 +851,40 @@ double TRIXY_NEURO_TPL::loss(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::feedForward(
+void TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& idata_sample,
-    Vector<Precision, Args...>& theta,
     InnerManager& im) const
 {
     size_type lsh = 0;
 
-    theta = li.dot(idata_sample, W[0]) + B[0];
-    for(size_type rhs = 1; rhs < N; ++rhs, ++lsh)
+    li.dot(buff[0], idata_sample, W[0]);
+    buff[0] += B[0];
+    for(size_type rsh = 1; rsh < N; ++rsh, ++lsh)
     {
-        im.H[rhs]  = A[lsh].f(theta);
-        im.DH[lsh] = A[lsh].df(theta);
-        theta      = li.dot(im.H[rhs], W[rhs]);
-        theta     += B[rhs];
+        A[lsh].f(im.H[rsh], buff[lsh]);
+        A[lsh].df(im.DH[lsh], buff[lsh]);
+        li.dot(buff[rsh], im.H[rsh], W[rsh]);
+        buff[rsh] += B[rsh];
     }
-    im.H[0]    = A[lsh].f(theta);
-    im.DH[lsh] = A[lsh].df(theta);
+    A[lsh].f(im.H[0], buff[lsh]);
+    A[lsh].df(im.DH[lsh], buff[lsh]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::backPropagation(
     const Tensor1D& idata_sample,
     const Tensor1D& odata_sample,
-    Vector<Precision, Args...>& theta,
     InnerManager& im) const
 {
-    theta = E.df(odata_sample, im.H[0]);
+    E.df(buff[N - 1], odata_sample, im.H[0]);
     for(size_type i = N - 1; i > 0; --i)
     {
-        im.DB[i] = std::move(im.DH[i].multiply(theta));
-        im.DW[i] = li.tensordot(im.DB[i], im.H[i]);
-        theta    = li.dot(im.DB[i], W[i], true);
+        li.multiply(im.DB[i], buff[i], im.DH[i]);
+        li.tensordot(im.DW[i], im.DB[i], im.H[i]);
+        li.dot(buff[i - 1], im.DB[i], W[i], true);
     }
-    im.DB[0] = std::move(im.DH[0].multiply(theta));
-    im.DW[0] = li.tensordot(im.DB[0], idata_sample);
+    li.multiply(im.DB[0], buff[0], im.DH[0]);
+    li.tensordot(im.DW[0], buff[0], idata_sample);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
