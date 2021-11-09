@@ -50,11 +50,13 @@ public:
     Vector& fill(Type value) noexcept;
 
     Vector apply(Type (*function)(Type)) const;
+    Vector& apply(Type (*function)(Type)) noexcept;
     Vector& apply(Type (*function)(Type), const Vector&) noexcept;
 
-    Vector& modify(Type (*function)(Type)) noexcept;
-
     Type dot(const Vector&) const;
+
+    Vector& add(const Vector&) noexcept;
+    Vector& sub(const Vector&) noexcept;
 
     Vector multiply(const Vector&) const;
     Vector& multiply(const Vector&) noexcept;
@@ -209,19 +211,19 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
 }
 
 template <typename Type>
-Vector<Type>& Vector<Type>::apply(
-    Type (*function)(Type), const Vector<Type>& vector) noexcept
-{
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = function(vector.data_[i]);
-
-    return *this;
-}
-template <typename Type>
-Vector<Type>& Vector<Type>::modify(Type (*function)(Type)) noexcept
+Vector<Type>& Vector<Type>::apply(Type (*function)(Type)) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = function(data_[i]);
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::apply(Type (*function)(Type), const Vector& vector) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = function(vector.data_[i]);
 
     return *this;
 }
@@ -235,6 +237,24 @@ Type Vector<Type>::dot(const Vector& vector) const
         result += data_[i] * vector.data_[i];
 
     return result;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::add(const Vector& vector) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] += vector.data_[i];
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::sub(const Vector& vector) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] -= vector.data_[i];
+
+    return *this;
 }
 
 template <typename Type>

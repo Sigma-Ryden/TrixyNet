@@ -23,33 +23,7 @@
 #include "Trixy/Lique/ilique_matrix.hpp"
 #include "Trixy/Lique/ilique_vector.hpp"
 */
-namespace var_collection
-{
 
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_vector
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_matrix
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
 
 namespace tr = trixy;
 namespace li = lique;
@@ -112,11 +86,11 @@ void simple_test()
     utils::testNeuro(network, train_in_set, train_out_set);
 
     Timer t;
-    //
+    /*
     network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
     network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
     network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
-    //
+    */
     /*
     for(int i = 1; i <= 200; ++i)
     {
@@ -134,25 +108,8 @@ void simple_test()
     std::cout << "Global accuracy: " << network.accuracyGlobal(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Full accuracy: " << network.accuracyFull(train_in_set, train_out_set, 0.05) << '\n';
     std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
-
-    std::cout << "\nPROFILING >>>\n";
-
-    std::cout << "Collection D: " << var_collection::D << '\n';
-    std::cout << "Collection C: " << var_collection::C << '\n';
-    std::cout << "Collection CC: " << var_collection::CC << '\n';
-    std::cout << "Collection M: " << var_collection::M << '\n';
-
-    std::cout << "Vector D: " << var_vector::D << '\n';
-    std::cout << "Vector C: " << var_vector::C << '\n';
-    std::cout << "Vector CC: " << var_vector::CC << '\n';
-    std::cout << "Vector M: " << var_vector::M << '\n';
-
-    std::cout << "Matrix D: " << var_matrix::D << '\n';
-    std::cout << "Matrix C: " << var_matrix::C << '\n';
-    std::cout << "Matrix CC: " << var_matrix::CC << '\n';
-    std::cout << "Matrix M: " << var_matrix::M << '\n';
 }
-
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -165,7 +122,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 template <typename T>
 class MyVector : public il::ILiqueBase<MyVector, T>, public il::IVector<MyVector, T>

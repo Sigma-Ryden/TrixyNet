@@ -50,12 +50,16 @@ public:
     Matrix& fill(Type value) noexcept;
 
     Matrix apply(Type (*function)(Type)) const;
-    Matrix& modify(Type (*function)(Type)) noexcept;
+    Matrix& apply(Type (*function)(Type)) noexcept;
+    Matrix& apply(Type (*function)(Type), const Matrix&) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
     Matrix dot(const Matrix&) const;
+
+    Matrix& add(const Matrix&) noexcept;
+    Matrix& sub(const Matrix&) noexcept;
 
     Matrix multiply(const Matrix&) const;
     Matrix& multiply(const Matrix&) noexcept;
@@ -264,11 +268,21 @@ Matrix<Type> Matrix<Type>::apply(Type (*function)(Type)) const
 }
 
 template <typename Type>
-Matrix<Type>& Matrix<Type>::modify(Type (*function)(Type)) noexcept
+Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type)) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = function(data_[i][j]);
+
+    return *this;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type), const Matrix& matrix) noexcept
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] = function(matrix.data_[i][j]);
 
     return *this;
 }
@@ -304,6 +318,26 @@ Matrix<Type> Matrix<Type>::dot(const Matrix& matrix) const
     }
 
     return new_matrix;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::add(const Matrix& matrix) noexcept
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] += matrix.data_[i][j];
+
+    return *this;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::sub(const Matrix& matrix) noexcept
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] -= matrix.data_[i][j];
+
+    return *this;
 }
 
 template <typename Type>
