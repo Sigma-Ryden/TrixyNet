@@ -66,8 +66,8 @@ public:
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
-    Vector& operator+= (const Vector&) noexcept;
-    Vector& operator-= (const Vector&) noexcept;
+    Vector& operator+= (const Vector&) noexcept; // deprecated
+    Vector& operator-= (const Vector&) noexcept; // deprecated
 };
 
 template <typename Type>

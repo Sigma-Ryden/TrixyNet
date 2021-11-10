@@ -24,6 +24,10 @@ public:
                   const Vector& lsh,
                   const Vector& rsh) const;
 
+    void multiply(Matrix& buff,
+                  const Matrix& lsh,
+                  const Matrix& rsh) const;
+
     void dot(Vector& buff,
              const Vector& vector,
              const Matrix& matrix) const;
@@ -43,6 +47,15 @@ void Linear<Vector, Matrix>::multiply(
 {
     for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = lsh(i) * rsh(i);
+}
+
+template <class Vector, class Matrix>
+void Linear<Vector, Matrix>::multiply(
+    Matrix& buff, const Matrix& lsh, const Matrix& rsh) const
+{
+    for(size_type i = 0; i < buff.size().row(); ++i)
+        for(size_type j = 0; j < buff.size().col(); ++j)
+            buff(i, j) = lsh(i, j) * rsh(i, j);
 }
 
 template <class Vector, class Matrix>

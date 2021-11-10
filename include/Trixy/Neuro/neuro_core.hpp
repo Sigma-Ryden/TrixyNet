@@ -36,16 +36,6 @@ template <template <typename T, typename...> class Vector,
           typename... Args>
 class Optimization;
 
-namespace detail
-{
-
-template <template <typename T, typename...> class Tensor,
-          typename Precision,
-          typename... Args>
-class Optimizer;
-
-} // namespace detail
-
 } // namespace function
 
 } // namespace trixy
@@ -822,11 +812,11 @@ bool TRIXY_NEURO_TPL::check(
     max_true_out = 0;
     max_pred_out = 0;
 
-    for(size_type j = 0; j <y_true.size(); ++j)
+    for(size_type j = 1; j < y_true.size(); ++j)
         if(y_true(max_true_out) < y_true(j))
             max_true_out = j;
 
-    for(size_type j = 0; j < y_true.size(); ++j)
+    for(size_type j = 1; j < y_true.size(); ++j)
         if(y_pred(max_pred_out) < y_pred(j))
             max_pred_out = j;
 

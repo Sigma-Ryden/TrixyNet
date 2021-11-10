@@ -16,16 +16,25 @@ protected:
     virtual ~ILinear() = default;
 
 public:
-    virtual Tensor1D get(const Tensor2D& matrix,
-                         size_type row_number) const = 0;
+    virtual void multiply(Tensor1D& buff,
+                          const Tensor1D& lsh,
+                          const Tensor1D& rsh) const = 0;
 
-    virtual Tensor1D dot(const Tensor1D& vector,
-                         const Tensor2D& matrix,
-                         bool transpose_dot_matrix) const = 0;
+    virtual void multiply(Tensor2D& buff,
+                          const Tensor2D& lsh,
+                          const Tensor2D& rsh) const = 0;
 
-    virtual Tensor2D tensordot(const Tensor1D& left_side_vector,
-                               const Tensor1D& right_side_vector,
-                               bool return_transpose_matrix) const = 0;
+    virtual void dot(Tensor1D& buff,
+                     const Tensor1D& vector,
+                     const Tensor2D& matrix) const = 0;
+
+    virtual void dottranspose(Tensor1D& buff,
+                              const Tensor1D& vector,
+                              const Tensor2D& matrix) const = 0;
+
+    virtual void tensordot(Tensor2D& buff,
+                           const Tensor1D& lsh,
+                           const Tensor1D& rsh) const = 0;
 };
 
 } // namespace ilique

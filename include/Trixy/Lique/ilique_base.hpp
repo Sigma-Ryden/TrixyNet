@@ -26,10 +26,13 @@ public:
     virtual Tensor<Type, Args...> join(Type value) const = 0;
     virtual Tensor<Type, Args...>& join(Type value) noexcept = 0;
 
+    Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept;
+    Tensor<Type, Args...>& sub(const Tensor<Type, Args...>&) noexcept;
+
     virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...> operator- (const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...>& operator+= (const Tensor<Type, Args...>&) noexcept = 0;
-    virtual Tensor<Type, Args...>& operator-= (const Tensor<Type, Args...>&) noexcept = 0;
+    virtual Tensor<Type, Args...>& operator+= (const Tensor<Type, Args...>&) noexcept = 0; // deprecated
+    virtual Tensor<Type, Args...>& operator-= (const Tensor<Type, Args...>&) noexcept = 0; // deprecated
 };
 
 template <template <typename T, typename...> class Tensor, typename Type, typename... Args>

@@ -71,8 +71,8 @@ public:
 
     Matrix operator+ (const Matrix&) const;
     Matrix operator- (const Matrix&) const;
-    Matrix& operator+= (const Matrix&) noexcept;
-    Matrix& operator-= (const Matrix&) noexcept;
+    Matrix& operator+= (const Matrix&) noexcept; // deprecated
+    Matrix& operator-= (const Matrix&) noexcept; // deprecated
 };
 
 template <typename Type>
