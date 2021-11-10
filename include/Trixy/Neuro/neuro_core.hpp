@@ -306,7 +306,7 @@ public:
 };
 
 TRIXY_NEURO_TPL_DECLARATION
-inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(size_type N)
+inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(std::size_t N)
     : size_(N)
 {
 }
@@ -337,8 +337,8 @@ void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
-    const Collection<Tensor1D>& B,
-    const Collection<Tensor2D>& W)
+    const Collection<Vector<Precision, Args...>>& B,
+    const Collection<Matrix<Precision, Args...>>& W)
 {
     H[0].resize(B[size_ - 1].size());
     for(size_type i = 1; i < size_; ++i)
@@ -355,8 +355,8 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDelta(
-    const Collection<Tensor1D>& B,
-    const Collection<Tensor2D>& W)
+    const Collection<Vector<Precision, Args...>>& B,
+    const Collection<Matrix<Precision, Args...>>& W)
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -367,8 +367,8 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDelta(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
-    const Collection<Tensor1D>& B,
-    const Collection<Tensor2D>& W)
+    const Collection<Vector<Precision, Args...>>& B,
+    const Collection<Matrix<Precision, Args...>>& W)
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -503,7 +503,7 @@ void TRIXY_NEURO_TPL::setEachActivationFunction(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::setOptimizationFunction(
-    const OptimizationFunction& optimization_function) noexcept
+    const function::Optimization<Vector, Matrix, Precision, Args...>& optimization_function) noexcept
 {
     O = optimization_function;
 }
@@ -759,8 +759,8 @@ void TRIXY_NEURO_TPL::innerFeedForward(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerBackPropagation(
-    const Tensor1D& idata_sample,
-    const Tensor1D& odata_sample) const
+    const Vector<Precision, Args...>& idata_sample,
+    const Vector<Precision, Args...>& odata_sample) const
 {
     E.df(ib.Z[N - 1], odata_sample, ib.H[0]);
     for(size_type i = N - 1; i > 0; --i)
@@ -775,8 +775,8 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerUpdate(
-    Collection<Tensor1D>& deltaB,
-    Collection<Tensor2D>& deltaW,
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW,
     Precision learn_rate)
 {
     for(size_type i = 0; i < N; ++i)
@@ -788,10 +788,10 @@ void TRIXY_NEURO_TPL::innerUpdate(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerUpdateNormalize(
-    Collection<Tensor1D>& deltaB,
-    Collection<Tensor2D>& deltaW,
-    Collection<Tensor1D>& OB,
-    Collection<Tensor2D>& OW,
+    Collection<Vector<Precision, Args...>>& deltaB,
+    Collection<Matrix<Precision, Args...>>& deltaW,
+    Collection<Vector<Precision, Args...>>& OB,
+    Collection<Matrix<Precision, Args...>>& OW,
     Precision learn_rate)
 {
     for(size_type i = 0; i < N; ++i)
@@ -803,8 +803,8 @@ void TRIXY_NEURO_TPL::innerUpdateNormalize(
 
 TRIXY_NEURO_TPL_DECLARATION
 bool TRIXY_NEURO_TPL::check(
-    const Tensor1D& y_true,
-    const Tensor1D& y_pred) const
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred) const
 {
     static size_type max_true_out;
     static size_type max_pred_out;
@@ -825,8 +825,8 @@ bool TRIXY_NEURO_TPL::check(
 
 TRIXY_NEURO_TPL_DECLARATION
 bool TRIXY_NEURO_TPL::checkFull(
-    const Tensor1D& y_true,
-    const Tensor1D& y_pred,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred,
     Precision range_rate) const
 {
     for(size_type j = 0; j < y_true.size(); ++j)
@@ -838,10 +838,10 @@ bool TRIXY_NEURO_TPL::checkFull(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::checkGlobal(
-    const Tensor1D& y_true,
-    const Tensor1D& y_pred,
+    const Vector<Precision, Args...>& y_true,
+    const Vector<Precision, Args...>& y_pred,
     Precision range_rate,
-    size_type& count) const
+    std::size_t& count) const
 {
     for(size_type i = 0; i < y_true.size(); ++i)
         if(std::fabs(y_true(i) - y_pred(i)) < range_rate)

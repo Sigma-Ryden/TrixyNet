@@ -282,7 +282,7 @@ Vector<Precision, Args...>& softmax(
 TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& tensor_of_units(
     Tensor<Precision, Args...>& buff,
-    const Tensor<Precision, Args...>&)
+    const Tensor<Precision, Args...>& /*unused*/)
 {
     return buff.fill(1.0);
 }
