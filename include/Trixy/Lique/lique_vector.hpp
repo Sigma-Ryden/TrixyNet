@@ -40,6 +40,8 @@ public:
     Vector& operator= (const Vector&);
     Vector& operator= (Vector&&) noexcept;
 
+    Vector& copy(const Vector&) noexcept;
+
     size_type size() const noexcept;
     void resize(size_type new_size);
 
@@ -64,6 +66,7 @@ public:
 
     Vector join(Type value) const;
     Vector& join(Type value) noexcept;
+    Vector& join(Type value, const Vector&) noexcept;
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
@@ -151,6 +154,19 @@ Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
     data_ = vector.data_;
 
     vector.data_ = nullptr;
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::copy(const Vector& vector) noexcept
+{
+    ++var_vector::CC;
+    if(this == &vector)
+        return *this;
+
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = vector.data_[i];
 
     return *this;
 }
@@ -293,7 +309,7 @@ Vector<Type> Vector<Type>::join(Type value) const
     Vector new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
-        new_vector.data_[i] = data_[i] * value;
+        new_vector.data_[i] = value * data_[i];
 
     return new_vector;
 }
@@ -303,6 +319,15 @@ Vector<Type>& Vector<Type>::join(Type value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= value;
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::join(Type value, const Vector& vector) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = value * vector.data_[i];
 
     return *this;
 }

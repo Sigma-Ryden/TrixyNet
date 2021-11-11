@@ -13,6 +13,8 @@ protected:
     virtual ~ILiqueBase() = default;
 
 public:
+    virtual Tensor<Type, Args...>& copy(const Tensor<Type, Args...>&) noexcept = 0;
+
     virtual Tensor<Type, Args...>& fill(Type value) noexcept = 0;
     virtual Tensor<Type, Args...>& fill(Type (*generator)()) noexcept = 0;
 
@@ -30,6 +32,9 @@ public:
 
     virtual Tensor<Type, Args...> join(Type value) const = 0;
     virtual Tensor<Type, Args...>& join(Type value) noexcept = 0;
+
+    virtual Tensor<Type, Args...>& join(Type value,
+                                        const Tensor<Type, Args...>&) noexcept = 0;
 
     Tensor<Type, Args...> add(const Tensor<Type, Args...>&) const;
     Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept;

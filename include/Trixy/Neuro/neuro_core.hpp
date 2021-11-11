@@ -114,12 +114,12 @@ private:
     using Tensor2D = Matrix<Precision, Args...>;
 
 public:
-    Tensor1D& (*f1D)(Tensor1D&, Tensor1D&);
-    Tensor2D& (*f2D)(Tensor2D&, Tensor2D&);
+    Tensor1D& (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
+    Tensor2D& (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
     explicit Optimization(
-        Tensor1D& (*vector_optimizer)(Tensor1D&, Tensor1D&) = nullptr,
-        Tensor2D& (*matrix_optimizer)(Tensor2D&, Tensor2D&) = nullptr) noexcept
+        Tensor1D& (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
+        Tensor2D& (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
     : f1D(vector_optimizer), f2D(matrix_optimizer) {}
 };
 
@@ -264,7 +264,7 @@ private:
     size_type size_;
 
 public:
-    Collection<Tensor1D> U;
+    Collection<Tensor1D> B1;
     Collection<Tensor1D> H;
     Collection<Tensor1D> DH;
     Collection<Tensor1D> DB;
@@ -275,6 +275,7 @@ public:
 
     Collection<Tensor1D> OB;
     Collection<Tensor2D> OW;
+    Collection<Tensor2D> B2;
 
 public:
     InnerBuffer(size_type);
@@ -314,7 +315,7 @@ inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(std::size_t N)
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeDefault()
 {
-    U  = Collection<Tensor1D>(size_);
+    B1 = Collection<Tensor1D>(size_);
     H  = Collection<Tensor1D>(size_);
     DH = Collection<Tensor1D>(size_);
     DB = Collection<Tensor1D>(size_);
@@ -333,6 +334,7 @@ void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
 {
     OB = Collection<Tensor1D>(size_);
     OW = Collection<Tensor2D>(size_);
+    B2 = Collection<Tensor2D>(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -346,7 +348,7 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
 
     for(size_type i = 0; i < size_; ++i)
     {
-        U[i].resize(B[i].size());
+        B1[i].resize(B[i].size());
         DH[i].resize(B[i].size());
         DB[i].resize(B[i].size());
         DW[i].resize(W[i].size());
@@ -374,6 +376,7 @@ void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
     {
         OB[i] = Tensor1D(B[i].size());
         OW[i] = Tensor2D(W[i].size());
+        B2[i] = Tensor2D(W[i].size());
     }
 }
 
@@ -540,16 +543,16 @@ TRIXY_NEURO_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const
 {
-    li.dot(ib.U[0], vector, W[0]);
-    A[0].f(ib.U[0], ib.U[0].add(B[0]));
+    li.dot(ib.B1[0], vector, W[0]);
+    A[0].f(ib.B1[0], ib.B1[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
     {
-        li.dot(ib.U[i], ib.U[i - 1], W[i]);
-        A[i].f(ib.U[i], ib.U[i].add(B[i]));
+        li.dot(ib.B1[i], ib.B1[i - 1], W[i]);
+        A[i].f(ib.B1[i], ib.B1[i].add(B[i]));
     }
 
-    return ib.U[N - 1];
+    return ib.B1[N - 1];
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -744,17 +747,17 @@ void TRIXY_NEURO_TPL::innerFeedForward(
 {
     size_type i = 0;
 
-    li.dot(ib.U[0], idata_sample, W[0]);
-    ib.U[0].add(B[0]);
+    li.dot(ib.B1[0], idata_sample, W[0]);
+    ib.B1[0].add(B[0]);
     for(size_type j = 1; j < N; ++j, ++i)
     {
-        A[i].f(ib.H[j], ib.U[i]);
-        A[i].df(ib.DH[i], ib.U[i]);
-        li.dot(ib.U[j], ib.H[j], W[j]);
-        ib.U[j].add(B[j]);
+        A[i].f(ib.H[j], ib.B1[i]);
+        A[i].df(ib.DH[i], ib.B1[i]);
+        li.dot(ib.B1[j], ib.H[j], W[j]);
+        ib.B1[j].add(B[j]);
     }
-    A[i].f(ib.H[0], ib.U[i]);
-    A[i].df(ib.DH[i], ib.U[i]);
+    A[i].f(ib.H[0], ib.B1[i]);
+    A[i].df(ib.DH[i], ib.B1[i]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -762,15 +765,15 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
     const Vector<Precision, Args...>& idata_sample,
     const Vector<Precision, Args...>& odata_sample) const
 {
-    E.df(ib.U[N - 1], odata_sample, ib.H[0]);
+    E.df(ib.B1[N - 1], odata_sample, ib.H[0]);
     for(size_type i = N - 1; i > 0; --i)
     {
-        ib.DB[i].multiply(ib.U[i], ib.DH[i]);
+        ib.DB[i].multiply(ib.B1[i], ib.DH[i]);
         li.tensordot(ib.DW[i], ib.DB[i], ib.H[i]);
-        li.dottranspose(ib.U[i - 1], ib.DB[i], W[i]);
+        li.dottranspose(ib.B1[i - 1], ib.DB[i], W[i]);
     }
-    ib.DB[0].multiply(ib.U[0], ib.DH[0]);
-    li.tensordot(ib.DW[0], ib.U[0], idata_sample);
+    ib.DB[0].multiply(ib.B1[0], ib.DH[0]);
+    li.tensordot(ib.DW[0], ib.B1[0], idata_sample);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -796,8 +799,8 @@ void TRIXY_NEURO_TPL::innerUpdateNormalize(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].sub(O.f1D(deltaB[i], OB[i]).join(learn_rate));
-        W[i].sub(O.f2D(deltaW[i], OW[i]).join(learn_rate));
+        B[i].sub(O.f1D(ib.B1[i], OB[i], deltaB[i]).join(learn_rate));
+        W[i].sub(O.f2D(ib.B2[i], OW[i], deltaW[i]).join(learn_rate));
     }
 }
 

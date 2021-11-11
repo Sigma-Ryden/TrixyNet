@@ -29,54 +29,53 @@ Precision invertSqrt(Precision x)
     return 1.0 / std::sqrt(1e-9 + x);
 }
 
-template <typename T>
-inline const T& call_const(T& obj)
-{
-    return const_cast<const T&>(obj);
-}
-
 } // namespace detail
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& momentum(
-    Tensor<Precision, Args...>& g,
-    Tensor<Precision, Args...>& s)
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
 {
     static const Precision beta1 = 0.9;
     static const Precision beta2 = 1.0 - beta1;
 
     s.join(beta1);
-    s.add(g.join(beta2));
+    s.add(buff.join(beta2, g));
 
-    return s;
+    buff.copy(s);
+
+    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& rms_prop(
-    Tensor<Precision, Args...>& g,
-    Tensor<Precision, Args...>& s)
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
 {
     static const Precision beta1 = 0.9;
     static const Precision beta2 = 1.0 - beta1;
 
     s.join(beta1);
-    s.add( detail::call_const(g).multiply(detail::call_const(g).join(beta2)) );
-    g.multiply(s.apply(detail::invertSqrt));
+    s.add(buff.multiply(g, g).join(beta2));
 
-    return g;
+    buff.multiply(g, s.apply(detail::invertSqrt));
+
+    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& ada_grad(
-    Tensor<Precision, Args...>& g,
-    Tensor<Precision, Args...>& s)
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
 {
-    s.add(detail::call_const(g).multiply(g));
-    g.multiply(s.apply(detail::invertSqrt));
+    s.add(buff.multiply(g, g));
+    buff.multiply(g, s.apply(detail::invertSqrt));
 
-    return g;
+    return buff;
 }
-
 } // namespace optimization
 
 namespace data
@@ -86,8 +85,11 @@ template <template <typename T, typename...> class Vector, template <typename T,
           typename Precision, typename... Args>
 struct OptimizationData
 {
-     Vector<Precision, Args...>& (*f1D)(Vector<Precision, Args...>&, Vector<Precision, Args...>&);
-     Matrix<Precision, Args...>& (*f2D)(Matrix<Precision, Args...>&, Matrix<Precision, Args...>&);
+    using Vector_t = Vector<Precision, Args...>;
+    using Matrix_t = Matrix<Precision, Args...>;
+
+    Vector_t& (*f1D)(Vector_t&, Vector_t&, const Vector_t&);
+    Matrix_t& (*f2D)(Matrix_t&, Matrix_t&, const Matrix_t&);
 };
 
 } // namespace
@@ -112,8 +114,8 @@ struct is_optimization_data
     using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t& (*)(Vector_t&, Vector_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t& (*)(Matrix_t&, Matrix_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t& (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t& (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
 };
 
 } // namespace meta

@@ -42,6 +42,8 @@ public:
     Matrix& operator= (const Matrix&);
     Matrix& operator= (Matrix&&) noexcept;
 
+    Matrix& copy(const Matrix&) noexcept;
+
     const Shape& size() const noexcept;
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
@@ -67,6 +69,7 @@ public:
 
     Matrix join(Type value) const;
     Matrix& join(Type value) noexcept;
+    Matrix& join(Type value, const Matrix&) noexcept;
 
     Matrix transpose() const;
 
@@ -193,6 +196,20 @@ Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
     shape_ = matrix.shape_;
 
     matrix.data_ = nullptr;
+
+    return *this;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::copy(const Matrix& matrix) noexcept
+{
+    ++var_matrix::CC;
+    if(this == &matrix)
+        return *this;
+
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] = matrix.data_[i][j];
 
     return *this;
 }
@@ -381,7 +398,7 @@ Matrix<Type> Matrix<Type>::join(Type value) const
 
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
-            new_matrix.data_[i][j] = data_[i][j] *= value;
+            new_matrix.data_[i][j] = value * data_[i][j];
 
     return new_matrix;
 }
@@ -392,6 +409,16 @@ Matrix<Type>& Matrix<Type>::join(Type value) noexcept
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] *= value;
+
+    return *this;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::join(Type value, const Matrix& matrix) noexcept
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] = value * matrix.data_[i][j];
 
     return *this;
 }

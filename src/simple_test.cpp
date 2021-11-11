@@ -99,7 +99,7 @@ void simple_test()
     using NeuralFeedForward
          = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
 
-    NeuralFeedForward network = {4, 4, 5, 4, 3};
+    NeuralFeedForward network = {4, 3};
 
     network.initializeInnerStruct(random_real);
 
@@ -107,7 +107,7 @@ void simple_test()
     network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
 
     network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
-    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
+    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("momentum"));
 
     //old_softmax: 7.209624 - deprecated
     //stable_softmax: 6.841548 - for ActFunc like RELU -> new 6.700982
@@ -135,19 +135,19 @@ void simple_test()
     utils::testNeuro(network, train_in_set, train_out_set);
 
     Timer t;
-    //
+    /*
     network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
     network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
     network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+    */
     //
-    /*
-    for(int i = 1; i <= 200; ++i)
+    for(int i = 1; i <= 1; ++i)
     {
 
-        network.trainOptimize(train_in_set, train_out_set, 0.1, 20, 6, std::rand);
+        network.trainOptimize(train_in_set, train_out_set, 0.1, 1000, 6, std::rand);
         //std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
     }
-    */
+    //
     std::cout << t.elapsed() << '\n';
     //
     PROFILING();
