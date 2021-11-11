@@ -13,9 +13,9 @@ protected:
     class Shape;
 
 public:
+    using size_type       = std::size_t;
     using reference       = Type&;
     using const_reference = const Type&;
-    using size_type       = std::size_t;
 
 protected:
     virtual ~Matrix();
@@ -55,7 +55,7 @@ friend Tensor<Type>;
 public:
     using size_type = std::size_t;
 
-private:
+protected:
     size_type row_;
     size_type col_;
 

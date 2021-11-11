@@ -23,9 +23,9 @@ protected:
     class Shape;
 
 public:
+    using size_type       = std::size_t;
     using reference       = Type&;
     using const_reference = const Type&;
-    using size_type       = std::size_t;
 
 protected:
     Type** data_;
@@ -63,6 +63,7 @@ public:
 
     Matrix multiply(const Matrix&) const;
     Matrix& multiply(const Matrix&) noexcept;
+    Matrix& multiply(const Matrix&, const Matrix&) noexcept;
 
     Matrix join(Type value) const;
     Matrix& join(Type value) noexcept;
@@ -83,7 +84,7 @@ friend Matrix<Type>;
 public:
     using size_type = std::size_t;
 
-private:
+protected:
     size_type row_;
     size_type col_;
 
@@ -358,6 +359,17 @@ Matrix<Type>& Matrix<Type>::multiply(const Matrix& matrix) noexcept
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] *= matrix.data_[i][j];
+
+    return *this;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::multiply(
+    const Matrix& lsh, const Matrix& rsh) noexcept
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] = lsh.data_[i][j] * rsh.data_[i][j];
 
     return *this;
 }

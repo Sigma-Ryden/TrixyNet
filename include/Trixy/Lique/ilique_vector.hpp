@@ -10,9 +10,9 @@ template <template <typename T> class Tensor, typename Type>
 class Vector
 {
 public:
+    using size_type       = std::size_t;
     using reference       = Type&;
     using const_reference = const Type&;
-    using size_type       = std::size_t;
 
 protected:
     Type* data_;

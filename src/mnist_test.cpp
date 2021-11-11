@@ -16,34 +16,6 @@
 
 #include "Timer/timer.h" // Timer
 
-namespace var_collection
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_vector
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_matrix
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-
 namespace tr = trixy;
 namespace li = lique;
 
@@ -132,30 +104,13 @@ void mnist_test()
     for(std::size_t i = 0; i < times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        network.trainMiniBatch(train_in, train_out, 0.1, 10, 32, std::rand);
+        network.trainMiniBatch(train_in, train_out, 0.1, 75, 32, std::rand);
         //network.trainOptimize(train_in, train_out, 0.1, 20, 250, std::rand);
         //if (i % 5 == 0) std::cout << "Accuracy: " << network.accuracy(train_in, train_out) << '\n';
         //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
     t.reset();
-
-    std::cout << "\nPROFILING >>>\n";
-
-    std::cout << "Collection D: " << var_collection::D << '\n';
-    std::cout << "Collection C: " << var_collection::C << '\n';
-    std::cout << "Collection CC: " << var_collection::CC << '\n';
-    std::cout << "Collection M: " << var_collection::M << '\n';
-
-    std::cout << "Vector D: " << var_vector::D << '\n';
-    std::cout << "Vector C: " << var_vector::C << '\n';
-    std::cout << "Vector CC: " << var_vector::CC << '\n';
-    std::cout << "Vector M: " << var_vector::M << '\n';
-
-    std::cout << "Matrix D: " << var_matrix::D << '\n';
-    std::cout << "Matrix C: " << var_matrix::C << '\n';
-    std::cout << "Matrix CC: " << var_matrix::CC << '\n';
-    std::cout << "Matrix M: " << var_matrix::M << '\n';
 
 //  Test train_batch aft
     std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
@@ -169,7 +124,7 @@ void mnist_test()
     std::cout << "NNetwork test full accuracy: " << network.accuracyFull(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -182,7 +137,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 FLOAT:
 4.810986

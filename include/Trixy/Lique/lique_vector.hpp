@@ -21,9 +21,9 @@ template <typename Type>
 class Vector
 {
 public:
+    using size_type       = std::size_t;
     using reference       = Type&;
     using const_reference = const Type&;
-    using size_type       = std::size_t;
 
 protected:
     Type* data_;
@@ -60,6 +60,7 @@ public:
 
     Vector multiply(const Vector&) const;
     Vector& multiply(const Vector&) noexcept;
+    Vector& multiply(const Vector&, const Vector&) noexcept;
 
     Vector join(Type value) const;
     Vector& join(Type value) noexcept;
@@ -273,6 +274,15 @@ Vector<Type>& Vector<Type>::multiply(const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= vector.data_[i];
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::multiply(const Vector& lsh, const Vector& rsh) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = lsh.data_[i] * rsh.data_[i];
 
     return *this;
 }
