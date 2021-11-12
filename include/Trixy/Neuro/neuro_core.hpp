@@ -157,13 +157,15 @@ private:
     Linear<Tensor1D, Tensor2D> li;
 
 public:
-    Neuro(const std::initializer_list<size_type>& topology);
-
     Neuro(const Neuro&)     = default;
     Neuro(Neuro&&) noexcept = default;
-    ~Neuro()                = default;
+
     Neuro& operator= (const Neuro&)     = default;
     Neuro& operator= (Neuro&&) noexcept = default;
+
+    ~Neuro() = default;
+
+    Neuro(const std::initializer_list<size_type>& topology);
 
     void initializeInnerStruct(GeneratorFloat generator) noexcept;
 
@@ -280,9 +282,10 @@ public:
 public:
     InnerBuffer(size_type);
 
+    ~InnerBuffer()                      = default;
     InnerBuffer(const InnerBuffer&)     = default;
     InnerBuffer(InnerBuffer&&) noexcept = default;
-    ~InnerBuffer()                       = default;
+
     InnerBuffer& operator= (const InnerBuffer&)     = default;
     InnerBuffer& operator= (InnerBuffer&&) noexcept = default;
 

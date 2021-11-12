@@ -36,11 +36,11 @@ public:
     virtual Tensor<Type, Args...>& join(Type value,
                                         const Tensor<Type, Args...>&) noexcept = 0;
 
-    Tensor<Type, Args...> add(const Tensor<Type, Args...>&) const;
-    Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept;
+    virtual Tensor<Type, Args...> add(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept = 0;
 
-    Tensor<Type, Args...> sub(const Tensor<Type, Args...>&) const;
-    Tensor<Type, Args...>& sub(const Tensor<Type, Args...>&) noexcept;
+    virtual Tensor<Type, Args...> sub(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>& sub(const Tensor<Type, Args...>&) noexcept = 0;
 
     virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0; // maybe unused
     virtual Tensor<Type, Args...> operator- (const Tensor<Type, Args...>&) const = 0; // maybe unused

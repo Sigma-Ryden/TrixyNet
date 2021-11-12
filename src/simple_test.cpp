@@ -161,7 +161,7 @@ void simple_test()
 
     PROFILING();
 }
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -174,7 +174,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 template <typename T>
 class MyVector : public il::ILiqueBase<MyVector, T>, public il::IVector<MyVector, T>
