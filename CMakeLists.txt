@@ -26,7 +26,6 @@ set(TRIXY_LIQUE
 set(TRIXY_NEURO
     include/Trixy/Neuro/neuro_core.hpp
     include/Trixy/Neuro/neuro_functional.hpp
-    include/Trixy/Neuro/neuro_optimizer.hpp
 )
 set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp

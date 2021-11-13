@@ -2,7 +2,7 @@
 #define NEURO_FUNCTIONAL_HPP
 
 #include <cstddef> // size_t
-#include <cmath> // pow, exp, log, fabs, tanh, cosh
+#include <cmath> // sqrt, pow, exp, log, fabs, tanh, cosh
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same
 #include <map> // map
@@ -389,7 +389,7 @@ Vector<Precision, Args...>& mean_absolute_error_derived(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Precision mean_squared_logarithmic_error(
+Precision mean_squared_log_error(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred)
 {
@@ -403,7 +403,7 @@ Precision mean_squared_logarithmic_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& mean_squared_logarithmic_error_derived(
+Vector<Precision, Args...>& mean_squared_log_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred)
@@ -489,6 +489,70 @@ Vector<Precision, Args...>& logcosh_derived(
 
 } // namespace loss
 
+namespace optimization
+{
+
+namespace detail
+{
+
+template <typename Precision>
+Precision invertSqrt(Precision x)
+{
+    return 1.0 / std::sqrt(1e-9 + x);
+}
+
+} // namespace detail
+
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...>& momentum(
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
+{
+    static const Precision beta1 = 0.9;
+    static const Precision beta2 = 1.0 - beta1;
+
+    s.join(beta1);
+    s.add(buff.join(beta2, g));
+
+    buff.copy(s);
+
+    return buff;
+}
+
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...>& rms_prop(
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
+{
+    static const Precision beta1 = 0.9;
+    static const Precision beta2 = 1.0 - beta1;
+
+    s.join(beta1);
+    s.add(buff.multiply(g, g).join(beta2));
+
+    buff.multiply(g, s.apply(detail::invertSqrt));
+
+    return buff;
+}
+
+TRIXY_TENSOR_FUNCTION_DECLARATION
+Tensor<Precision, Args...>& ada_grad(
+    Tensor<Precision, Args...>& buff,
+    Tensor<Precision, Args...>& s,
+    const Tensor<Precision, Args...>& g)
+{
+    s.add(buff.multiply(g, g));
+    buff.multiply(g, s.apply(detail::invertSqrt));
+
+    return buff;
+}
+
+} // namespace optimization
+
+} // namespace set
+
 namespace data
 {
 
@@ -510,9 +574,18 @@ struct LossData
     Tensor_t& (*df)(Tensor_t&, const Tensor_t&, const Tensor_t&);
 };
 
-} // namespace data
+template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
+          typename Precision, typename... Args>
+struct OptimizationData
+{
+    using Vector_t = Vector<Precision, Args...>;
+    using Matrix_t = Matrix<Precision, Args...>;
 
-} // namespace set
+    Vector_t& (*f1D)(Vector_t&, Vector_t&, const Vector_t&);
+    Matrix_t& (*f2D)(Matrix_t&, Matrix_t&, const Matrix_t&);
+};
+
+} // namespace data
 
 namespace meta
 {
@@ -545,72 +618,112 @@ struct is_loss_data
         std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t& (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
 };
 
+template <template <template <typename, typename...> class V,
+                    template <typename, typename...> class M,
+                    typename P,
+                    typename...> class FunctionData,
+          template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
+struct is_optimization_data
+{
+    using Vector_t       = Vector<Precision, Args...>;
+    using Matrix_t       = Matrix<Precision, Args...>;
+    using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
+
+    static constexpr bool value =
+        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t& (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t& (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
+};
+
 } // namespace meta
 
-template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
-          template <typename, typename...> class Tensor,
-          typename Precision,
-          typename... Args,
-          typename std::enable_if<meta::is_activation_data<FunctionData, Tensor, Precision, Args...>::value, int>::type = 0>
-FunctionData<Tensor, Precision, Args...> get(const char* activation_function_name)
+template <template <typename, typename...> class Vector, template <typename, typename...> class Matrix,
+          typename Precision, typename... Args>
+class NeuroManager
 {
-    using namespace set::activation;
-    using namespace set::data;
+public:
+    template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+              typename std::enable_if<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
+    static FunctionData<Vector, Precision, Args...> get(const char* activation_function_name)
+    {
+        using namespace set::activation;
 
-    static std::map<const char*, ActivationData<Tensor, Precision, Args...>> activation_data;
+        static std::map<const char*, data::ActivationData<Vector, Precision, Args...>> activation_data;
 
-    activation_data["sigmoid"]          = { sigmoid,          sigmoid_derived  };
-    activation_data["sigmoid_bce"]      = { sigmoid,          tensor_of_units  };
-    activation_data["tanh"]             = { tanh,             tanh_derived     };
-    activation_data["relu"]             = { relu,             relu_derived     };
-    activation_data["elu"]              = { elu,              elu_derived      };
-    activation_data["leaky_relu"]       = { lrelu,            lrelu_derived    };
-    activation_data["selu"]             = { selu,             selu_derived     };
-    activation_data["gelu"]             = { gelu,             gelu_derived     };
-    activation_data["softsign"]         = { softsign,         softsign_derived };
-    activation_data["softplus"]         = { softplus,         softplus_derived };
-    activation_data["swish"]            = { swish,            swish_derived    };
-    activation_data["mod_relu"]         = { mod_relu,         mod_relu_derived };
-    activation_data["mod_tanh"]         = { mod_tanh,         mod_tanh_derived };
-    activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units  };
-    activation_data["softmax"]          = { softmax,          tensor_of_units  };
+        activation_data["sigmoid"]  = { sigmoid,  sigmoid_derived  };
+        activation_data["tanh"]     = { tanh,     tanh_derived     };
+        activation_data["relu"]     = { relu,     relu_derived     };
+        activation_data["elu"]      = { elu,      elu_derived      };
+        activation_data["lrelu"]    = { lrelu,    lrelu_derived    };
+        activation_data["selu"]     = { selu,     selu_derived     };
+        activation_data["gelu"]     = { gelu,     gelu_derived     };
+        activation_data["softsign"] = { softsign, softsign_derived };
+        activation_data["softplus"] = { softplus, softplus_derived };
+        activation_data["swish"]    = { swish,    swish_derived    };
+        activation_data["mod_relu"] = { mod_relu, mod_relu_derived };
+        activation_data["mod_tanh"] = { mod_tanh, mod_tanh_derived };
+        activation_data["softmax"]  = { softmax,  tensor_of_units  };
 
-    auto it = activation_data.find(activation_function_name);
+        activation_data["*sigmoid"]         = { sigmoid,  tensor_of_units  }; // maybe unused
+        activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units }; // deprecated
 
-    if(it != activation_data.end())
-        return FunctionData<Tensor, Precision, Args...>(it->second.f, it->second.df);
+        auto it = activation_data.find(activation_function_name);
 
-    return FunctionData<Tensor, Precision, Args...>();
-}
+        if(it != activation_data.end())
+            return FunctionData<Vector, Precision, Args...>(it->second.f, it->second.df);
 
-template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
-          template <typename, typename...> class Tensor,
-          typename Precision,
-          typename... Args,
-          typename std::enable_if<meta::is_loss_data<FunctionData, Tensor, Precision, Args...>::value, int>::type = 0>
-FunctionData<Tensor, Precision, Args...> get(const char* loss_function_name)
-{
-    using namespace set::loss;
-    using namespace set::data;
+        return FunctionData<Vector, Precision, Args...>();
+    }
 
-    static std::map<const char*, LossData<Tensor, Precision, Args...>> loss_data;
+    template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+              typename std::enable_if<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
+    static FunctionData<Vector, Precision, Args...> get(const char* loss_function_name)
+    {
+        using namespace set::loss;
 
-    loss_data["MSE"]  = { mean_squared_error,             mean_squared_error_derived                };
-    loss_data["MAE"]  = { mean_absolute_error,            mean_absolute_error_derived               };
-    loss_data["MSLE"] = { mean_squared_logarithmic_error, mean_squared_logarithmic_error_derived    };
-    loss_data["*CCE"] = { categorical_cross_entropy,      categorical_cross_entropy_derived         }; // deprecated
-    loss_data["CCE"]  = { categorical_cross_entropy,      categorical_cross_entropy_derived_softmax };
-    loss_data["*BCE"] = { binary_cross_entropy,           binary_cross_entropy_derived              }; // deprecated
-    loss_data["BCE"]  = { binary_cross_entropy,           binary_cross_entropy_derived_sigmoid      };
-    loss_data["LC"]   = { logcosh,                        logcosh_derived                           };
+        std::map<const char*, data::LossData<Vector, Precision, Args...>>                 loss_data;
 
-    auto it = loss_data.find(loss_function_name);
+        loss_data["MSE"]  = { mean_squared_error,        mean_squared_error_derived                };
+        loss_data["MAE"]  = { mean_absolute_error,       mean_absolute_error_derived               };
+        loss_data["CCE"]  = { categorical_cross_entropy, categorical_cross_entropy_derived_softmax };
+        loss_data["BCE"]  = { binary_cross_entropy,      binary_cross_entropy_derived_sigmoid      };
+        loss_data["MSLE"] = { mean_squared_log_error,    mean_squared_log_error_derived            };
 
-    if(it != loss_data.end())
-        return FunctionData<Tensor, Precision, Args...>(it->second.f, it->second.df);
+        loss_data["*CCE"] = { categorical_cross_entropy, categorical_cross_entropy_derived }; // deprecated
+        loss_data["*BCE"] = { binary_cross_entropy, binary_cross_entropy_derived }; // deprecated
+        loss_data["LC"]   = { logcosh, logcosh_derived }; // maybe unused & deprecated
 
-    return FunctionData<Tensor, Precision, Args...>();
-}
+        auto it = loss_data.find(loss_function_name);
+
+        if(it != loss_data.end())
+            return FunctionData<Vector, Precision, Args...>(it->second.f, it->second.df);
+
+        return FunctionData<Vector, Precision, Args...>();
+    }
+
+    template <template <template <typename, typename...> class T1, template <typename, typename...> class T2,
+                        typename P, typename...> class FunctionData,
+              typename std::enable_if<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>::type = 0>
+    static FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name)
+    {
+        using namespace set::optimization;
+
+        std::map<const char*, data::OptimizationData<Vector, Matrix, Precision, Args...>> optimization_data;
+
+        optimization_data["momentum"] = { momentum, momentum };
+        optimization_data["rms_prop"] = { rms_prop, rms_prop };
+        optimization_data["ada_grad"] = { ada_grad, ada_grad };
+
+        auto it = optimization_data.find(optimization_function_name);
+
+        if(it != optimization_data.end())
+            return FunctionData<Vector, Matrix, Precision, Args...>(it->second.f1D, it->second.f2D);
+
+        return FunctionData<Vector, Matrix, Precision, Args...>();
+    }
+};
 
 } // namespace trixy
 

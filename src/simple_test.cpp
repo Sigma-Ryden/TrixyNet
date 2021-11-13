@@ -8,8 +8,7 @@
 #include "Trixy/Lique/lique_vector.hpp" // Vector
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // get
-#include "Trixy/Neuro/neuro_optimizer.hpp" // get
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
 
 #include "Trixy/Collection/collection.hpp" // Collection
 
@@ -96,18 +95,19 @@ Precision random_normal()
 template <typename Precision>
 void simple_test()
 {
-    using NeuralFeedForward
-         = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
+    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
+    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
 
-    NeuralFeedForward network = {4, 3};
+    NeuralFeedForward network = {4, 4, 5, 4, 3};
+    NeuralManager manage;
 
     network.initializeInnerStruct(random_real);
 
-    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
+    network.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
+    network.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
 
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
-    network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("momentum"));
+    network.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
+    network.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
 
     //old_softmax: 7.209624 - deprecated
     //stable_softmax: 6.841548 - for ActFunc like RELU -> new 6.700982
@@ -135,19 +135,19 @@ void simple_test()
     utils::testNeuro(network, train_in_set, train_out_set);
 
     Timer t;
-    /*
+    //
     network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
     network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
     network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
-    */
     //
-    for(int i = 1; i <= 1; ++i)
+    /*
+    for(int i = 1; i <= 4; ++i)
     {
 
-        network.trainOptimize(train_in_set, train_out_set, 0.1, 1000, 6, std::rand);
+        network.trainOptimize(train_in_set, train_out_set, 0.1, 500, 6, std::rand);
         //std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
     }
-    //
+    */
     std::cout << t.elapsed() << '\n';
     //
     PROFILING();
@@ -161,11 +161,10 @@ void simple_test()
 
     PROFILING();
 }
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
     std::cout << std::fixed << std::setprecision(6);
 
     simple_test<double>();
@@ -174,7 +173,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 template <typename T>
 class MyVector : public il::ILiqueBase<MyVector, T>, public il::IVector<MyVector, T>

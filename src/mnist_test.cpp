@@ -10,8 +10,7 @@
 #include "Trixy/Collection/collection.hpp" // Collection
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // get
-#include "Trixy/Neuro/neuro_optimizer.hpp" // get
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
 #include "Timer/timer.h" // Timer
@@ -85,17 +84,19 @@ void mnist_test()
 
 //  NeuralNetwork preparing:
     using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
+    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
 
 //  NeuralNetwork topology:
     NeuralFeedForward network = { input_size, 256, out_size };
+    NeuralManager manage;
 
     network.initializeInnerStruct(random_real);
 
-    network.setActivationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("relu"));
-    network.setNormalizationFunction(tr::get<tr::function::Activation, li::Vector, Precision>("softmax"));
+    network.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
+    network.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
 
-    network.setLossFunction(tr::get<tr::function::Loss, li::Vector, Precision>("CCE"));
-    //network.setOptimizationFunction(tr::get<tr::function::Optimization, li::Vector, li::Matrix, Precision>("ada_grad"));
+    network.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
+    network.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
 
 //  Train network:
     Timer t;

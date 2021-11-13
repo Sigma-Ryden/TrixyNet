@@ -24,6 +24,7 @@ protected:
 
 public:
     using size_type       = std::size_t;
+    using pointer         = Type**;
     using reference       = Type&;
     using const_reference = const Type&;
 
@@ -36,6 +37,9 @@ public:
     ~Matrix();
     explicit Matrix(size_type m, size_type n);
     explicit Matrix(const Shape& shape);
+    explicit Matrix(size_type m, size_type n, Type**& ptr);
+    explicit Matrix(const Shape&, Type**& ptr);
+
     Matrix(const Matrix&);
     Matrix(Matrix&&) noexcept;
 
@@ -123,6 +127,14 @@ Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
+
+template <typename Type>
+inline Matrix<Type>::Matrix(std::size_t m, std::size_t n, Type**& ptr) : data_(ptr), shape_(m, n)
+{
+    ++var_matrix::C;
+    ptr = nullptr;
+}
+
 template <typename Type>
 Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
 {
@@ -130,6 +142,14 @@ Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
+
+template <typename Type>
+inline Matrix<Type>::Matrix(const Shape& shape, Type**& ptr) : data_(ptr), shape_(shape)
+{
+    ++var_matrix::C;
+    ptr = nullptr;
+}
+
 template <typename Type>
 Matrix<Type>::Matrix(const Matrix& matrix)
     : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
