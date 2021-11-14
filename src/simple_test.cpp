@@ -10,68 +10,11 @@
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
 
-#include "Trixy/Collection/collection.hpp" // Collection
+#include "Trixy/Container/container.hpp" // Container
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Timer/timer.h" // Timer
 #include "UtilityMaster/utils.hpp" // testNeuro
-#include <vector>
-/*
-#include "Trixy/Lique/ilique_base.hpp"
-#include "Trixy/Lique/ilique_linear.hpp"
-#include "Trixy/Lique/ilique_matrix.hpp"
-#include "Trixy/Lique/ilique_vector.hpp"
-*/
-
-//
-namespace var_collection
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_vector
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-namespace var_matrix
-{
-
-int D  = 0;
-int C  = 0;
-int CC = 0;
-int M  = 0;
-
-}
-
-void PROFILING()
-{
-    std::cout << "\nPROFILING >>>\n";
-
-    std::cout << "Collection D: " << var_collection::D << '\n';
-    std::cout << "Collection C: " << var_collection::C << '\n';
-    std::cout << "Collection CC: " << var_collection::CC << '\n';
-    std::cout << "Collection M: " << var_collection::M << '\n';
-
-    std::cout << "Vector D: " << var_vector::D << '\n';
-    std::cout << "Vector C: " << var_vector::C << '\n';
-    std::cout << "Vector CC: " << var_vector::CC << '\n';
-    std::cout << "Vector M: " << var_vector::M << '\n';
-
-    std::cout << "Matrix D: " << var_matrix::D << '\n';
-    std::cout << "Matrix C: " << var_matrix::C << '\n';
-    std::cout << "Matrix CC: " << var_matrix::CC << '\n';
-    std::cout << "Matrix M: " << var_matrix::M << '\n';
-}
-//
 
 namespace tr = trixy;
 namespace li = lique;
@@ -95,24 +38,23 @@ Precision random_normal()
 template <typename Precision>
 void simple_test()
 {
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using namespace trixy::function;
 
-    NeuralFeedForward network = {4, 4, 5, 4, 3};
+    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+
+    NeuralFeedForward net = {4, 4, 5, 4, 3};
     NeuralManager manage;
 
-    network.initializeInnerStruct(random_real);
+    net.initializeInnerStruct(random_real);
 
-    network.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
-    network.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
+    net.setActivationFunction(manage.template get<Activation>("relu"));
+    net.setNormalizationFunction(manage.template get<Activation>("softmax"));
 
-    network.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
-    network.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
+    net.setLossFunction(manage.template get<Loss>("CCE"));
+    //net.setOptimizationFunction(manage.template get<Optimization>("momentum"));
 
-    //old_softmax: 7.209624 - deprecated
-    //stable_softmax: 6.841548 - for ActFunc like RELU -> new 6.700982
-    //softmax: 6.904061 - for ActFunc within [-a, a]
-    Collection<li::Vector<Precision>> train_in_set
+    Container<li::Vector<Precision>> train_in
     {
         {1, 0, 1, 1},
         {1, 1, 1, 0},
@@ -121,7 +63,7 @@ void simple_test()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
-    Collection<li::Vector<Precision>> train_out_set
+    Container<li::Vector<Precision>> train_out
     {
         {1, 0, 0},
         {0, 1, 0},
@@ -132,35 +74,76 @@ void simple_test()
     };
 
     std::cout << "Before train\n";
-    utils::testNeuro(network, train_in_set, train_out_set);
+    utils::testNeuro(net, train_in, train_out);
 
     Timer t;
     //
-    network.trainBatch(train_in_set, train_out_set, 0.15, 100000);
-    network.trainMiniBatch(train_in_set, train_out_set, 0.15, 100000, 2, std::rand);
-    network.trainStochastic(train_in_set, train_out_set, 0.1, 100000, std::rand);
+    net.trainBatch(train_in, train_out, 0.15, 100000);
+    net.trainMiniBatch(train_in, train_out, 0.15, 100000, 2, std::rand);
+    net.trainStochastic(train_in, train_out, 0.1, 100000, std::rand);
     //
     /*
     for(int i = 1; i <= 4; ++i)
     {
 
-        network.trainOptimize(train_in_set, train_out_set, 0.1, 500, 6, std::rand);
-        //std::cout << '<' << i << "> Loss: " << network.loss(train_in_set, train_out_set) << '\n';
+        net.trainOptimize(train_in, train_out, 0.15, 500, 6, std::rand);
+        //std::cout << '<' << i << "> Loss: " << net.loss(train_in_set, train_out_set) << '\n';
     }
     */
     std::cout << t.elapsed() << '\n';
-    //
-    PROFILING();
     std::cout << "After train\n";
 
-    utils::testNeuro(network, train_in_set, train_out_set);
-    std::cout << "Normal accuracy: " << network.accuracy(train_in_set, train_out_set) << '\n';
-    std::cout << "Global accuracy: " << network.accuracyGlobal(train_in_set, train_out_set, 0.05) << '\n';
-    std::cout << "Full accuracy: " << network.accuracyFull(train_in_set, train_out_set, 0.05) << '\n';
-    std::cout << "Loss: " << network.loss(train_in_set, train_out_set) << '\n';
-
-    PROFILING();
+    utils::testNeuro(net, train_in, train_out);
+    std::cout << "Normal accuracy: " << net.accuracy(train_in, train_out) << '\n';
+    std::cout << "Global accuracy: " << net.globalAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "Full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "Loss: " << net.loss(train_in, train_out) << '\n';
 }
+
+void simple_test2()
+{
+    // Creating Neural Network
+    using namespace trixy::function;
+
+    tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, double> net = {2, 2, 2};
+    tr::NeuroManager<li::Vector, li::Matrix, double> manage;
+
+    net.initializeInnerStruct(random_real);
+
+    net.setActivationFunction(manage.get<Activation>("relu"));
+    net.setNormalizationFunction(manage.get<Activation>("softmax"));
+    net.setLossFunction(manage.get<Loss>("CCE"));
+    net.setOptimizationFunction(manage.get<Optimization>("ada_grad"));
+
+    // Train set (in/out)
+    Container<li::Vector<double>> train_in
+    {
+        {-2, -1},
+        {23, 6},
+        {10, 4},
+        {-15, -6}
+    };
+
+    Container<li::Vector<double>> train_out
+    {
+        {1, 0},
+        {0, 1},
+        {0, 1},
+        {1, 0}
+    };
+    for(std::size_t i = 0; i < train_in.size(); ++i)
+        train_in[i].apply([] (double x) -> double { return x / 25.0; });
+
+    // Full processing
+    Timer t;
+    net.trainOptimize(train_in, train_out, 0.1, 1000, 2, std::rand);
+    std::cout << t.elapsed() << '\n';
+    utils::testNeuro(net, train_in, train_out);
+    std::cout << "NNetwork tarin normal accuracy: " << net.accuracy(train_in, train_out) << '\n';
+    std::cout << "NNetwork tarin global accuracy: " << net.globalAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
+}
+
 //
 int main()
 {
@@ -168,6 +151,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
 
     simple_test<double>();
+    //simple_test2();
 
     std::cin.get();
 
@@ -175,29 +159,30 @@ int main()
 }
 //
 /*
+#include "Trixy/Lique/ilique_base.hpp"
+namespace il = ilique;
+
 template <typename T>
 class MyVector : public il::ILiqueBase<MyVector, T>, public il::IVector<MyVector, T>
 {
 public:
     MyVector(std::size_t size) : il::IVector<MyVector, T>(size){}
     T dot(const MyVector& a) const override { return 0; }
-    MyVector& fill(T value) override
+    MyVector& fill(T value) noexcept override
     {
         for(std::size_t i = 0; i < this->size_; ++i)
             this->data_[i] = value;
 
         return *this;
     }
-    MyVector& resize (std::size_t new_size) override
+    void resize (std::size_t new_size) override
     {
         delete[] this->data_;
 
         this->size_ = new_size;
         this->data_ = new T[new_size];
-
-        return *this;
     }
-    void show()
+    void show() const
     {
         for(std::size_t i = 0; i < this->size_; ++i)
             std::cout << this->data_[i] << ' ';
@@ -426,5 +411,55 @@ void test10()
     std::cout << "NNetwork tarin global accuracy: " << network.accuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << network.normalAccuracy(train_in, train_out) << '\n';
     std::cout << "NNetwork tarin full accuracy: " << network.fullAccuracy(train_in, train_out, 0.05) << '\n';
+}
+*/
+
+/*
+namespace var_collection
+{
+
+int D  = 0;
+int C  = 0;
+int CC = 0;
+int M  = 0;
+
+}
+namespace var_vector
+{
+
+int D  = 0;
+int C  = 0;
+int CC = 0;
+int M  = 0;
+
+}
+namespace var_matrix
+{
+
+int D  = 0;
+int C  = 0;
+int CC = 0;
+int M  = 0;
+
+}
+
+void PROFILING()
+{
+    std::cout << "\nPROFILING >>>\n";
+
+    std::cout << "Collection D: " << var_collection::D << '\n';
+    std::cout << "Collection C: " << var_collection::C << '\n';
+    std::cout << "Collection CC: " << var_collection::CC << '\n';
+    std::cout << "Collection M: " << var_collection::M << '\n';
+
+    std::cout << "Vector D: " << var_vector::D << '\n';
+    std::cout << "Vector C: " << var_vector::C << '\n';
+    std::cout << "Vector CC: " << var_vector::CC << '\n';
+    std::cout << "Vector M: " << var_vector::M << '\n';
+
+    std::cout << "Matrix D: " << var_matrix::D << '\n';
+    std::cout << "Matrix C: " << var_matrix::C << '\n';
+    std::cout << "Matrix CC: " << var_matrix::CC << '\n';
+    std::cout << "Matrix M: " << var_matrix::M << '\n';
 }
 */

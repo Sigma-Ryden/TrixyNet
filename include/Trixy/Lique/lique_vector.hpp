@@ -1,16 +1,6 @@
 #ifndef LIQUE_VECTOR_HPP
 #define LIQUE_VECTOR_HPP
 
-namespace var_vector
-{
-
-extern int D;
-extern int C;
-extern int CC;
-extern int M;
-
-} // namespace var_vector
-
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 
@@ -72,14 +62,11 @@ public:
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
-    Vector& operator+= (const Vector&) noexcept; // deprecated
-    Vector& operator-= (const Vector&) noexcept; // deprecated
 };
 
 template <typename Type>
 inline Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
 {
-    ++var_vector::D;
 }
 
 template <typename Type>
@@ -92,7 +79,6 @@ template <typename Type>
 inline Vector<Type>::Vector(std::size_t n)
     : data_(new Type[n]), size_(n)
 {
-    ++var_vector::C;
 }
 
 template <typename Type>
@@ -106,8 +92,6 @@ template <typename Type>
 Vector<Type>::Vector(const Vector& vector)
     : data_(new Type[vector.size_]), size_(vector.size_)
 {
-    ++var_vector::CC;
-
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
@@ -116,7 +100,6 @@ template <typename Type>
 inline Vector<Type>::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
-    ++var_vector::M;
     vector.data_ = nullptr;
 }
 
@@ -135,7 +118,6 @@ Vector<Type>::Vector(const std::initializer_list<Type>& init)
 template <typename Type>
 Vector<Type>& Vector<Type>::operator= (const Vector& vector)
 {
-    ++var_vector::CC;
     if(this == &vector)
         return *this;
 
@@ -153,7 +135,6 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
 template <typename Type>
 Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
 {
-    ++var_vector::M;
     if(this == &vector)
         return *this;
 
@@ -170,7 +151,6 @@ Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
 template <typename Type>
 Vector<Type>& Vector<Type>::copy(const Vector& vector) noexcept
 {
-    ++var_vector::CC;
     if(this == &vector)
         return *this;
 
@@ -361,24 +341,6 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
         new_vector.data_[i] = data_[i] - vector.data_[i];
 
     return new_vector;
-}
-
-template <typename Type>
-Vector<Type>& Vector<Type>::operator+= (const Vector& vector) noexcept
-{
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] += vector.data_[i];
-
-    return *this;
-}
-
-template <typename Type>
-Vector<Type>& Vector<Type>::operator-= (const Vector& vector) noexcept
-{
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] -= vector.data_[i];
-
-    return *this;
 }
 
 } // namespace lique

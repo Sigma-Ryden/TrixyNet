@@ -7,7 +7,7 @@
 #include "Trixy/Lique/lique_matrix.hpp" // Matrix
 #include "Trixy/Lique/lique_vector.hpp" // Vector
 
-#include "Trixy/Collection/collection.hpp" // Collection
+#include "Trixy/Container/container.hpp" // Container
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
@@ -26,10 +26,10 @@ Precision random_real()
 }
 
 template <typename Precision>
-Collection<li::Vector<Precision>> initialize_i(
+Container<li::Vector<Precision>> initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
-    Collection<li::Vector<Precision>> input_batch(batch_size);
+    Container<li::Vector<Precision>> input_batch(batch_size);
     for(std::size_t i = 0; i < batch_size; ++i)
         input_batch[i] = li::Vector<Precision>(input_size);
 
@@ -41,10 +41,10 @@ Collection<li::Vector<Precision>> initialize_i(
 }
 
 template <typename Precision>
-Collection<li::Vector<Precision>> initialize_o(
+Container<li::Vector<Precision>> initialize_o(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
-    Collection<li::Vector<Precision>> output_batch(batch_size);
+    Container<li::Vector<Precision>> output_batch(batch_size);
     for(std::size_t i = 0; i < batch_size; ++i)
         output_batch[i] = li::Vector<Precision>(output_size);
 
@@ -57,72 +57,88 @@ Collection<li::Vector<Precision>> initialize_o(
 }
 
 template <typename Precision>
+void show_image(const li::Vector<Precision>& vector)
+{
+    for(std::size_t j = 0; j < vector.size(); ++j)
+    {
+        if(j % 28 == 0) std::cout << '\n';
+        std::cout << (vector(j) != 0 ? '#' : '.') << ' ';
+    }
+}
+
+template <typename Precision>
+void show_image_batch(const Container<li::Vector<Precision>>& data)
+{
+    for(std::size_t i = 0; i < data.size(); ++i)
+    {
+        show_image(data[i]);
+        std::cout << '\n';
+    }
+}
+
+template <typename Precision>
 void mnist_test()
 {
-//  Data preparing:
+    // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
     std::size_t train_batch_size = 60000;
-    std::size_t test_batch_size = 10000;
+    std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
-    std::size_t out_size = 10;
+    std::size_t out_size   = 10;
 
-//  Train batch initialize:
-    Collection<li::Vector<Precision>> train_in = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
-    Collection<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
+    // Train batch initialize:
+    Container<li::Vector<Precision>> train_in = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
+    Container<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
 
-//  Test batch initialize:
-    Collection<li::Vector<Precision>> test_in = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
-    Collection<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
+    // Test batch initialize:
+    Container<li::Vector<Precision>> test_in = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
+    Container<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
 
-    var_vector::D  = 0;
-    var_vector::C  = 0;
-    var_vector::CC = 0;
-    var_vector::M  = 0;
-//  Show image:
-   //show_image_batch(train_in);
+    // Show image:
+    //show_image_batch(train_in);
 
-//  NeuralNetwork preparing:
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Collection, Precision>;
+    // NeuralNetwork preparing:
+    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
     using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
 
-//  NeuralNetwork topology:
-    NeuralFeedForward network = { input_size, 256, out_size };
+    // NeuralNetwork topology:
+    NeuralFeedForward net = { input_size, 256, out_size };
     NeuralManager manage;
 
-    network.initializeInnerStruct(random_real);
+    net.initializeInnerStruct(random_real);
 
-    network.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
-    network.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
+    net.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
+    net.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
 
-    network.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
-    network.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
+    net.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
+    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
 
-//  Train network:
+    // Train network:
     Timer t;
     //
     std::size_t times = 20;
     for(std::size_t i = 0; i < times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        network.trainMiniBatch(train_in, train_out, 0.1, 75, 32, std::rand);
-        //network.trainOptimize(train_in, train_out, 0.1, 20, 250, std::rand);
-        //if (i % 5 == 0) std::cout << "Accuracy: " << network.accuracy(train_in, train_out) << '\n';
-        //network.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
+        net.trainMiniBatch(train_in, train_out, 0.1, 75, 32, std::rand);
+        //net.trainOptimize(train_in, train_out, 0.1, 20, 250, std::rand);
+        //if (i % 5 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        //net.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
     t.reset();
 
-//  Test train_batch aft
-    std::cout << "NNetwork train loss: " << network.loss(train_in, train_out) << '\n';
-    std::cout << "NNetwork tarin normal accuracy: " << network.accuracy(train_in, train_out) << '\n';
-    std::cout << "NNetwork tarin global accuracy: " << network.accuracyGlobal(train_in, train_out, 0.25) << '\n';
-    std::cout << "NNetwork tarin full accuracy: " << network.accuracyFull(train_in, train_out, 0.25) << '\n';
-//  Test test_batch aft
-    std::cout << "NNetwork test loss: " << network.loss(test_in, test_out) << '\n';
-    std::cout << "NNetwork test normal accuracy: " << network.accuracy(test_in, test_out) << '\n';
-    std::cout << "NNetwork test global accuracy: " << network.accuracyGlobal(test_in, test_out, 0.25) << '\n';
-    std::cout << "NNetwork test full accuracy: " << network.accuracyFull(test_in, test_out, 0.25) << '\n';
+    // Test train_batch aft
+    std::cout << "NNetwork train loss: " << net.loss(train_in, train_out) << '\n';
+    std::cout << "NNetwork tarin normal accuracy: " << net.accuracy(train_in, train_out) << '\n';
+    //std::cout << "NNetwork tarin global accuracy: " << net.globalAccuracy(train_in, train_out, 0.25) << '\n';
+    //std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.25) << '\n';
+    // Test test_batch aft
+    std::cout << "NNetwork test loss: " << net.loss(test_in, test_out) << '\n';
+    std::cout << "NNetwork test normal accuracy: " << net.accuracy(test_in, test_out) << '\n';
+    //std::cout << "NNetwork test global accuracy: " << net.globalAccuracy(test_in, test_out, 0.25) << '\n';
+    //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
 /*
@@ -140,6 +156,7 @@ int main()
 }
 */
 /*
+DEPRECATED!!!
 FLOAT:
 4.810986
 NNetwork tarin normal accuracy: 0.809367

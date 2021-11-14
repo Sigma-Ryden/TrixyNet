@@ -13,29 +13,22 @@ public:
     using size_type = std::size_t;
 
 public:
-    Linear()                  = default;
-    Linear(const Linear&)     = default;
-    Linear(Linear&&) noexcept = default;
-    ~Linear()                 = default;
-    Linear& operator= (const Linear&)     = default;
-    Linear& operator= (Linear&&) noexcept = default;
-
     void dot(Vector& buff,
              const Vector& vector,
-             const Matrix& matrix) const;
+             const Matrix& matrix) const noexcept;
 
     void dottranspose(Vector& buff,
                       const Vector& vector,
-                      const Matrix& matrix) const;
+                      const Matrix& matrix) const noexcept;
 
     void tensordot(Matrix& buff,
                    const Vector& lsh,
-                   const Vector& rsh) const;
+                   const Vector& rsh) const noexcept;
 };
 
 template <class Vector, class Matrix>
 void Linear<Vector, Matrix>::dot(
-    Vector& buff, const Vector& vector, const Matrix& matrix) const
+    Vector& buff, const Vector& vector, const Matrix& matrix) const noexcept
 {
     double result = 0.0;
     for(size_type i = 0; i < matrix.size().col(); ++i)
@@ -50,7 +43,7 @@ void Linear<Vector, Matrix>::dot(
 
 template <class Vector, class Matrix>
 void Linear<Vector, Matrix>::dottranspose(
-    Vector& buff, const Vector& vector, const Matrix& matrix) const
+    Vector& buff, const Vector& vector, const Matrix& matrix) const noexcept
 {
     double result = 0.0;
     for(size_type i = 0; i < matrix.size().row(); ++i)
@@ -65,7 +58,7 @@ void Linear<Vector, Matrix>::dottranspose(
 
 template <class Vector, class Matrix>
 void Linear<Vector, Matrix>::tensordot(
-    Matrix& buff, const Vector& lsh, const Vector& rsh) const
+    Matrix& buff, const Vector& lsh, const Vector& rsh) const noexcept
 {
     for(size_type i = 0; i < rsh.size(); ++i)
         for(size_type j = 0; j < lsh.size(); ++j)

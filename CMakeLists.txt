@@ -12,7 +12,7 @@ set(TESTING
     src/mnist_test.cpp
 )
 set(TRIXY_COLLECTION
-    include/Trixy/Collection/collection.hpp
+    include/Trixy/Container/container.hpp
 )
 set(TRIXY_LIQUE
     include/Trixy/Lique/ilique_base.hpp

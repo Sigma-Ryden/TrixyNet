@@ -683,7 +683,7 @@ public:
     {
         using namespace set::loss;
 
-        std::map<const char*, data::LossData<Vector, Precision, Args...>>                 loss_data;
+        std::map<const char*, data::LossData<Vector, Precision, Args...>> loss_data;
 
         loss_data["MSE"]  = { mean_squared_error,        mean_squared_error_derived                };
         loss_data["MAE"]  = { mean_absolute_error,       mean_absolute_error_derived               };

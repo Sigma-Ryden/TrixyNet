@@ -44,8 +44,6 @@ public:
 
     virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0; // maybe unused
     virtual Tensor<Type, Args...> operator- (const Tensor<Type, Args...>&) const = 0; // maybe unused
-    virtual Tensor<Type, Args...>& operator+= (const Tensor<Type, Args...>&) noexcept = 0; // deprecated
-    virtual Tensor<Type, Args...>& operator-= (const Tensor<Type, Args...>&) noexcept = 0; // deprecated
 };
 
 template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
