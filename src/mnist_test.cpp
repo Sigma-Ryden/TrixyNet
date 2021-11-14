@@ -19,7 +19,7 @@ namespace tr = trixy;
 namespace li = lique;
 
 template <typename Precision>
-Precision random_real()
+Precision random_real() noexcept
 {
     static int within = 1000;
     return static_cast<Precision>(std::rand() % (2 * within + 1) - within) / (within * within);
@@ -57,7 +57,7 @@ Container<li::Vector<Precision>> initialize_o(
 }
 
 template <typename Precision>
-void show_image(const li::Vector<Precision>& vector)
+void show_image(const li::Vector<Precision>& vector) noexcept
 {
     for(std::size_t j = 0; j < vector.size(); ++j)
     {
@@ -67,7 +67,7 @@ void show_image(const li::Vector<Precision>& vector)
 }
 
 template <typename Precision>
-void show_image_batch(const Container<li::Vector<Precision>>& data)
+void show_image_batch(const Container<li::Vector<Precision>>& data) noexcept
 {
     for(std::size_t i = 0; i < data.size(); ++i)
     {

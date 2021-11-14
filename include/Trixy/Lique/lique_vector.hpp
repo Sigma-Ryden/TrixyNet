@@ -12,19 +12,18 @@ class Vector
 {
 public:
     using size_type       = std::size_t;
-    using pointer         = Type*;
     using reference       = Type&;
     using const_reference = const Type&;
 
 protected:
-    pointer   data_;
+    Type*     data_;
     size_type size_;
 
 public:
     Vector() noexcept;
     ~Vector();
     explicit Vector(size_type n);
-    explicit Vector(size_type n, Type*& ptr);
+    explicit Vector(size_type n, Type*& ptr) noexcept; // maybe unused
     Vector(const Vector&);
     Vector(Vector&&) noexcept;
     Vector(const std::initializer_list<Type>&);
@@ -82,7 +81,7 @@ inline Vector<Type>::Vector(std::size_t n)
 }
 
 template <typename Type>
-inline Vector<Type>::Vector(std::size_t n, Type*& ptr)
+inline Vector<Type>::Vector(std::size_t n, Type*& ptr) noexcept // maybe unused
     : data_(ptr), size_(n)
 {
     ptr = nullptr;

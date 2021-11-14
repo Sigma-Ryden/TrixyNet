@@ -20,13 +20,13 @@ namespace tr = trixy;
 namespace li = lique;
 
 template <typename Precision>
-Precision random_real()
+Precision random_real() noexcept
 {
     static int within = 1000;
     return static_cast<Precision>(std::rand() % (2 * within + 1) - within) / within;
 }
 template <typename Precision>
-Precision random_normal()
+Precision random_normal() noexcept
 {
     static int within = 1000;
     static double pi = 3.14159265;

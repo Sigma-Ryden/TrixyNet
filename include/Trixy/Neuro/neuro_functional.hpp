@@ -20,12 +20,12 @@
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
     Tensor<Precision, Args...>& name(                                                                \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) {                \
+        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
         return buff.apply(detail::name, tensor);                                                     \
     }                                                                                                \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
     Tensor<Precision, Args...>& name##_derived(                                                      \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) {                \
+        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
         return buff.apply(detail::name##_derived, tensor);                                           \
     }
 
@@ -42,44 +42,44 @@ namespace detail
 {
 
 template <typename Precision>
-Precision relu(Precision x)
+Precision relu(Precision x) noexcept
 {
     return x > 0.0 ? x : 0.0;
 }
 template <typename Precision>
-Precision relu_derived(Precision x)
+Precision relu_derived(Precision x) noexcept
 {
     return x > 0.0 ? 1.0 : 0.0;
 }
 
 template <typename Precision>
-Precision elu(Precision x)
+Precision elu(Precision x) noexcept
 {
     static const Precision alpha = 0.2;
     return x > 0.0 ? x : alpha * (std::exp(x) - 1.0);
 }
 template <typename Precision>
-Precision elu_derived(Precision x)
+Precision elu_derived(Precision x) noexcept
 {
     static const Precision alpha = 0.2;
     return x > 0.0 ? 1.0 : alpha * std::exp(x);
 }
 
 template <typename Precision>
-Precision lrelu(Precision x)
+Precision lrelu(Precision x) noexcept
 {
     static const Precision alpha = 0.01;
     return x > 0.0 ? x : alpha * x;
 }
 template <typename Precision>
-Precision lrelu_derived(Precision x)
+Precision lrelu_derived(Precision x) noexcept
 {
     static const Precision alpha = 0.01;
     return x > 0.0 ? 1.0 : alpha;
 }
 
 template <typename Precision>
-Precision selu(Precision x)
+Precision selu(Precision x) noexcept
 {
     static const Precision lambda = 1.050701;
     static const Precision beta   = 1.758099;
@@ -87,7 +87,7 @@ Precision selu(Precision x)
     return x > 0.0 ? lambda * x : beta * (std::exp(x) - 1.0);
 }
 template <typename Precision>
-Precision selu_derived(Precision x)
+Precision selu_derived(Precision x) noexcept
 {
     static const Precision lambda = 1.050701;
     static const Precision beta   = 1.758099;
@@ -96,7 +96,7 @@ Precision selu_derived(Precision x)
 }
 
 template <typename Precision>
-Precision gelu(Precision x)
+Precision gelu(Precision x) noexcept
 {
     static const Precision a = 0.797885;
     static const Precision b = 0.0356774;
@@ -104,7 +104,7 @@ Precision gelu(Precision x)
     return 0.5 * x * (std::tanh(x * a + x * x * x * b) + 1.0);
 }
 template <typename Precision>
-Precision gelu_derived(Precision x)
+Precision gelu_derived(Precision x) noexcept
 {
     static const Precision a = 0.797885;
     static const Precision b = 0.0356774;
@@ -123,23 +123,23 @@ Precision gelu_derived(Precision x)
 }
 
 template <typename Precision>
-Precision sigmoid(Precision x)
+Precision sigmoid(Precision x) noexcept
 {
     return 1.0 / (std::exp(-x) + 1.0);
 }
 template <typename Precision>
-Precision sigmoid_derived(Precision x)
+Precision sigmoid_derived(Precision x) noexcept
 {
     return 0.5 / (std::cosh(x) + 1.0);
 }
 
 template <typename Precision>
-Precision tanh(Precision x)
+Precision tanh(Precision x) noexcept
 {
     return std::tanh(x);
 }
 template <typename Precision>
-Precision tanh_derived(Precision x)
+Precision tanh_derived(Precision x) noexcept
 {
     static Precision sech;
     sech = 1.0 / std::cosh(x);
@@ -148,12 +148,12 @@ Precision tanh_derived(Precision x)
 }
 
 template <typename Precision>
-Precision softsign(Precision x)
+Precision softsign(Precision x) noexcept
 {
     return x / (std::fabs(x) + 1.0);
 }
 template <typename Precision>
-Precision softsign_derived(Precision x)
+Precision softsign_derived(Precision x) noexcept
 {
     static Precision f;
     f = 1.0 / (std::fabs(x) + 1.0);
@@ -162,23 +162,23 @@ Precision softsign_derived(Precision x)
 }
 
 template <typename Precision>
-Precision softplus(Precision x)
+Precision softplus(Precision x) noexcept
 {
     return std::log(std::exp(x) + 1.0);
 }
 template <typename Precision>
-Precision softplus_derived(Precision x)
+Precision softplus_derived(Precision x) noexcept
 {
     return 1.0 / (std::exp(-x) + 1.0);
 }
 
 template <typename Precision>
-Precision swish(Precision x)
+Precision swish(Precision x) noexcept
 {
     return x / (std::exp(-x) + 1.0);
 }
 template <typename Precision>
-Precision swish_derived(Precision x)
+Precision swish_derived(Precision x) noexcept
 {
     static Precision a;
     static Precision b;
@@ -190,27 +190,27 @@ Precision swish_derived(Precision x)
 }
 
 template <typename Precision>
-Precision mod_relu(Precision x)
+Precision mod_relu(Precision x) noexcept
 {
     if      (x < 0.0) return 0.01 * x;
     else if (x > 1.0) return 0.99 + 0.01 * x;
     else              return x;
 }
 template <typename Precision>
-Precision mod_relu_derived(Precision x)
+Precision mod_relu_derived(Precision x) noexcept
 {
     if (x < 0.0 || x > 1.0) return 0.01;
     else return 1.0;
 }
 
 template <typename Precision>
-Precision mod_tanh(Precision x)
+Precision mod_tanh(Precision x) noexcept
 {
     if (x < 0.0) return 0.01 * std::tanh(x);
     else         return std::tanh(x);
 }
 template <typename Precision>
-Precision mod_tanh_derived(Precision x)
+Precision mod_tanh_derived(Precision x) noexcept
 {
     static Precision sech2;
 
@@ -242,7 +242,7 @@ TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& unstable_softmax(
     Vector<Precision, Args...>& buff,
-    const Vector<Precision, Args...>& vector)
+    const Vector<Precision, Args...>& vector) noexcept
 {
     for(std::size_t i = 0; i < vector.size(); ++i)
         buff(i) = std::exp(vector(i));
@@ -260,7 +260,7 @@ Vector<Precision, Args...>& unstable_softmax(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& softmax(
     Vector<Precision, Args...>& buff,
-    const Vector<Precision, Args...>& vector)
+    const Vector<Precision, Args...>& vector) noexcept
 {
     static Precision max;
     static Precision denominator;
@@ -285,7 +285,7 @@ Vector<Precision, Args...>& softmax(
 TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& tensor_of_units(
     Tensor<Precision, Args...>& buff,
-    const Tensor<Precision, Args...>& /*unused*/)
+    const Tensor<Precision, Args...>& /*unused*/) noexcept
 {
     return buff.fill(1.0);
 }
@@ -298,7 +298,7 @@ namespace loss
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision categorical_cross_entropy(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static const Precision epsilon = 1e-9;
     static Precision result;
@@ -314,7 +314,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& categorical_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static const Precision epsilon = 1e-9;
 
@@ -328,7 +328,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& categorical_cross_entropy_derived_softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
@@ -339,7 +339,7 @@ Vector<Precision, Args...>& categorical_cross_entropy_derived_softmax(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_error(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static Precision result;
 
@@ -354,7 +354,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& mean_squared_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
@@ -365,7 +365,7 @@ Vector<Precision, Args...>& mean_squared_error_derived(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_absolute_error(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static Precision result;
 
@@ -380,7 +380,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& mean_absolute_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
@@ -391,7 +391,7 @@ Vector<Precision, Args...>& mean_absolute_error_derived(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision mean_squared_log_error(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static Precision result;
 
@@ -406,7 +406,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& mean_squared_log_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
     {
@@ -419,7 +419,7 @@ Vector<Precision, Args...>& mean_squared_log_error_derived(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision binary_cross_entropy(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static const Precision epsilon = 1e-9;
     static const Precision alpha   = epsilon + 1.0;
@@ -437,7 +437,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& binary_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static const Precision epsilon = 1e-9;
     static const Precision alpha   = epsilon - 1.0;
@@ -453,7 +453,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& binary_cross_entropy_derived_sigmoid(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
@@ -464,7 +464,7 @@ Vector<Precision, Args...>& binary_cross_entropy_derived_sigmoid(
 TRIXY_VECTOR_FUNCTION_DECLARATION
 Precision logcosh(
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     static Precision result;
 
@@ -479,7 +479,7 @@ TRIXY_VECTOR_FUNCTION_DECLARATION
 Vector<Precision, Args...>& logcosh_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
-    const Vector<Precision, Args...>& y_pred)
+    const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = std::tanh(y_pred(i) - y_true(i));
@@ -496,7 +496,7 @@ namespace detail
 {
 
 template <typename Precision>
-Precision invertSqrt(Precision x)
+Precision invertSqrt(Precision x) noexcept
 {
     return 1.0 / std::sqrt(1e-9 + x);
 }
@@ -507,7 +507,7 @@ TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& momentum(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
-    const Tensor<Precision, Args...>& g)
+    const Tensor<Precision, Args...>& g) noexcept
 {
     static const Precision beta1 = 0.9;
     static const Precision beta2 = 1.0 - beta1;
@@ -524,7 +524,7 @@ TRIXY_TENSOR_FUNCTION_DECLARATION
 Tensor<Precision, Args...>& rms_prop(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
-    const Tensor<Precision, Args...>& g)
+    const Tensor<Precision, Args...>& g) noexcept
 {
     static const Precision beta1 = 0.9;
     static const Precision beta2 = 1.0 - beta1;
@@ -646,7 +646,7 @@ class NeuroManager
 public:
     template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
               typename std::enable_if<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
-    static FunctionData<Vector, Precision, Args...> get(const char* activation_function_name)
+    static FunctionData<Vector, Precision, Args...> get(const char* activation_function_name) noexcept
     {
         using namespace set::activation;
 
@@ -679,7 +679,7 @@ public:
 
     template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
               typename std::enable_if<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
-    static FunctionData<Vector, Precision, Args...> get(const char* loss_function_name)
+    static FunctionData<Vector, Precision, Args...> get(const char* loss_function_name) noexcept
     {
         using namespace set::loss;
 
@@ -706,7 +706,7 @@ public:
     template <template <template <typename, typename...> class T1, template <typename, typename...> class T2,
                         typename P, typename...> class FunctionData,
               typename std::enable_if<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>::type = 0>
-    static FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name)
+    static FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name) noexcept
     {
         using namespace set::optimization;
 

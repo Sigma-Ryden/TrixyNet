@@ -16,11 +16,11 @@ public:
 
 private:
     T* data_;
-    std::size_t size_;
+    size_type size_;
 
 public:
     Container() noexcept;
-    explicit Container(std::size_t size);
+    explicit Container(size_type size);
     Container(const Container<T>&);
     Container(Container<T>&&) noexcept;
     Container(const std::initializer_list<T>&);
@@ -29,13 +29,13 @@ public:
     Container<T>& operator= (Container<T>&&) noexcept;
 
     size_type size() const noexcept;
-    void resize(std::size_t new_size);
+    void resize(size_type new_size);
 
     iterator begin() const noexcept;
     iterator end() const noexcept;
 
-    reference operator[] (std::size_t i) noexcept;
-    const_reference operator[] (std::size_t i) const noexcept;
+    reference operator[] (size_type i) noexcept;
+    const_reference operator[] (size_type i) const noexcept;
 };
 
 template <typename T>

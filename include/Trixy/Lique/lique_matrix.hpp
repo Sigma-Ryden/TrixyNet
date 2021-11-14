@@ -14,7 +14,6 @@ protected:
 
 public:
     using size_type       = std::size_t;
-    using pointer         = Type**;
     using reference       = Type&;
     using const_reference = const Type&;
 
@@ -27,8 +26,8 @@ public:
     ~Matrix();
     explicit Matrix(size_type m, size_type n);
     explicit Matrix(const Shape& shape);
-    explicit Matrix(size_type m, size_type n, Type**& ptr);
-    explicit Matrix(const Shape&, Type**& ptr);
+    explicit Matrix(size_type m, size_type n, Type**& ptr) noexcept; // maybe unused
+    explicit Matrix(const Shape&, Type**& ptr) noexcept; // maybe unused
 
     Matrix(const Matrix&);
     Matrix(Matrix&&) noexcept;
@@ -115,7 +114,8 @@ Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape
 }
 
 template <typename Type>
-inline Matrix<Type>::Matrix(std::size_t m, std::size_t n, Type**& ptr) : data_(ptr), shape_(m, n)
+inline Matrix<Type>::Matrix(std::size_t m, std::size_t n, Type**& ptr) noexcept // maybe unused
+    : data_(ptr), shape_(m, n)
 {
     ptr = nullptr;
 }
@@ -128,7 +128,8 @@ Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_
 }
 
 template <typename Type>
-inline Matrix<Type>::Matrix(const Shape& shape, Type**& ptr) : data_(ptr), shape_(shape)
+inline Matrix<Type>::Matrix(const Shape& shape, Type**& ptr) noexcept // maybe unused
+    : data_(ptr), shape_(shape)
 {
     ptr = nullptr;
 }
