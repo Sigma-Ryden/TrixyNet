@@ -4,7 +4,6 @@
 #include <cstddef> // size_t
 #include <cmath> // fabs
 #include <initializer_list> // initializer_list
-#include <utility> // declval, move
 
 namespace trixy
 {

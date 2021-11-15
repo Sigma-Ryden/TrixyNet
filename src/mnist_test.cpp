@@ -112,18 +112,18 @@ void mnist_test()
     net.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
 
     net.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
-    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("ada_grad"));
+    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("rms_prop"));
 
     // Train network:
     Timer t;
     //
-    std::size_t times = 20;
-    for(std::size_t i = 0; i < times; ++i)
+    std::size_t times = 32;
+    for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        net.trainMiniBatch(train_in, train_out, 0.1, 75, 32, std::rand);
-        //net.trainOptimize(train_in, train_out, 0.1, 20, 250, std::rand);
-        //if (i % 5 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        //net.trainMiniBatch(train_in, train_out, 0.1, 50, 64, std::rand);
+        net.trainOptimize(train_in, train_out, 0.01, 35, 64, std::rand);
+        if (i % 5 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
         //net.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
@@ -141,7 +141,8 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 }
-/*
+
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -154,7 +155,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 DEPRECATED!!!
 FLOAT:
