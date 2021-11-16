@@ -144,7 +144,7 @@ void simple_test2()
     std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
 }
 
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -157,7 +157,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 #include "Trixy/Lique/ilique_base.hpp"
 namespace il = ilique;

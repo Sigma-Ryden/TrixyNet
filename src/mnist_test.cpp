@@ -58,12 +58,25 @@ Container<li::Vector<Precision>> initialize_o(
 }
 
 template <typename Precision>
+std::size_t max(const li::Vector<Precision>& vector) noexcept
+{
+    static std::size_t max;
+
+    max = 0;
+    for(std::size_t i = 1; i < vector.size(); ++i)
+        if(vector(max) < vector(i))
+            max = i;
+
+    return max;
+}
+
+template <typename Precision>
 void show_image(const li::Vector<Precision>& vector) noexcept
 {
-    for(std::size_t j = 0; j < vector.size(); ++j)
+    for(std::size_t i = 0; i < vector.size(); ++i)
     {
-        if(j % 28 == 0) std::cout << '\n';
-        std::cout << (vector(j) != 0 ? '#' : '.') << ' ';
+        if(i % 28 == 0) std::cout << '\n';
+            std::cout << (vector(i) > 0.5 ? '#' : vector(i) > 0.05 ? '*' : '.') << ' ';
     }
 }
 
@@ -83,7 +96,7 @@ void mnist_test()
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 60000;
+    std::size_t train_batch_size = 5000;
     std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
     std::size_t out_size   = 10;
@@ -113,17 +126,17 @@ void mnist_test()
     net.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
 
     net.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
-    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("rms_prop"));
+    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("momentum"));
 
     // Train network:
     Timer t;
     //
-    std::size_t times = 32;
+    std::size_t times = 35;
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
         //net.trainMiniBatch(train_in, train_out, 0.1, 50, 64, std::rand);
-        net.trainOptimize(train_in, train_out, 0.01, 35, 64, std::rand);
+        net.trainOptimize(train_in, train_out, 0.1, 35, 50, std::rand);
         if (i % 5 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
         //net.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
@@ -141,9 +154,21 @@ void mnist_test()
     //std::cout << "NNetwork test global accuracy: " << net.globalAccuracy(test_in, test_out, 0.25) << '\n';
     //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
+
+    using utils::operator<<;
+
+    std::cout << "TESTING\n";
+
+    for(std::size_t i = 0; i < test_in.size(); ++i)
+    {
+        show_image(test_in[i]);
+        std::cout << "\nTRUE: " << max(test_out[i])
+                  << "\nPRED: " << max(net.feedforward(test_in[i])) << '\n';
+        std::cin.get();
+    }
 }
 
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -156,7 +181,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 DEPRECATED!!!
 FLOAT:
