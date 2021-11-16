@@ -80,12 +80,12 @@ private:
     using Tensor1D = Vector<Precision, Args...>;
 
 public:
-    Tensor1D& (*f)(Tensor1D&, const Tensor1D&);
-    Tensor1D& (*df)(Tensor1D&, const Tensor1D&);
+    void (*f)(Tensor1D&, const Tensor1D&);
+    void (*df)(Tensor1D&, const Tensor1D&);
 
     explicit Activation(
-        Tensor1D& (*function)(Tensor1D&, const Tensor1D&) = nullptr,
-        Tensor1D& (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
+        void (*function)(Tensor1D&, const Tensor1D&) = nullptr,
+        void (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -97,11 +97,11 @@ private:
 
 public:
     Precision (*f)(const Tensor1D&, const Tensor1D&);
-    Tensor1D& (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
+    void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
     explicit Loss(
         Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
-        Tensor1D& (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
+        void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
 };
 
@@ -113,12 +113,12 @@ private:
     using Tensor2D = Matrix<Precision, Args...>;
 
 public:
-    Tensor1D& (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
-    Tensor2D& (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
+    void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
+    void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
     explicit Optimization(
-        Tensor1D& (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
-        Tensor2D& (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
+        void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
+        void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
     : f1D(vector_optimizer), f2D(matrix_optimizer) {}
 };
 
@@ -205,8 +205,8 @@ private:
     void innerBackPropagation(const Tensor1D& idata_sample,
                               const Tensor1D& odata_sample) const noexcept;
 
-    void innerUpdateNormalize(Container<Tensor1D>& deltaB,
-                              Container<Tensor2D>& detlaW,
+    void innerUpdateNormalize(const Container<Tensor1D>& deltaB,
+                              const Container<Tensor2D>& detlaW,
                               Container<Tensor1D>& OB,
                               Container<Tensor2D>& OW,
                               Precision learn_rate) noexcept;
@@ -726,8 +726,9 @@ void TRIXY_NEURO_TPL::innerFeedForward(
     ib.B1[0].add(B[0]);
     for(size_type j = 1; j < N; ++j, ++i)
     {
-        A[i].f(ib.H[j], ib.B1[i]);
+        A[i] .f(ib.H[j],  ib.B1[i]);
         A[i].df(ib.DH[i], ib.B1[i]);
+
         li.dot(ib.B1[j], ib.H[j], W[j]);
         ib.B1[j].add(B[j]);
     }
@@ -744,11 +745,12 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
     for(size_type i = N - 1; i > 0; --i)
     {
         ib.DB[i].multiply(ib.B1[i], ib.DH[i]);
-        li.tensordot(ib.DW[i], ib.DB[i], ib.H[i]);
+
+        li.tensordot(ib.DW[i], ib.H[i], ib.DB[i]);
         li.dottranspose(ib.B1[i - 1], ib.DB[i], W[i]);
     }
     ib.DB[0].multiply(ib.B1[0], ib.DH[0]);
-    li.tensordot(ib.DW[0], ib.B1[0], idata_sample);
+    li.tensordot(ib.DW[0], idata_sample, ib.B1[0]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -766,16 +768,19 @@ void TRIXY_NEURO_TPL::innerUpdate(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerUpdateNormalize(
-    Container<Vector<Precision, Args...>>& deltaB,
-    Container<Matrix<Precision, Args...>>& deltaW,
+    const Container<Vector<Precision, Args...>>& deltaB,
+    const Container<Matrix<Precision, Args...>>& deltaW,
     Container<Vector<Precision, Args...>>& OB,
     Container<Matrix<Precision, Args...>>& OW,
     Precision learn_rate) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].sub(O.f1D(ib.B1[i], OB[i], deltaB[i]).join(learn_rate));
-        W[i].sub(O.f2D(ib.B2[i], OW[i], deltaW[i]).join(learn_rate));
+        O.f1D(ib.B1[i], OB[i], deltaB[i]);
+        O.f2D(ib.B2[i], OW[i], deltaW[i]);
+
+        B[i].sub(ib.B1[i].join(learn_rate));
+        W[i].sub(ib.B2[i].join(learn_rate));
     }
 }
 

@@ -22,8 +22,8 @@ public:
                       const Matrix& matrix) const noexcept;
 
     void tensordot(Matrix& buff,
-                   const Vector& lsh,
-                   const Vector& rsh) const noexcept;
+                   const Vector& col_vector,
+                   const Vector& row_vector) const noexcept;
 };
 
 template <class Vector, class Matrix>
@@ -58,11 +58,11 @@ void Linear<Vector, Matrix>::dottranspose(
 
 template <class Vector, class Matrix>
 void Linear<Vector, Matrix>::tensordot(
-    Matrix& buff, const Vector& lsh, const Vector& rsh) const noexcept
+    Matrix& buff, const Vector& col_vector, const Vector& row_vector) const noexcept
 {
-    for(size_type i = 0; i < rsh.size(); ++i)
-        for(size_type j = 0; j < lsh.size(); ++j)
-            buff(i, j) = lsh(j) * rsh(i);
+    for(size_type i = 0; i < col_vector.size(); ++i)
+        for(size_type j = 0; j < row_vector.size(); ++j)
+            buff(i, j) = row_vector(j) * col_vector(i);
 }
 
 } // namespace lique

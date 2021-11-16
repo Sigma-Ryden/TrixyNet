@@ -14,6 +14,7 @@
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
 #include "Timer/timer.h" // Timer
+#include "UtilityMaster/utils.hpp" // operator<<
 
 namespace tr = trixy;
 namespace li = lique;
@@ -142,7 +143,7 @@ void mnist_test()
     std::cout << t.elapsed() << '\n';
 }
 
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -155,7 +156,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 DEPRECATED!!!
 FLOAT:

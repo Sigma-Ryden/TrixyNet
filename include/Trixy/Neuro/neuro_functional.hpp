@@ -19,14 +19,14 @@
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
-    Tensor<Precision, Args...>& name(                                                                \
+    void name(                                                                \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        return buff.apply(detail::name, tensor);                                                     \
+        buff.apply(detail::name, tensor);                                                     \
     }                                                                                                \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
-    Tensor<Precision, Args...>& name##_derived(                                                      \
+    void name##_derived(                                                      \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        return buff.apply(detail::name##_derived, tensor);                                           \
+        buff.apply(detail::name##_derived, tensor);                                           \
     }
 
 namespace trixy
@@ -240,7 +240,7 @@ TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& unstable_softmax(
+void unstable_softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector) noexcept
 {
@@ -253,12 +253,10 @@ Vector<Precision, Args...>& unstable_softmax(
 
     for(std::size_t i = 0; i < vector.size(); ++i)
         buff(i) /= denominator;
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& softmax(
+void softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector) noexcept
 {
@@ -278,16 +276,14 @@ Vector<Precision, Args...>& softmax(
 
     for(std::size_t i = 0; i < vector.size(); ++i)
         buff(i) /= denominator;
-
-    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...>& tensor_of_units(
+void tensor_of_units(
     Tensor<Precision, Args...>& buff,
     const Tensor<Precision, Args...>& /*unused*/) noexcept
 {
-    return buff.fill(1.0);
+    buff.fill(1.0);
 }
 
 } // namespace activation
@@ -311,7 +307,7 @@ Precision categorical_cross_entropy(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& categorical_cross_entropy_derived(
+void categorical_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -320,20 +316,16 @@ Vector<Precision, Args...>& categorical_cross_entropy_derived(
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = - y_true(i) / (y_pred(i) + epsilon);
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& categorical_cross_entropy_derived_softmax(
+void categorical_cross_entropy_derived_softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -351,15 +343,13 @@ Precision mean_squared_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& mean_squared_error_derived(
+void mean_squared_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -377,15 +367,13 @@ Precision mean_absolute_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& mean_absolute_error_derived(
+void mean_absolute_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -403,7 +391,7 @@ Precision mean_squared_log_error(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& mean_squared_log_error_derived(
+void mean_squared_log_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -413,7 +401,6 @@ Vector<Precision, Args...>& mean_squared_log_error_derived(
         buff(i) = y_pred(i) + 1.0;
         buff(i) /= std::log(buff(i) / (y_true(i) + 1.0));
     }
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -434,7 +421,7 @@ Precision binary_cross_entropy(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& binary_cross_entropy_derived(
+void binary_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -445,20 +432,16 @@ Vector<Precision, Args...>& binary_cross_entropy_derived(
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) =
             (y_true(i) - 1.0) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& binary_cross_entropy_derived_sigmoid(
+void binary_cross_entropy_derived_sigmoid(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
-
-    return buff;
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
@@ -476,15 +459,13 @@ Precision logcosh(
 }
 
 TRIXY_VECTOR_FUNCTION_DECLARATION
-Vector<Precision, Args...>& logcosh_derived(
+void logcosh_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = std::tanh(y_pred(i) - y_true(i));
-
-    return buff;
 }
 
 } // namespace loss
@@ -504,7 +485,7 @@ Precision invertSqrt(Precision x) noexcept
 } // namespace detail
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...>& momentum(
+void momentum(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
     const Tensor<Precision, Args...>& g) noexcept
@@ -516,12 +497,10 @@ Tensor<Precision, Args...>& momentum(
     s.add(buff.join(beta2, g));
 
     buff.copy(s);
-
-    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...>& rms_prop(
+void rms_prop(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
     const Tensor<Precision, Args...>& g) noexcept
@@ -533,20 +512,16 @@ Tensor<Precision, Args...>& rms_prop(
     s.add(buff.multiply(g, g).join(beta2));
 
     buff.multiply(g, s.apply(detail::invertSqrt));
-
-    return buff;
 }
 
 TRIXY_TENSOR_FUNCTION_DECLARATION
-Tensor<Precision, Args...>& ada_grad(
+void ada_grad(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
     const Tensor<Precision, Args...>& g)
 {
     s.add(buff.multiply(g, g));
     buff.multiply(g, s.apply(detail::invertSqrt));
-
-    return buff;
 }
 
 } // namespace optimization
@@ -561,8 +536,8 @@ struct ActivationData
 {
     using Tensor_t = Tensor<Precision, Args...>;
 
-    Tensor_t& (*f)(Tensor_t&, const Tensor_t&);
-    Tensor_t& (*df)(Tensor_t&, const Tensor_t&);
+    void (*f)(Tensor_t&, const Tensor_t&);
+    void (*df)(Tensor_t&, const Tensor_t&);
 };
 
 template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
@@ -571,7 +546,7 @@ struct LossData
     using Tensor_t = Tensor<Precision, Args...>;
 
     Precision (*f)(const Tensor_t&, const Tensor_t&);
-    Tensor_t& (*df)(Tensor_t&, const Tensor_t&, const Tensor_t&);
+    void (*df)(Tensor_t&, const Tensor_t&, const Tensor_t&);
 };
 
 template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
@@ -581,8 +556,8 @@ struct OptimizationData
     using Vector_t = Vector<Precision, Args...>;
     using Matrix_t = Matrix<Precision, Args...>;
 
-    Vector_t& (*f1D)(Vector_t&, Vector_t&, const Vector_t&);
-    Matrix_t& (*f2D)(Matrix_t&, Matrix_t&, const Matrix_t&);
+    void (*f1D)(Vector_t&, Vector_t&, const Vector_t&);
+    void (*f2D)(Matrix_t&, Matrix_t&, const Matrix_t&);
 };
 
 } // namespace data
@@ -600,8 +575,8 @@ struct is_activation_data
     using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f), Tensor_t& (*)(Tensor_t&, const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t& (*)(Tensor_t&, const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f), void (*)(Tensor_t&, const Tensor_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), void (*)(Tensor_t&, const Tensor_t&)>::value;
 };
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
@@ -615,7 +590,7 @@ struct is_loss_data
 
     static constexpr bool value =
         std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), Tensor_t& (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().df), void (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
 };
 
 template <template <template <typename, typename...> class V,
@@ -633,8 +608,8 @@ struct is_optimization_data
     using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Vector_t& (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Matrix_t& (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f1D), void (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f2D), void (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
 };
 
 } // namespace meta

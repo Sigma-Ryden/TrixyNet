@@ -25,8 +25,8 @@ public:
                               const Tensor2D& matrix) const noexcept = 0;
 
     virtual void tensordot(Tensor2D& buff,
-                           const Tensor1D& lsh,
-                           const Tensor1D& rsh) const noexcept = 0;
+                           const Tensor1D& col_vector,
+                           const Tensor1D& row_vector) const noexcept = 0;
 };
 
 } // namespace ilique
