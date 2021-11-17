@@ -96,7 +96,7 @@ void mnist_test()
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 5000;
+    std::size_t train_batch_size = 5000; // max 60 000
     std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
     std::size_t out_size   = 10;

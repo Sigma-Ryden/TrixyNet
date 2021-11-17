@@ -21,12 +21,12 @@
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
     void name(                                                                \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        buff.apply(detail::name, tensor);                                                     \
+        buff.apply(detail::name, tensor);                                                            \
     }                                                                                                \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
     void name##_derived(                                                      \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        buff.apply(detail::name##_derived, tensor);                                           \
+        buff.apply(detail::name##_derived, tensor);                                                  \
     }
 
 namespace trixy
@@ -115,8 +115,8 @@ Precision gelu_derived(Precision x) noexcept
     static Precision y;
     static Precision sch;
 
-    x3 = x * x * x;
-    y = a * x3 + b * x;
+    x3  = x * x * x;
+    y   = a * x3 + b * x;
     sch = 1.0 / std::cosh(y);
 
     return 0.5 * std::tanh(y) + (c * x3 + d * x) * sch * sch + 0.5;
@@ -214,7 +214,7 @@ Precision mod_tanh_derived(Precision x) noexcept
 {
     static Precision sech2;
 
-    sech2 = 1.0 / std::cosh(x);
+    sech2  = 1.0 / std::cosh(x);
     sech2 *= sech2;
 
     if (x < 0.0) return 0.01 * sech2;
@@ -398,7 +398,7 @@ void mean_squared_log_error_derived(
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
     {
-        buff(i) = y_pred(i) + 1.0;
+        buff(i)  = y_pred(i) + 1.0;
         buff(i) /= std::log(buff(i) / (y_true(i) + 1.0));
     }
 }
@@ -567,8 +567,7 @@ namespace meta
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           template <typename, typename...> class Tensor,
-          typename Precision,
-          typename... Args>
+          typename Precision, typename... Args>
 struct is_activation_data
 {
     using Tensor_t       = Tensor<Precision, Args...>;
@@ -581,8 +580,7 @@ struct is_activation_data
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           template <typename, typename...> class Tensor,
-          typename Precision,
-          typename... Args>
+          typename Precision, typename... Args>
 struct is_loss_data
 {
     using Tensor_t       = Tensor<Precision, Args...>;
@@ -595,12 +593,11 @@ struct is_loss_data
 
 template <template <template <typename, typename...> class V,
                     template <typename, typename...> class M,
-                    typename P,
-                    typename...> class FunctionData,
+                    typename P, typename...>
+          class FunctionData,
           template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
+          typename Precision, typename... Args>
 struct is_optimization_data
 {
     using Vector_t       = Vector<Precision, Args...>;
@@ -612,15 +609,19 @@ struct is_optimization_data
         std::is_same<decltype(std::declval<FunctionData_t>().f2D), void (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
 };
 
+template <bool condition, typename T = void>
+using enable_if_t = typename std::enable_if<condition, T>::type;
+
 } // namespace meta
 
-template <template <typename, typename...> class Vector, template <typename, typename...> class Matrix,
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
           typename Precision, typename... Args>
 class NeuroManager
 {
 public:
     template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
-              typename std::enable_if<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
+              meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
     static FunctionData<Vector, Precision, Args...> get(const char* activation_function_name) noexcept
     {
         using namespace set::activation;
@@ -653,7 +654,7 @@ public:
     }
 
     template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
-              typename std::enable_if<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>::type = 0>
+              meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
     static FunctionData<Vector, Precision, Args...> get(const char* loss_function_name) noexcept
     {
         using namespace set::loss;
@@ -678,9 +679,11 @@ public:
         return FunctionData<Vector, Precision, Args...>();
     }
 
-    template <template <template <typename, typename...> class T1, template <typename, typename...> class T2,
-                        typename P, typename...> class FunctionData,
-              typename std::enable_if<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>::type = 0>
+    template <template <template <typename, typename...> class T1,
+                        template <typename, typename...> class T2,
+                        typename P, typename...>
+              class FunctionData,
+              meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int> = 0>
     static FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name) noexcept
     {
         using namespace set::optimization;
