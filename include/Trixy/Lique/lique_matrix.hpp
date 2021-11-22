@@ -66,6 +66,9 @@ public:
 
     Matrix transpose() const;
 
+    Type** data() noexcept;
+    const Type** data() const noexcept;
+
     Matrix operator+ (const Matrix&) const;
     Matrix operator- (const Matrix&) const;
 };
@@ -432,6 +435,18 @@ Matrix<Type> Matrix<Type>::transpose() const
             new_matrix.data_[i][j] = data_[j][i];
 
     return new_matrix;
+}
+
+template <typename Type>
+inline Type** Matrix<Type>::data() noexcept
+{
+    return data_;
+}
+
+template <typename Type>
+inline const Type** Matrix<Type>::data() const noexcept
+{
+    return data_;
 }
 
 template <typename Type>

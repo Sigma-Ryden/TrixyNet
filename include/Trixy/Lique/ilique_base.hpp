@@ -62,6 +62,7 @@ public:
     virtual const_reference operator() (size_type i) const noexcept = 0;
 
     virtual size_type size() const noexcept = 0;
+
     virtual void resize(size_type new_size) = 0;
     virtual Type dot(const Tensor<Type, Args...>&) const = 0;
 };

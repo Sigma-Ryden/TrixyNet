@@ -3,7 +3,6 @@
 
 #include <cstddef> // size_t
 #include <cmath> // fabs
-#include <initializer_list> // initializer_list
 
 namespace trixy
 {
@@ -49,7 +48,7 @@ class Optimization;
 
 #define TRIXY_NEURO_TPL                                        \
     Neuro<Vector, Matrix, Linear,                              \
-    Container, Precision, Args...>
+          Container, Precision, Args...>
 
 #define TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION              \
     template <template <typename T, typename...> class Vector, \
@@ -77,13 +76,15 @@ TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION
 class Activation
 {
 private:
-    using Tensor1D = Vector<Precision, Args...>;
-
+    using Tensor1D  = Vector<Precision, Args...>;
+    //using size_type = std::size_t;
+		
 public:
+    //size_type id;
     void (*f)(Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&);
 
-    explicit Activation(
+    Activation(
         void (*function)(Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
@@ -93,13 +94,15 @@ TRIXY_FUNCTION_LOSS_TPL_DECLARATION
 class Loss
 {
 private:
-    using Tensor1D = Vector<Precision, Args...>;
-
+    using Tensor1D  = Vector<Precision, Args...>;
+    //using size_type = std::size_t;
+		
 public:
+    //size_type id;
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
-    explicit Loss(
+    Loss(
         Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : f(function), df(function_derived) {}
@@ -109,14 +112,16 @@ TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
 class Optimization
 {
 private:
-    using Tensor1D = Vector<Precision, Args...>;
-    using Tensor2D = Matrix<Precision, Args...>;
-
+    using Tensor1D  = Vector<Precision, Args...>;
+    using Tensor2D  = Matrix<Precision, Args...>;
+    //using size_type = std::size_t;
+		
 public:
+    //size_type id;
     void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
     void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
-    explicit Optimization(
+    Optimization(
         void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
         void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
     : f1D(vector_optimizer), f2D(matrix_optimizer) {}
@@ -156,7 +161,7 @@ private:
     Linear<Tensor1D, Tensor2D> li;
 
 public:
-    Neuro(const std::initializer_list<size_type>& topology);
+    Neuro(const Container<size_type>& topology);
 
     const Tensor1D& feedforward(const Tensor1D&) const noexcept;
 
@@ -233,6 +238,9 @@ public:
     void initializeInnerStruct(GeneratorPrecision generator_bias,
                                GeneratorPrecision generator_weight) noexcept;
 
+    void initializeInnerStruct(const Container<Tensor1D>& bias,
+                               const Container<Tensor2D>& weight) noexcept;
+
     void setActivationFunction(const ActivationFunction&) noexcept;
     void setNormalizationFunction(const ActivationFunction&) noexcept;
     void setEachActivationFunction(const Container<ActivationFunction>&) noexcept; // maybe unused
@@ -271,6 +279,7 @@ public:
     Container<Tensor2D> B2;
 
 public:
+    InnerBuffer() = default;
     explicit InnerBuffer(size_type) noexcept;
 
     void initializeDefault();
@@ -302,26 +311,26 @@ inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(std::size_t N) noexcept
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeDefault()
 {
-    H  = Container<Tensor1D>(size_);
-    B1 = Container<Tensor1D>(size_);
-    DH = Container<Tensor1D>(size_);
-    DB = Container<Tensor1D>(size_);
-    DW = Container<Tensor2D>(size_);
+    H.resize(size_);
+    B1.resize(size_);
+    DH.resize(size_);
+    DB.resize(size_);
+    DW.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeDelta()
 {
-    deltaB = Container<Tensor1D>(size_);
-    deltaW = Container<Tensor2D>(size_);
+    deltaB.resize(size_);
+    deltaW.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
 {
-    OB = Container<Tensor1D>(size_);
-    OW = Container<Tensor2D>(size_);
-    B2 = Container<Tensor2D>(size_);
+    OB.resize(size_);
+    OW.resize(size_);
+    B2.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -361,9 +370,9 @@ void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        OB[i] = Tensor1D(B[i].size());
-        OW[i] = Tensor2D(W[i].size());
-        B2[i] = Tensor2D(W[i].size());
+        OB[i].resize(B[i].size());
+        OW[i].resize(W[i].size());
+        B2[i].resize(W[i].size());
     }
 }
 
@@ -410,7 +419,7 @@ void TRIXY_NEURO_TPL::InnerBuffer::normalizeDelta(
 
 TRIXY_NEURO_TPL_DECLARATION
 TRIXY_NEURO_TPL::Neuro(
-    const std::initializer_list<std::size_t>& topology)
+    const Container<size_type>& topology)
     : ib(topology.size() - 1)
     , B(topology.size() - 1)
     , W(topology.size() - 1)
@@ -420,13 +429,10 @@ TRIXY_NEURO_TPL::Neuro(
     , O()
     , li()
 {
-    auto lsh = topology.begin();
-    auto rsh = topology.begin() + 1;
-
-    for(size_type i = 0; i < N; ++i, ++lsh, ++rsh)
+    for(size_type i = 0; i < N; ++i)
     {
-        B[i] = Tensor1D(*rsh);
-        W[i] = Tensor2D(*lsh, *rsh);
+        B[i].resize(topology[i + 1]);
+        W[i].resize(topology[i], topology[i + 1]);
     }
 
     ib.initializeDefault();
@@ -458,6 +464,18 @@ void TRIXY_NEURO_TPL::initializeInnerStruct(
     {
         B[i].fill(generator_bias);
         W[i].fill(generator_weight);
+    }
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::initializeInnerStruct(
+    const Container<Tensor1D>& bias,
+    const Container<Tensor2D>& weight) noexcept
+{
+    for(size_type i = 0; i < N; ++i)
+    {
+        B[i] = bias[i];
+        W[i] = weight[i];
     }
 }
 
@@ -726,7 +744,7 @@ void TRIXY_NEURO_TPL::innerFeedForward(
     ib.B1[0].add(B[0]);
     for(size_type j = 1; j < N; ++j, ++i)
     {
-        A[i] .f(ib.H[j],  ib.B1[i]);
+        A[i].f(ib.H[j], ib.B1[i]);
         A[i].df(ib.DH[i], ib.B1[i]);
 
         li.dot(ib.B1[j], ib.H[j], W[j]);

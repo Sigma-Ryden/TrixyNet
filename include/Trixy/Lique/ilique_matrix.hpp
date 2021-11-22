@@ -39,6 +39,9 @@ public:
 
     const Shape& size() const noexcept;
 
+    Type** data() noexcept;
+    const Type** data() const noexcept;
+
     virtual void resize(size_type m, size_type n) = 0;
     virtual void resize(const Shape& new_shape) = 0;
 
@@ -181,6 +184,18 @@ template <template <typename T> class Tensor, typename Type>
 inline const typename Matrix<Tensor, Type>::Shape& Matrix<Tensor, Type>::size() const noexcept
 {
     return shape_;
+}
+
+template <template <typename T> class Tensor, typename Type>
+inline Type** Matrix<Tensor, Type>::data() noexcept
+{
+    return data_;
+}
+
+template <template <typename T> class Tensor, typename Type>
+inline const Type** Matrix<Tensor, Type>::data() const noexcept
+{
+    return data_;
 }
 
 } // namespace ilique

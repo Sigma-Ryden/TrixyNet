@@ -59,6 +59,9 @@ public:
     Vector& join(Type value) noexcept;
     Vector& join(Type value, const Vector&) noexcept;
 
+    Type* data() noexcept;
+    const Type* data() const noexcept;
+
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
 };
@@ -318,6 +321,18 @@ Vector<Type>& Vector<Type>::join(Type value, const Vector& vector) noexcept
         data_[i] = value * vector.data_[i];
 
     return *this;
+}
+
+template <typename Type>
+inline Type* Vector<Type>::data() noexcept
+{
+    return data_;
+}
+
+template <typename Type>
+inline const Type* Vector<Type>::data() const noexcept
+{
+    return data_;
 }
 
 template <typename Type>

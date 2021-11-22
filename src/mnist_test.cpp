@@ -1,6 +1,7 @@
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time
 #include <iostream> // cin, cout
+#include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
 
 #include "Trixy/Lique/lique_linear.hpp" // Linear
@@ -11,6 +12,8 @@
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
+#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
+
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
 #include "Timer/timer.h" // Timer
@@ -91,53 +94,125 @@ void show_image_batch(const Container<li::Vector<Precision>>& data) noexcept
 }
 
 template <typename Precision>
-void mnist_test()
+void mnist_test_des()
 {
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
 
-    std::size_t train_batch_size = 5000; // max 60 000
+    std::size_t train_batch_size = 60000; // max 60 000
     std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
     std::size_t out_size   = 10;
 
     // Train batch initialize:
-    Container<li::Vector<Precision>> train_in = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
+    Container<li::Vector<Precision>> train_in  = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
     Container<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    Container<li::Vector<Precision>> test_in = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
+    Container<li::Vector<Precision>> test_in  = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
+    Container<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
+
+    // NeuralNetwork preparing:
+    using namespace trixy::function;
+
+    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+
+    // NeuralNetwork topology:
+    std::ifstream in("D:\\mnist_experimental.bin", std::ios::binary);
+    if(!in.is_open()) return;
+
+    NeuralSerializer sr;
+    sr.deserialize(in);
+
+    NeuralFeedForward net = sr.getTopology();
+    NeuralManager manage;
+
+    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
+
+    net.setActivationFunction(manage.template get<Activation>(activation::relu));
+    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
+    net.setLossFunction(manage.template get<Loss>(loss::CCE));
+
+    std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
+              << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
+
+    std::cout << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_in, test_out)
+              << "\nNEURO TEST_SET LOSS: " << net.loss(test_in, test_out) << '\n';
+    //
+    std::cout << "TESTING TRAIN_SET\n";
+    for(std::size_t i = 0; i < train_in.size(); ++i)
+    {
+        show_image(train_in[i]);
+        std::cout << "\nTRUE: " << max(train_out[i])
+                  << "\nPRED: " << max(net.feedforward(train_in[i])) << '\n';
+        std::cin.get();
+    }
+    //
+    //
+    std::cout << "TESTING TEST_SET\n";
+    for(std::size_t i = 0; i < test_in.size(); ++i)
+    {
+        show_image(test_in[i]);
+        std::cout << "\nTRUE: " << max(test_out[i])
+                  << "\nPRED: " << max(net.feedforward(test_in[i])) << '\n';
+        std::cin.get();
+    }
+    //
+}
+
+template <typename Precision>
+void mnist_test()
+{
+    // Data preparing:
+    auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
+
+    std::size_t train_batch_size = 60000; // max 60 000
+    std::size_t test_batch_size  = 10000;
+    std::size_t input_size = 784;
+    std::size_t out_size   = 10;
+
+    // Train batch initialize:
+    Container<li::Vector<Precision>> train_in  = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
+    Container<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
+
+    // Test batch initialize:
+    Container<li::Vector<Precision>> test_in  = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
     Container<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);
 
     // NeuralNetwork preparing:
+    using namespace trixy::function;
+
     using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
     using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     // NeuralNetwork topology:
-    NeuralFeedForward net = { input_size, 256, out_size };
+    NeuralFeedForward net({ input_size, 256, out_size });
     NeuralManager manage;
 
     net.initializeInnerStruct(random_real);
 
-    net.setActivationFunction(manage.template get<tr::function::Activation>("relu"));
-    net.setNormalizationFunction(manage.template get<tr::function::Activation>("softmax"));
+    net.setActivationFunction(manage.template get<Activation>(activation::relu));
+    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
 
-    net.setLossFunction(manage.template get<tr::function::Loss>("CCE"));
-    net.setOptimizationFunction(manage.template get<tr::function::Optimization>("momentum"));
+    net.setLossFunction(manage.template get<Loss>(loss::CCE));
+    //net.setOptimizationFunction(manage.template get<Optimization>(optimization::momentum));
 
     // Train network:
     Timer t;
     //
-    std::size_t times = 35;
+    std::size_t times = 200;
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        //net.trainMiniBatch(train_in, train_out, 0.1, 50, 64, std::rand);
-        net.trainOptimize(train_in, train_out, 0.1, 35, 50, std::rand);
-        if (i % 5 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        net.trainMiniBatch(train_in, train_out, 0.1, 40, 64, std::rand);
+        //net.trainOptimize(train_in, train_out, 0.1, 50, 32, std::rand);
+        //if (i % 25 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
         //net.trainStochastic(train_in, train_out, 0.5, 1000, std::rand);
     }
     std::cout << t.elapsed() << '\n';
@@ -155,17 +230,14 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << t.elapsed() << '\n';
 
-    using utils::operator<<;
+    std::ofstream out("D:\\mnist_experimental.bin", std::ios::binary);
+    if(!out.is_open()) return;
 
-    std::cout << "TESTING\n";
+    NeuralSerializer sr;
+    sr.prepare(net.getInnerBias(), net.getInnerWeight());
+    sr.serialize(out);
 
-    for(std::size_t i = 0; i < test_in.size(); ++i)
-    {
-        show_image(test_in[i]);
-        std::cout << "\nTRUE: " << max(test_out[i])
-                  << "\nPRED: " << max(net.feedforward(test_in[i])) << '\n';
-        std::cin.get();
-    }
+    std::cout << "END\n";
 }
 
 //
@@ -175,26 +247,10 @@ int main()
 
     std::cout << std::fixed << std::setprecision(6);
 
-    mnist_test<float>();
+    mnist_test_des<float>();
 
     std::cin.get();
 
     return 0;
 }
 //
-/*
-DEPRECATED!!!
-FLOAT:
-4.810986
-NNetwork tarin normal accuracy: 0.809367
-25.023176
-NNetwork test normal accuracy: 0.810200
-4.186155
-
-DOUBLE:
-7.028966
-NNetwork tarin normal accuracy: 0.749817
-27.647358
-NNetwork test normal accuracy: 0.753600
-4.607892
-*/

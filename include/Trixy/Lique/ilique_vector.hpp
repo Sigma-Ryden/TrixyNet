@@ -34,6 +34,10 @@ public:
     const_reference operator() (size_type i) const noexcept;
 
     size_type size() const noexcept;
+
+    Type* data() noexcept;
+    const Type* data() const noexcept;
+
     virtual void resize(size_type new_size) = 0;
     virtual Type dot(const Tensor<Type>&) const = 0;
 };
@@ -119,6 +123,18 @@ template <template <typename T> class Tensor, typename Type>
 inline std::size_t Vector<Tensor, Type>::size() const noexcept
 {
     return size_;
+}
+
+template <template <typename T> class Tensor, typename Type>
+inline Type* Vector<Tensor, Type>::data() noexcept
+{
+    return data_;
+}
+
+template <template <typename T> class Tensor, typename Type>
+inline const Type* Vector<Tensor, Type>::data() const noexcept
+{
+    return data_;
 }
 
 } // namespace ilique

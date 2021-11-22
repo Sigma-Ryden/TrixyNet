@@ -5,17 +5,34 @@
 #include <cmath> // sqrt, pow, exp, log, fabs, tanh, cosh
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same
-#include <map> // map
 
-#define TRIXY_TENSOR_FUNCTION_DECLARATION                      \
+namespace trixy
+{
+
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision, typename... Args>
+class NeuroManager;
+
+} // namespace trixy
+
+#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                  \
     template <template <typename T, typename...> class Tensor, \
               typename Precision,                              \
               typename... Args>
 
-#define TRIXY_VECTOR_FUNCTION_DECLARATION                      \
+#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                  \
     template <template <typename T, typename...> class Vector, \
               typename Precision,                              \
               typename... Args>
+
+#define TRIXY_NEURO_MANAGER_TPL_DECLARATION                    \
+    template <template <typename, typename...> class Vector,   \
+              template <typename, typename...> class Matrix,   \
+              typename Precision, typename... Args>
+
+#define TRIXY_NEURO_MANAGER_DECLARATION                        \
+    NeuroManager<Vector, Matrix, Precision, Args...>
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
     template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
@@ -239,7 +256,7 @@ TRIXY_FUNCTION_GENERIC_HELPER(swish)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void unstable_softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector) noexcept
@@ -255,7 +272,7 @@ void unstable_softmax(
         buff(i) /= denominator;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector) noexcept
@@ -278,7 +295,7 @@ void softmax(
         buff(i) /= denominator;
 }
 
-TRIXY_TENSOR_FUNCTION_DECLARATION
+TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 void tensor_of_units(
     Tensor<Precision, Args...>& buff,
     const Tensor<Precision, Args...>& /*unused*/) noexcept
@@ -291,7 +308,7 @@ void tensor_of_units(
 namespace loss
 {
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision categorical_cross_entropy(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -306,7 +323,7 @@ Precision categorical_cross_entropy(
     return result;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void categorical_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -318,7 +335,7 @@ void categorical_cross_entropy_derived(
         buff(i) = - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void categorical_cross_entropy_derived_softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -328,7 +345,7 @@ void categorical_cross_entropy_derived_softmax(
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision mean_squared_error(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -342,7 +359,7 @@ Precision mean_squared_error(
     return result / 2.0;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void mean_squared_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -352,7 +369,7 @@ void mean_squared_error_derived(
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision mean_absolute_error(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -366,7 +383,7 @@ Precision mean_absolute_error(
     return result;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void mean_absolute_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -376,7 +393,7 @@ void mean_absolute_error_derived(
         buff(i) = y_true(i) > y_pred(i) ? -1.0 : 1.0;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision mean_squared_log_error(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -390,7 +407,7 @@ Precision mean_squared_log_error(
     return result / 2.0;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void mean_squared_log_error_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -403,7 +420,7 @@ void mean_squared_log_error_derived(
     }
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision binary_cross_entropy(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -420,7 +437,7 @@ Precision binary_cross_entropy(
     return result;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void binary_cross_entropy_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -434,7 +451,7 @@ void binary_cross_entropy_derived(
             (y_true(i) - 1.0) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void binary_cross_entropy_derived_sigmoid(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -444,7 +461,7 @@ void binary_cross_entropy_derived_sigmoid(
         buff(i) = y_true(i) * (y_pred(i) - 1.0) + (1.0 - y_true(i)) * y_pred(i);
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 Precision logcosh(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
@@ -458,7 +475,7 @@ Precision logcosh(
     return result;
 }
 
-TRIXY_VECTOR_FUNCTION_DECLARATION
+TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 void logcosh_derived(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& y_true,
@@ -484,7 +501,7 @@ Precision invertSqrt(Precision x) noexcept
 
 } // namespace detail
 
-TRIXY_TENSOR_FUNCTION_DECLARATION
+TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 void momentum(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -499,7 +516,7 @@ void momentum(
     buff.copy(s);
 }
 
-TRIXY_TENSOR_FUNCTION_DECLARATION
+TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 void rms_prop(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -514,7 +531,7 @@ void rms_prop(
     buff.multiply(g, s.apply(detail::invertSqrt));
 }
 
-TRIXY_TENSOR_FUNCTION_DECLARATION
+TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 void ada_grad(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -527,40 +544,6 @@ void ada_grad(
 } // namespace optimization
 
 } // namespace set
-
-namespace data
-{
-
-template <template <typename T, typename...> class Tensor, class Precision, typename... Args>
-struct ActivationData
-{
-    using Tensor_t = Tensor<Precision, Args...>;
-
-    void (*f)(Tensor_t&, const Tensor_t&);
-    void (*df)(Tensor_t&, const Tensor_t&);
-};
-
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-struct LossData
-{
-    using Tensor_t = Tensor<Precision, Args...>;
-
-    Precision (*f)(const Tensor_t&, const Tensor_t&);
-    void (*df)(Tensor_t&, const Tensor_t&, const Tensor_t&);
-};
-
-template <template <typename T, typename...> class Vector, template <typename T, typename...> class Matrix,
-          typename Precision, typename... Args>
-struct OptimizationData
-{
-    using Vector_t = Vector<Precision, Args...>;
-    using Matrix_t = Matrix<Precision, Args...>;
-
-    void (*f1D)(Vector_t&, Vector_t&, const Vector_t&);
-    void (*f2D)(Matrix_t&, Matrix_t&, const Matrix_t&);
-};
-
-} // namespace data
 
 namespace meta
 {
@@ -614,100 +597,195 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 
 } // namespace meta
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          typename Precision, typename... Args>
+namespace function
+{
+	
+enum class activation
+{
+    sigmoid,
+    tanh,
+    relu,
+    elu,
+    lrelu,
+    selu,
+    gelu,
+    softsign,
+    softplus,
+    swish,
+    softmax,
+    mod_relu,
+    mod_tanh,
+    unstable_softmax,
+    sigmoid_
+};
+
+enum class loss
+{
+    MSE,
+    MAE,
+    CCE,
+    BCE,
+    MSLE,
+    LC,
+    CCE_,
+    BCE_
+};
+
+enum class optimization
+{
+    momentum,
+    rms_prop,
+    ada_grad
+};
+
+} // namespace function
+
+TRIXY_NEURO_MANAGER_TPL_DECLARATION
 class NeuroManager
 {
 public:
-    template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+    template <template <template <typename, typename...> class T,
+                        typename P, typename...>
+              class FunctionData,
               meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(const char* activation_function_name) noexcept
-    {
-        using namespace set::activation;
+    static FunctionData<Vector, Precision, Args...> get(function::activation id) noexcept;
 
-        static std::map<const char*, data::ActivationData<Vector, Precision, Args...>> activation_data;
-
-        activation_data["sigmoid"]  = { sigmoid,  sigmoid_derived  };
-        activation_data["tanh"]     = { tanh,     tanh_derived     };
-        activation_data["relu"]     = { relu,     relu_derived     };
-        activation_data["elu"]      = { elu,      elu_derived      };
-        activation_data["lrelu"]    = { lrelu,    lrelu_derived    };
-        activation_data["selu"]     = { selu,     selu_derived     };
-        activation_data["gelu"]     = { gelu,     gelu_derived     };
-        activation_data["softsign"] = { softsign, softsign_derived };
-        activation_data["softplus"] = { softplus, softplus_derived };
-        activation_data["swish"]    = { swish,    swish_derived    };
-        activation_data["mod_relu"] = { mod_relu, mod_relu_derived };
-        activation_data["mod_tanh"] = { mod_tanh, mod_tanh_derived };
-        activation_data["softmax"]  = { softmax,  tensor_of_units  };
-
-        activation_data["*sigmoid"]         = { sigmoid,  tensor_of_units  }; // maybe unused
-        activation_data["unstable_softmax"] = { unstable_softmax, tensor_of_units }; // deprecated
-
-        auto it = activation_data.find(activation_function_name);
-
-        if(it != activation_data.end())
-            return FunctionData<Vector, Precision, Args...>(it->second.f, it->second.df);
-
-        return FunctionData<Vector, Precision, Args...>();
-    }
-
-    template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+    template <template <template <typename, typename...> class T,
+                        typename P, typename...>
+              class FunctionData,
               meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(const char* loss_function_name) noexcept
-    {
-        using namespace set::loss;
-
-        std::map<const char*, data::LossData<Vector, Precision, Args...>> loss_data;
-
-        loss_data["MSE"]  = { mean_squared_error,        mean_squared_error_derived                };
-        loss_data["MAE"]  = { mean_absolute_error,       mean_absolute_error_derived               };
-        loss_data["CCE"]  = { categorical_cross_entropy, categorical_cross_entropy_derived_softmax };
-        loss_data["BCE"]  = { binary_cross_entropy,      binary_cross_entropy_derived_sigmoid      };
-        loss_data["MSLE"] = { mean_squared_log_error,    mean_squared_log_error_derived            };
-
-        loss_data["*CCE"] = { categorical_cross_entropy, categorical_cross_entropy_derived }; // deprecated
-        loss_data["*BCE"] = { binary_cross_entropy, binary_cross_entropy_derived }; // deprecated
-        loss_data["LC"]   = { logcosh, logcosh_derived }; // maybe unused & deprecated
-
-        auto it = loss_data.find(loss_function_name);
-
-        if(it != loss_data.end())
-            return FunctionData<Vector, Precision, Args...>(it->second.f, it->second.df);
-
-        return FunctionData<Vector, Precision, Args...>();
-    }
+    static FunctionData<Vector, Precision, Args...> get(function::loss id) noexcept;
 
     template <template <template <typename, typename...> class T1,
                         template <typename, typename...> class T2,
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Matrix, Precision, Args...> get(const char* optimization_function_name) noexcept
-    {
-        using namespace set::optimization;
-
-        std::map<const char*, data::OptimizationData<Vector, Matrix, Precision, Args...>> optimization_data;
-
-        optimization_data["momentum"] = { momentum, momentum };
-        optimization_data["rms_prop"] = { rms_prop, rms_prop };
-        optimization_data["ada_grad"] = { ada_grad, ada_grad };
-
-        auto it = optimization_data.find(optimization_function_name);
-
-        if(it != optimization_data.end())
-            return FunctionData<Vector, Matrix, Precision, Args...>(it->second.f1D, it->second.f2D);
-
-        return FunctionData<Vector, Matrix, Precision, Args...>();
-    }
+    static FunctionData<Vector, Matrix, Precision, Args...> get(function::optimization id) noexcept;
 };
+
+TRIXY_NEURO_MANAGER_TPL_DECLARATION
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>>
+FunctionData<Vector, Precision, Args...>
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::activation id) noexcept
+{
+    using namespace set::activation;
+    using namespace function;
+
+    switch (id)
+    {
+    case activation::sigmoid:
+        return { sigmoid, sigmoid_derived };
+    case activation::tanh:
+        return { tanh, tanh_derived };
+    case activation::relu:
+        return { relu, relu_derived };
+
+    case activation::elu:
+        return { elu, elu_derived };
+    case activation::lrelu:
+        return { lrelu, lrelu_derived };
+    case activation::selu:
+        return { selu, selu_derived };
+    case activation::gelu:
+        return { gelu, gelu_derived };
+
+    case activation::softsign:
+        return { softsign, softsign_derived };
+    case activation::softplus:
+        return { softplus, softplus_derived };
+    case activation::swish:
+        return { swish, swish_derived };
+
+    case activation::mod_relu:
+        return { mod_relu, mod_relu_derived };
+    case activation::mod_tanh:
+        return { mod_tanh, mod_tanh_derived };
+
+    case activation::softmax:
+        return { softmax, tensor_of_units };
+
+    case activation::unstable_softmax:
+        return { unstable_softmax, tensor_of_units };
+    case activation::sigmoid_:
+        return { sigmoid, tensor_of_units };
+
+    default:
+        return {};
+    }
+}
+
+TRIXY_NEURO_MANAGER_TPL_DECLARATION
+template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
+          meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>>
+FunctionData<Vector, Precision, Args...>
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::loss id) noexcept
+{
+    using namespace set::loss;
+    using namespace function;
+
+    switch (id)
+    {
+    case loss::MSE:
+        return { mean_squared_error, mean_squared_error_derived };
+    case loss::MAE:
+        return { mean_absolute_error, mean_absolute_error_derived };
+    case loss::CCE:
+        return { categorical_cross_entropy, categorical_cross_entropy_derived_softmax };
+
+    case loss::BCE:
+        return { binary_cross_entropy, binary_cross_entropy_derived_sigmoid };
+    case loss::MSLE:
+        return { mean_squared_log_error, mean_squared_log_error_derived };
+
+    case loss::LC:
+        return { logcosh, logcosh_derived };
+
+    case loss::CCE_:
+        return { categorical_cross_entropy, categorical_cross_entropy_derived };
+    case loss::BCE_:
+        return { binary_cross_entropy, binary_cross_entropy_derived };
+
+    default:
+        return {};
+    }
+}
+
+TRIXY_NEURO_MANAGER_TPL_DECLARATION
+template <template <template <typename, typename...> class T1,
+                    template <typename, typename...> class T2,
+                    typename P, typename...>
+          class FunctionData,
+          meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>>
+FunctionData<Vector, Matrix, Precision, Args...>
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::optimization id) noexcept
+{
+    using namespace set::optimization;
+    using namespace function;
+
+    switch (id)
+    {
+    case optimization::momentum:
+        return { momentum, momentum };
+
+    case optimization::rms_prop:
+        return { rms_prop, rms_prop };
+    case optimization::ada_grad:
+        return { ada_grad, ada_grad };
+
+    default:
+        return {};
+    }
+}
 
 } // namespace trixy
 
 // clean up
-#undef TRIXY_TENSOR_FUNCTION_DECLARATION
-#undef TRIXY_VECTOR_FUNCTION_DECLARATION
+#undef TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
+#undef TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
+#undef TRIXY_NEURO_MANAGER_TPL_DECLARATION
+#undef TRIXY_NEURO_MANAGER_DECLARATION
 #undef TRIXY_FUNCTION_GENERIC_HELPER
 
 #endif // NEURO_FUNCTIONAL_HPP

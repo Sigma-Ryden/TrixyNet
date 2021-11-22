@@ -1,6 +1,7 @@
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time
 #include <iostream> // cin, cout
+#include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
 
 #include "Trixy/Lique/lique_linear.hpp" // Linear
@@ -9,6 +10,7 @@
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
 #include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
+#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
 
 #include "Trixy/Container/container.hpp" // Container
 
@@ -36,23 +38,77 @@ Precision random_normal() noexcept
 }
 
 template <typename Precision>
+void simple_test_des()
+{
+    using namespace trixy::function;
+
+    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+
+
+    std::ifstream in("D:\\test.bin", std::ios::binary);
+    if(!in.is_open()) return;
+
+    NeuralSerializer sr;
+
+    sr.deserialize(in);
+
+    NeuralFeedForward net = sr.getTopology();
+    NeuralManager manage;
+
+    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
+
+    net.setActivationFunction(manage.template get<Activation>(activation::relu));
+    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
+    net.setLossFunction(manage.template get<Loss>(loss::CCE));
+
+    Container<li::Vector<Precision>> train_in
+    {
+        {1, 0, 1, 1},
+        {1, 1, 1, 0},
+        {1, 1, 0, 1},
+        {0, 1, 1, 0},
+        {1, 0, 1, 0},
+        {0, 0, 1, 1}
+    };
+    Container<li::Vector<Precision>> train_out
+    {
+        {1, 0, 0},
+        {0, 1, 0},
+        {1, 0, 0},
+        {0, 0, 1},
+        {0, 1, 0},
+        {1, 0, 0}
+    };
+
+    utils::testNeuro(net, train_in, train_out);
+
+    std::cout << "Loss: " << net.loss(train_in, train_out) << '\n';
+    std::cout << "Normal accuracy: " << net.accuracy(train_in, train_out) << '\n';
+    std::cout << "Global accuracy: " << net.globalAccuracy(train_in, train_out, 0.05) << '\n';
+    std::cout << "Full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
+}
+
+template <typename Precision>
 void simple_test()
 {
     using namespace trixy::function;
 
     using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
     using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
-    NeuralFeedForward net = {4, 4, 5, 4, 3};
+    NeuralFeedForward net({4, 4, 5, 4, 3});
     NeuralManager manage;
 
     net.initializeInnerStruct(random_real);
 
-    net.setActivationFunction(manage.template get<Activation>("relu"));
-    net.setNormalizationFunction(manage.template get<Activation>("softmax"));
+    net.setActivationFunction(manage.template get<Activation>(activation::relu));
+    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
 
-    net.setLossFunction(manage.template get<Loss>("CCE"));
-    net.setOptimizationFunction(manage.template get<Optimization>("momentum"));
+    net.setLossFunction(manage.template get<Loss>(loss::CCE));
+    net.setOptimizationFunction(manage.template get<Optimization>(optimization::momentum));
 
     Container<li::Vector<Precision>> train_in
     {
@@ -77,19 +133,18 @@ void simple_test()
     utils::testNeuro(net, train_in, train_out);
 
     Timer t;
-    //
+    /*
     net.trainBatch(train_in, train_out, 0.15, 100000);
     net.trainMiniBatch(train_in, train_out, 0.15, 100000, 2, std::rand);
-    net.trainStochastic(train_in, train_out, 0.1, 100000, std::rand);
-    //
-    /*
-    for(int i = 1; i <= 4; ++i)
-    {
-
-        net.trainOptimize(train_in, train_out, 0.15, 500, 6, std::rand);
-        //std::cout << '<' << i << "> Loss: " << net.loss(train_in_set, train_out_set) << '\n';
-    }
+    net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
     */
+    //
+    for(int i = 1; i <= 10; ++i)
+    {
+        net.trainOptimize(train_in, train_out, 0.1, 100, 6, std::rand);
+        std::cout << '<' << i << "> Loss: " << net.loss(train_in, train_out) << '\n';
+    }
+    //
     std::cout << t.elapsed() << '\n';
     std::cout << "After train\n";
 
@@ -98,6 +153,16 @@ void simple_test()
     std::cout << "Global accuracy: " << net.globalAccuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "Full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "Loss: " << net.loss(train_in, train_out) << '\n';
+
+    std::ofstream out("D:\\test.bin", std::ios::binary);
+    if(!out.is_open()) return;
+
+    NeuralSerializer sr;
+
+    sr.prepare(net.getInnerBias(), net.getInnerWeight());
+    sr.serialize(out);
+
+    std::cout << "END\n";
 }
 
 void simple_test2()
@@ -105,15 +170,16 @@ void simple_test2()
     // Creating Neural Network
     using namespace trixy::function;
 
-    tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, double> net = {2, 2, 2};
+    tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, double> net({2, 2, 2});
+
     tr::NeuroManager<li::Vector, li::Matrix, double> manage;
 
     net.initializeInnerStruct(random_real);
 
-    net.setActivationFunction(manage.get<Activation>("relu"));
-    net.setNormalizationFunction(manage.get<Activation>("softmax"));
-    net.setLossFunction(manage.get<Loss>("CCE"));
-    net.setOptimizationFunction(manage.get<Optimization>("ada_grad"));
+    net.setActivationFunction(manage.get<Activation>(activation::relu));
+    net.setNormalizationFunction(manage.get<Activation>(activation::softmax));
+    net.setLossFunction(manage.get<Loss>(loss::CCE));
+    //net.setOptimizationFunction(manage.get<Optimization>(optimization::ada_grad));
 
     // Train set (in/out)
     Container<li::Vector<double>> train_in
