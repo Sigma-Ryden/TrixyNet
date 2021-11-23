@@ -2,6 +2,7 @@
 #define NEURO_CORE_HPP
 
 #include <cstddef> // size_t
+#include <cstdint> // uint8_t
 #include <cmath> // fabs
 
 namespace trixy
@@ -77,15 +78,16 @@ class Activation
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
-    using size_type = std::size_t;
-		
+    using byte_type = std::uint8_t;
+
 public:
-    size_type id;
+    byte_type id;
+
     void (*f)(Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&);
 
     Activation(
-        size_type f_id = 0,
+        byte_type f_id = 0,
         void (*function)(Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : id(f_id), f(function), df(function_derived) {}
@@ -96,15 +98,16 @@ class Loss
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
-    using size_type = std::size_t;
+    using byte_type = std::uint8_t;
 		
 public:
-    size_type id;
+    byte_type id;
+
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
     Loss(
-        size_type f_id = 0,
+        byte_type f_id = 0,
         Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
     : id(f_id), f(function), df(function_derived) {}
@@ -116,15 +119,17 @@ class Optimization
 private:
     using Tensor1D  = Vector<Precision, Args...>;
     using Tensor2D  = Matrix<Precision, Args...>;
-    using size_type = std::size_t;
+
+    using byte_type = std::uint8_t;
 		
 public:
-    size_type id;
+    byte_type id;
+
     void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
     void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
     Optimization(
-        size_type f_id = 0,
+        byte_type f_id = 0,
         void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
         void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
     : id(f_id), f1D(vector_optimizer), f2D(matrix_optimizer) {}
@@ -346,12 +351,11 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
     const Container<Vector<Precision, Args...>>& B,
     const Container<Matrix<Precision, Args...>>& W)
 {
-    H[0].resize(B[size_ - 1].size());
-    for(size_type i = 1; i < size_; ++i)
-        H[i].resize(B[i - 1].size());
-
+    //H[0].resize(B[size_ - 1].size());
+    //for(size_type i = 0; i < size_; ++i)
     for(size_type i = 0; i < size_; ++i)
     {
+        H[i].resize(B[i].size());
         B1[i].resize(B[i].size());
         DH[i].resize(B[i].size());
         DB[i].resize(B[i].size());
@@ -760,19 +764,22 @@ TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerFeedForward(
     const Vector<Precision, Args...>& idata_sample) const noexcept
 {
-    size_type i = 0;
+    static size_type i;
+    static size_type j;
 
     li.dot(ib.B1[0], idata_sample, W[0]);
     ib.B1[0].add(B[0]);
-    for(size_type j = 1; j < N; ++j, ++i)
+
+    for(i = 0, j = 1; j < N; ++i, ++j)
     {
-        A[i]. f(ib .H[j], ib.B1[i]);
+        A[i]. f(ib .H[i], ib.B1[i]);
         A[i].df(ib.DH[i], ib.B1[i]);
 
-        li.dot(ib.B1[j], ib.H[j], W[j]);
+        li.dot(ib.B1[j], ib.H[i], W[j]);
         ib.B1[j].add(B[j]);
     }
-    A[i]. f(ib. H[0], ib.B1[i]);
+
+    A[i]. f(ib. H[i], ib.B1[i]);
     A[i].df(ib.DH[i], ib.B1[i]);
 }
 
@@ -781,14 +788,19 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
     const Vector<Precision, Args...>& idata_sample,
     const Vector<Precision, Args...>& odata_sample) const noexcept
 {
-    E.df(ib.B1[N - 1], odata_sample, ib.H[0]);
-    for(size_type i = N - 1; i > 0; --i)
+    static size_type i;
+
+    i = N - 1;
+    E.df(ib.B1[i], odata_sample, ib.H[i]);
+
+    for(; i > 0; --i)
     {
         ib.DB[i].multiply(ib.B1[i], ib.DH[i]);
-        li.tensordot(ib.DW[i], ib.H[i], ib.DB[i]);
+        li.tensordot(ib.DW[i], ib.H[i - 1], ib.DB[i]);
 
         li.dottranspose(ib.B1[i - 1], ib.DB[i], W[i]);
     }
+
     ib.DB[0].multiply(ib.B1[0], ib.DH[0]);
     li.tensordot(ib.DW[0], idata_sample, ib.B1[0]);
 }

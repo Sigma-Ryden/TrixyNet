@@ -51,6 +51,7 @@ void simple_test_des()
     NeuralSerializer sr;
 
     sr.deserialize(in);
+    in.close();
 
     NeuralFeedForward net = sr.getTopology();
     NeuralManager manage;
@@ -106,7 +107,7 @@ void simple_test()
     net.setNormalizationFunction(manage.template get<Activation>(activation_id::softmax));
 
     net.setLossFunction(manage.template get<Loss>(loss_id::CCE));
-    //net.setOptimizationFunction(manage.template get<Optimization>(optimization_id::ada_grad));
+    net.setOptimizationFunction(manage.template get<Optimization>(optimization_id::ada_grad));
 
     Container<li::Vector<Precision>> train_in
     {
@@ -134,9 +135,9 @@ void simple_test()
     //
     //net.trainBatch(train_in, train_out, 0.15, 100000);
     //net.trainMiniBatch(train_in, train_out, 0.15, 100000, 2, std::rand);
-    net.trainStochastic(train_in, train_out, 0.15, 1000, std::rand);
+    //net.trainStochastic(train_in, train_out, 0.15, 1500, std::rand);
     //
-    //net.trainOptimize(train_in, train_out, 0.1, 500, 6, std::rand);
+    net.trainOptimize(train_in, train_out, 0.1, 1500, 6, std::rand);
     /*
     for(int i = 1; i <= 10; ++i)
     {
@@ -160,6 +161,7 @@ void simple_test()
 
     sr.prepare(net);
     sr.serialize(out);
+    out.close();
 
     std::cout << "END\n";
 }
@@ -179,6 +181,7 @@ void simple_test2_des()
     NeuralSerializer sr;
 
     sr.deserialize(in);
+    in.close();
 
     NeuralFeedForward net = sr.getTopology();
     NeuralManager manage;
@@ -265,6 +268,16 @@ void simple_test2()
     std::cout << "NNetwork tarin global accuracy: " << net.globalAccuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "NNetwork tarin Loss: " << net.loss(train_in, train_out) << '\n';
+
+    std::ofstream out("D:\\simpe_test2.bin");
+
+    if(!out.is_open()) return;
+
+    NeuralSerializer sr;
+
+    sr.prepare(net);
+    sr.serialize(out);
+    out.close();
 }
 
 //
@@ -281,3 +294,5 @@ int main()
     return 0;
 }
 //
+
+//0.015621

@@ -2,6 +2,7 @@
 #define NEURO_FUNCTIONAL_HPP
 
 #include <cstddef> // size_t
+#include <cstdint> // uint_8
 #include <cmath> // sqrt, pow, exp, log, fabs, tanh, cosh
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same
@@ -628,8 +629,8 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 
 namespace function
 {
-	
-enum class activation_id
+
+enum class activation_id : std::uint8_t
 {
     null,              ///< null value
     sigmoid,
@@ -649,7 +650,7 @@ enum class activation_id
     sigmoid_           ///< maybe unused
 };
 
-enum class loss_id
+enum class loss_id : std::uint8_t
 {
     null,  ///< null value
     MSE,   ///< mean squared error
@@ -662,7 +663,7 @@ enum class loss_id
     BCE_   ///< binary_cross_entropy (maybe unused)
 };
 
-enum class optimization_id
+enum class optimization_id : std::uint8_t
 {
     null,      ///< null value
     momentum,  ///< mpmentum
@@ -676,7 +677,7 @@ TRIXY_NEURO_MANAGER_TPL_DECLARATION
 class NeuroManager
 {
 public:
-    using size_type = std::size_t;
+    using byte_type = std::uint8_t;
 
 public:
     template <template <template <typename, typename...> class T,
@@ -708,9 +709,9 @@ FunctionData<Vector, Precision, Args...>
     using namespace set::activation;
     using namespace function;
 
-    static size_type f_id;
+    static byte_type f_id;
 
-    f_id = static_cast<decltype(f_id)>(id);
+    f_id = static_cast<byte_type>(id);
 
     switch (id)
     {
@@ -751,7 +752,7 @@ FunctionData<Vector, Precision, Args...>
         return { f_id, sigmoid, tensor_of_units };
 
     default:
-        return { static_cast<size_type>(activation_id::null), nullptr, nullptr };
+        return { static_cast<byte_type>(activation_id::null), nullptr, nullptr };
     }
 }
 
@@ -764,7 +765,7 @@ FunctionData<Vector, Precision, Args...>
     using namespace set::loss;
     using namespace function;
 
-    static size_type f_id;
+    static byte_type f_id;
 
     f_id = static_cast<decltype(f_id)>(id);
 
@@ -791,7 +792,7 @@ FunctionData<Vector, Precision, Args...>
         return { f_id, binary_cross_entropy, binary_cross_entropy_derived };
 
     default:
-        return { static_cast<size_type>(loss_id::null), nullptr, nullptr };
+        return { static_cast<byte_type>(loss_id::null), nullptr, nullptr };
     }
 }
 
@@ -807,9 +808,9 @@ FunctionData<Vector, Matrix, Precision, Args...>
     using namespace set::optimization;
     using namespace function;
 
-    static size_type f_id;
+    static byte_type f_id;
 
-    f_id = static_cast<decltype(f_id)>(id);
+    f_id = static_cast<byte_type>(id);
 
     switch (id)
     {
@@ -822,7 +823,7 @@ FunctionData<Vector, Matrix, Precision, Args...>
         return { f_id, ada_grad, ada_grad };
 
     default:
-        return { static_cast<size_type>(optimization_id::null), nullptr, nullptr };
+        return { static_cast<byte_type>(optimization_id::null), nullptr, nullptr };
     }
 }
 
