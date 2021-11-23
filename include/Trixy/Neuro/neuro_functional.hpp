@@ -5,7 +5,7 @@
 #include <cstdint> // uint_8
 #include <cmath> // sqrt, pow, exp, log, fabs, tanh, cosh
 #include <utility> // declval
-#include <type_traits> // enable_if, is_same
+#include <type_traits> // enable_if, is_same, true_type
 #include <fstream> // ifstream, ofstream
 
 namespace trixy

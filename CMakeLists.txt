@@ -10,6 +10,7 @@ include_directories(include)
 set(TESTING
     src/simple_test.cpp
     src/mnist_test.cpp
+    src/speed_test.cpp
 )
 set(TRIXY_COLLECTION
     include/Trixy/Container/container.hpp
@@ -38,7 +39,7 @@ set(TIMER
 )
 
 set(UTILS
-    include/UtilityMaster/utils.hpp
+    include/UtilityMaster/util.hpp
 )
 
 add_executable(${PROJECT_NAME}

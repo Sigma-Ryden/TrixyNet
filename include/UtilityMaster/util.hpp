@@ -1,10 +1,13 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef UTIL_HPP
+#define UTIL_HPP
 
 #include <cstddef> // size_t
 #include <iostream> // ostream
 #include <type_traits> // enable_if, is_same
 #include <utility> // declval
+
+namespace util
+{
 
 template <template <typename T, typename...> class Tensor1D, typename Type, typename... Args,
           typename std::enable_if<
@@ -48,9 +51,6 @@ std::ostream& operator<< (
     return out;
 }
 
-namespace utils
-{
-
 template <typename Neuro,
           template <typename T, typename...> class Tensor1D,
           template <typename...> class Collection,
@@ -64,6 +64,35 @@ void testNeuro(
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
             << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
+}
+
+template <typename Neuro,
+          template <typename T, typename...> class Tensor1D,
+          template <typename...> class Collection,
+          typename Type,
+          typename... Args>
+void checkNeuro(
+    const Neuro& network,
+    const Collection<Tensor1D<Type, Args...>>& idata,
+    const Collection<Tensor1D<Type, Args...>>& odata)
+{
+    std::cout << "NNetwork tarin normal accuracy: "   << network.accuracy(idata, odata)
+              << "\nNNetwork tarin global accuracy: " << network.globalAccuracy(idata, odata, 0.05)
+              << "\nNNetwork tarin full accuracy: "   << network.fullAccuracy(idata, odata, 0.05)
+              << "\nNNetwork tarin Loss: "            << network.loss(idata, odata) << '\n';
+}
+
+template <template <typename, typename...> class Tensor1D, typename Precision, typename... Args>
+std::size_t max(const Tensor1D<Precision, Args...>& vector) noexcept
+{
+    static std::size_t max;
+
+    max = 0;
+    for(std::size_t i = 1; i < vector.size(); ++i)
+        if(vector(max) < vector(i))
+            max = i;
+
+    return max;
 }
 
 template <typename Neuro>
@@ -92,6 +121,6 @@ void network_size(const Collection<std::size_t>& topology)
               << count % 1024 << " Byte(s)\n";
 }
 
-} // namespace utils
+} // namespace util
 
-#endif // UTILS_HPP
+#endif // UTIL_HPP
