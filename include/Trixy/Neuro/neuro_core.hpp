@@ -77,17 +77,18 @@ class Activation
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
-    //using size_type = std::size_t;
+    using size_type = std::size_t;
 		
 public:
-    //size_type id;
+    size_type id;
     void (*f)(Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&);
 
     Activation(
+        size_type f_id = 0,
         void (*function)(Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
-    : f(function), df(function_derived) {}
+    : id(f_id), f(function), df(function_derived) {}
 };
 
 TRIXY_FUNCTION_LOSS_TPL_DECLARATION
@@ -95,17 +96,18 @@ class Loss
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
-    //using size_type = std::size_t;
+    using size_type = std::size_t;
 		
 public:
-    //size_type id;
+    size_type id;
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
     Loss(
+        size_type f_id = 0,
         Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
         void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
-    : f(function), df(function_derived) {}
+    : id(f_id), f(function), df(function_derived) {}
 };
 
 TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
@@ -114,17 +116,18 @@ class Optimization
 private:
     using Tensor1D  = Vector<Precision, Args...>;
     using Tensor2D  = Matrix<Precision, Args...>;
-    //using size_type = std::size_t;
+    using size_type = std::size_t;
 		
 public:
-    //size_type id;
+    size_type id;
     void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
     void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
     Optimization(
+        size_type f_id = 0,
         void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
         void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
-    : f1D(vector_optimizer), f2D(matrix_optimizer) {}
+    : id(f_id), f1D(vector_optimizer), f2D(matrix_optimizer) {}
 };
 
 } // namespace function
