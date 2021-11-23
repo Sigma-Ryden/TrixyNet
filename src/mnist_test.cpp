@@ -11,8 +11,7 @@
 #include "Trixy/Container/container.hpp" // Container
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager
-#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager, NeuroSerializer
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
@@ -131,9 +130,9 @@ void mnist_test_des()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.setActivationFunction(manage.template get<Activation>(activation::relu));
-    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
-    net.setLossFunction(manage.template get<Loss>(loss::CCE));
+    net.setActivationFunction(manage.template get<Activation>(sr.getActivationId()));
+    net.setNormalizationFunction(manage.template get<Activation>(sr.getNormalizationId()));
+    net.setLossFunction(manage.template get<Loss>(sr.getLossId()));
 
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
@@ -197,11 +196,11 @@ void mnist_test()
 
     net.initializeInnerStruct(random_real);
 
-    net.setActivationFunction(manage.template get<Activation>(activation::relu));
-    net.setNormalizationFunction(manage.template get<Activation>(activation::softmax));
+    net.setActivationFunction(manage.template get<Activation>(activation_id::relu));
+    net.setNormalizationFunction(manage.template get<Activation>(activation_id::softmax));
 
-    net.setLossFunction(manage.template get<Loss>(loss::CCE));
-    //net.setOptimizationFunction(manage.template get<Optimization>(optimization::momentum));
+    net.setLossFunction(manage.template get<Loss>(loss_id::CCE));
+    //net.setOptimizationFunction(manage.template get<Optimization>(optimization_id::momentum));
 
     // Train network:
     Timer t;
@@ -234,13 +233,13 @@ void mnist_test()
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
-    sr.prepare(net.getInnerBias(), net.getInnerWeight());
+    sr.prepare(net);
     sr.serialize(out);
 
     std::cout << "END\n";
 }
 
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -253,4 +252,4 @@ int main()
 
     return 0;
 }
-//
+*/

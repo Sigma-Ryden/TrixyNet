@@ -609,6 +609,18 @@ struct is_optimization_data
         std::is_same<decltype(std::declval<FunctionData_t>().f2D), void (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
 };
 
+template <typename Neuro, decltype(
+    std::declval<Neuro>().getTopology(),
+    std::declval<Neuro>().getInnerBias(),
+    std::declval<Neuro>().getInnerWeight(),
+    std::declval<Neuro>().getEachActivationFunction(),
+    std::declval<Neuro>().getLossFunction(),
+    std::declval<Neuro>().getOptimizationFunction(),
+    int()) = 0>
+struct is_serializable_neuro : std::true_type
+{
+};
+
 template <bool condition, typename T = void>
 using enable_if_t = typename std::enable_if<condition, T>::type;
 
@@ -617,8 +629,9 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 namespace function
 {
 	
-enum class activation
+enum class activation_id
 {
+    null,              ///< null value
     sigmoid,
     tanh,
     relu,
@@ -632,27 +645,29 @@ enum class activation
     softmax,
     mod_relu,
     mod_tanh,
-    unstable_softmax,
-    sigmoid_
+    unstable_softmax,  ///< deprecated
+    sigmoid_           ///< maybe unused
 };
 
-enum class loss
+enum class loss_id
 {
-    MSE,
-    MAE,
-    CCE,
-    BCE,
-    MSLE,
-    LC,
-    CCE_,
-    BCE_
+    null,  ///< null value
+    MSE,   ///< mean squared error
+    MAE,   ///< mean absolute error
+    CCE,   ///< categorical cross entropy (for softmax)
+    BCE,   ///< binary cross entropy (for sigmoid)
+    MSLE,  ///< mean squared logarithmic error
+    LC,    ///< logcosh (maybe unused)
+    CCE_,  ///< categorical cross entropy (deprecated)
+    BCE_   ///< binary_cross_entropy (maybe unused)
 };
 
-enum class optimization
+enum class optimization_id
 {
-    momentum,
-    rms_prop,
-    ada_grad
+    null,      ///< null value
+    momentum,  ///< mpmentum
+    rms_prop,  ///< root mean square propagation (RMSProp)
+    ada_grad   ///< adaptive Gradient Algorithm (Adagrad)
 };
 
 } // namespace function
@@ -668,75 +683,75 @@ public:
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(function::activation id) noexcept;
+    static FunctionData<Vector, Precision, Args...> get(function::activation_id id) noexcept;
 
     template <template <template <typename, typename...> class T,
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(function::loss id) noexcept;
+    static FunctionData<Vector, Precision, Args...> get(function::loss_id id) noexcept;
 
     template <template <template <typename, typename...> class T1,
                         template <typename, typename...> class T2,
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Matrix, Precision, Args...> get(function::optimization id) noexcept;
+    static FunctionData<Vector, Matrix, Precision, Args...> get(function::optimization_id id) noexcept;
 };
 
 TRIXY_NEURO_MANAGER_TPL_DECLARATION
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>>
 FunctionData<Vector, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::activation id) noexcept
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::activation_id id) noexcept
 {
     using namespace set::activation;
     using namespace function;
 
     static size_type f_id;
 
-    f_id = static_cast<size_type>(id);
+    f_id = static_cast<decltype(f_id)>(id);
 
     switch (id)
     {
-    case activation::sigmoid:
+    case activation_id::sigmoid:
         return { f_id, sigmoid, sigmoid_derived };
-    case activation::tanh:
+    case activation_id::tanh:
         return { f_id, tanh, tanh_derived };
-    case activation::relu:
+    case activation_id::relu:
         return { f_id, relu, relu_derived };
 
-    case activation::elu:
+    case activation_id::elu:
         return { f_id, elu, elu_derived };
-    case activation::lrelu:
+    case activation_id::lrelu:
         return { f_id, lrelu, lrelu_derived };
-    case activation::selu:
+    case activation_id::selu:
         return { f_id, selu, selu_derived };
-    case activation::gelu:
+    case activation_id::gelu:
         return { f_id, gelu, gelu_derived };
 
-    case activation::softsign:
+    case activation_id::softsign:
         return { f_id, softsign, softsign_derived };
-    case activation::softplus:
+    case activation_id::softplus:
         return { f_id, softplus, softplus_derived };
-    case activation::swish:
+    case activation_id::swish:
         return { f_id, swish, swish_derived };
 
-    case activation::mod_relu:
+    case activation_id::mod_relu:
         return { f_id, mod_relu, mod_relu_derived };
-    case activation::mod_tanh:
+    case activation_id::mod_tanh:
         return { f_id, mod_tanh, mod_tanh_derived };
 
-    case activation::softmax:
+    case activation_id::softmax:
         return { f_id, softmax, tensor_of_units };
 
-    case activation::unstable_softmax:
+    case activation_id::unstable_softmax:
         return { f_id, unstable_softmax, tensor_of_units };
-    case activation::sigmoid_:
+    case activation_id::sigmoid_:
         return { f_id, sigmoid, tensor_of_units };
 
     default:
-        return { 0, nullptr, nullptr };
+        return { static_cast<size_type>(activation_id::null), nullptr, nullptr };
     }
 }
 
@@ -744,39 +759,39 @@ TRIXY_NEURO_MANAGER_TPL_DECLARATION
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>>
 FunctionData<Vector, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::loss id) noexcept
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::loss_id id) noexcept
 {
     using namespace set::loss;
     using namespace function;
 
     static size_type f_id;
 
-    f_id = static_cast<size_type>(id);
+    f_id = static_cast<decltype(f_id)>(id);
 
     switch (id)
     {
-    case loss::MSE:
+    case loss_id::MSE:
         return { f_id, mean_squared_error, mean_squared_error_derived };
-    case loss::MAE:
+    case loss_id::MAE:
         return { f_id, mean_absolute_error, mean_absolute_error_derived };
-    case loss::CCE:
+    case loss_id::CCE:
         return { f_id, categorical_cross_entropy, categorical_cross_entropy_derived_softmax };
 
-    case loss::BCE:
+    case loss_id::BCE:
         return { f_id, binary_cross_entropy, binary_cross_entropy_derived_sigmoid };
-    case loss::MSLE:
+    case loss_id::MSLE:
         return { f_id, mean_squared_log_error, mean_squared_log_error_derived };
 
-    case loss::LC:
+    case loss_id::LC:
         return { f_id, logcosh, logcosh_derived };
 
-    case loss::CCE_:
+    case loss_id::CCE_:
         return { f_id, categorical_cross_entropy, categorical_cross_entropy_derived };
-    case loss::BCE_:
+    case loss_id::BCE_:
         return { f_id, binary_cross_entropy, binary_cross_entropy_derived };
 
     default:
-        return { 0, nullptr, nullptr };
+        return { static_cast<size_type>(loss_id::null), nullptr, nullptr };
     }
 }
 
@@ -787,27 +802,27 @@ template <template <template <typename, typename...> class T1,
           class FunctionData,
           meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>>
 FunctionData<Vector, Matrix, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::optimization id) noexcept
+    TRIXY_NEURO_MANAGER_DECLARATION::get(function::optimization_id id) noexcept
 {
     using namespace set::optimization;
     using namespace function;
 
     static size_type f_id;
 
-    f_id = static_cast<size_type>(id);
+    f_id = static_cast<decltype(f_id)>(id);
 
     switch (id)
     {
-    case optimization::momentum:
+    case optimization_id::momentum:
         return { f_id, momentum, momentum };
 
-    case optimization::rms_prop:
+    case optimization_id::rms_prop:
         return { f_id, rms_prop, rms_prop };
-    case optimization::ada_grad:
+    case optimization_id::ada_grad:
         return { f_id, ada_grad, ada_grad };
 
     default:
-        return { 0, nullptr, nullptr };
+        return { static_cast<size_type>(optimization_id::null), nullptr, nullptr };
     }
 }
 
@@ -817,6 +832,7 @@ class NeuroSerializer
 public:
     using Tensor1D  = Vector<Precision, Args...>;
     using Tensor2D  = Matrix<Precision, Args...>;
+
     using size_type = std::size_t;
 
 private:
@@ -825,16 +841,18 @@ private:
     Container<Tensor1D> B;
     Container<Tensor2D> W;
 
-    size_type A;
     size_type N;
-    size_type L;
-    size_type O;
+
+    Container<function::activation_id> A;
+    function::loss_id L;
+    function::optimization_id O;
 
 public:
     NeuroSerializer() = default;
 
-    void prepare(const Container<Tensor1D>& bias,
-                 const Container<Tensor2D>& weight);
+    template <typename Neuro>
+    meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
+    prepare(const Neuro& net);
 
     void serialize(std::ofstream& out) const;
     void deserialize(std::ifstream& in);
@@ -843,41 +861,57 @@ public:
     const Container<Tensor1D>& getBias() const noexcept;
     const Container<Tensor2D>& getWeight() const noexcept;
 
-    const function::activation getActivationId() const noexcept;
-    const function::activation getNormalizationId() const noexcept;
-    const function::loss getLossId() const noexcept;
-    const function::optimization getOptimizationId() const noexcept;
+    const function::activation_id getActivationId() const noexcept;
+    const function::activation_id getNormalizationId() const noexcept;
+    const Container<function::activation_id> getEachActivationId() const noexcept;
+
+    const function::loss_id getLossId() const noexcept;
+    const function::optimization_id getOptimizationId() const noexcept;
 };
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-void TRIXY_NEURO_SERIALIZER_TPL::prepare(
-    const Container<Tensor1D>& bias,
-    const Container<Tensor2D>& weight)
+template <typename Neuro>
+meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
+TRIXY_NEURO_SERIALIZER_TPL::prepare(
+    const Neuro& net)
 {
-    topology.resize(weight.size() + 1);
+    topology = net.getTopology();
 
-    topology[0] = weight[0].size().row();
-    for(size_type i = 1; i < topology.size(); ++i)
-        topology[i] = weight[i - 1].size().col();
+    B = net.getInnerBias();
+    W = net.getInnerWeight();
 
-    B = bias;
-    W = weight;
+    N = B.size();
+
+    A.resize(N);
+    for(size_type i = 0; i < N; ++i)
+        A[i] = static_cast<function::activation_id>(net.getEachActivationFunction()[i].id);
+
+    L = static_cast<function::loss_id>(net.getLossFunction().id);
+    O = static_cast<function::optimization_id>(net.getOptimizationFunction().id);
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
 void TRIXY_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
 {
-    size_type topology_size = topology.size();
+    static size_type topology_size;
+
+    topology_size = topology.size();
     out.write(reinterpret_cast<const char*>(&topology_size), sizeof(size_type));
 
-    for(size_type n = 0; n < topology.size(); ++n)
+    for(size_type n = 0; n < topology_size; ++n)
         out.write(reinterpret_cast<const char*>(&topology[n]), sizeof(size_type));
 
-    for(size_type n = 0; n < B.size(); ++n)
+    for(size_type n = 0; n < N; ++n)
+        out.write(reinterpret_cast<const char*>(&A[n]), sizeof(function::activation_id));
+
+    out.write(reinterpret_cast<const char*>(&L), sizeof(function::loss_id));
+    out.write(reinterpret_cast<const char*>(&O), sizeof(function::optimization_id));
+
+    for(size_type n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
             out.write(reinterpret_cast<const char*>(&B[n](i)), sizeof(Precision));
 
-    for(size_type n = 0; n < W.size(); ++n)
+    for(size_type n = 0; n < N; ++n)
         for(size_type i = 0; i < W[n].size().row(); ++i)
             for(size_type j = 0; j < W[n].size().col(); ++j)
                 out.write(reinterpret_cast<const char*>(&W[n](i, j)), sizeof(Precision));
@@ -886,27 +920,37 @@ void TRIXY_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
 void TRIXY_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
 {
-    size_type topology_size;
+    static size_type topology_size;
+
     in.read(reinterpret_cast<char*>(&topology_size), sizeof(size_type));
 
     topology.resize(topology_size);
     for(size_type n = 0; n < topology_size; ++n)
         in.read(reinterpret_cast<char*>(&topology[n]), sizeof(size_type));
 
-    B.resize(topology_size - 1);
-    W.resize(topology_size - 1);
+    N = topology_size - 1;
 
-    for(size_type n = 0; n < B.size(); ++n)
+    A.resize(N);
+    B.resize(N);
+    W.resize(N);
+
+    for(size_type n = 0; n < N; ++n)
     {
         B[n].resize(topology[n + 1]);
         W[n].resize(topology[n], topology[n + 1]);
     }
 
-    for(size_type n = 0; n < B.size(); ++n)
+    for(size_type n = 0; n < N; ++n)
+        in.read(reinterpret_cast<char*>(&A[n]), sizeof(function::activation_id));
+
+    in.read(reinterpret_cast<char*>(&L), sizeof(function::loss_id));
+    in.read(reinterpret_cast<char*>(&O), sizeof(function::optimization_id));
+
+    for(size_type n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
             in.read(reinterpret_cast<char*>(&B[n](i)), sizeof(Precision));
 
-    for(size_type n = 0; n < W.size(); ++n)
+    for(size_type n = 0; n < N; ++n)
         for(size_type i = 0; i < W[n].size().row(); ++i)
             for(size_type j = 0; j < W[n].size().col(); ++j)
                 in.read(reinterpret_cast<char*>(&W[n](i, j)), sizeof(Precision));
@@ -934,27 +978,34 @@ inline const Container<Matrix<Precision, Args...>>&
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::activation TRIXY_NEURO_SERIALIZER_TPL::getActivationId() const noexcept
+inline const function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getActivationId() const noexcept
 {
-    return static_cast<function::activation>(A);
+    return static_cast<function::activation_id>(A[0]);
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::activation TRIXY_NEURO_SERIALIZER_TPL::getNormalizationId() const noexcept
+inline const function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getNormalizationId() const noexcept
 {
-    return static_cast<function::activation>(N);
+    return A[A.size() - 1];
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::loss TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
+inline const Container<function::activation_id>
+    TRIXY_NEURO_SERIALIZER_TPL::getEachActivationId() const noexcept
 {
-    return static_cast<function::loss>(L);
+    return A;
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::optimization TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() const noexcept
+inline const function::loss_id TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
 {
-    return static_cast<function::optimization>(O);
+    return L;
+}
+
+TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+inline const function::optimization_id TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() const noexcept
+{
+    return O;
 }
 
 } // namespace trixy
@@ -964,6 +1015,8 @@ inline const function::optimization TRIXY_NEURO_SERIALIZER_TPL::getOptimizationI
 #undef TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 #undef TRIXY_NEURO_MANAGER_TPL_DECLARATION
 #undef TRIXY_NEURO_MANAGER_DECLARATION
+#undef TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+#undef TRIXY_NEURO_SERIALIZER_TPL
 #undef TRIXY_FUNCTION_GENERIC_HELPER
 
 #endif // NEURO_FUNCTIONAL_HPP
