@@ -269,7 +269,7 @@ void simple_test2()
     std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.05) << '\n';
     std::cout << "NNetwork tarin Loss: " << net.loss(train_in, train_out) << '\n';
 
-    std::ofstream out("D:\\simpe_test2.bin");
+    std::ofstream out("D:\\simple_test2.bin");
 
     if(!out.is_open()) return;
 
@@ -286,8 +286,8 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    simple_test_des<float>();
-    //simple_test2();
+    //simple_test<float>();
+    simple_test2_des();
 
     std::cin.get();
 
