@@ -59,9 +59,9 @@ void speed_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.setActivationFunction(manage.get<Activation>(sr.getActivationId()));
-    net.setNormalizationFunction(manage.get<Activation>(sr.getNormalizationId()));
-    net.setLossFunction(manage.get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
+    net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
+    net.function.setLoss(manage.get<Loss>(sr.getLossId()));
 
     Container<li::Vector<float>> train_in
     {
@@ -97,11 +97,11 @@ void speed_test()
 
     net.initializeInnerStruct(random_real);
 
-    net.setActivationFunction(manage.get<Activation>(activation_id::relu));
-    net.setNormalizationFunction(manage.get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.get<Activation>(activation_id::relu));
+    net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
+    net.function.setLoss(manage.get<Loss>(loss_id::CCE));
 
-    net.setLossFunction(manage.get<Loss>(loss_id::CCE));
-    net.setOptimizationFunction(manage.get<Optimization>(optimization_id::ada_grad));
+    net.function.setOptimization(manage.get<Optimization>(optimization_id::ada_grad));
 
     Container<li::Vector<float>> train_in
     {
@@ -152,7 +152,7 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
+    speed_test();
     speed_test_deserialization();
 
     return 0;

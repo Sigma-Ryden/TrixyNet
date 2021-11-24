@@ -37,7 +37,7 @@ void simple_test_deserialization()
     using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, double>;
     using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, double>;
 
-    std::ifstream in("D:\\simple_test2.bin");
+    std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
 
     NeuralSerializer sr;
@@ -50,9 +50,9 @@ void simple_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.setActivationFunction(manage.get<Activation>(sr.getActivationId()));
-    net.setNormalizationFunction(manage.get<Activation>(sr.getNormalizationId()));
-    net.setLossFunction(manage.get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
+    net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
+    net.function.setLoss(manage.get<Loss>(sr.getLossId()));
 
     Container<li::Vector<double>> train_in
     {
@@ -87,10 +87,10 @@ void simple_test()
         return static_cast<double>(random() % (2 * range + 1) - range) / range;
     });
 
-    net.setActivationFunction(manage.get<Activation>(activation_id::relu));
-    net.setNormalizationFunction(manage.get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.get<Activation>(activation_id::relu));
+    net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
 
-    net.setLossFunction(manage.get<Loss>(loss_id::CCE));
+    net.function.setLoss(manage.get<Loss>(loss_id::CCE));
 
     Container<li::Vector<double>> train_in
     {
@@ -114,7 +114,7 @@ void simple_test()
     util::testNeuro(net, train_in, train_out);
     util::checkNeuro(net, train_in, train_out);
 
-    std::ofstream out("D:\\simple_test2.bin");
+    std::ofstream out("D:\\simple_test.bin");
     if(!out.is_open()) return;
 
     NeuralSerializer sr;

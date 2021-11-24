@@ -103,7 +103,7 @@ void mnist_test_deserialization()
     // NeuralNetwork preparing:
 
     // NeuralNetwork topology:
-    std::ifstream in("D:\\mnist_experimental.bin", std::ios::binary);
+    std::ifstream in("D:\\mnist_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
     NeuralSerializer sr;
@@ -114,9 +114,9 @@ void mnist_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.setActivationFunction(manage.template get<Activation>(sr.getActivationId()));
-    net.setNormalizationFunction(manage.template get<Activation>(sr.getNormalizationId()));
-    net.setLossFunction(manage.template get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.template get<Activation>(sr.getActivationId()));
+    net.function.setNormalization(manage.template get<Activation>(sr.getNormalizationId()));
+    net.function.setLoss(manage.template get<Loss>(sr.getLossId()));
 
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
@@ -187,11 +187,11 @@ void mnist_test()
         return static_cast<Precision>(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
-    net.setActivationFunction(manage.template get<Activation>(activation_id::relu));
-    net.setNormalizationFunction(manage.template get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.template get<Activation>(activation_id::relu));
+    net.function.setNormalization(manage.template get<Activation>(activation_id::softmax));
 
-    net.setLossFunction(manage.template get<Loss>(loss_id::CCE));
-    //net.setOptimizationFunction(manage.template get<Optimization>(optimization_id::momentum));
+    net.function.setLoss(manage.template get<Loss>(loss_id::CCE));
+    //net.function.setOptimization(manage.template get<Optimization>(optimization_id::momentum));
 
     // Train network:
     Timer t;
@@ -219,7 +219,7 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
     std::cout << "Check time: " << t.elapsed() << '\n';
 
-    std::ofstream out("D:\\mnist_experimental.bin", std::ios::binary);
+    std::ofstream out("D:\\mnist_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
@@ -229,7 +229,7 @@ void mnist_test()
     std::cout << "End serialization\n";
 }
 
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -242,4 +242,4 @@ int main()
 
     return 0;
 }
-*/
+//

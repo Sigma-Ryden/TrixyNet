@@ -614,9 +614,9 @@ template <typename Neuro, decltype(
     std::declval<Neuro>().getTopology(),
     std::declval<Neuro>().getInnerBias(),
     std::declval<Neuro>().getInnerWeight(),
-    std::declval<Neuro>().getEachActivationFunction(),
-    std::declval<Neuro>().getLossFunction(),
-    std::declval<Neuro>().getOptimizationFunction(),
+    std::declval<Neuro>().function.getEachActivation(),
+    std::declval<Neuro>().function.getLoss(),
+    std::declval<Neuro>().function.getOptimization(),
     int()) = 0>
 struct is_serializable_neuro : std::true_type
 {
@@ -666,9 +666,9 @@ enum class loss_id : std::uint8_t
 enum class optimization_id : std::uint8_t
 {
     null,      ///< null value
-    momentum,  ///< mpmentum
+    momentum,  ///< momentum
     rms_prop,  ///< root mean square propagation (RMSProp)
-    ada_grad   ///< adaptive Gradient Algorithm (Adagrad)
+    ada_grad   ///< adaptive gradient algorithm (Adagrad)
 };
 
 } // namespace function
@@ -885,10 +885,10 @@ TRIXY_NEURO_SERIALIZER_TPL::prepare(
 
     A.resize(N);
     for(size_type i = 0; i < N; ++i)
-        A[i] = static_cast<function::activation_id>(net.getEachActivationFunction()[i].id);
+        A[i] = static_cast<function::activation_id>(net.function.getEachActivation()[i].id);
 
-    L = static_cast<function::loss_id>(net.getLossFunction().id);
-    O = static_cast<function::optimization_id>(net.getOptimizationFunction().id);
+    L = static_cast<function::loss_id>(net.function.getLoss().id);
+    O = static_cast<function::optimization_id>(net.function.getOptimization().id);
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION

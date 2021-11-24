@@ -86,11 +86,14 @@ public:
     void (*f)(Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&);
 
+public:
+    Activation() noexcept : id(0), f(nullptr), df(nullptr) {}
+
     Activation(
-        byte_type f_id = 0,
-        void (*function)(Tensor1D&, const Tensor1D&) = nullptr,
-        void (*function_derived)(Tensor1D&, const Tensor1D&) = nullptr) noexcept
-    : id(f_id), f(function), df(function_derived) {}
+        byte_type function_id,
+        void (*function)(Tensor1D&, const Tensor1D&),
+        void (*function_derived)(Tensor1D&, const Tensor1D&)) noexcept
+            : id(function_id), f(function), df(function_derived) {}
 };
 
 TRIXY_FUNCTION_LOSS_TPL_DECLARATION
@@ -99,18 +102,21 @@ class Loss
 private:
     using Tensor1D  = Vector<Precision, Args...>;
     using byte_type = std::uint8_t;
-		
+
 public:
     byte_type id;
 
     Precision (*f)(const Tensor1D&, const Tensor1D&);
     void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
+public:
+    Loss() noexcept : id(0), f(nullptr), df(nullptr) {}
+
     Loss(
-        byte_type f_id = 0,
-        Precision (*function)(const Tensor1D&, const Tensor1D&) = nullptr,
-        void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&) = nullptr) noexcept
-    : id(f_id), f(function), df(function_derived) {}
+        byte_type function_id,
+        Precision (*function)(const Tensor1D&, const Tensor1D&),
+        void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&)) noexcept
+            : id(function_id), f(function), df(function_derived) {}
 };
 
 TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
@@ -121,18 +127,21 @@ private:
     using Tensor2D  = Matrix<Precision, Args...>;
 
     using byte_type = std::uint8_t;
-		
+
 public:
     byte_type id;
 
     void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
     void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
+public:
+    Optimization() noexcept : id(0), f1D(nullptr), f2D(nullptr) {}
+
     Optimization(
-        byte_type f_id = 0,
-        void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&) = nullptr,
-        void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&) = nullptr) noexcept
-    : id(f_id), f1D(vector_optimizer), f2D(matrix_optimizer) {}
+        byte_type function_id,
+        void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&),
+        void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&)) noexcept
+            : id(function_id), f1D(vector_optimizer), f2D(matrix_optimizer) {}
 };
 
 } // namespace function
@@ -142,6 +151,7 @@ class Neuro
 {
 private:
     class InnerBuffer;
+    class InnerFunctional;
 
 public:
     using Tensor1D = Vector<Precision, Args...>;
@@ -155,20 +165,19 @@ public:
     using GeneratorInteger   = int (*)();
     using GeneratorPrecision = Precision (*)();
 
+public:
+    InnerFunctional function;       ///< Functional object for set/get each inner network function
+
 private:
-    Container<size_type> neuro_topology;
+    mutable InnerBuffer ib;         ///< in - inner buffer (class for temporary hold storage)
 
-    mutable InnerBuffer ib;
+    Container<Tensor1D>  B;         ///< Container of network bias
+    Container<Tensor2D>  W;         ///< Container of network weight
+    Container<size_type> T;         ///< Network topology
 
-    Container<Tensor1D> B;
-    Container<Tensor2D> W;
-    size_type N;
+    size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
-    Container<ActivationFunction> A;
-    LossFunction E;
-    OptimizationFunction O;
-
-    Linear<Tensor1D, Tensor2D> li;
+    Linear<Tensor1D, Tensor2D> li;  ///< li - linear (class for linear calculate)
 
 public:
     Neuro(const Container<size_type>& topology);
@@ -251,20 +260,8 @@ public:
     void initializeInnerStruct(const Container<Tensor1D>& bias,
                                const Container<Tensor2D>& weight) noexcept;
 
-    void setActivationFunction(const ActivationFunction&) noexcept;
-    void setNormalizationFunction(const ActivationFunction&) noexcept;
-    void setEachActivationFunction(const Container<ActivationFunction>&) noexcept; // maybe unused
-
-    void setLossFunction(const LossFunction&) noexcept;
-    void setOptimizationFunction(const OptimizationFunction&) noexcept;
-
     const Container<Tensor1D>& getInnerBias() const noexcept;
     const Container<Tensor2D>& getInnerWeight() const noexcept;
-
-    const LossFunction& getLossFunction() const noexcept;
-    const OptimizationFunction& getOptimizationFunction() const noexcept;
-    const Container<ActivationFunction>& getEachActivationFunction() const noexcept; // maybe unused
-
     const Container<size_type>& getTopology() const noexcept;
 };
 
@@ -316,6 +313,105 @@ public:
 };
 
 TRIXY_NEURO_TPL_DECLARATION
+class TRIXY_NEURO_TPL::InnerFunctional
+{
+friend class TRIXY_NEURO_TPL;
+
+private:
+    Container<ActivationFunction> A;
+    LossFunction E;
+    OptimizationFunction O;
+
+public:
+    InnerFunctional(size_type N) : A(N), E(), O() {}
+
+    void setActivation(const ActivationFunction&);
+    void setEachActivation(const Container<ActivationFunction>&); // maybe unused
+    void setNormalization(const ActivationFunction&);
+    void setLoss(const LossFunction&);
+    void setOptimization(const OptimizationFunction&);
+
+    const ActivationFunction& getActivation() const noexcept;
+    const Container<ActivationFunction>& getEachActivation() const noexcept; // maybe unused
+    const ActivationFunction& getNormalization() const noexcept;
+    const LossFunction& getLoss() const noexcept;
+    const OptimizationFunction& getOptimization() const noexcept;
+};
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerFunctional::setActivation(
+    const function::Activation<Vector, Precision, Args...>& f)
+{
+    for(size_type i = 0; i < A.size() - 1; ++i)
+        A[i] = f;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerFunctional::setEachActivation(
+    const Container<ActivationFunction>& fs)
+{
+    for(size_type i = 0; i < A.size(); ++i)
+        A[i] = fs[i];
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerFunctional::setNormalization(
+    const function::Activation<Vector, Precision, Args...>& f)
+{
+    A[A.size() - 1] = f;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerFunctional::setLoss(
+    const function::Loss<Vector, Precision, Args...>& f)
+{
+    E = f;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerFunctional::setOptimization(
+    const function::Optimization<Vector, Matrix, Precision, Args...>& f)
+{
+    O = f;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+inline const function::Activation<Vector, Precision, Args...>&
+    TRIXY_NEURO_TPL::InnerFunctional::getActivation() const noexcept
+{
+    return A[0];
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+inline const Container<function::Activation<Vector, Precision, Args...>>&
+    TRIXY_NEURO_TPL::InnerFunctional::getEachActivation() const noexcept
+{
+    return A;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+inline const function::Activation<Vector, Precision, Args...>&
+    TRIXY_NEURO_TPL::InnerFunctional::getNormalization() const noexcept
+{
+    return A[A.size() - 1];
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+inline const function::Loss<Vector, Precision, Args...>&
+    TRIXY_NEURO_TPL::InnerFunctional::getLoss() const noexcept
+{
+    return E;
+}
+
+TRIXY_NEURO_TPL_DECLARATION
+inline const function::Optimization<Vector, Matrix, Precision, Args...>&
+    TRIXY_NEURO_TPL::InnerFunctional::getOptimization() const noexcept
+{
+    return O;
+}
+
+
+TRIXY_NEURO_TPL_DECLARATION
 inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(std::size_t N) noexcept
     : size_(N)
 {
@@ -351,8 +447,6 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
     const Container<Vector<Precision, Args...>>& B,
     const Container<Matrix<Precision, Args...>>& W)
 {
-    //H[0].resize(B[size_ - 1].size());
-    //for(size_type i = 0; i < size_; ++i)
     for(size_type i = 0; i < size_; ++i)
     {
         H[i].resize(B[i].size());
@@ -432,14 +526,12 @@ void TRIXY_NEURO_TPL::InnerBuffer::normalizeDelta(
 TRIXY_NEURO_TPL_DECLARATION
 TRIXY_NEURO_TPL::Neuro(
     const Container<size_type>& topology)
-    : neuro_topology(topology)
+    : function(topology.size() - 1)
     , ib(topology.size() - 1)
     , B(topology.size() - 1)
     , W(topology.size() - 1)
+    , T(topology)
     , N(topology.size() - 1)
-    , A(topology.size() - 1)
-    , E()
-    , O()
     , li()
 {
     for(size_type i = 0; i < N; ++i)
@@ -493,43 +585,6 @@ void TRIXY_NEURO_TPL::initializeInnerStruct(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::setActivationFunction(
-    const function::Activation<Vector, Precision, Args...>& activation_function) noexcept
-{
-    for(size_type i = 0; i < N - 1; ++i)
-        A[i] = activation_function;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::setNormalizationFunction(
-    const function::Activation<Vector, Precision, Args...>& normalization_function) noexcept
-{
-    A[N - 1] = normalization_function;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::setLossFunction(
-    const function::Loss<Vector, Precision, Args...>& loss_function) noexcept
-{
-    E = loss_function;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::setEachActivationFunction(
-    const Container<function::Activation<Vector, Precision, Args...>>& activation_set) noexcept
-{
-    for(size_type i = 0; i < activation_set.size(); ++i)
-        A[i] = activation_set[i];
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::setOptimizationFunction(
-    const function::Optimization<Vector, Matrix, Precision, Args...>& optimization_function) noexcept
-{
-    O = optimization_function;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
 inline const Container<Vector<Precision, Args...>>&
     TRIXY_NEURO_TPL::getInnerBias() const noexcept
 {
@@ -544,30 +599,9 @@ inline const Container<Matrix<Precision, Args...>>&
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-inline const function::Loss<Vector, Precision, Args...>&
-    TRIXY_NEURO_TPL::getLossFunction() const noexcept
-{
-    return E;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-inline const function::Optimization<Vector, Matrix, Precision, Args...>&
-    TRIXY_NEURO_TPL::getOptimizationFunction() const noexcept
-{
-    return O;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-inline const Container<function::Activation<Vector, Precision, Args...>>&
-    TRIXY_NEURO_TPL::getEachActivationFunction() const noexcept
-{
-    return A;
-}
-
-TRIXY_NEURO_TPL_DECLARATION
 inline const Container<std::size_t>& TRIXY_NEURO_TPL::getTopology() const noexcept
 {
-    return neuro_topology;
+    return T;
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -575,12 +609,12 @@ const Vector<Precision, Args...>& TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const noexcept
 {
     li.dot(ib.B1[0], vector, W[0]);
-    A[0].f(ib.B1[0], ib.B1[0].add(B[0]));
+    function.A[0].f(ib.B1[0], ib.B1[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
     {
         li.dot(ib.B1[i], ib.B1[i - 1], W[i]);
-        A[i].f(ib.B1[i], ib.B1[i].add(B[i]));
+        function.A[i].f(ib.B1[i], ib.B1[i].add(B[i]));
     }
 
     return ib.B1[N - 1];
@@ -755,7 +789,7 @@ double TRIXY_NEURO_TPL::loss(
     size_type result = 0;
 
     for(size_type i = 0; i < odata.size(); ++i)
-        result += E.f(odata[i], feedforward(idata[i]));
+        result += function.E.f(odata[i], feedforward(idata[i]));
 
     return static_cast<double>(result) / odata.size();
 }
@@ -772,15 +806,15 @@ void TRIXY_NEURO_TPL::innerFeedForward(
 
     for(i = 0, j = 1; j < N; ++i, ++j)
     {
-        A[i]. f(ib .H[i], ib.B1[i]);
-        A[i].df(ib.DH[i], ib.B1[i]);
+        function.A[i]. f(ib .H[i], ib.B1[i]);
+        function.A[i].df(ib.DH[i], ib.B1[i]);
 
         li.dot(ib.B1[j], ib.H[i], W[j]);
         ib.B1[j].add(B[j]);
     }
 
-    A[i]. f(ib. H[i], ib.B1[i]);
-    A[i].df(ib.DH[i], ib.B1[i]);
+    function.A[i]. f(ib. H[i], ib.B1[i]);
+    function.A[i].df(ib.DH[i], ib.B1[i]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -791,7 +825,7 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
     static size_type i;
 
     i = N - 1;
-    E.df(ib.B1[i], odata_sample, ib.H[i]);
+    function.E.df(ib.B1[i], odata_sample, ib.H[i]);
 
     for(; i > 0; --i)
     {
@@ -828,8 +862,8 @@ void TRIXY_NEURO_TPL::innerUpdateNormalize(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        O.f1D(ib.B1[i], OB[i], deltaB[i]);
-        O.f2D(ib.B2[i], OW[i], deltaW[i]);
+        function.O.f1D(ib.B1[i], OB[i], deltaB[i]);
+        function.O.f2D(ib.B2[i], OW[i], deltaW[i]);
 
         B[i].sub(ib.B1[i].join(learn_rate));
         W[i].sub(ib.B2[i].join(learn_rate));
