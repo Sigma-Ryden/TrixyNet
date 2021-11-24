@@ -9,9 +9,6 @@ namespace ilique
 template <class Tensor1D, class Tensor2D>
 class ILinear
 {
-public:
-    using size_type = std::size_t;
-
 protected:
     virtual ~ILinear() = default;
 

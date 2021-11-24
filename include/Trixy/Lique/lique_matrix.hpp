@@ -124,14 +124,14 @@ inline Matrix<Type>::Matrix(std::size_t m, std::size_t n, Type**& ptr) noexcept 
 }
 
 template <typename Type>
-Matrix<Type>::Matrix(const Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
+Matrix<Type>::Matrix(const Matrix::Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
 }
 
 template <typename Type>
-inline Matrix<Type>::Matrix(const Shape& shape, Type**& ptr) noexcept // maybe unused
+inline Matrix<Type>::Matrix(const Matrix::Shape& shape, Type**& ptr) noexcept // maybe unused
     : data_(ptr), shape_(shape)
 {
     ptr = nullptr;
@@ -240,7 +240,7 @@ void Matrix<Type>::resize(size_type m, size_type n)
 }
 
 template <typename Type>
-void Matrix<Type>::resize(const Shape& shape)
+void Matrix<Type>::resize(const Matrix::Shape& shape)
 {
     if(data_ != nullptr)
     {

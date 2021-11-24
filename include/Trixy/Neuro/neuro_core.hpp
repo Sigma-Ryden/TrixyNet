@@ -230,7 +230,7 @@ private:
                               const Tensor1D& odata_sample) const noexcept;
 
     void innerUpdateNormalize(const Container<Tensor1D>& deltaB,
-                              const Container<Tensor2D>& detlaW,
+                              const Container<Tensor2D>& deltaW,
                               Container<Tensor1D>& OB,
                               Container<Tensor2D>& OW,
                               Precision learn_rate) noexcept;
@@ -289,21 +289,20 @@ public:
     Container<Tensor2D> B2;
 
 public:
-    InnerBuffer() = default;
-    explicit InnerBuffer(size_type) noexcept;
+    explicit InnerBuffer(size_type size = 0) : size_(size) {}
 
     void initializeDefault();
     void initializeDelta();
     void initializeOptimizer();
 
-    void startDefault(const Container<Tensor1D>& B,
-                      const Container<Tensor2D>& W);
+    void startDefault(const Container<Tensor1D>& bias,
+                      const Container<Tensor2D>& weight);
 
-    void startDelta(const Container<Tensor1D>& B,
-                    const Container<Tensor2D>& W);
+    void startDelta(const Container<Tensor1D>& bias,
+                    const Container<Tensor2D>& weight);
 
-    void startOptimizer(const Container<Tensor1D>& B,
-                        const Container<Tensor2D>& W);
+    void startOptimizer(const Container<Tensor1D>& bias,
+                        const Container<Tensor2D>& weight);
 
     void resetDelta() noexcept;
     void resetOptimizer() noexcept;
@@ -323,7 +322,7 @@ private:
     OptimizationFunction O;
 
 public:
-    InnerFunctional(size_type N) : A(N), E(), O() {}
+    explicit InnerFunctional(size_type N) : A(N), E(), O() {}
 
     void setActivation(const ActivationFunction&);
     void setEachActivation(const Container<ActivationFunction>&); // maybe unused
@@ -412,12 +411,6 @@ inline const function::Optimization<Vector, Matrix, Precision, Args...>&
 
 
 TRIXY_NEURO_TPL_DECLARATION
-inline TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(std::size_t N) noexcept
-    : size_(N)
-{
-}
-
-TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeDefault()
 {
     H.resize(size_);
@@ -444,41 +437,41 @@ void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
-    const Container<Vector<Precision, Args...>>& B,
-    const Container<Matrix<Precision, Args...>>& W)
+    const Container<Vector<Precision, Args...>>& bias,
+    const Container<Matrix<Precision, Args...>>& weight)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        H[i].resize(B[i].size());
-        B1[i].resize(B[i].size());
-        DH[i].resize(B[i].size());
-        DB[i].resize(B[i].size());
-        DW[i].resize(W[i].size());
+        H[i].resize(bias[i].size());
+        B1[i].resize(bias[i].size());
+        DH[i].resize(bias[i].size());
+        DB[i].resize(bias[i].size());
+        DW[i].resize(weight[i].size());
     }
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDelta(
-    const Container<Vector<Precision, Args...>>& B,
-    const Container<Matrix<Precision, Args...>>& W)
+    const Container<Vector<Precision, Args...>>& bias,
+    const Container<Matrix<Precision, Args...>>& weight)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        deltaB[i].resize(B[i].size());
-        deltaW[i].resize(W[i].size());
+        deltaB[i].resize(bias[i].size());
+        deltaW[i].resize(weight[i].size());
     }
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
-    const Container<Vector<Precision, Args...>>& B,
-    const Container<Matrix<Precision, Args...>>& W)
+    const Container<Vector<Precision, Args...>>& bias,
+    const Container<Matrix<Precision, Args...>>& weight)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        OB[i].resize(B[i].size());
-        OW[i].resize(W[i].size());
-        B2[i].resize(W[i].size());
+        OB[i].resize(bias[i].size());
+        OW[i].resize(weight[i].size());
+        B2[i].resize(weight[i].size());
     }
 }
 
@@ -713,7 +706,7 @@ void TRIXY_NEURO_TPL::trainOptimize(
 
     ib.resetOptimizer();
 
-    const Precision alpha = 1.0 / mini_batch_size;
+    const Precision alpha = 1.0 / static_cast<double>(mini_batch_size);
 
     for(size_type epoch = 0; epoch < epoch_scale; ++epoch)
     {

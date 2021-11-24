@@ -849,7 +849,7 @@ private:
     function::optimization_id O;
 
 public:
-    NeuroSerializer() = default;
+    NeuroSerializer() : N(0), L(function::loss_id::null), O(function::optimization_id::null) {}
 
     template <typename Neuro>
     meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
@@ -862,12 +862,12 @@ public:
     const Container<Tensor1D>& getBias() const noexcept;
     const Container<Tensor2D>& getWeight() const noexcept;
 
-    const function::activation_id getActivationId() const noexcept;
-    const function::activation_id getNormalizationId() const noexcept;
-    const Container<function::activation_id> getEachActivationId() const noexcept;
+    function::activation_id getActivationId() const noexcept;
+    function::activation_id getNormalizationId() const noexcept;
+    const Container<function::activation_id>& getEachActivationId() const noexcept;
 
-    const function::loss_id getLossId() const noexcept;
-    const function::optimization_id getOptimizationId() const noexcept;
+    function::loss_id getLossId() const noexcept;
+    function::optimization_id getOptimizationId() const noexcept;
 };
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
@@ -979,32 +979,32 @@ inline const Container<Matrix<Precision, Args...>>&
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getActivationId() const noexcept
+inline function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getActivationId() const noexcept
 {
     return static_cast<function::activation_id>(A[0]);
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getNormalizationId() const noexcept
+inline function::activation_id TRIXY_NEURO_SERIALIZER_TPL::getNormalizationId() const noexcept
 {
     return A[A.size() - 1];
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const Container<function::activation_id>
+inline const Container<function::activation_id>&
     TRIXY_NEURO_SERIALIZER_TPL::getEachActivationId() const noexcept
 {
     return A;
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::loss_id TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
+inline function::loss_id TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
 {
     return L;
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline const function::optimization_id TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() const noexcept
+inline function::optimization_id TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() const noexcept
 {
     return O;
 }

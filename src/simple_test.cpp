@@ -1,6 +1,3 @@
-#include <cstdlib> // size_t
-#include <cmath> // exp
-#include <ctime> // time
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 #include <fstream> // ifstream, ofstream
@@ -15,7 +12,6 @@
 
 #include "Trixy/Container/container.hpp" // Container
 
-#include "MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Timer/timer.h" // Timer
 #include "UtilityMaster/util.hpp" // testNeuro
 
@@ -28,7 +24,7 @@ int random()
 {
     static std::mt19937 gen;
 
-    return gen();
+    return static_cast<int>(gen());
 }
 
 void simple_test_deserialization()

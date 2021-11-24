@@ -95,7 +95,7 @@ Matrix<Tensor, Type>::Matrix(std::size_t m, std::size_t n)
 }
 
 template <template <typename T> class Tensor, typename Type>
-Matrix<Tensor, Type>::Matrix(const Shape& shape)
+Matrix<Tensor, Type>::Matrix(const Matrix::Shape& shape)
     : data_(new Type* [shape.row_]), shape_(shape)
 {
     for(size_type i = 0; i < shape_.row_; ++i)

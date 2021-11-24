@@ -118,11 +118,13 @@ void mnist_test_deserialization()
     net.function.setNormalization(manage.template get<Activation>(sr.getNormalizationId()));
     net.function.setLoss(manage.template get<Loss>(sr.getLossId()));
 
+    //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
 
     std::cout << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_in, test_out)
               << "\nNEURO TEST_SET LOSS: " << net.loss(test_in, test_out) << '\n';
+    //
     //
     std::cout << "TESTING TRAIN_SET\n";
     for(std::size_t i = 0; i < train_in.size(); ++i)
@@ -235,7 +237,7 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    mnist_test<float>();
+    //mnist_test<float>();
     mnist_test_deserialization<float>();
 
     std::cin.get();
