@@ -127,6 +127,7 @@ void speed_test()
     util::checkNeuro(net, train_in, train_out);
 
     Timer t;
+
     net.trainOptimize(train_in, train_out, 0.1, 2000, 6, std::rand);
     std::cout << "Train time: " << t.elapsed() << '\n';
 

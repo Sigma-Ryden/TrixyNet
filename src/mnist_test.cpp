@@ -21,18 +21,15 @@
 namespace tr = trixy;
 namespace li = lique;
 
-using namespace trixy::function;
-
 using util::operator<<;
 
-template <typename Precision>
-Container<li::Vector<Precision>> initialize_i(
+Container<li::Vector<float>> initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
-    Container<li::Vector<Precision>> input_batch(batch_size);
+    Container<li::Vector<float>> input_batch(batch_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
-        input_batch[i] = li::Vector<Precision>(input_size);
+        input_batch[i].resize(input_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < input_size; ++j)
@@ -41,14 +38,13 @@ Container<li::Vector<Precision>> initialize_i(
     return input_batch;
 }
 
-template <typename Precision>
-Container<li::Vector<Precision>> initialize_o(
+Container<li::Vector<float>> initialize_o(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
-    Container<li::Vector<Precision>> output_batch(batch_size);
+    Container<li::Vector<float>> output_batch(batch_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
-        output_batch[i] = li::Vector<Precision>(output_size);
+        output_batch[i].resize(output_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < output_size; ++j)
@@ -57,8 +53,7 @@ Container<li::Vector<Precision>> initialize_o(
     return output_batch;
 }
 
-template <typename Precision>
-void show_image(const li::Vector<Precision>& vector) noexcept
+void show_image(const li::Vector<float>& vector) noexcept
 {
     for(std::size_t i = 0; i < vector.size(); ++i)
     {
@@ -67,8 +62,7 @@ void show_image(const li::Vector<Precision>& vector) noexcept
     }
 }
 
-template <typename Precision>
-void show_image_batch(const Container<li::Vector<Precision>>& data) noexcept
+void show_image_batch(const Container<li::Vector<float>>& data) noexcept
 {
     for(std::size_t i = 0; i < data.size(); ++i)
     {
@@ -77,12 +71,13 @@ void show_image_batch(const Container<li::Vector<Precision>>& data) noexcept
     }
 }
 
-template <typename Precision>
 void mnist_test_deserialization()
 {
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using namespace trixy::function;
+
+    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -93,12 +88,12 @@ void mnist_test_deserialization()
     std::size_t out_size   = 10;
 
     // Train batch initialize:
-    Container<li::Vector<Precision>> train_in  = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
-    Container<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
+    Container<li::Vector<float>> train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
+    Container<li::Vector<float>> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    Container<li::Vector<Precision>> test_in  = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
-    Container<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
+    Container<li::Vector<float>> test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
+    Container<li::Vector<float>> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
 
     // NeuralNetwork preparing:
 
@@ -114,9 +109,9 @@ void mnist_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.template get<Activation>(sr.getActivationId()));
-    net.function.setNormalization(manage.template get<Activation>(sr.getNormalizationId()));
-    net.function.setLoss(manage.template get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
+    net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
+    net.function.setLoss(manage.get<Loss>(sr.getLossId()));
 
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
@@ -147,12 +142,13 @@ void mnist_test_deserialization()
     //
 }
 
-template <typename Precision>
 void mnist_test()
 {
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using namespace trixy::function;
+
+    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -163,37 +159,30 @@ void mnist_test()
     std::size_t out_size   = 10;
 
     // Train batch initialize:
-    Container<li::Vector<Precision>> train_in  = initialize_i<Precision>(dataset.training_images, train_batch_size, input_size);
-    Container<li::Vector<Precision>> train_out = initialize_o<Precision>(dataset.training_labels, train_batch_size, out_size);
+    Container<li::Vector<float>> train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
+    Container<li::Vector<float>> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    Container<li::Vector<Precision>> test_in  = initialize_i<Precision>(dataset.test_images, test_batch_size, input_size);
-    Container<li::Vector<Precision>> test_out = initialize_o<Precision>(dataset.test_labels, test_batch_size, out_size);
+    Container<li::Vector<float>> test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
+    Container<li::Vector<float>> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);
-
-    // NeuralNetwork preparing:
-    using namespace trixy::function;
-
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     // NeuralNetwork topology:
     NeuralFeedForward net({ input_size, 256, out_size });
     NeuralManager manage;
 
-    net.initializeInnerStruct([] () -> Precision {
+    net.initializeInnerStruct([] () -> float {
         static int range = 1000;
-        return static_cast<Precision>(std::rand() % (2 * range + 1) - range) / (range * range);
+        return static_cast<float>(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
-    net.function.setActivation(manage.template get<Activation>(activation_id::relu));
-    net.function.setNormalization(manage.template get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.get<Activation>(activation_id::relu));
+    net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
 
-    net.function.setLoss(manage.template get<Loss>(loss_id::CCE));
-    //net.function.setOptimization(manage.template get<Optimization>(optimization_id::momentum));
+    net.function.setLoss(manage.get<Loss>(loss_id::CCE));
+    //net.function.setOptimization(manage.get<Optimization>(optimization_id::momentum));
 
     // Train network:
     Timer t;
@@ -237,8 +226,8 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //mnist_test<float>();
-    mnist_test_deserialization<float>();
+    //mnist_test();
+    mnist_test_deserialization();
 
     std::cin.get();
 

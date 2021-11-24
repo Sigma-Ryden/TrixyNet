@@ -845,11 +845,11 @@ private:
     size_type N;
 
     Container<function::activation_id> A;
-    function::loss_id L;
+    function::loss_id E;
     function::optimization_id O;
 
 public:
-    NeuroSerializer() : N(0), L(function::loss_id::null), O(function::optimization_id::null) {}
+    NeuroSerializer() : N(0), E(function::loss_id::null), O(function::optimization_id::null) {}
 
     template <typename Neuro>
     meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
@@ -887,7 +887,7 @@ TRIXY_NEURO_SERIALIZER_TPL::prepare(
     for(size_type i = 0; i < N; ++i)
         A[i] = static_cast<function::activation_id>(net.function.getEachActivation()[i].id);
 
-    L = static_cast<function::loss_id>(net.function.getLoss().id);
+    E = static_cast<function::loss_id>(net.function.getLoss().id);
     O = static_cast<function::optimization_id>(net.function.getOptimization().id);
 }
 
@@ -905,7 +905,7 @@ void TRIXY_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
     for(size_type n = 0; n < N; ++n)
         out.write(reinterpret_cast<const char*>(&A[n]), sizeof(function::activation_id));
 
-    out.write(reinterpret_cast<const char*>(&L), sizeof(function::loss_id));
+    out.write(reinterpret_cast<const char*>(&E), sizeof(function::loss_id));
     out.write(reinterpret_cast<const char*>(&O), sizeof(function::optimization_id));
 
     for(size_type n = 0; n < N; ++n)
@@ -944,7 +944,7 @@ void TRIXY_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
     for(size_type n = 0; n < N; ++n)
         in.read(reinterpret_cast<char*>(&A[n]), sizeof(function::activation_id));
 
-    in.read(reinterpret_cast<char*>(&L), sizeof(function::loss_id));
+    in.read(reinterpret_cast<char*>(&E), sizeof(function::loss_id));
     in.read(reinterpret_cast<char*>(&O), sizeof(function::optimization_id));
 
     for(size_type n = 0; n < N; ++n)
@@ -1000,7 +1000,7 @@ inline const Container<function::activation_id>&
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
 inline function::loss_id TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
 {
-    return L;
+    return E;
 }
 
 TRIXY_NEURO_SERIALIZER_TPL_DECLARATION

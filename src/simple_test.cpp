@@ -18,8 +18,6 @@
 namespace tr = trixy;
 namespace li = lique;
 
-using namespace tr::function;
-
 int random()
 {
     static std::mt19937 gen;
@@ -27,11 +25,14 @@ int random()
     return static_cast<int>(gen());
 }
 
+template <typename Precision>
 void simple_test_deserialization()
 {
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, double>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, double>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, double>;
+    using namespace tr::function;
+
+    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
@@ -46,18 +47,18 @@ void simple_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
-    net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
-    net.function.setLoss(manage.get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.template get<Activation>(sr.getActivationId()));
+    net.function.setNormalization(manage.template get<Activation>(sr.getNormalizationId()));
+    net.function.setLoss(manage.template get<Loss>(sr.getLossId()));
 
-    Container<li::Vector<double>> train_in
+    Container<li::Vector<Precision>> train_in
     {
         {-0.08, 0.04},
         {0.92,  0.24},
         {0.4,   0.16},
         {-0.0, -0.24}
     };
-    Container<li::Vector<double>> train_out
+    Container<li::Vector<Precision>> train_out
     {
         {1, 0},
         {0, 1},
@@ -69,33 +70,36 @@ void simple_test_deserialization()
     util::checkNeuro(net, train_in, train_out);
 }
 
+template <typename Precision>
 void simple_test()
 {
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, double>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, double>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, double>;
+    using namespace tr::function;
+
+    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     NeuralFeedForward net({2, 2, 2});
     NeuralManager manage;
 
-    net.initializeInnerStruct([] {
+    net.initializeInnerStruct([]() -> Precision {
         static int range = 1000;
-        return static_cast<double>(random() % (2 * range + 1) - range) / range;
+        return static_cast<Precision>(random() % (2 * range + 1) - range) / range;
     });
 
-    net.function.setActivation(manage.get<Activation>(activation_id::relu));
-    net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.template get<Activation>(activation_id::relu));
+    net.function.setNormalization(manage.template get<Activation>(activation_id::softmax));
 
-    net.function.setLoss(manage.get<Loss>(loss_id::CCE));
+    net.function.setLoss(manage.template get<Loss>(loss_id::CCE));
 
-    Container<li::Vector<double>> train_in
+    Container<li::Vector<Precision>> train_in
     {
         {-0.08, 0.04},
         {0.92,  0.24},
         {0.4,   0.16},
         {-0.0, -0.24}
     };
-    Container<li::Vector<double>> train_out
+    Container<li::Vector<Precision>> train_out
     {
         {1, 0},
         {0, 1},

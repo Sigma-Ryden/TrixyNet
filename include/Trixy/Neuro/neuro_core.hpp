@@ -212,13 +212,13 @@ public:
     double accuracy(const Container<Tensor1D>& idata,
                     const Container<Tensor1D>& odata) const noexcept;
 
-    double fullAccuracy(const Container<Tensor1D>& idata,
-                        const Container<Tensor1D>& odata,
-                        Precision range_rate) const noexcept;
+    double accuracyf(const Container<Tensor1D>& idata,
+                     const Container<Tensor1D>& odata,
+                     Precision range_rate) const noexcept;
 
-    double globalAccuracy(const Container<Tensor1D>& idata,
-                          const Container<Tensor1D>& odata,
-                          Precision range_rate) const noexcept;
+    double accuracyg(const Container<Tensor1D>& idata,
+                     const Container<Tensor1D>& odata,
+                     Precision range_rate) const noexcept;
 
     double loss(const Container<Tensor1D>& idata,
                 const Container<Tensor1D>& odata) const noexcept;
@@ -242,14 +242,14 @@ private:
     bool check(const Tensor1D& y_true,
                const Tensor1D& y_pred) const noexcept;
 
-    bool fullCheck(const Tensor1D& y_true,
-                   const Tensor1D& y_pred,
-                   Precision range_rate) const noexcept;
+    bool checkf(const Tensor1D& y_true,
+                const Tensor1D& y_pred,
+                Precision range_rate) const noexcept;
 
-    void globalCheck(const Tensor1D& y_true,
-                     const Tensor1D& y_pred,
-                     Precision range_rate,
-                     size_type& count) const noexcept;
+    void checkg(const Tensor1D& y_true,
+                const Tensor1D& y_pred,
+                Precision range_rate,
+                size_type& count) const noexcept;
 
 public:
     void initializeInnerStruct(GeneratorPrecision generator_all) noexcept;
@@ -327,12 +327,14 @@ public:
     void setActivation(const ActivationFunction&);
     void setEachActivation(const Container<ActivationFunction>&); // maybe unused
     void setNormalization(const ActivationFunction&);
+
     void setLoss(const LossFunction&);
     void setOptimization(const OptimizationFunction&);
 
     const ActivationFunction& getActivation() const noexcept;
     const Container<ActivationFunction>& getEachActivation() const noexcept; // maybe unused
     const ActivationFunction& getNormalization() const noexcept;
+
     const LossFunction& getLoss() const noexcept;
     const OptimizationFunction& getOptimization() const noexcept;
 };
@@ -746,7 +748,7 @@ double TRIXY_NEURO_TPL::accuracy(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-double TRIXY_NEURO_TPL::fullAccuracy(
+double TRIXY_NEURO_TPL::accuracyf(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision range_rate) const noexcept
@@ -754,14 +756,14 @@ double TRIXY_NEURO_TPL::fullAccuracy(
     size_type count = 0;
 
     for(size_type i = 0; i < odata.size(); ++i)
-        if(fullCheck(odata[i], feedforward(idata[i]), range_rate))
+        if(checkf(odata[i], feedforward(idata[i]), range_rate))
             ++count;
 
     return static_cast<double>(count) / odata.size();
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-double TRIXY_NEURO_TPL::globalAccuracy(
+double TRIXY_NEURO_TPL::accuracyg(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision range_rate) const noexcept
@@ -769,7 +771,7 @@ double TRIXY_NEURO_TPL::globalAccuracy(
     size_type count = 0;
 
     for(size_type i = 0; i < odata.size(); ++i)
-        globalCheck(odata[i], feedforward(idata[i]), range_rate, count);
+        checkg(odata[i], feedforward(idata[i]), range_rate, count);
 
     return static_cast<double>(count) / (odata.size() * odata[0].size());
 }
@@ -886,7 +888,7 @@ bool TRIXY_NEURO_TPL::check(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-bool TRIXY_NEURO_TPL::fullCheck(
+bool TRIXY_NEURO_TPL::checkf(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred,
     Precision range_rate) const noexcept
@@ -899,7 +901,7 @@ bool TRIXY_NEURO_TPL::fullCheck(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::globalCheck(
+void TRIXY_NEURO_TPL::checkg(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred,
     Precision range_rate,
