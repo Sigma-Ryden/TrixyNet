@@ -42,9 +42,9 @@ float random_normal() noexcept
 
 void speed_test_deserialization()
 {
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralManager     = tr::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     std::ifstream in("D:\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
@@ -54,8 +54,8 @@ void speed_test_deserialization()
     sr.deserialize(in);
     in.close();
 
-    NeuralFeedForward net = sr.getTopology();
-    NeuralManager manage;
+    NeuralNetwork net = sr.getTopology();
+    NeuralFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
@@ -88,11 +88,11 @@ void speed_test_deserialization()
 
 void speed_test()
 {
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional  = tr::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
-    NeuralFeedForward net({4, 4, 5, 4, 3});
+    NeuralNetwork net({4, 4, 5, 4, 3});
     NeuralFunctional manage;
 
     net.initializeInnerStruct(random_real);
@@ -127,8 +127,12 @@ void speed_test()
     util::checkNeuro(net, train_in, train_out);
 
     Timer t;
-
-    net.trainOptimize(train_in, train_out, 0.1, 2000, 6, std::rand);
+    /*
+    net.trainBatch(train_in, train_out, 0.1, 100000);
+    net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
+    net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
+    */
+    net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";

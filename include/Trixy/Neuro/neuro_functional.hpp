@@ -219,7 +219,7 @@ Precision swish_derived(Precision x) noexcept
     static Precision b;
 
     a = std::exp(-x);
-    b = a + 1;
+    b = a + 1.0;
 
     return (a * x + b) / (b * b);
 }
@@ -286,8 +286,10 @@ void unstable_softmax(
     for(std::size_t i = 0; i < vector.size(); ++i)
         denominator += buff(i);
 
+    denominator = 1.0 / denominator;
+
     for(std::size_t i = 0; i < vector.size(); ++i)
-        buff(i) /= denominator;
+        buff(i) *= denominator;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -309,8 +311,10 @@ void softmax(
     for(std::size_t i = 0; i < vector.size(); ++i)
         denominator += buff(i);
 
+    denominator = 1.0 / denominator;
+
     for(std::size_t i = 0; i < vector.size(); ++i)
-        buff(i) /= denominator;
+        buff(i) *= denominator;
 }
 
 TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
@@ -374,7 +378,7 @@ Precision mean_squared_error(
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result += std::pow(y_true(i) - y_pred(i), 2);
 
-    return result / 2.0;
+    return result * 0.5;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -422,7 +426,7 @@ Precision mean_squared_log_error(
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result += std::pow(std::log( (y_pred(i) + 1.0) / (y_true(i) + 1.0) ), 2);
 
-    return result / 2.0;
+    return result * 0.5;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION

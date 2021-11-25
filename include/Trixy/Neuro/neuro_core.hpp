@@ -275,18 +275,18 @@ private:
     size_type size_;
 
 public:
-    Container<Tensor1D> H;
-    Container<Tensor1D> B1;
-    Container<Tensor1D> DH;
-    Container<Tensor1D> DB;
-    Container<Tensor2D> DW;
+    Container<Tensor1D> H;       ///<
+    Container<Tensor1D> DH;      ///<
+    Container<Tensor1D> DB;      ///<
+    Container<Tensor2D> DW;      ///<
+    Container<Tensor1D> buff;    ///< 1D buffer for handle
 
-    Container<Tensor1D> deltaB;
-    Container<Tensor2D> deltaW;
+    Container<Tensor1D> deltaB;  ///<
+    Container<Tensor2D> deltaW;  ///<
 
-    Container<Tensor1D> OB;
-    Container<Tensor2D> OW;
-    Container<Tensor2D> B2;
+    Container<Tensor1D> OB;      ///<
+    Container<Tensor2D> OW;      ///<
+    Container<Tensor2D> buff2;   ///< 2D buffer for handle
 
 public:
     explicit InnerBuffer(size_type size = 0) : size_(size) {}
@@ -325,7 +325,6 @@ public:
     explicit InnerFunctional(size_type N) : A(N), E(), O() {}
 
     InnerFunctional& operator= (const InnerFunctional&) = delete;
-    //InnerFunctional& operator= (InnerFunctional&&) = delete;
 
     void setActivation(const ActivationFunction&);
     void setEachActivation(const Container<ActivationFunction>&); // maybe unused
@@ -419,10 +418,11 @@ TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::initializeDefault()
 {
     H.resize(size_);
-    B1.resize(size_);
     DH.resize(size_);
     DB.resize(size_);
     DW.resize(size_);
+
+    buff.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -437,7 +437,8 @@ void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
 {
     OB.resize(size_);
     OW.resize(size_);
-    B2.resize(size_);
+
+    buff2.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -448,10 +449,11 @@ void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
     for(size_type i = 0; i < size_; ++i)
     {
         H[i].resize(bias[i].size());
-        B1[i].resize(bias[i].size());
         DH[i].resize(bias[i].size());
         DB[i].resize(bias[i].size());
         DW[i].resize(weight[i].size());
+
+        buff[i].resize(bias[i].size());
     }
 }
 
@@ -476,7 +478,8 @@ void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
     {
         OB[i].resize(bias[i].size());
         OW[i].resize(weight[i].size());
-        B2[i].resize(weight[i].size());
+
+        buff2[i].resize(weight[i].size());
     }
 }
 
@@ -534,8 +537,8 @@ TRIXY_NEURO_TPL::Neuro(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].resize(topology[i + 1]);
-        W[i].resize(topology[i], topology[i + 1]);
+        B[i].resize(T[i + 1]);
+        W[i].resize(T[i], T[i + 1]);
     }
 
     ib.initializeDefault();
@@ -606,16 +609,16 @@ TRIXY_NEURO_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& vector) const noexcept
 {
-    li.dot(ib.B1[0], vector, W[0]);
-    function.A[0].f(ib.B1[0], ib.B1[0].add(B[0]));
+    li.dot(ib.buff[0], vector, W[0]);
+    function.A[0].f(ib.buff[0], ib.buff[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
     {
-        li.dot(ib.B1[i], ib.B1[i - 1], W[i]);
-        function.A[i].f(ib.B1[i], ib.B1[i].add(B[i]));
+        li.dot(ib.buff[i], ib.buff[i - 1], W[i]);
+        function.A[i].f(ib.buff[i], ib.buff[i].add(B[i]));
     }
 
-    return ib.B1[N - 1];
+    return ib.buff[N - 1];
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -799,20 +802,20 @@ void TRIXY_NEURO_TPL::innerFeedForward(
     static size_type i;
     static size_type j;
 
-    li.dot(ib.B1[0], idata_sample, W[0]);
-    ib.B1[0].add(B[0]);
+    li.dot(ib.buff[0], idata_sample, W[0]);
+    ib.buff[0].add(B[0]);
 
     for(i = 0, j = 1; j < N; ++i, ++j)
     {
-        function.A[i]. f(ib .H[i], ib.B1[i]);
-        function.A[i].df(ib.DH[i], ib.B1[i]);
+        function.A[i]. f(ib .H[i], ib.buff[i]);
+        function.A[i].df(ib.DH[i], ib.buff[i]);
 
-        li.dot(ib.B1[j], ib.H[i], W[j]);
-        ib.B1[j].add(B[j]);
+        li.dot(ib.buff[j], ib.H[i], W[j]);
+        ib.buff[j].add(B[j]);
     }
 
-    function.A[i]. f(ib. H[i], ib.B1[i]);
-    function.A[i].df(ib.DH[i], ib.B1[i]);
+    function.A[i]. f(ib. H[i], ib.buff[i]);
+    function.A[i].df(ib.DH[i], ib.buff[i]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -820,21 +823,20 @@ void TRIXY_NEURO_TPL::innerBackPropagation(
     const Vector<Precision, Args...>& idata_sample,
     const Vector<Precision, Args...>& odata_sample) const noexcept
 {
-    static size_type i;
+    static const size_type L = N - 1;
 
-    i = N - 1;
-    function.E.df(ib.B1[i], odata_sample, ib.H[i]);
+    function.E.df(ib.buff[L], odata_sample, ib.H[L]);
 
-    for(; i > 0; --i)
+    for(size_type i = L; i > 0; --i)
     {
-        ib.DB[i].multiply(ib.B1[i], ib.DH[i]);
+        ib.DB[i].multiply(ib.buff[i], ib.DH[i]);
         li.tensordot(ib.DW[i], ib.H[i - 1], ib.DB[i]);
 
-        li.dottranspose(ib.B1[i - 1], ib.DB[i], W[i]);
+        li.dottranspose(ib.buff[i - 1], ib.DB[i], W[i]);
     }
 
-    ib.DB[0].multiply(ib.B1[0], ib.DH[0]);
-    li.tensordot(ib.DW[0], idata_sample, ib.B1[0]);
+    ib.DB[0].multiply(ib.buff[0], ib.DH[0]);
+    li.tensordot(ib.DW[0], idata_sample, ib.DB[0]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -860,11 +862,11 @@ void TRIXY_NEURO_TPL::innerUpdateNormalize(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        function.O.f1D(ib.B1[i], OB[i], deltaB[i]);
-        function.O.f2D(ib.B2[i], OW[i], deltaW[i]);
+        function.O.f1D(ib.buff [i], OB[i], deltaB[i]);
+        function.O.f2D(ib.buff2[i], OW[i], deltaW[i]);
 
-        B[i].sub(ib.B1[i].join(learn_rate));
-        W[i].sub(ib.B2[i].join(learn_rate));
+        B[i].sub(ib.buff [i].join(learn_rate));
+        W[i].sub(ib.buff2[i].join(learn_rate));
     }
 }
 

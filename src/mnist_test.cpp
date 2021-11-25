@@ -75,9 +75,9 @@ void mnist_test_deserialization()
 {
     using namespace trixy::function;
 
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional  = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -104,7 +104,7 @@ void mnist_test_deserialization()
     NeuralSerializer sr;
     sr.deserialize(in);
 
-    NeuralFeedForward net = sr.getTopology();
+    NeuralNetwork net = sr.getTopology();
     NeuralFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
@@ -112,6 +112,7 @@ void mnist_test_deserialization()
     net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
     net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
     net.function.setLoss(manage.get<Loss>(sr.getLossId()));
+    net.function.setOptimization(manage.get<Optimization>(sr.getOptimizationId()));
 
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
@@ -146,9 +147,9 @@ void mnist_test()
 {
     using namespace trixy::function;
 
-    using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional  = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -170,7 +171,7 @@ void mnist_test()
     //show_image_batch(train_in);
 
     // NeuralNetwork topology:
-    NeuralFeedForward net({ input_size, 256, out_size });
+    NeuralNetwork net({ input_size, 256, out_size });
     NeuralFunctional manage;
 
     net.initializeInnerStruct([] () -> float {
@@ -182,7 +183,7 @@ void mnist_test()
     net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
 
     net.function.setLoss(manage.get<Loss>(loss_id::CCE));
-    //net.function.setOptimization(manage.get<Optimization>(optimization_id::momentum));
+    net.function.setOptimization(manage.get<Optimization>(optimization_id::momentum));
 
     // Train network:
     Timer t;
@@ -191,9 +192,11 @@ void mnist_test()
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        net.trainMiniBatch(train_in, train_out, 0.1, 40, 64, std::rand);
-        //net.trainOptimize(train_in, train_out, 0.1, 50, 32, std::rand);
-        //if (i % 25 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        //net.trainBatch(train_in, train_out, 0.1, 10);
+        //net.trainStochastic(train_in, train_out, 0.1, 5000, std::rand);
+        //net.trainMiniBatch(train_in, train_out, 0.1, 40, 64, std::rand);
+        net.trainOptimize(train_in, train_out, 0.1, 50, 32, std::rand);
+        if (i % 50 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
     t.reset();

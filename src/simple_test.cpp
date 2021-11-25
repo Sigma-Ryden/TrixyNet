@@ -30,9 +30,9 @@ void simple_test_deserialization()
 {
     using namespace tr::function;
 
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralFunctional  = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
@@ -42,7 +42,7 @@ void simple_test_deserialization()
     sr.deserialize(in);
     in.close();
 
-    NeuralFeedForward net = sr.getTopology();
+    NeuralNetwork net = sr.getTopology();
     NeuralFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
@@ -75,12 +75,12 @@ void simple_test()
 {
     using namespace tr::function;
 
-    using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
-    NeuralFeedForward net({2, 2, 2});
-    NeuralManager manage;
+    NeuralNetwork net({2, 2, 2});
+    NeuralFunctional manage;
 
     net.initializeInnerStruct([]() -> Precision {
         static int range = 1000;
@@ -131,8 +131,8 @@ int main()
 {
     std::cout << std::fixed << std::setprecision(6);
 
-    simple_test();
-    simple_test_deserialization();
+    simple_test<double>();
+    simple_test_deserialization<double>();
 
     return 0;
 }
