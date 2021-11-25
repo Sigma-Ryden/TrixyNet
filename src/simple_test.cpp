@@ -31,19 +31,19 @@ void simple_test_deserialization()
     using namespace tr::function;
 
     using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralFunctional  = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
     using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
 
-    NeuralSerializer sr;
+    NeuralFunctional sr;
 
     sr.deserialize(in);
     in.close();
 
     NeuralFeedForward net = sr.getTopology();
-    NeuralManager manage;
+    NeuralFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
@@ -76,7 +76,7 @@ void simple_test()
     using namespace tr::function;
 
     using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, Precision>;
+    using NeuralManager     = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
     using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
 
     NeuralFeedForward net({2, 2, 2});

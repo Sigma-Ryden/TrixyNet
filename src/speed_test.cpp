@@ -43,7 +43,7 @@ float random_normal() noexcept
 void speed_test_deserialization()
 {
     using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralManager     = tr::FunctionalManager<li::Vector, li::Matrix, float>;
     using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     std::ifstream in("D:\\speed_test.bin", std::ios::binary);
@@ -89,11 +89,11 @@ void speed_test_deserialization()
 void speed_test()
 {
     using NeuralFeedForward = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralManager     = tr::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralFunctional  = tr::FunctionalManager<li::Vector, li::Matrix, float>;
     using NeuralSerializer  = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     NeuralFeedForward net({4, 4, 5, 4, 3});
-    NeuralManager manage;
+    NeuralFunctional manage;
 
     net.initializeInnerStruct(random_real);
 

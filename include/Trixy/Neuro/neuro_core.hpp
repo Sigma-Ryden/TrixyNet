@@ -324,6 +324,9 @@ private:
 public:
     explicit InnerFunctional(size_type N) : A(N), E(), O() {}
 
+    InnerFunctional& operator= (const InnerFunctional&) = delete;
+    //InnerFunctional& operator= (InnerFunctional&&) = delete;
+
     void setActivation(const ActivationFunction&);
     void setEachActivation(const Container<ActivationFunction>&); // maybe unused
     void setNormalization(const ActivationFunction&);

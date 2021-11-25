@@ -76,7 +76,7 @@ void mnist_test_deserialization()
     using namespace trixy::function;
 
     using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralFunctional  = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
     using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
@@ -105,7 +105,7 @@ void mnist_test_deserialization()
     sr.deserialize(in);
 
     NeuralFeedForward net = sr.getTopology();
-    NeuralManager manage;
+    NeuralFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
@@ -147,7 +147,7 @@ void mnist_test()
     using namespace trixy::function;
 
     using NeuralFeedForward = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralManager     = trixy::NeuroManager<li::Vector, li::Matrix, float>;
+    using NeuralFunctional  = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
     using NeuralSerializer  = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
@@ -171,7 +171,7 @@ void mnist_test()
 
     // NeuralNetwork topology:
     NeuralFeedForward net({ input_size, 256, out_size });
-    NeuralManager manage;
+    NeuralFunctional manage;
 
     net.initializeInnerStruct([] () -> float {
         static int range = 1000;

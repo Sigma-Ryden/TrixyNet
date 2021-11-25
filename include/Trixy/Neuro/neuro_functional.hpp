@@ -14,7 +14,7 @@ namespace trixy
 template <template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
           typename Precision, typename... Args>
-class NeuroManager;
+class FunctionalManager;
 
 template <template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
@@ -34,13 +34,13 @@ class NeuroSerializer;
               typename Precision,                              \
               typename... Args>
 
-#define TRIXY_NEURO_MANAGER_TPL_DECLARATION                    \
+#define TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION               \
     template <template <typename, typename...> class Vector,   \
               template <typename, typename...> class Matrix,   \
               typename Precision, typename... Args>
 
-#define TRIXY_NEURO_MANAGER_DECLARATION                        \
-    NeuroManager<Vector, Matrix, Precision, Args...>
+#define TRIXY_FUNCTIONAL_MANAGER_TPL                           \
+    FunctionalManager<Vector, Matrix, Precision, Args...>
 
 #define TRIXY_NEURO_SERIALIZER_TPL_DECLARATION                 \
     template <template <typename, typename...> class Vector,   \
@@ -673,8 +673,8 @@ enum class optimization_id : std::uint8_t
 
 } // namespace function
 
-TRIXY_NEURO_MANAGER_TPL_DECLARATION
-class NeuroManager
+TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION
+class FunctionalManager
 {
 public:
     using byte_type = std::uint8_t;
@@ -684,27 +684,27 @@ public:
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(function::activation_id id) noexcept;
+    FunctionData<Vector, Precision, Args...> get(function::activation_id id) noexcept;
 
     template <template <template <typename, typename...> class T,
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Precision, Args...> get(function::loss_id id) noexcept;
+    FunctionData<Vector, Precision, Args...> get(function::loss_id id) noexcept;
 
     template <template <template <typename, typename...> class T1,
                         template <typename, typename...> class T2,
                         typename P, typename...>
               class FunctionData,
               meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int> = 0>
-    static FunctionData<Vector, Matrix, Precision, Args...> get(function::optimization_id id) noexcept;
+    FunctionData<Vector, Matrix, Precision, Args...> get(function::optimization_id id) noexcept;
 };
 
-TRIXY_NEURO_MANAGER_TPL_DECLARATION
+TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           meta::enable_if_t<meta::is_activation_data<FunctionData, Vector, Precision, Args...>::value, int>>
 FunctionData<Vector, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::activation_id id) noexcept
+    TRIXY_FUNCTIONAL_MANAGER_TPL::get(function::activation_id id) noexcept
 {
     using namespace set::activation;
     using namespace function;
@@ -756,11 +756,11 @@ FunctionData<Vector, Precision, Args...>
     }
 }
 
-TRIXY_NEURO_MANAGER_TPL_DECLARATION
+TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           meta::enable_if_t<meta::is_loss_data<FunctionData, Vector, Precision, Args...>::value, int>>
 FunctionData<Vector, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::loss_id id) noexcept
+    TRIXY_FUNCTIONAL_MANAGER_TPL::get(function::loss_id id) noexcept
 {
     using namespace set::loss;
     using namespace function;
@@ -796,14 +796,14 @@ FunctionData<Vector, Precision, Args...>
     }
 }
 
-TRIXY_NEURO_MANAGER_TPL_DECLARATION
+TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION
 template <template <template <typename, typename...> class T1,
                     template <typename, typename...> class T2,
                     typename P, typename...>
           class FunctionData,
           meta::enable_if_t<meta::is_optimization_data<FunctionData, Vector, Matrix, Precision, Args...>::value, int>>
 FunctionData<Vector, Matrix, Precision, Args...>
-    TRIXY_NEURO_MANAGER_DECLARATION::get(function::optimization_id id) noexcept
+    TRIXY_FUNCTIONAL_MANAGER_TPL::get(function::optimization_id id) noexcept
 {
     using namespace set::optimization;
     using namespace function;
@@ -1014,8 +1014,8 @@ inline function::optimization_id TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId()
 // clean up
 #undef TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 #undef TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-#undef TRIXY_NEURO_MANAGER_TPL_DECLARATION
-#undef TRIXY_NEURO_MANAGER_DECLARATION
+#undef TRIXY_FUNCTIONAL_MANAGER_TPL_DECLARATION
+#undef TRIXY_FUNCTIONAL_MANAGER_TPL
 #undef TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
 #undef TRIXY_NEURO_SERIALIZER_TPL
 #undef TRIXY_FUNCTION_GENERIC_HELPER
