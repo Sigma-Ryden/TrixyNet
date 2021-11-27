@@ -98,11 +98,12 @@ void mnist_test_deserialization()
     // NeuralNetwork preparing:
 
     // NeuralNetwork topology:
-    std::ifstream in("D:\\mnist_test.bin", std::ios::binary);
+    std::ifstream in("D:\\mnist_experimental.bin", std::ios::binary);
     if(!in.is_open()) return;
 
     NeuralSerializer sr;
     sr.deserialize(in);
+    in.close();
 
     NeuralNetwork net = sr.getTopology();
     NeuralFunctional manage;
@@ -120,7 +121,6 @@ void mnist_test_deserialization()
 
     std::cout << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_in, test_out)
               << "\nNEURO TEST_SET LOSS: " << net.loss(test_in, test_out) << '\n';
-    //
     //
     std::cout << "TESTING TRAIN_SET\n";
     for(std::size_t i = 0; i < train_in.size(); ++i)
@@ -219,6 +219,7 @@ void mnist_test()
     NeuralSerializer sr;
     sr.prepare(net);
     sr.serialize(out);
+    out.close();
 
     std::cout << "End serialization\n";
 }
