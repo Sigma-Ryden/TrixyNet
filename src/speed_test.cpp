@@ -42,9 +42,9 @@ float random_normal() noexcept
 
 void speed_test_deserialization()
 {
-    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     std::ifstream in("D:\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
@@ -82,8 +82,8 @@ void speed_test_deserialization()
         {1, 0, 0}
     };
 
-    util::testNeuro(net, train_in, train_out);
-    util::checkNeuro(net, train_in, train_out);
+    util::test_neuro(net, train_in, train_out);
+    util::check_neuro(net, train_in, train_out);
 }
 
 void speed_test()
@@ -101,7 +101,7 @@ void speed_test()
     net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
     net.function.setLoss(manage.get<Loss>(loss_id::CCE));
 
-    net.function.setOptimization(manage.get<Optimization>(optimization_id::ada_grad));
+    net.function.setOptimization(manage.get<Optimization>(optimization_id::rms_prop));
 
     Container<li::Vector<float>> train_in
     {
@@ -123,8 +123,8 @@ void speed_test()
     };
 
     std::cout << "Before train\n";
-    util::testNeuro(net, train_in, train_out);
-    util::checkNeuro(net, train_in, train_out);
+    util::test_neuro(net, train_in, train_out);
+    util::check_neuro(net, train_in, train_out);
 
     Timer t;
     /*
@@ -136,8 +136,8 @@ void speed_test()
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
-    util::testNeuro(net, train_in, train_out);
-    util::checkNeuro(net, train_in, train_out);
+    util::test_neuro(net, train_in, train_out);
+    util::check_neuro(net, train_in, train_out);
 
     std::ofstream out("D:\\speed_test.bin", std::ios::binary);
     if(!out.is_open()) return;
@@ -151,15 +151,15 @@ void speed_test()
     std::cout << "End serialization\n";
 }
 
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
+    //speed_test();
     speed_test_deserialization();
 
     return 0;
 }
-*/
+//

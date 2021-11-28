@@ -56,7 +56,7 @@ template <typename Neuro,
           template <typename...> class Collection,
           typename Type,
           typename... Args>
-void testNeuro(
+void test_neuro(
     const Neuro& network,
     const Collection<Tensor1D<Type, Args...>>& idata,
     const Collection<Tensor1D<Type, Args...>>& odata)
@@ -71,7 +71,7 @@ template <typename Neuro,
           template <typename...> class Collection,
           typename Type,
           typename... Args>
-void checkNeuro(
+void check_neuro(
     const Neuro& network,
     const Collection<Tensor1D<Type, Args...>>& idata,
     const Collection<Tensor1D<Type, Args...>>& odata)
@@ -96,7 +96,7 @@ std::size_t max(const Tensor1D<Precision, Args...>& vector) noexcept
 }
 
 template <typename Neuro>
-void showInnerStruct(const Neuro& neuro)
+void show_inner_struct(const Neuro& neuro)
 {
     for(std::size_t i = 0; i < neuro.getInnerWeight().size(); ++i)
         std::cout << "W[" << i << "]: " << neuro.getInnerWeight()[i] << '\n';

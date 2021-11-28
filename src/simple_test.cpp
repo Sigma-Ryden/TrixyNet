@@ -18,7 +18,7 @@
 namespace tr = trixy;
 namespace li = lique;
 
-int random()
+int generator()
 {
     static std::mt19937 gen;
 
@@ -66,8 +66,8 @@ void simple_test_deserialization()
         {1, 0}
     };
 
-    util::testNeuro(net, train_in, train_out);
-    util::checkNeuro(net, train_in, train_out);
+    util::test_neuro(net, train_in, train_out);
+    util::check_neuro(net, train_in, train_out);
 }
 
 template <typename Precision>
@@ -84,7 +84,7 @@ void simple_test()
 
     net.initializeInnerStruct([]() -> Precision {
         static int range = 1000;
-        return static_cast<Precision>(random() % (2 * range + 1) - range) / range;
+        return static_cast<Precision>(generator() % (2 * range + 1) - range) / range;
     });
 
     net.function.setActivation(manage.template get<Activation>(activation_id::relu));
@@ -108,11 +108,11 @@ void simple_test()
     };
 
     Timer t;
-    net.trainStochastic(train_in, train_out, 0.1, 1000, random);
+    net.trainStochastic(train_in, train_out, 0.1, 1000, generator);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
-    util::testNeuro(net, train_in, train_out);
-    util::checkNeuro(net, train_in, train_out);
+    util::test_neuro(net, train_in, train_out);
+    util::check_neuro(net, train_in, train_out);
 
     std::ofstream out("D:\\simple_test.bin");
     if(!out.is_open()) return;

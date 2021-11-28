@@ -165,24 +165,24 @@ public:
     using GeneratorInteger   = int (*)();
     using GeneratorPrecision = Precision (*)();
 
-public:
-    InnerFunctional function;       ///< Functional object for set/get each inner network function
-
 private:
-    mutable InnerBuffer ib;         ///< in - inner buffer (class for temporary hold storage)
-
-    Container<Tensor1D>  B;         ///< Container of network bias
-    Container<Tensor2D>  W;         ///< Container of network weight
     Container<size_type> T;         ///< Network topology
-
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
+    mutable InnerBuffer ib;         ///< in - inner buffer (class for temporary hold storage)
+    Container<Tensor1D>  B;         ///< Container of network bias
+    Container<Tensor2D>  W;         ///< Container of network weight
+
+public:
+    InnerFunctional function;       ///< Functional object for set & get each inner network function
+
+private:
     Linear<Tensor1D, Tensor2D> li;  ///< li - linear (class for linear calculate)
 
 public:
     Neuro(const Container<size_type>& topology);
 
-    const Tensor1D& feedforward(const Tensor1D&) const noexcept;
+    const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 
     void trainStochastic(const Container<Tensor1D>& idata,
                          const Container<Tensor1D>& odata,
@@ -224,10 +224,10 @@ public:
                 const Container<Tensor1D>& odata) const noexcept;
 
 private:
-    void innerFeedForward(const Tensor1D& idata_sample) const noexcept;
+    void innerFeedForward(const Tensor1D& sample) const noexcept;
 
-    void innerBackPropagation(const Tensor1D& idata_sample,
-                              const Tensor1D& odata_sample) const noexcept;
+    void innerBackPropagation(const Tensor1D& sample,
+                              const Tensor1D& target) const noexcept;
 
     void innerUpdateNormalize(const Container<Tensor1D>& deltaB,
                               const Container<Tensor2D>& deltaW,
@@ -277,32 +277,26 @@ private:
 public:
     Container<Tensor1D> H;       ///<
     Container<Tensor1D> DH;      ///<
+
     Container<Tensor1D> DB;      ///<
     Container<Tensor2D> DW;      ///<
-    Container<Tensor1D> buff;    ///< 1D buffer for handle
 
     Container<Tensor1D> deltaB;  ///<
     Container<Tensor2D> deltaW;  ///<
 
     Container<Tensor1D> OB;      ///<
     Container<Tensor2D> OW;      ///<
+
+    Container<Tensor1D> buff;    ///< 1D buffer for handle
     Container<Tensor2D> buff2;   ///< 2D buffer for handle
 
 public:
-    explicit InnerBuffer(size_type size = 0) : size_(size) {}
+    explicit InnerBuffer(size_type size);
 
-    void initializeDefault();
-    void initializeDelta();
-    void initializeOptimizer();
-
-    void startDefault(const Container<Tensor1D>& bias,
-                      const Container<Tensor2D>& weight);
-
-    void startDelta(const Container<Tensor1D>& bias,
-                    const Container<Tensor2D>& weight);
-
-    void startOptimizer(const Container<Tensor1D>& bias,
-                        const Container<Tensor2D>& weight);
+    void startDefault(const Container<size_type>& topology);
+    void startDelta(const Container<size_type>& topology);
+    void startOptimizer(const Container<size_type>& topology);
+    void startBuffer(const Container<size_type>& topology);
 
     void resetDelta() noexcept;
     void resetOptimizer() noexcept;
@@ -317,13 +311,15 @@ class TRIXY_NEURO_TPL::InnerFunctional
 friend class TRIXY_NEURO_TPL;
 
 private:
+    ~InnerFunctional() = default;
+
+private:
     Container<ActivationFunction> A;
     LossFunction E;
     OptimizationFunction O;
 
 public:
     explicit InnerFunctional(size_type N) : A(N), E(), O() {}
-
     InnerFunctional& operator= (const InnerFunctional&) = delete;
 
     void setActivation(const ActivationFunction&);
@@ -351,7 +347,7 @@ void TRIXY_NEURO_TPL::InnerFunctional::setActivation(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerFunctional::setEachActivation(
-    const Container<ActivationFunction>& fs)
+    const Container<function::Activation<Vector, Precision, Args...>>& fs)
 {
     for(size_type i = 0; i < A.size(); ++i)
         A[i] = fs[i];
@@ -413,73 +409,60 @@ inline const function::Optimization<Vector, Matrix, Precision, Args...>&
     return O;
 }
 
-
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerBuffer::initializeDefault()
+TRIXY_NEURO_TPL::InnerBuffer::InnerBuffer(size_type size)
+    : size_(size)
+    , H(size),      DH(size)
+    , DB(size),     DW(size)
+    , deltaB(size), deltaW(size)
+    , OB(size),     OW(size)
+    , buff(size),   buff2(size)
 {
-    H.resize(size_);
-    DH.resize(size_);
-    DB.resize(size_);
-    DW.resize(size_);
-
-    buff.resize(size_);
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerBuffer::initializeDelta()
-{
-    deltaB.resize(size_);
-    deltaW.resize(size_);
-}
-
-TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerBuffer::initializeOptimizer()
-{
-    OB.resize(size_);
-    OW.resize(size_);
-
-    buff2.resize(size_);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDefault(
-    const Container<Vector<Precision, Args...>>& bias,
-    const Container<Matrix<Precision, Args...>>& weight)
+    const Container<std::size_t>& topology)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        H[i].resize(bias[i].size());
-        DH[i].resize(bias[i].size());
-        DB[i].resize(bias[i].size());
-        DW[i].resize(weight[i].size());
-
-        buff[i].resize(bias[i].size());
+        H [i].resize(topology[i + 1]);
+        DH[i].resize(topology[i + 1]);
+        DB[i].resize(topology[i + 1]);
+        DW[i].resize(topology[i], topology[i + 1]);
     }
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startDelta(
-    const Container<Vector<Precision, Args...>>& bias,
-    const Container<Matrix<Precision, Args...>>& weight)
+    const Container<std::size_t>& topology)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        deltaB[i].resize(bias[i].size());
-        deltaW[i].resize(weight[i].size());
+        deltaB[i].resize(topology[i + 1]);
+        deltaW[i].resize(topology[i], topology[i + 1]);
     }
 }
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::InnerBuffer::startOptimizer(
-    const Container<Vector<Precision, Args...>>& bias,
-    const Container<Matrix<Precision, Args...>>& weight)
+    const Container<std::size_t>& topology)
 {
     for(size_type i = 0; i < size_; ++i)
     {
-        OB[i].resize(bias[i].size());
-        OW[i].resize(weight[i].size());
+        OB[i].resize(topology[i + 1]);
+        OW[i].resize(topology[i], topology[i + 1]);
+    }
+}
 
-        buff2[i].resize(weight[i].size());
+TRIXY_NEURO_TPL_DECLARATION
+void TRIXY_NEURO_TPL::InnerBuffer::startBuffer(
+    const Container<std::size_t>& topology)
+{
+    for(size_type i = 0; i < size_; ++i)
+    {
+        buff [i].resize(topology[i + 1]);
+        buff2[i].resize(topology[i], topology[i + 1]);
     }
 }
 
@@ -514,8 +497,7 @@ void TRIXY_NEURO_TPL::InnerBuffer::updateDelta() noexcept
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-void TRIXY_NEURO_TPL::InnerBuffer::normalizeDelta(
-    Precision alpha) noexcept
+void TRIXY_NEURO_TPL::InnerBuffer::normalizeDelta(Precision alpha) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
     {
@@ -525,14 +507,13 @@ void TRIXY_NEURO_TPL::InnerBuffer::normalizeDelta(
 }
 
 TRIXY_NEURO_TPL_DECLARATION
-TRIXY_NEURO_TPL::Neuro(
-    const Container<size_type>& topology)
-    : function(topology.size() - 1)
+TRIXY_NEURO_TPL::Neuro(const Container<std::size_t>& topology)
+    : T(topology)
+    , N(topology.size() - 1)
     , ib(topology.size() - 1)
     , B(topology.size() - 1)
     , W(topology.size() - 1)
-    , T(topology)
-    , N(topology.size() - 1)
+    , function(topology.size() - 1)
     , li()
 {
     for(size_type i = 0; i < N; ++i)
@@ -541,13 +522,10 @@ TRIXY_NEURO_TPL::Neuro(
         W[i].resize(T[i], T[i + 1]);
     }
 
-    ib.initializeDefault();
-    ib.initializeDelta();
-    ib.initializeOptimizer();
-
-    ib.startDefault(B, W);
-    ib.startDelta(B, W);
-    ib.startOptimizer(B, W);
+    ib.startDefault(T);
+    ib.startDelta(T);
+    ib.startOptimizer(T);
+    ib.startBuffer(T);
 }
 
 TRIXY_NEURO_TPL_DECLARATION
@@ -580,8 +558,8 @@ void TRIXY_NEURO_TPL::initializeInnerStruct(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i] = bias[i];
-        W[i] = weight[i];
+        B[i].copy(bias[i]);
+        W[i].copy(weight[i]);
     }
 }
 
@@ -607,9 +585,9 @@ inline const Container<std::size_t>& TRIXY_NEURO_TPL::getTopology() const noexce
 
 TRIXY_NEURO_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_NEURO_TPL::feedforward(
-    const Vector<Precision, Args...>& vector) const noexcept
+    const Vector<Precision, Args...>& sample) const noexcept
 {
-    li.dot(ib.buff[0], vector, W[0]);
+    li.dot(ib.buff[0], sample, W[0]);
     function.A[0].f(ib.buff[0], ib.buff[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
@@ -797,12 +775,12 @@ double TRIXY_NEURO_TPL::loss(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerFeedForward(
-    const Vector<Precision, Args...>& idata_sample) const noexcept
+    const Vector<Precision, Args...>& sample) const noexcept
 {
     static size_type i;
     static size_type j;
 
-    li.dot(ib.buff[0], idata_sample, W[0]);
+    li.dot(ib.buff[0], sample, W[0]);
     ib.buff[0].add(B[0]);
 
     for(i = 0, j = 1; j < N; ++i, ++j)
@@ -820,23 +798,24 @@ void TRIXY_NEURO_TPL::innerFeedForward(
 
 TRIXY_NEURO_TPL_DECLARATION
 void TRIXY_NEURO_TPL::innerBackPropagation(
-    const Vector<Precision, Args...>& idata_sample,
-    const Vector<Precision, Args...>& odata_sample) const noexcept
+    const Vector<Precision, Args...>& sample,
+    const Vector<Precision, Args...>& target) const noexcept
 {
-    static const size_type L = N - 1;
+    static size_type i;
+    static size_type j;
 
-    function.E.df(ib.buff[L], odata_sample, ib.H[L]);
+    i = N - 1;
+    function.E.df(ib.buff[i], target, ib.H[i]);
 
-    for(size_type i = L; i > 0; --i)
+    for(j = i - 1; i > 0; --i, --j)
     {
         ib.DB[i].multiply(ib.buff[i], ib.DH[i]);
-        li.tensordot(ib.DW[i], ib.H[i - 1], ib.DB[i]);
-
-        li.dottranspose(ib.buff[i - 1], ib.DB[i], W[i]);
+        li.     tensordot(ib.  DW[i], ib. H[j], ib.DB[i]);
+        li.  dottranspose(ib.buff[j], ib.DB[i], W[i]);
     }
 
     ib.DB[0].multiply(ib.buff[0], ib.DH[0]);
-    li.tensordot(ib.DW[0], idata_sample, ib.DB[0]);
+    li.     tensordot(ib.  DW[0], sample, ib.DB[0]);
 }
 
 TRIXY_NEURO_TPL_DECLARATION

@@ -73,11 +73,11 @@ void show_image_batch(const Container<li::Vector<float>>& data) noexcept
 
 void mnist_test_deserialization()
 {
-    using namespace trixy::function;
+    using namespace tr::function;
 
-    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -145,11 +145,11 @@ void mnist_test_deserialization()
 
 void mnist_test()
 {
-    using namespace trixy::function;
+    using namespace tr::function;
 
-    using NeuralNetwork    = trixy::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional = trixy::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer = trixy::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
+    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -204,13 +204,13 @@ void mnist_test()
     // Test train_batch aft
     std::cout << "NNetwork train loss: " << net.loss(train_in, train_out) << '\n';
     std::cout << "NNetwork tarin normal accuracy: " << net.accuracy(train_in, train_out) << '\n';
-    //std::cout << "NNetwork tarin global accuracy: " << net.globalAccuracy(train_in, train_out, 0.25) << '\n';
-    //std::cout << "NNetwork tarin full accuracy: " << net.fullAccuracy(train_in, train_out, 0.25) << '\n';
+    //std::cout << "NNetwork tarin global accuracy: " << net.accuracyg(train_in, train_out, 0.25) << '\n';
+    //std::cout << "NNetwork tarin full accuracy: " << net.accuracyf(train_in, train_out, 0.25) << '\n';
     // Test test_batch aft
     std::cout << "NNetwork test loss: " << net.loss(test_in, test_out) << '\n';
     std::cout << "NNetwork test normal accuracy: " << net.accuracy(test_in, test_out) << '\n';
-    //std::cout << "NNetwork test global accuracy: " << net.globalAccuracy(test_in, test_out, 0.25) << '\n';
-    //std::cout << "NNetwork test full accuracy: " << net.fullAccuracy(test_in, test_out, 0.25) << '\n';
+    //std::cout << "NNetwork test global accuracy: " << net.accuracyg(test_in, test_out, 0.25) << '\n';
+    //std::cout << "NNetwork test full accuracy: " << net.accuracyf(test_in, test_out, 0.25) << '\n';
     std::cout << "Check time: " << t.elapsed() << '\n';
 
     std::ofstream out("D:\\mnist_test.bin", std::ios::binary);
@@ -224,7 +224,7 @@ void mnist_test()
     std::cout << "End serialization\n";
 }
 
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -237,4 +237,4 @@ int main()
 
     return 0;
 }
-//
+*/
