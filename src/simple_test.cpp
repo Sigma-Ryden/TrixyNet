@@ -1,22 +1,22 @@
+#include "Trixy/Lique/lique_vector.hpp" // Vector
+#include "Trixy/Lique/lique_matrix.hpp" // Matrix
+#include "Trixy/Lique/lique_linear.hpp" // Linear
+
+#include "Trixy/Container/container.hpp" // Container
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional
+#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
+#include "Trixy/Neuro/neuro_core.hpp" // Neuro
+
+#include "Timer/timer.h" // Timer
+#include "Utility/util.hpp" // test_neuro, check_neuro
+
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 #include <fstream> // ifstream, ofstream
 #include <random> // mt19937
 
-#include "Trixy/Lique/lique_linear.hpp" // Linear
-#include "Trixy/Lique/lique_matrix.hpp" // Matrix
-#include "Trixy/Lique/lique_vector.hpp" // Vector
-
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional, NeuroSerializer
-
-#include "Trixy/Container/container.hpp" // Container
-
-#include "Timer/timer.h" // Timer
-#include "UtilityMaster/util.hpp" // test_neuro, check_neuro
-
 namespace tr = trixy;
-namespace li = trixy::lique;
+namespace li = lique;
 
 int generator()
 {

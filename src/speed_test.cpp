@@ -1,24 +1,24 @@
+#include "Trixy/Lique/lique_vector.hpp" // Vector
+#include "Trixy/Lique/lique_matrix.hpp" // Matrix
+#include "Trixy/Lique/lique_linear.hpp" // Linear
+
+#include "Trixy/Container/container.hpp" // Container
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional
+#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
+#include "Trixy/Neuro/neuro_core.hpp" // Neuro
+
+#include "MnistMaster/mnist_reader.hpp" // read_dataset
+#include "Timer/timer.h" // Timer
+#include "Utility/util.hpp" // test_neuro, check_neuro
+
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time
 #include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
 
-#include "Trixy/Lique/lique_linear.hpp" // Linear
-#include "Trixy/Lique/lique_matrix.hpp" // Matrix
-#include "Trixy/Lique/lique_vector.hpp" // Vector
-
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional, NeuroSerializer
-
-#include "Trixy/Container/container.hpp" // Container
-
-#include "MnistMaster/mnist_reader.hpp" // read_dataset
-#include "Timer/timer.h" // Timer
-#include "UtilityMaster/util.hpp" // test_neuro, check_neuro
-
 namespace tr = trixy;
-namespace li = trixy::lique;
+namespace li = lique;
 
 using namespace tr::function;
 

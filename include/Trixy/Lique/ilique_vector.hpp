@@ -3,9 +3,6 @@
 
 #include <cstddef> // size_t
 
-namespace trixy
-{
-
 namespace ilique
 {
 
@@ -141,7 +138,5 @@ inline const Type* Vector<Tensor, Type>::data() const noexcept
 }
 
 } // namespace ilique
-
-} // namespace trixy
 
 #endif // ILIQUE_VECTOR_HPP

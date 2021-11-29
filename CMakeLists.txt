@@ -28,19 +28,24 @@ set(TRIXY_LIQUE
 set(TRIXY_NEURO
     include/Trixy/Neuro/neuro_core.hpp
     include/Trixy/Neuro/neuro_functional.hpp
+    include/Trixy/Neuro/Function/neuro_function_id.hpp
+    include/Trixy/Neuro/Function/neuro_activation.hpp
+    include/Trixy/Neuro/Function/neuro_loss.hpp
+    include/Trixy/Neuro/Function/neuro_optimization.hpp
+    include/Trixy/Neuro/neuro_serializer.hpp
+    include/Trixy/Neuro/Detail/neuro_meta.hpp
+
 )
 set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp
     include/MnistMaster/mnist_reader_common.hpp
-    include/MnistMaster/mnist_reader_less.hpp
-    include/MnistMaster/mnist_utils.hpp
 )
 set(TIMER
     include/Timer/timer.h
 )
 
 set(UTILS
-    include/UtilityMaster/util.hpp
+    include/Utility/util.hpp
 )
 
 add_executable(${PROJECT_NAME}
