@@ -1,15 +1,8 @@
-#include "Lique/lique_vector.hpp" // Vector
-#include "Lique/lique_matrix.hpp" // Matrix
-#include "Lique/lique_linear.hpp" // Linear
+#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, FFNNFunctional, FFNNSerializer
+#include "Trixy/Lique/lique_core.hpp" // Vector, Matrix, Linear
 
-#include "Container/container.hpp" // Container
-#include "Neuro/FFNN_functional.hpp" // FFNNFunctional
-#include "Neuro/FFNN_serializer.hpp" // FFNNSerializer
-#include "Neuro/Network/FFNN.hpp" // FeedForwardNeuro
-
-#include "MnistMaster/mnist_reader.hpp" // read_dataset
-#include "Timer/timer.h" // Timer
-#include "Utility/util.hpp" // test_neuro, check_neuro
+#include "Trixy/Container/container.hpp" // Container
+#include "Utility/util.hpp" // Timer, test_neuro, check_neuro
 
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time

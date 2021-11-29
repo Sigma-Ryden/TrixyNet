@@ -1,13 +1,13 @@
 #ifndef FFNN_FUNCTIONAL_HPP
 #define FFNN_FUNCTIONAL_HPP
 
-#include "Function/neuro_function_id.hpp"
+#include "../Detail/neuro_function_id.hpp"
+#include "../Detail/neuro_meta.hpp"
 
 #include "Function/neuro_activation.hpp"
 #include "Function/neuro_optimization.hpp"
 #include "Function/neuro_loss.hpp"
 
-#include "Detail/neuro_meta.hpp"
 
 #include <cstdint> // uint_8
 #include <utility> // declval

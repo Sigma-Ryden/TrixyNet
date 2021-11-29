@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
-include_directories(include/Trixy)
 
 set(TESTING
     src/simple_test.cpp
@@ -18,23 +17,28 @@ set(TRIXY_COLLECTION
     include/Trixy/Container/icontainer.hpp
 )
 set(TRIXY_LIQUE
-    include/Trixy/Lique/ilique_base.hpp
-    include/Trixy/Lique/ilique_linear.hpp
-    include/Trixy/Lique/ilique_matrix.hpp
-    include/Trixy/Lique/ilique_vector.hpp
     include/Trixy/Lique/lique_linear.hpp
     include/Trixy/Lique/lique_matrix.hpp
     include/Trixy/Lique/lique_vector.hpp
+    include/Trixy/Lique/lique_core.hpp
+)
+set(TRIXY_ILIQUE
+    include/Trixy/ILique/ilique_base.hpp
+    include/Trixy/ILique/ilique_linear.hpp
+    include/Trixy/ILique/ilique_matrix.hpp
+    include/Trixy/ILique/ilique_vector.hpp
+    include/Trixy/ILique/ilique_core.hpp
 )
 set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/neuro_meta.hpp
+    include/Trixy/Neuro/Detail/neuro_function_id.hpp
     include/Trixy/Neuro/Network/FFNN.hpp
-    include/Trixy/Neuro/Function/neuro_function_id.hpp
-    include/Trixy/Neuro/Function/neuro_activation.hpp
-    include/Trixy/Neuro/Function/neuro_loss.hpp
-    include/Trixy/Neuro/Function/neuro_optimization.hpp
-    include/Trixy/Neuro/FFNN_functional.hpp
-    include/Trixy/Neuro/FFNN_serializer.hpp
+    include/Trixy/Neuro/Functional/Function/neuro_activation.hpp
+    include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
+    include/Trixy/Neuro/Functional/Function/neuro_optimization.hpp
+    include/Trixy/Neuro/Functional/FFNN_functional.hpp
+    include/Trixy/Neuro/Serialization/FFNN_serializer.hpp
+    include/Trixy/Neuro/neuro_core.hpp
 )
 set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp
@@ -51,9 +55,18 @@ set(UTILS
 add_executable(${PROJECT_NAME}
     ${TRIXY_COLLECTION}
     ${TRIXY_LIQUE}
+    ${TRIXY_ILIQUE}
     ${TRIXY_NEURO}
     ${MNIST_MASTER}
     ${TIMER}
     ${UTILS}
     ${TESTING}
 )
+
+#file(GLOB_RECURSE HEADERS "include/*.hpp")
+#file(GLOB TESTING "src/*.hpp")
+
+#target_link_libraries(
+#    ${PROJECT_NAME} STATIC
+#    ${HEADERS} ${TESTING}
+#)

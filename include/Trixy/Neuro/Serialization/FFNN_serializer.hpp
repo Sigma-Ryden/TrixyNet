@@ -1,9 +1,8 @@
 #ifndef FFNN_SERIALIZER_HPP
 #define FFNN_SERIALIZER_HPP
 
-#include "Function/neuro_function_id.hpp"
-#include "Function/neuro_activation.hpp"
-#include "Detail/neuro_meta.hpp"
+#include "../Detail/neuro_function_id.hpp"
+#include "../Detail/neuro_meta.hpp"
 
 #include <cstddef> // size_t
 #include <fstream> // ifstream, ofstream

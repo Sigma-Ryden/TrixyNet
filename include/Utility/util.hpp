@@ -5,9 +5,63 @@
 #include <iostream> // ostream
 #include <type_traits> // enable_if, is_same
 #include <utility> // declval
+#include <chrono> // chrono
 
 namespace util
 {
+
+class Timer
+{
+private:
+    using clock_t  = std::chrono::high_resolution_clock;
+    using second_t = std::chrono::duration<double, std::ratio<1>>;
+
+    std::chrono::time_point<clock_t> m_beg;
+
+public:
+    Timer() : m_beg(clock_t::now())
+    {
+    }
+
+    void reset()
+    {
+        m_beg = clock_t::now();
+    }
+
+    double elapsed() const
+    {
+        return std::chrono::duration_cast<second_t>(clock_t::now() - m_beg).count();
+    }
+};
+
+template <template <typename, typename...> class Tensor1D, typename Precision, typename... Args>
+std::size_t max(const Tensor1D<Precision, Args...>& vector) noexcept
+{
+    static std::size_t max;
+
+    max = 0;
+    for(std::size_t i = 1; i < vector.size(); ++i)
+        if(vector(max) < vector(i))
+            max = i;
+
+    return max;
+}
+
+template <template <typename...> class Collection>
+void network_size(const Collection<std::size_t>& topology)
+{
+    std::size_t count = 0;
+    for(std::size_t i = 1; i < topology.size(); ++i)
+       count += (topology[i - 1] + 1) * topology[i];
+
+    count += topology.size();
+
+    count *= 8;
+
+    std::cout << (count / 1024) / 1024 << " MByte(s) "
+              << (count / 1024) % 1024 << " KByte(s) "
+              << count % 1024 << " Byte(s)\n";
+}
 
 template <template <typename T, typename...> class Tensor1D, typename Type, typename... Args,
           typename std::enable_if<
@@ -82,19 +136,6 @@ void check_neuro(
               << "\nNNetwork tarin Loss: "            << network.loss(idata, odata) << '\n';
 }
 
-template <template <typename, typename...> class Tensor1D, typename Precision, typename... Args>
-std::size_t max(const Tensor1D<Precision, Args...>& vector) noexcept
-{
-    static std::size_t max;
-
-    max = 0;
-    for(std::size_t i = 1; i < vector.size(); ++i)
-        if(vector(max) < vector(i))
-            max = i;
-
-    return max;
-}
-
 template <typename Neuro>
 void show_inner_struct(const Neuro& neuro)
 {
@@ -103,22 +144,6 @@ void show_inner_struct(const Neuro& neuro)
 
     for(std::size_t i = 0; i < neuro.getInnerBias().size(); ++i)
         std::cout << "B[" << i << "]: " << neuro.getInnerBias()[i] << '\n';
-}
-
-template <template <typename...> class Collection>
-void network_size(const Collection<std::size_t>& topology)
-{
-    std::size_t count = 0;
-    for(std::size_t i = 1; i < topology.size(); ++i)
-       count += (topology[i - 1] + 1) * topology[i];
-
-    count += topology.size();
-
-    count *= 8;
-
-    std::cout << (count / 1024) / 1024 << " MByte(s) "
-              << (count / 1024) % 1024 << " KByte(s) "
-              << count % 1024 << " Byte(s)\n";
 }
 
 } // namespace util
