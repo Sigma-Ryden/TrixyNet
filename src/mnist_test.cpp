@@ -3,9 +3,9 @@
 #include "Trixy/Lique/lique_linear.hpp" // Linear
 
 #include "Trixy/Container/container.hpp" // Container
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional
-#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro
+#include "Trixy/Neuro/FFNN_functional.hpp" // FFNNFunctional
+#include "Trixy/Neuro/FFNN_serializer.hpp" // FFNNSerializer
+#include "Trixy/Neuro/Network/FFNN.hpp" // FeedForwardNeuro
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 
@@ -75,9 +75,9 @@ void mnist_test_deserialization()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -146,9 +146,9 @@ void mnist_test()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");

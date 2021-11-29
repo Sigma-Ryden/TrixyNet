@@ -3,9 +3,9 @@
 #include "Trixy/Lique/lique_linear.hpp" // Linear
 
 #include "Trixy/Container/container.hpp" // Container
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional
-#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro
+#include "Trixy/Neuro/FFNN_functional.hpp" // FFNNFunctional
+#include "Trixy/Neuro/FFNN_serializer.hpp" // FFNNSerializer
+#include "Trixy/Neuro/Network/FFNN.hpp" // FeedForwardNeuro
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Timer/timer.h" // Timer
@@ -42,9 +42,9 @@ float random_normal() noexcept
 
 void speed_test_deserialization()
 {
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     std::ifstream in("D:\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
@@ -88,9 +88,9 @@ void speed_test_deserialization()
 
 void speed_test()
 {
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     NeuralNetwork net({4, 4, 5, 4, 3});
     NeuralFunctional manage;

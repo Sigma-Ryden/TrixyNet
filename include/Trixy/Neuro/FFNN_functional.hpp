@@ -1,5 +1,5 @@
-#ifndef NEURO_FUNCTIONAL_HPP
-#define NEURO_FUNCTIONAL_HPP
+#ifndef FFNN_FUNCTIONAL_HPP
+#define FFNN_FUNCTIONAL_HPP
 
 #include "Function/neuro_function_id.hpp"
 
@@ -16,16 +16,16 @@
 namespace trixy
 {
 
-template <typename Neuro>
-class NeuroFunctional
+template <typename FeedForwardNeuro>
+class FFNNFunctional
 {
 public:
     using byte_type = std::uint8_t;
 
 private:
-    using ActivationFunction   = typename Neuro::ActivationFunction;
-    using LossFunction         = typename Neuro::LossFunction;
-    using OptimizationFunction = typename Neuro::OptimizationFunction;
+    using ActivationFunction   = typename FeedForwardNeuro::ActivationFunction;
+    using LossFunction         = typename FeedForwardNeuro::LossFunction;
+    using OptimizationFunction = typename FeedForwardNeuro::OptimizationFunction;
 
 public:
     ActivationFunction get(function::ActivationId id) const noexcept;
@@ -33,9 +33,9 @@ public:
     OptimizationFunction get(function::OptimizationId id) const noexcept;
 };
 
-template <typename Neuro>
-typename NeuroFunctional<Neuro>::ActivationFunction
-NeuroFunctional<Neuro>::get(function::ActivationId id) const noexcept
+template <typename FeedForwardNeuro>
+typename FFNNFunctional<FeedForwardNeuro>::ActivationFunction
+FFNNFunctional<FeedForwardNeuro>::get(function::ActivationId id) const noexcept
 {
     using namespace set::activation;
     using namespace function;
@@ -90,9 +90,9 @@ NeuroFunctional<Neuro>::get(function::ActivationId id) const noexcept
     }
 }
 
-template <typename Neuro>
-typename NeuroFunctional<Neuro>::LossFunction
-NeuroFunctional<Neuro>::get(function::LossId id) const noexcept
+template <typename FeedForwardNeuro>
+typename FFNNFunctional<FeedForwardNeuro>::LossFunction
+FFNNFunctional<FeedForwardNeuro>::get(function::LossId id) const noexcept
 {
     using namespace set::loss;
     using namespace function;
@@ -130,9 +130,9 @@ NeuroFunctional<Neuro>::get(function::LossId id) const noexcept
     }
 }
 
-template <typename Neuro>
-typename NeuroFunctional<Neuro>::OptimizationFunction
-NeuroFunctional<Neuro>::get(function::OptimizationId id) const noexcept
+template <typename FeedForwardNeuro>
+typename FFNNFunctional<FeedForwardNeuro>::OptimizationFunction
+FFNNFunctional<FeedForwardNeuro>::get(function::OptimizationId id) const noexcept
 {
     using namespace set::optimization;
     using namespace function;
@@ -158,4 +158,4 @@ NeuroFunctional<Neuro>::get(function::OptimizationId id) const noexcept
 
 } // namespace trixy
 
-#endif // NEURO_FUNCTIONAL_HPP
+#endif // FFNN_FUNCTIONAL_HPP

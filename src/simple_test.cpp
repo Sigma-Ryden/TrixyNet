@@ -3,9 +3,9 @@
 #include "Trixy/Lique/lique_linear.hpp" // Linear
 
 #include "Trixy/Container/container.hpp" // Container
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional
-#include "Trixy/Neuro/neuro_serializer.hpp" // NeuroSerializer
-#include "Trixy/Neuro/neuro_core.hpp" // Neuro
+#include "Trixy/Neuro/FFNN_functional.hpp" // FFNNFunctional
+#include "Trixy/Neuro/FFNN_serializer.hpp" // FFNNSerializer
+#include "Trixy/Neuro/Network/FFNN.hpp" // FeedForwardNeuro
 
 #include "Timer/timer.h" // Timer
 #include "Utility/util.hpp" // test_neuro, check_neuro
@@ -30,9 +30,9 @@ void simple_test_deserialization()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
@@ -75,9 +75,9 @@ void simple_test()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
-    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
+    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
+    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
+    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
 
     NeuralNetwork net({2, 2, 2});
     NeuralFunctional manage;

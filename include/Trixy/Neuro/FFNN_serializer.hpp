@@ -1,5 +1,5 @@
-#ifndef NEURO_SERIALIZER_HPP
-#define NEURO_SERIALIZER_HPP
+#ifndef FFNN_SERIALIZER_HPP
+#define FFNN_SERIALIZER_HPP
 
 #include "Function/neuro_function_id.hpp"
 #include "Function/neuro_activation.hpp"
@@ -15,25 +15,25 @@ template <template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
           template <typename...> class Container,
           typename Precision, typename... Args>
-class NeuroSerializer;
+class FFNNSerializer;
 
 } // namespace trixy
 
-#define TRIXY_NEURO_SERIALIZER_TPL_DECLARATION               \
+#define TRIXY_FFNN_SERIALIZER_TPL_DECLARATION                \
     template <template <typename, typename...> class Vector, \
               template <typename, typename...> class Matrix, \
               template <typename...> class Container,        \
               typename Precision, typename... Args>
 
-#define TRIXY_NEURO_SERIALIZER_TPL                           \
-    NeuroSerializer<Vector, Matrix,                          \
-        Container, Precision, Args...>
+#define TRIXY_FFNN_SERIALIZER_TPL                            \
+    FFNNSerializer<Vector, Matrix, Container,                \
+                   Precision, Args...>
 
 namespace trixy
 {
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-class NeuroSerializer
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+class FFNNSerializer
 {
 public:
     using Tensor1D  = Vector<Precision, Args...>;
@@ -54,7 +54,7 @@ private:
     function::OptimizationId O;
 
 public:
-    NeuroSerializer() : N(0), E(function::LossId::undefined), O(function::OptimizationId::undefined) {}
+    FFNNSerializer() : N(0), E(function::LossId::undefined), O(function::OptimizationId::undefined) {}
 
     template <typename Neuro>
     meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
@@ -75,10 +75,10 @@ public:
     function::OptimizationId getOptimizationId() const noexcept;
 };
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
 template <typename Neuro>
 meta::enable_if_t<meta::is_serializable_neuro<Neuro>::value, void>
-TRIXY_NEURO_SERIALIZER_TPL::prepare(
+TRIXY_FFNN_SERIALIZER_TPL::prepare(
     const Neuro& net)
 {
     topology = net.getTopology();
@@ -96,8 +96,8 @@ TRIXY_NEURO_SERIALIZER_TPL::prepare(
     O = static_cast<function::OptimizationId>(net.function.getOptimization().id);
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-void TRIXY_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+void TRIXY_FFNN_SERIALIZER_TPL::serialize(std::ofstream& out) const
 {
     static size_type topology_size;
 
@@ -123,8 +123,8 @@ void TRIXY_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
                 out.write(reinterpret_cast<const char*>(&W[n](i, j)), sizeof(Precision));
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-void TRIXY_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+void TRIXY_FFNN_SERIALIZER_TPL::deserialize(std::ifstream& in)
 {
     static size_type topology_size;
 
@@ -162,54 +162,54 @@ void TRIXY_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
                 in.read(reinterpret_cast<char*>(&W[n](i, j)), sizeof(Precision));
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
 inline const Container<std::size_t>&
-    TRIXY_NEURO_SERIALIZER_TPL::getTopology() const noexcept
+    TRIXY_FFNN_SERIALIZER_TPL::getTopology() const noexcept
 {
     return topology;
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
 inline const Container<Vector<Precision, Args...>>&
-    TRIXY_NEURO_SERIALIZER_TPL::getBias() const noexcept
+    TRIXY_FFNN_SERIALIZER_TPL::getBias() const noexcept
 {
     return B;
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
 inline const Container<Matrix<Precision, Args...>>&
-    TRIXY_NEURO_SERIALIZER_TPL::getWeight() const noexcept
+    TRIXY_FFNN_SERIALIZER_TPL::getWeight() const noexcept
 {
     return W;
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline function::ActivationId TRIXY_NEURO_SERIALIZER_TPL::getActivationId() const noexcept
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+inline function::ActivationId TRIXY_FFNN_SERIALIZER_TPL::getActivationId() const noexcept
 {
     return static_cast<function::ActivationId>(A[0]);
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline function::ActivationId TRIXY_NEURO_SERIALIZER_TPL::getNormalizationId() const noexcept
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+inline function::ActivationId TRIXY_FFNN_SERIALIZER_TPL::getNormalizationId() const noexcept
 {
     return A[A.size() - 1];
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
 inline const Container<function::ActivationId>&
-    TRIXY_NEURO_SERIALIZER_TPL::getEachActivationId() const noexcept
+    TRIXY_FFNN_SERIALIZER_TPL::getEachActivationId() const noexcept
 {
     return A;
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline function::LossId TRIXY_NEURO_SERIALIZER_TPL::getLossId() const noexcept
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+inline function::LossId TRIXY_FFNN_SERIALIZER_TPL::getLossId() const noexcept
 {
     return E;
 }
 
-TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-inline function::OptimizationId TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() const noexcept
+TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+inline function::OptimizationId TRIXY_FFNN_SERIALIZER_TPL::getOptimizationId() const noexcept
 {
     return O;
 }
@@ -217,7 +217,7 @@ inline function::OptimizationId TRIXY_NEURO_SERIALIZER_TPL::getOptimizationId() 
 } // namepace trixy
 
 // clean up
-#undef TRIXY_NEURO_SERIALIZER_TPL_DECLARATION
-#undef TRIXY_NEURO_SERIALIZER_TPL
+#undef TRIXY_FFNN_SERIALIZER_TPL_DECLARATION
+#undef TRIXY_FFNN_SERIALIZER_TPL
 
-#endif // NEURO_SERIALIZER_HPP
+#endif // FFNN_SERIALIZER_HPP

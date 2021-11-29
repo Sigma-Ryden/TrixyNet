@@ -1,5 +1,5 @@
-#ifndef NEURO_META_HPP
-#define NEURO_META_HPP
+#ifndef TIRXY_META_HPP
+#define TIRXY_META_HPP
 
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same, true_type
@@ -73,4 +73,4 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 
 } // namespace trixy
 
-#endif // NEURO_META_HPP
+#endif // TIRXY_META_HPP

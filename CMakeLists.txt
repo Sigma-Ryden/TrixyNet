@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
+include_directories(Trixy)
+include_directories(Neuro)
 
 set(TESTING
     src/simple_test.cpp
@@ -26,15 +28,14 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/lique_vector.hpp
 )
 set(TRIXY_NEURO
-    include/Trixy/Neuro/neuro_core.hpp
-    include/Trixy/Neuro/neuro_functional.hpp
+    include/Trixy/Neuro/Detail/neuro_meta.hpp
+    include/Trixy/Neuro/Network/FFNN.hpp
     include/Trixy/Neuro/Function/neuro_function_id.hpp
     include/Trixy/Neuro/Function/neuro_activation.hpp
     include/Trixy/Neuro/Function/neuro_loss.hpp
     include/Trixy/Neuro/Function/neuro_optimization.hpp
-    include/Trixy/Neuro/neuro_serializer.hpp
-    include/Trixy/Neuro/Detail/neuro_meta.hpp
-
+    include/Trixy/Neuro/FFNN_functional.hpp
+    include/Trixy/Neuro/FFNN_serializer.hpp
 )
 set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp
