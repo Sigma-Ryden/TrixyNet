@@ -1,11 +1,11 @@
-#include "Trixy/Lique/lique_vector.hpp" // Vector
-#include "Trixy/Lique/lique_matrix.hpp" // Matrix
-#include "Trixy/Lique/lique_linear.hpp" // Linear
+#include "Lique/lique_vector.hpp" // Vector
+#include "Lique/lique_matrix.hpp" // Matrix
+#include "Lique/lique_linear.hpp" // Linear
 
-#include "Trixy/Container/container.hpp" // Container
-#include "Trixy/Neuro/FFNN_functional.hpp" // FFNNFunctional
-#include "Trixy/Neuro/FFNN_serializer.hpp" // FFNNSerializer
-#include "Trixy/Neuro/Network/FFNN.hpp" // FeedForwardNeuro
+#include "Container/container.hpp" // Container
+#include "Neuro/FFNN_functional.hpp" // FFNNFunctional
+#include "Neuro/FFNN_serializer.hpp" // FFNNSerializer
+#include "Neuro/Network/FFNN.hpp" // FeedForwardNeuro
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 

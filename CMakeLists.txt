@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
-include_directories(Trixy)
-include_directories(Neuro)
+include_directories(include/Trixy)
 
 set(TESTING
     src/simple_test.cpp
