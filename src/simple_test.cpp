@@ -8,15 +8,15 @@
 #include "Trixy/Lique/lique_vector.hpp" // Vector
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager, NeuroSerializer
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional, NeuroSerializer
 
 #include "Trixy/Container/container.hpp" // Container
 
 #include "Timer/timer.h" // Timer
-#include "UtilityMaster/util.hpp" // testNeuro
+#include "UtilityMaster/util.hpp" // test_neuro, check_neuro
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 int generator()
 {
@@ -30,9 +30,9 @@ void simple_test_deserialization()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
+    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
 
     std::ifstream in("D:\\simple_test.bin");
     if (!in.is_open()) return;
@@ -47,18 +47,18 @@ void simple_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.template get<Activation>(sr.getActivationId()));
-    net.function.setNormalization(manage.template get<Activation>(sr.getNormalizationId()));
-    net.function.setLoss(manage.template get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.get(sr.getActivationId()));
+    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setLoss(manage.get(sr.getLossId()));
 
-    Container<li::Vector<Precision>> train_in
+    tr::Container<li::Vector<Precision>> train_in
     {
         {-0.08, 0.04},
         {0.92,  0.24},
         {0.4,   0.16},
         {-0.0, -0.24}
     };
-    Container<li::Vector<Precision>> train_out
+    tr::Container<li::Vector<Precision>> train_out
     {
         {1, 0},
         {0, 1},
@@ -75,9 +75,9 @@ void simple_test()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, Precision>;
-    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, Precision>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, Precision>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
+    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
 
     NeuralNetwork net({2, 2, 2});
     NeuralFunctional manage;
@@ -87,19 +87,19 @@ void simple_test()
         return static_cast<Precision>(generator() % (2 * range + 1) - range) / range;
     });
 
-    net.function.setActivation(manage.template get<Activation>(activation_id::relu));
-    net.function.setNormalization(manage.template get<Activation>(activation_id::softmax));
+    net.function.setActivation(manage.get(ActivationId::relu));
+    net.function.setNormalization(manage.get(ActivationId::softmax));
 
-    net.function.setLoss(manage.template get<Loss>(loss_id::CCE));
+    net.function.setLoss(manage.get(LossId::CCE));
 
-    Container<li::Vector<Precision>> train_in
+    tr::Container<li::Vector<Precision>> train_in
     {
         {-0.08, 0.04},
         {0.92,  0.24},
         {0.4,   0.16},
         {-0.0, -0.24}
     };
-    Container<li::Vector<Precision>> train_out
+    tr::Container<li::Vector<Precision>> train_out
     {
         {1, 0},
         {0, 1},
@@ -107,7 +107,7 @@ void simple_test()
         {1, 0}
     };
 
-    Timer t;
+    util::Timer t;
     net.trainStochastic(train_in, train_out, 0.1, 1000, generator);
     std::cout << "Train time: " << t.elapsed() << '\n';
 

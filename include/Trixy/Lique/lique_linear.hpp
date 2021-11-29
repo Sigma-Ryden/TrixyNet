@@ -3,6 +3,9 @@
 
 #include <cstddef> // size_t
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -66,5 +69,7 @@ void Linear<Vector, Matrix>::tensordot(
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #endif // LIQUE_LINEAR_HPP

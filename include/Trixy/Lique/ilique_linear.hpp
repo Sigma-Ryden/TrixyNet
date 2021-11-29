@@ -3,6 +3,9 @@
 
 #include <cstddef> // size_t
 
+namespace trixy
+{
+
 namespace ilique
 {
 
@@ -27,5 +30,7 @@ public:
 };
 
 } // namespace ilique
+
+} // namespace trixy
 
 #endif // ILIQUE_LINEAR_HPP

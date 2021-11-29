@@ -3,6 +3,9 @@
 
 #include <cstddef> // size_t
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -474,5 +477,7 @@ Matrix<Type> Matrix<Type>::operator- (const Matrix& matrix) const
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #endif // LIQUE_MATRIX_HPP

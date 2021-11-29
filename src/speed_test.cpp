@@ -9,16 +9,16 @@
 #include "Trixy/Lique/lique_vector.hpp" // Vector
 
 #include "Trixy/Neuro/neuro_core.hpp" // Neuro, Activation, Loss, Optimization
-#include "Trixy/Neuro/neuro_functional.hpp" // NeuroManager, NeuroSerializer
+#include "Trixy/Neuro/neuro_functional.hpp" // NeuroFunctional, NeuroSerializer
 
 #include "Trixy/Container/container.hpp" // Container
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
 #include "Timer/timer.h" // Timer
-#include "UtilityMaster/util.hpp" // testNeuro, checkNeuro
+#include "UtilityMaster/util.hpp" // test_neuro, check_neuro
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 using namespace tr::function;
 
@@ -42,9 +42,9 @@ float random_normal() noexcept
 
 void speed_test_deserialization()
 {
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
 
     std::ifstream in("D:\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
@@ -59,11 +59,11 @@ void speed_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.get<Activation>(sr.getActivationId()));
-    net.function.setNormalization(manage.get<Activation>(sr.getNormalizationId()));
-    net.function.setLoss(manage.get<Loss>(sr.getLossId()));
+    net.function.setActivation(manage.get(sr.getActivationId()));
+    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setLoss(manage.get(sr.getLossId()));
 
-    Container<li::Vector<float>> train_in
+    tr::Container<li::Vector<float>> train_in
     {
         {1, 0, 1, 1},
         {1, 1, 1, 0},
@@ -72,7 +72,7 @@ void speed_test_deserialization()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
-    Container<li::Vector<float>> train_out
+    tr::Container<li::Vector<float>> train_out
     {
         {1, 0, 0},
         {0, 1, 0},
@@ -88,22 +88,22 @@ void speed_test_deserialization()
 
 void speed_test()
 {
-    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, Container, float>;
-    using NeuralFunctional = tr::FunctionalManager<li::Vector, li::Matrix, float>;
-    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, Container, float>;
+    using NeuralNetwork    = tr::Neuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralSerializer = tr::NeuroSerializer<li::Vector, li::Matrix, tr::Container, float>;
+    using NeuralFunctional = tr::NeuroFunctional<NeuralNetwork>;
 
     NeuralNetwork net({4, 4, 5, 4, 3});
     NeuralFunctional manage;
 
     net.initializeInnerStruct(random_real);
 
-    net.function.setActivation(manage.get<Activation>(activation_id::relu));
-    net.function.setNormalization(manage.get<Activation>(activation_id::softmax));
-    net.function.setLoss(manage.get<Loss>(loss_id::CCE));
+    net.function.setActivation(manage.get(ActivationId::relu));
+    net.function.setNormalization(manage.get(ActivationId::softmax));
+    net.function.setLoss(manage.get(LossId::CCE));
 
-    net.function.setOptimization(manage.get<Optimization>(optimization_id::rms_prop));
+    //net.function.setOptimization(manage.get(OptimizationId::ada_grad));
 
-    Container<li::Vector<float>> train_in
+    tr::Container<li::Vector<float>> train_in
     {
         {1, 0, 1, 1},
         {1, 1, 1, 0},
@@ -112,7 +112,7 @@ void speed_test()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
-    Container<li::Vector<float>> train_out
+    tr::Container<li::Vector<float>> train_out
     {
         {1, 0, 0},
         {0, 1, 0},
@@ -126,13 +126,13 @@ void speed_test()
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 
-    Timer t;
-    /*
+    util::Timer t;
+    //
     net.trainBatch(train_in, train_out, 0.1, 100000);
     net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
     net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
-    */
-    net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
+    //
+    //net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";

@@ -4,6 +4,9 @@
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -358,5 +361,7 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #endif // LIQUE_VECTOR_HPP

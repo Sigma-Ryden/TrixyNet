@@ -14,6 +14,7 @@ set(TESTING
 )
 set(TRIXY_COLLECTION
     include/Trixy/Container/container.hpp
+    include/Trixy/Container/icontainer.hpp
 )
 set(TRIXY_LIQUE
     include/Trixy/Lique/ilique_base.hpp

@@ -22,18 +22,18 @@ namespace function
 template <template <typename T, typename...> class Vector,
           typename Precision,
           typename... Args>
-class Activation;
+struct Activation;
 
 template <template <typename T, typename...> class Vector,
           typename Precision,
           typename... Args>
-class Loss;
+struct Loss;
 
 template <template <typename T, typename...> class Vector,
           template <typename T, typename...> class Matrix,
           typename Precision,
           typename... Args>
-class Optimization;
+struct Optimization;
 
 } // namespace function
 
@@ -74,7 +74,7 @@ namespace function
 {
 
 TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION
-class Activation
+struct Activation
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
@@ -97,7 +97,7 @@ public:
 };
 
 TRIXY_FUNCTION_LOSS_TPL_DECLARATION
-class Loss
+struct Loss
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;
@@ -120,7 +120,7 @@ public:
 };
 
 TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
-class Optimization
+struct Optimization
 {
 private:
     using Tensor1D  = Vector<Precision, Args...>;

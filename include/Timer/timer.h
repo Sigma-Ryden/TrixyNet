@@ -3,6 +3,9 @@
 
 #include <chrono>
 
+namespace util
+{
+
 class Timer
 {
 private:
@@ -26,5 +29,7 @@ public:
         return std::chrono::duration_cast<second_t>(clock_t::now() - m_beg).count();
     }
 };
+
+} // namespace util
 
 #endif // TIMER_H
