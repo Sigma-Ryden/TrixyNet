@@ -8,24 +8,24 @@
 #include "Function/neuro_optimization.hpp"
 #include "Function/neuro_loss.hpp"
 
+#include "base_functional.hpp"
 
-#include <cstdint> // uint_8
-#include <utility> // declval
-#include <type_traits> // enable_if, is_same, true_type
+#define TRIXY_FFNN_FUNCTIONAL_TPL                                           \
+    Functional<Neuro,                                                       \
+               meta::enable_if_t<meta::is_feedforward_neuro<Neuro>::value>>
 
 namespace trixy
 {
 
-template <typename FeedForwardNeuro>
-class FFNNFunctional
+template <typename Neuro>
+class Functional<Neuro, meta::enable_if_t<meta::is_feedforward_neuro<Neuro>::value>>
 {
-public:
-    using byte_type = std::uint8_t;
-
 private:
-    using ActivationFunction   = typename FeedForwardNeuro::ActivationFunction;
-    using LossFunction         = typename FeedForwardNeuro::LossFunction;
-    using OptimizationFunction = typename FeedForwardNeuro::OptimizationFunction;
+    using byte_type = typename Neuro::byte_type;
+
+    using ActivationFunction   = typename Neuro::ActivationFunction;
+    using LossFunction         = typename Neuro::LossFunction;
+    using OptimizationFunction = typename Neuro::OptimizationFunction;
 
 public:
     ActivationFunction get(function::ActivationId id) const noexcept;
@@ -33,9 +33,9 @@ public:
     OptimizationFunction get(function::OptimizationId id) const noexcept;
 };
 
-template <typename FeedForwardNeuro>
-typename FFNNFunctional<FeedForwardNeuro>::ActivationFunction
-FFNNFunctional<FeedForwardNeuro>::get(function::ActivationId id) const noexcept
+template <typename Neuro>
+typename TRIXY_FFNN_FUNCTIONAL_TPL::ActivationFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
+    function::ActivationId id) const noexcept
 {
     using namespace set::activation;
     using namespace function;
@@ -90,9 +90,9 @@ FFNNFunctional<FeedForwardNeuro>::get(function::ActivationId id) const noexcept
     }
 }
 
-template <typename FeedForwardNeuro>
-typename FFNNFunctional<FeedForwardNeuro>::LossFunction
-FFNNFunctional<FeedForwardNeuro>::get(function::LossId id) const noexcept
+template <typename Neuro>
+typename TRIXY_FFNN_FUNCTIONAL_TPL::LossFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
+    function::LossId id) const noexcept
 {
     using namespace set::loss;
     using namespace function;
@@ -130,9 +130,9 @@ FFNNFunctional<FeedForwardNeuro>::get(function::LossId id) const noexcept
     }
 }
 
-template <typename FeedForwardNeuro>
-typename FFNNFunctional<FeedForwardNeuro>::OptimizationFunction
-FFNNFunctional<FeedForwardNeuro>::get(function::OptimizationId id) const noexcept
+template <typename Neuro>
+typename TRIXY_FFNN_FUNCTIONAL_TPL::OptimizationFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
+    function::OptimizationId id) const noexcept
 {
     using namespace set::optimization;
     using namespace function;
@@ -157,5 +157,8 @@ FFNNFunctional<FeedForwardNeuro>::get(function::OptimizationId id) const noexcep
 }
 
 } // namespace trixy
+
+// clean up
+#undef TRIXY_FFNN_FUNCTIONAL_TPL
 
 #endif // FFNN_FUNCTIONAL_HPP

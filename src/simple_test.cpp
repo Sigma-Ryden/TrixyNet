@@ -25,10 +25,10 @@ void simple_test_deserialization()
     using namespace tr::function;
 
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
 
-    std::ifstream in("D:\\simple_test.bin");
+    std::ifstream in("D:\\Serialized\\simple_test.bin");
     if (!in.is_open()) return;
 
     NeuralFunctional sr;
@@ -70,8 +70,8 @@ void simple_test()
     using namespace tr::function;
 
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, Precision>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
 
     NeuralNetwork net({2, 2, 2});
     NeuralFunctional manage;
@@ -108,7 +108,7 @@ void simple_test()
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 
-    std::ofstream out("D:\\simple_test.bin");
+    std::ofstream out("D:\\Serialized\\simple_test.bin");
     if(!out.is_open()) return;
 
     NeuralSerializer sr;

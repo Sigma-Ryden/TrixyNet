@@ -36,10 +36,10 @@ float random_normal() noexcept
 void speed_test_deserialization()
 {
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
 
-    std::ifstream in("D:\\speed_test.bin", std::ios::binary);
+    std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
     NeuralSerializer sr;
@@ -49,6 +49,7 @@ void speed_test_deserialization()
 
     NeuralNetwork net = sr.getTopology();
     NeuralFunctional manage;
+
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
@@ -82,8 +83,8 @@ void speed_test_deserialization()
 void speed_test()
 {
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
 
     NeuralNetwork net({4, 4, 5, 4, 3});
     NeuralFunctional manage;
@@ -132,7 +133,7 @@ void speed_test()
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 
-    std::ofstream out("D:\\speed_test.bin", std::ios::binary);
+    std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
@@ -144,7 +145,7 @@ void speed_test()
     std::cout << "End serialization\n";
 }
 
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -155,4 +156,4 @@ int main()
 
     return 0;
 }
-//
+*/

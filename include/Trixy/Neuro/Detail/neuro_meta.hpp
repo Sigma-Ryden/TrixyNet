@@ -4,6 +4,17 @@
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same, true_type
 
+#define TRIXY_NEURO_HAS_HELPER(type)                                      \
+    template <typename T> struct has_##type {                             \
+    private:                                                              \
+        template <typename U, typename = typename U::type>                \
+        static int detect(U &&);                                          \
+        static void detect(...);                                          \
+    public:                                                               \
+        static constexpr bool value =                                     \
+            std::is_integral<decltype(detect(std::declval<T>()))>::value; \
+    }
+
 namespace trixy
 {
 
@@ -52,6 +63,23 @@ struct is_optimization_data
     static constexpr bool value =
         std::is_same<decltype(std::declval<FunctionData_t>().f1D), void (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
         std::is_same<decltype(std::declval<FunctionData_t>().f2D), void (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
+};
+
+template <class...> struct conjunction : std::true_type {};
+template <class B1> struct conjunction<B1> : B1 {};
+template <class B1, class... Bn> struct conjunction<B1, Bn...>
+    : std::conditional<bool(B1::value), conjunction<Bn...>, B1>::type {};
+
+TRIXY_NEURO_HAS_HELPER(ActivationFunction);
+TRIXY_NEURO_HAS_HELPER(LossFunction);
+TRIXY_NEURO_HAS_HELPER(OptimizationFunction);
+
+template <typename Neuro>
+struct is_feedforward_neuro
+    : conjunction<has_ActivationFunction<Neuro>,
+                  has_LossFunction<Neuro>,
+                  has_OptimizationFunction<Neuro>>
+{
 };
 
 template <typename Neuro, decltype(

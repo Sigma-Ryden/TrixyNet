@@ -70,8 +70,8 @@ void mnist_test_deserialization()
     using namespace tr::function;
 
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -92,7 +92,7 @@ void mnist_test_deserialization()
     // NeuralNetwork preparing:
 
     // NeuralNetwork topology:
-    std::ifstream in("D:\\mnist_experimental.bin", std::ios::binary);
+    std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
     NeuralSerializer sr;
@@ -141,8 +141,8 @@ void mnist_test()
     using namespace tr::function;
 
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralSerializer = tr::FFNNSerializer<li::Vector, li::Matrix, tr::Container, float>;
-    using NeuralFunctional = tr::FFNNFunctional<NeuralNetwork>;
+    using NeuralFunctional = tr::Functional<NeuralNetwork>;
+    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
 
     // Data preparing:
     auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
@@ -181,7 +181,7 @@ void mnist_test()
     // Train network:
     util::Timer t;
     //
-    std::size_t times = 200;
+    std::size_t times = 400;
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
@@ -189,7 +189,7 @@ void mnist_test()
         //net.trainStochastic(train_in, train_out, 0.1, 5000, std::rand);
         //net.trainMiniBatch(train_in, train_out, 0.1, 40, 64, std::rand);
         net.trainOptimize(train_in, train_out, 0.1, 50, 32, std::rand);
-        if (i % 50 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        //if (i % 50 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
     t.reset();
@@ -206,7 +206,7 @@ void mnist_test()
     //std::cout << "NNetwork test full accuracy: " << net.accuracyf(test_in, test_out, 0.25) << '\n';
     std::cout << "Check time: " << t.elapsed() << '\n';
 
-    std::ofstream out("D:\\mnist_test.bin", std::ios::binary);
+    std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
@@ -217,7 +217,7 @@ void mnist_test()
     std::cout << "End serialization\n";
 }
 
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -230,4 +230,4 @@ int main()
 
     return 0;
 }
-*/
+//

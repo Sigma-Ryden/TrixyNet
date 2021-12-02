@@ -32,12 +32,14 @@ set(TRIXY_ILIQUE
 set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/neuro_meta.hpp
     include/Trixy/Neuro/Detail/neuro_function_id.hpp
-    include/Trixy/Neuro/Network/FFNN.hpp
+    include/Trixy/Neuro/Network/ffnn.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation.hpp
     include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
     include/Trixy/Neuro/Functional/Function/neuro_optimization.hpp
-    include/Trixy/Neuro/Functional/FFNN_functional.hpp
-    include/Trixy/Neuro/Serialization/FFNN_serializer.hpp
+    include/Trixy/Neuro/Functional/ffnn_functional.hpp
+    include/Trixy/Neuro/Functional/base_functional.hpp
+    include/Trixy/Neuro/Serialization/ffnn_serializer.hpp
+    include/Trixy/Neuro/Serialization/base_serializer.hpp
     include/Trixy/Neuro/neuro_core.hpp
 )
 set(MNIST_MASTER

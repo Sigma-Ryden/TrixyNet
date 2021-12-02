@@ -154,14 +154,19 @@ private:
     class InnerFunctional;
 
 public:
-    using Tensor1D = Vector<Precision, Args...>;
-    using Tensor2D = Matrix<Precision, Args...>;
+    template <typename... T> using ContainerType = Container<T...>;
+
+    using precision_type = Precision;
+    using size_type      = std::size_t;
+    using byte_type      = std::uint8_t;
 
     using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
     using LossFunction         = function::Loss<Vector, Precision, Args...>;
     using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
 
-    using size_type          = std::size_t;
+    using Tensor1D = Vector<Precision, Args...>;
+    using Tensor2D = Matrix<Precision, Args...>;
+
     using GeneratorInteger   = int (*)();
     using GeneratorPrecision = Precision (*)();
 
