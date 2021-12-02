@@ -32,13 +32,13 @@ set(TRIXY_ILIQUE
 set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/neuro_meta.hpp
     include/Trixy/Neuro/Detail/neuro_function_id.hpp
-    include/Trixy/Neuro/Network/ffnn.hpp
+    include/Trixy/Neuro/Network/feedforward_neuro.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation.hpp
     include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
     include/Trixy/Neuro/Functional/Function/neuro_optimization.hpp
-    include/Trixy/Neuro/Functional/ffnn_functional.hpp
+    include/Trixy/Neuro/Functional/feedforward_neuro_functional.hpp
     include/Trixy/Neuro/Functional/base_functional.hpp
-    include/Trixy/Neuro/Serialization/ffnn_serializer.hpp
+    include/Trixy/Neuro/Serialization/feedforward_neuro_serializer.hpp
     include/Trixy/Neuro/Serialization/base_serializer.hpp
     include/Trixy/Neuro/neuro_core.hpp
 )
@@ -46,10 +46,6 @@ set(MNIST_MASTER
     include/MnistMaster/mnist_reader.hpp
     include/MnistMaster/mnist_reader_common.hpp
 )
-set(TIMER
-    include/Timer/timer.h
-)
-
 set(UTILS
     include/Utility/util.hpp
 )
