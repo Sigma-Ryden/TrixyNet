@@ -32,6 +32,7 @@ public:
     Vector& operator= (Vector&&) noexcept;
 
     Vector& copy(const Vector&) noexcept;
+    Vector& copy(const std::initializer_list<Type>&) noexcept;
 
     size_type size() const noexcept;
     void resize(size_type new_size);
@@ -158,6 +159,17 @@ Vector<Type>& Vector<Type>::copy(const Vector& vector) noexcept
 
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
+
+    return *this;
+}
+
+template <typename Type>
+Vector<Type>& Vector<Type>::copy(const std::initializer_list<Type>& data) noexcept
+{
+    auto it = data.begin();
+
+    for(size_type i = 0; i < size_; ++i, ++it)
+        data_[i] = *it;
 
     return *this;
 }

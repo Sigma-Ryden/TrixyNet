@@ -93,7 +93,7 @@ std::ostream& operator<< (
         for(std::size_t j = 0; j < matrix.size().col() - 1; ++j)
             out << matrix(i, j) << ", ";
 
-        out << matrix(i, matrix.size().col() - 1) << "], ";
+        out << matrix(i, matrix.size().col() - 1) << "],\n";
     }
 
     out << '[';

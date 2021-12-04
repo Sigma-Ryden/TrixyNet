@@ -274,8 +274,8 @@ void softmax(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector) noexcept
 {
-    static Precision max;
-    static Precision denominator;
+    Precision max;
+    Precision denominator;
 
     max = vector(0);
     for(std::size_t i = 1; i < vector.size(); ++i)

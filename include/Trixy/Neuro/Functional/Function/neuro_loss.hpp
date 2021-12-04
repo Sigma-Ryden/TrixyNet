@@ -29,7 +29,7 @@ Precision categorical_cross_entropy(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static const Precision epsilon = 1e-9;
+    static constexpr Precision epsilon = 1e-9;
     static Precision result;
 
     result = 0.0;
@@ -45,7 +45,7 @@ void categorical_cross_entropy_derived(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static const Precision epsilon = 1e-9;
+    static constexpr Precision epsilon = 1e-9;
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = - y_true(i) / (y_pred(i) + epsilon);
@@ -156,8 +156,8 @@ Precision binary_cross_entropy(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static const Precision epsilon = 1e-9;
-    static const Precision alpha   = epsilon + 1.0;
+    static constexpr Precision epsilon = 1e-9;
+    static constexpr Precision alpha   = epsilon + 1.0;
     static Precision result;
 
     result = 0.0;
@@ -174,8 +174,8 @@ void binary_cross_entropy_derived(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static const Precision epsilon = 1e-9;
-    static const Precision alpha   = epsilon - 1.0;
+    static constexpr Precision epsilon = 1e-9;
+    static constexpr Precision alpha   = epsilon - 1.0;
 
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) =

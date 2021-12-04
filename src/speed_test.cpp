@@ -17,14 +17,14 @@ using namespace tr::function;
 
 float random_real() noexcept
 {
-    static int range = 1000;
+    static constexpr int range = 1000;
     return static_cast<float>(std::rand() % (2 * range + 1) - range) / range;
 }
 
 float random_normal() noexcept
 {
-    static const int range = 1000;
-    static const float pi = 3.14159265;
+    static constexpr int range = 1000;
+    static constexpr float pi = 3.14159265;
 
     static float x;
 
@@ -95,7 +95,7 @@ void speed_test()
     net.function.setNormalization(manage.get(ActivationId::softmax));
     net.function.setLoss(manage.get(LossId::CCE));
 
-    //net.function.setOptimization(manage.get(OptimizationId::ada_grad));
+    net.function.setOptimization(manage.get(OptimizationId::ada_grad));
 
     tr::Container<li::Vector<float>> train_in
     {
@@ -121,12 +121,12 @@ void speed_test()
     util::check_neuro(net, train_in, train_out);
 
     util::Timer t;
-    //
+    /*
     net.trainBatch(train_in, train_out, 0.1, 100000);
     net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
     net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
-    //
-    //net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
+    */
+    net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -145,7 +145,7 @@ void speed_test()
     std::cout << "End serialization\n";
 }
 
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -156,4 +156,4 @@ int main()
 
     return 0;
 }
-*/
+//

@@ -782,8 +782,8 @@ TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::innerFeedForward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
-    static size_type i;
-    static size_type j;
+    size_type i;
+    size_type j;
 
     li.dot(ib.buff[0], sample, W[0]);
     ib.buff[0].add(B[0]);
@@ -806,8 +806,8 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::innerBackPropagation(
     const Vector<Precision, Args...>& sample,
     const Vector<Precision, Args...>& target) const noexcept
 {
-    static size_type i;
-    static size_type j;
+    size_type i;
+    size_type j;
 
     i = N - 1;
     function.E.df(ib.buff[i], target, ib.H[i]);
@@ -859,8 +859,8 @@ bool TRIXY_FEED_FORWARD_NEURO_TPL::check(
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) const noexcept
 {
-    static size_type max_true_out;
-    static size_type max_pred_out;
+    size_type max_true_out;
+    size_type max_pred_out;
 
     max_true_out = 0;
     max_pred_out = 0;

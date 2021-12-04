@@ -77,7 +77,7 @@ void simple_test()
     NeuralFunctional manage;
 
     net.initializeInnerStruct([]() -> Precision {
-        static int range = 1000;
+        static constexpr int range = 1000;
         return static_cast<Precision>(generator() % (2 * range + 1) - range) / range;
     });
 

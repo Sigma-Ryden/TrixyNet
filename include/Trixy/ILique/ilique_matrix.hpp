@@ -47,6 +47,9 @@ public:
 
     virtual Tensor<Type> dot(const Tensor<Type>&) const = 0;
     virtual Tensor<Type> transpose() const = 0;
+
+    virtual Tensor<Type> inverse() const = 0;
+    virtual Tensor<Type>& inverse() = 0;
 };
 
 template <template <typename T> class Tensor, typename Type>

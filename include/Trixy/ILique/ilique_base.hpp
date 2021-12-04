@@ -18,28 +18,28 @@ public:
     virtual Tensor<Type, Args...>& fill(Type value) noexcept = 0;
     virtual Tensor<Type, Args...>& fill(Type (*generator)()) noexcept = 0;
 
-    virtual Tensor<Type, Args...> apply(Type (*function)(Type)) const = 0;
+    virtual Tensor<Type, Args...>  apply(Type (*function)(Type)) const = 0;
     virtual Tensor<Type, Args...>& apply(Type (*function)(Type)) noexcept = 0;
 
     virtual Tensor<Type, Args...>& apply(Type (*function)(Type),
                                          const Tensor<Type, Args...>&) noexcept = 0;
 
-    virtual Tensor<Type, Args...> multiply(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>  multiply(const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...>& multiply(const Tensor<Type, Args...>&) noexcept = 0;
 
     virtual Tensor<Type, Args...>& multiply(const Tensor<Type, Args...>&,
                                             const Tensor<Type, Args...>&) noexcept = 0;
 
-    virtual Tensor<Type, Args...> join(Type value) const = 0;
+    virtual Tensor<Type, Args...>  join(Type value) const = 0;
     virtual Tensor<Type, Args...>& join(Type value) noexcept = 0;
 
     virtual Tensor<Type, Args...>& join(Type value,
                                         const Tensor<Type, Args...>&) noexcept = 0;
 
-    virtual Tensor<Type, Args...> add(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>  add(const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept = 0;
 
-    virtual Tensor<Type, Args...> sub(const Tensor<Type, Args...>&) const = 0;
+    virtual Tensor<Type, Args...>  sub(const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...>& sub(const Tensor<Type, Args...>&) noexcept = 0;
 
     virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0; // maybe unused
@@ -92,6 +92,9 @@ public:
 
     virtual Tensor<Type, Args...> dot(const Tensor<Type, Args...>&) const = 0;
     virtual Tensor<Type, Args...> transpose() const = 0;
+
+    virtual Tensor<Type, Args...>  inverse() const = 0;
+    virtual Tensor<Type, Args...>& inverse() = 0;
 };
 
 template <template <typename T, typename...> class Tensor, typename Type, typename... Args>

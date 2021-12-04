@@ -2,6 +2,8 @@
 #define LIQUE_MATRIX_HPP
 
 #include <cstddef> // size_t
+#include <cmath> // fabs
+#include <initializer_list> // initializer_list
 
 namespace lique
 {
@@ -26,8 +28,6 @@ public:
     ~Matrix();
     explicit Matrix(size_type m, size_type n);
     explicit Matrix(const Shape& shape);
-    explicit Matrix(size_type m, size_type n, Type**& ptr) noexcept; // maybe unused
-    explicit Matrix(const Shape&, Type**& ptr) noexcept; // maybe unused
 
     Matrix(const Matrix&);
     Matrix(Matrix&&) noexcept;
@@ -36,6 +36,7 @@ public:
     Matrix& operator= (Matrix&&) noexcept;
 
     Matrix& copy(const Matrix&) noexcept;
+    Matrix& copy(const std::initializer_list<Type>&) noexcept;
 
     const Shape& size() const noexcept;
     void resize(size_type m, size_type n);
@@ -65,6 +66,9 @@ public:
     Matrix& join(Type value, const Matrix&) noexcept;
 
     Matrix transpose() const;
+
+    Matrix inverse() const;
+    Matrix& inverse();
 
     Type** data() noexcept;
     const Type** data() const noexcept;
@@ -117,24 +121,10 @@ Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape
 }
 
 template <typename Type>
-inline Matrix<Type>::Matrix(std::size_t m, std::size_t n, Type**& ptr) noexcept // maybe unused
-    : data_(ptr), shape_(m, n)
-{
-    ptr = nullptr;
-}
-
-template <typename Type>
 Matrix<Type>::Matrix(const Matrix::Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Type[shape_.col_];
-}
-
-template <typename Type>
-inline Matrix<Type>::Matrix(const Matrix::Shape& shape, Type**& ptr) noexcept // maybe unused
-    : data_(ptr), shape_(shape)
-{
-    ptr = nullptr;
 }
 
 template <typename Type>
@@ -195,7 +185,7 @@ Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
         delete[] data_;
     }
 
-    data_ = matrix.data_;
+    data_  = matrix.data_;
     shape_ = matrix.shape_;
 
     matrix.data_ = nullptr;
@@ -215,6 +205,19 @@ Matrix<Type>& Matrix<Type>::copy(const Matrix& matrix) noexcept
 
     return *this;
 }
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::copy(const std::initializer_list<Type>& data) noexcept
+{
+    auto it = data.begin();
+
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j, ++it)
+            data_[i][j] = *it;
+
+    return *this;
+}
+
 
 template <typename Type>
 inline const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
@@ -435,6 +438,132 @@ Matrix<Type> Matrix<Type>::transpose() const
             new_matrix.data_[i][j] = data_[j][i];
 
     return new_matrix;
+}
+
+template <typename Type>
+Matrix<Type> Matrix<Type>::inverse() const
+{
+    size_type N = shape_.row_;
+
+    size_type i;
+    size_type j;
+
+    Type buff;
+
+    Matrix A(*this);
+    Matrix I(shape_);
+
+    for(i = 0; i < N; ++i)
+        for(j = 0; j < N; ++j)
+            I.data_[i][j] = (i == j) ? 1. : 0.;
+
+    for(size_type k = 0, p; k < N; ++k)
+    {
+        p = k;
+        for(i = k + 1; i < N; ++i)
+            if(std::fabs(A.data_[p][k]) < std::fabs(A.data_[i][k]))
+                p = i;
+
+        if(p != k)
+        {
+            for(j = k; j < N; ++j)
+            {
+                buff = A.data_[k][j];
+                A.data_[k][j] = A.data_[p][j];
+                A.data_[p][j] = buff;
+            }
+
+            for(j = 0; j < N; ++j)
+            {
+                buff = I.data_[k][j];
+                I.data_[k][j] = I.data_[p][j];
+                I.data_[p][j] = buff;
+            }
+        }
+
+        buff = 1. / A.data_[k][k];
+
+        for(j = k; j < N; ++j) A.data_[k][j] *= buff;
+        for(j = 0; j < N; ++j) I.data_[k][j] *= buff;
+
+        for(i = 0; i < N; ++i)
+        {
+            if(i == k) continue;
+
+            buff = A.data_[i][k];
+
+            for(j = k; j < N; ++j) A.data_[i][j] -= A.data_[k][j] * buff;
+            for(j = 0; j < N; ++j) I.data_[i][j] -= I.data_[k][j] * buff;
+        }
+    }
+
+    return I;
+}
+
+template <typename Type>
+Matrix<Type>& Matrix<Type>::inverse()
+{
+    size_type N = shape_.row_;
+
+    size_type i;
+    size_type j;
+
+    Type buff;
+
+    Matrix I(shape_);
+
+    for(i = 0; i < N; ++i)
+        for(j = 0; j < N; ++j)
+            I.data_[i][j] = (i == j) ? 1. : 0.;
+
+    for(size_type k = 0, p; k < N; ++k)
+    {
+        p = k;
+        for(i = k + 1; i < N; ++i)
+            if(std::fabs(data_[p][k]) < std::fabs(data_[i][k]))
+                p = i;
+
+        if(p != k)
+        {
+            for(j = k; j < N; ++j)
+            {
+                buff = data_[k][j];
+                data_[k][j] = data_[p][j];
+                data_[p][j] = buff;
+            }
+
+            for(j = 0; j < N; ++j)
+            {
+                buff = I.data_[k][j];
+                I.data_[k][j] = I.data_[p][j];
+                I.data_[p][j] = buff;
+            }
+        }
+
+        buff = 1. / data_[k][k];
+
+        for(j = k; j < N; ++j)   data_[k][j] *= buff;
+        for(j = 0; j < N; ++j) I.data_[k][j] *= buff;
+
+        for(i = 0; i < N; ++i)
+        {
+            if(i == k) continue;
+
+            buff = data_[i][k];
+
+            for(j = k; j < N; ++j)   data_[i][j] -=   data_[k][j] * buff;
+            for(j = 0; j < N; ++j) I.data_[i][j] -= I.data_[k][j] * buff;
+        }
+    }
+
+    for(i = 0; i < N; ++i)
+        delete[] data_[i];
+    delete data_;
+
+    data_   = I.data_;
+    I.data_ = nullptr;
+
+    return *this;
 }
 
 template <typename Type>
