@@ -23,7 +23,6 @@ public:
     Vector() noexcept;
     ~Vector();
     explicit Vector(size_type n);
-    explicit Vector(size_type n, Type*& ptr) noexcept; // maybe unused
     Vector(const Vector&);
     Vector(Vector&&) noexcept;
     Vector(const std::initializer_list<Type>&);
@@ -82,13 +81,6 @@ template <typename Type>
 inline Vector<Type>::Vector(std::size_t n)
     : data_(new Type[n]), size_(n)
 {
-}
-
-template <typename Type>
-inline Vector<Type>::Vector(std::size_t n, Type*& ptr) noexcept // maybe unused
-    : data_(ptr), size_(n)
-{
-    ptr = nullptr;
 }
 
 template <typename Type>
