@@ -43,7 +43,7 @@ struct is_loss_data
     using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f), Precision (*)(const Tensor_t&, const Tensor_t&)>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f), void (*)(Precision&, const Tensor_t&, const Tensor_t&)>::value &&
         std::is_same<decltype(std::declval<FunctionData_t>().df), void (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
 };
 

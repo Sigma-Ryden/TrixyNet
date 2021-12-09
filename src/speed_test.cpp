@@ -95,7 +95,7 @@ void speed_test()
     net.function.setNormalization(manage.get(ActivationId::softmax));
     net.function.setLoss(manage.get(LossId::CCE));
 
-    net.function.setOptimization(manage.get(OptimizationId::ada_grad));
+    //net.function.setOptimization(manage.get(OptimizationId::ada_grad));
 
     tr::Container<li::Vector<float>> train_in
     {
@@ -121,12 +121,12 @@ void speed_test()
     util::check_neuro(net, train_in, train_out);
 
     util::Timer t;
-    /*
+    //
     net.trainBatch(train_in, train_out, 0.1, 100000);
     net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
     net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
-    */
-    net.trainOptimize(train_in, train_out, 0.1, 1000, 6, std::rand);
+    //net.trainOptimize(train_in, train_out, 0.1, 100000, 6, std::rand);
+    //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -151,8 +151,8 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
+    speed_test();
+    //speed_test_deserialization();
 
     return 0;
 }

@@ -80,6 +80,7 @@ void mnist_test_deserialization()
     std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
     std::size_t out_size   = 10;
+    //tr::function::Loss<li::Vector, double> a;
 
     // Train batch initialize:
     tr::Container<li::Vector<float>> train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
@@ -114,6 +115,7 @@ void mnist_test_deserialization()
 
     std::cout << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_in, test_out)
               << "\nNEURO TEST_SET LOSS: " << net.loss(test_in, test_out) << '\n';
+    //
     //
     std::cout << "TESTING TRAIN_SET\n";
     for(std::size_t i = 0; i < train_in.size(); ++i)

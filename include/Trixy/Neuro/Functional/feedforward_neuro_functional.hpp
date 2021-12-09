@@ -47,46 +47,46 @@ typename TRIXY_FFNN_FUNCTIONAL_TPL::ActivationFunction TRIXY_FFNN_FUNCTIONAL_TPL
     switch (id)
     {
     case ActivationId::identity:
-        return { f_id, identity, identity_derived };
+        return { identity, identity_derived, f_id };
 
     case ActivationId::sigmoid:
-        return { f_id, sigmoid, sigmoid_derived };
+        return { sigmoid, sigmoid_derived, f_id};
     case ActivationId::tanh:
-        return { f_id, tanh, tanh_derived };
+        return { tanh, tanh_derived, f_id };
     case ActivationId::relu:
-        return { f_id, relu, relu_derived };
+        return { relu, relu_derived, f_id };
 
     case ActivationId::elu:
-        return { f_id, elu, elu_derived };
+        return { elu, elu_derived, f_id };
     case ActivationId::lrelu:
-        return { f_id, lrelu, lrelu_derived };
+        return { lrelu, lrelu_derived, f_id };
     case ActivationId::selu:
-        return { f_id, selu, selu_derived };
+        return { selu, selu_derived, f_id };
     case ActivationId::gelu:
-        return { f_id, gelu, gelu_derived };
+        return { gelu, gelu_derived, f_id };
 
     case ActivationId::softsign:
-        return { f_id, softsign, softsign_derived };
+        return { softsign, softsign_derived, f_id };
     case ActivationId::softplus:
-        return { f_id, softplus, softplus_derived };
+        return { softplus, softplus_derived, f_id };
     case ActivationId::swish:
-        return { f_id, swish, swish_derived };
+        return { swish, swish_derived, f_id };
 
     case ActivationId::mod_relu:
-        return { f_id, mod_relu, mod_relu_derived };
+        return { mod_relu, mod_relu_derived, f_id };
     case ActivationId::mod_tanh:
-        return { f_id, mod_tanh, mod_tanh_derived };
+        return { mod_tanh, mod_tanh_derived, f_id };
 
     case ActivationId::softmax:
-        return { f_id, softmax, tensor_of_units };
+        return { softmax, tensor_of_units, f_id };
 
     case ActivationId::unstable_softmax:
-        return { f_id, unstable_softmax, tensor_of_units };
+        return { unstable_softmax, tensor_of_units, f_id };
     case ActivationId::sigmoid_:
-        return { f_id, sigmoid, tensor_of_units };
+        return { sigmoid, tensor_of_units, f_id };
 
     default:
-        return { static_cast<byte_type>(ActivationId::undefined), nullptr, nullptr };
+        return { nullptr, nullptr, static_cast<byte_type>(ActivationId::undefined) };
     }
 }
 
@@ -99,34 +99,34 @@ typename TRIXY_FFNN_FUNCTIONAL_TPL::LossFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
 
     static byte_type f_id;
 
-    f_id = static_cast<decltype(f_id)>(id);
+    f_id = static_cast<byte_type>(id);
 
     switch (id)
     {
     case LossId::MSE:
-        return { f_id, mean_squared_error, mean_squared_error_derived };
+        return { mean_squared_error, mean_squared_error_derived, f_id };
     case LossId::MAE:
-        return { f_id, mean_absolute_error, mean_absolute_error_derived };
+        return { mean_absolute_error, mean_absolute_error_derived, f_id };
     case LossId::CCE:
-        return { f_id, categorical_cross_entropy, categorical_cross_entropy_derived_softmax };
+        return { categorical_cross_entropy, categorical_cross_entropy_derived_softmax, f_id };
 
     case LossId::BCE:
-        return { f_id, binary_cross_entropy, binary_cross_entropy_derived_sigmoid };
+        return { binary_cross_entropy, binary_cross_entropy_derived_sigmoid, f_id };
     case LossId::MSLE:
-        return { f_id, mean_squared_log_error, mean_squared_log_error_derived };
+        return { mean_squared_log_error, mean_squared_log_error_derived, f_id };
     case LossId::NLL:
-        return { f_id, negative_log_likelihood, negative_log_likelihood_derived_softmax };
+        return { negative_log_likelihood, negative_log_likelihood_derived_softmax, f_id };
 
     case LossId::LC:
-        return { f_id, logcosh, logcosh_derived };
+        return { logcosh, logcosh_derived, f_id };
 
     case LossId::CCE_:
-        return { f_id, categorical_cross_entropy, categorical_cross_entropy_derived };
+        return { categorical_cross_entropy, categorical_cross_entropy_derived, f_id };
     case LossId::BCE_:
-        return { f_id, binary_cross_entropy, binary_cross_entropy_derived };
+        return { binary_cross_entropy, binary_cross_entropy_derived, f_id };
 
     default:
-        return { static_cast<byte_type>(LossId::undefined), nullptr, nullptr };
+        return { nullptr, nullptr, static_cast<byte_type>(LossId::undefined) };
     }
 }
 
@@ -144,15 +144,15 @@ typename TRIXY_FFNN_FUNCTIONAL_TPL::OptimizationFunction TRIXY_FFNN_FUNCTIONAL_T
     switch (id)
     {
     case OptimizationId::momentum:
-        return { f_id, momentum, momentum };
+        return { momentum, momentum, f_id };
 
     case OptimizationId::rms_prop:
-        return { f_id, rms_prop, rms_prop };
+        return { rms_prop, rms_prop, f_id };
     case OptimizationId::ada_grad:
-        return { f_id, ada_grad, ada_grad };
+        return { ada_grad, ada_grad, f_id };
 
     default:
-        return { static_cast<byte_type>(OptimizationId::undefined), nullptr, nullptr };
+        return { nullptr, nullptr, static_cast<byte_type>(OptimizationId::undefined) };
     }
 }
 

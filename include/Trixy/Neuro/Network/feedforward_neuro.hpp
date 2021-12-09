@@ -76,47 +76,55 @@ namespace function
 TRIXY_FUNCTION_ACTIVATION_TPL_DECLARATION
 struct Activation
 {
-private:
-    using Tensor1D  = Vector<Precision, Args...>;
+public:
+    using Tensor    = Vector<Precision, Args...>;
     using byte_type = std::uint8_t;
 
-public:
-    byte_type id;
+    using Function  = void (*)(Tensor&, const Tensor&);
+    using FunctionDerived = void (*)(Tensor&, const Tensor&);
 
-    void (*f)(Tensor1D&, const Tensor1D&);
-    void (*df)(Tensor1D&, const Tensor1D&);
+public:
+    Function f;             ///< void (*f)(Tensor& buff, const Tensor& tensor)
+    FunctionDerived df;     ///< void (*df)(Tensor& buff, const Tensor& tensor)
+
+    byte_type id;
 
 public:
     Activation() noexcept : id(0), f(nullptr), df(nullptr) {}
 
-    Activation(
-        byte_type function_id,
-        void (*function)(Tensor1D&, const Tensor1D&),
-        void (*function_derived)(Tensor1D&, const Tensor1D&)) noexcept
-            : id(function_id), f(function), df(function_derived) {}
+    Activation(Function function,
+               FunctionDerived function_derived,
+               byte_type function_id = 0) noexcept
+    : f(function)
+    , df(function_derived)
+    , id(function_id) {}
 };
 
 TRIXY_FUNCTION_LOSS_TPL_DECLARATION
 struct Loss
 {
-private:
-    using Tensor1D  = Vector<Precision, Args...>;
+public:
+    using Tensor    = Vector<Precision, Args...>;
     using byte_type = std::uint8_t;
 
-public:
-    byte_type id;
+    using Function        = void (*)(Precision&, const Tensor&, const Tensor&);
+    using FunctionDerived = void (*)(Tensor&, const Tensor&, const Tensor&);
 
-    Precision (*f)(const Tensor1D&, const Tensor1D&);
-    void (*df)(Tensor1D&, const Tensor1D&, const Tensor1D&);
+public:
+    Function f;             ///< void (*)(Precision& result, const Tensor& target, const Tensor& prediction)
+    FunctionDerived df;     ///< void (*)(Tensor& buff, const Tensor& target, const Tensor& prediction)
+
+    byte_type id;
 
 public:
     Loss() noexcept : id(0), f(nullptr), df(nullptr) {}
 
-    Loss(
-        byte_type function_id,
-        Precision (*function)(const Tensor1D&, const Tensor1D&),
-        void (*function_derived)(Tensor1D&, const Tensor1D&, const Tensor1D&)) noexcept
-            : id(function_id), f(function), df(function_derived) {}
+    Loss(Function function,
+         FunctionDerived function_derived,
+         byte_type function_id = 0) noexcept
+    : id(function_id)
+    , f(function)
+    , df(function_derived) {}
 };
 
 TRIXY_FUNCTION_OPTIMIZATION_TPL_DECLARATION
@@ -129,19 +137,24 @@ private:
     using byte_type = std::uint8_t;
 
 public:
-    byte_type id;
+    using Function1D = void (*)(Tensor1D&, Tensor1D&, const Tensor1D&);
+    using Function2D = void (*)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
-    void (*f1D)(Tensor1D&, Tensor1D&, const Tensor1D&);
-    void (*f2D)(Tensor2D&, Tensor2D&, const Tensor2D&);
+public:
+    Function1D f1D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+    Function2D f2D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+
+    byte_type id;
 
 public:
     Optimization() noexcept : id(0), f1D(nullptr), f2D(nullptr) {}
 
-    Optimization(
-        byte_type function_id,
-        void (*vector_optimizer)(Tensor1D&, Tensor1D&, const Tensor1D&),
-        void (*matrix_optimizer)(Tensor2D&, Tensor2D&, const Tensor2D&)) noexcept
-            : id(function_id), f1D(vector_optimizer), f2D(matrix_optimizer) {}
+    Optimization(Function1D tensor1d_optimizer,
+                 Function2D tensor2d_optimizer,
+                 byte_type function_id = 0) noexcept
+    : f1D(tensor1d_optimizer)
+    , f2D(tensor2d_optimizer)
+    , id(function_id) {}
 };
 
 } // namespace function
@@ -154,21 +167,22 @@ private:
     class InnerFunctional;
 
 public:
-    template <typename... T> using ContainerType = Container<T...>;
-
-    using precision_type = Precision;
-    using size_type      = std::size_t;
-    using byte_type      = std::uint8_t;
-
-    using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
-    using LossFunction         = function::Loss<Vector, Precision, Args...>;
-    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
-
     using Tensor1D = Vector<Precision, Args...>;
     using Tensor2D = Matrix<Precision, Args...>;
 
+    template <typename... T> using ContainerType = Container<T...>;
+
+    using precision_type = Precision;
+
+    using size_type = std::size_t;
+    using byte_type = std::uint8_t;
+
     using GeneratorInteger   = int (*)();
     using GeneratorPrecision = Precision (*)();
+
+    using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
+    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
+    using LossFunction         = function::Loss<Vector, Precision, Args...>;
 
 private:
     Container<size_type> T;         ///< Network topology
@@ -280,17 +294,17 @@ private:
     size_type size_;
 
 public:
-    Container<Tensor1D> H;       ///<
-    Container<Tensor1D> DH;      ///<
+    Container<Tensor1D> H;       ///< hidden layer storage
+    Container<Tensor1D> DH;      ///< derived hidden layer storage
 
-    Container<Tensor1D> DB;      ///<
-    Container<Tensor2D> DW;      ///<
+    Container<Tensor1D> DB;      ///< derived bias storage
+    Container<Tensor2D> DW;      ///< derived weight storage
 
-    Container<Tensor1D> deltaB;  ///<
-    Container<Tensor2D> deltaW;  ///<
+    Container<Tensor1D> deltaB;  ///< delta bias storage
+    Container<Tensor2D> deltaW;  ///< delta weight storage
 
-    Container<Tensor1D> OB;      ///<
-    Container<Tensor2D> OW;      ///<
+    Container<Tensor1D> OB;      ///< optimize bias storage
+    Container<Tensor2D> OW;      ///< optimize weight storage
 
     Container<Tensor1D> buff;    ///< 1D buffer for handle
     Container<Tensor2D> buff2;   ///< 2D buffer for handle
@@ -770,12 +784,16 @@ double TRIXY_FEED_FORWARD_NEURO_TPL::loss(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata) const noexcept
 {
-    size_type result = 0;
+    Precision result = 0.;
+    Precision error  = 0.;
 
     for(size_type i = 0; i < odata.size(); ++i)
-        result += function.E.f(odata[i], feedforward(idata[i]));
+    {
+        function.E.f(error, odata[i], feedforward(idata[i]));
+        result += error;
+    }
 
-    return static_cast<double>(result) / odata.size();
+    return result / static_cast<double>(odata.size());
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION

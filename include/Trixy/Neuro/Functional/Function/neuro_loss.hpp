@@ -25,18 +25,16 @@ namespace loss
 {
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision categorical_cross_entropy(
+void categorical_cross_entropy(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     static constexpr Precision epsilon = 1e-9;
-    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
-        result += y_true(i) * std::log(y_pred(i) + epsilon);
-
-    return -result;
+        result -= y_true(i) * std::log(y_pred(i) + epsilon);
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -62,11 +60,11 @@ void categorical_cross_entropy_derived_softmax(
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision mean_squared_error(
+void mean_squared_error(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static Precision result;
     static Precision f;
 
     result = 0.0;
@@ -76,7 +74,7 @@ Precision mean_squared_error(
         result += f * f;
     }
 
-    return result * 0.5;
+   result *= 0.5;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -90,17 +88,14 @@ void mean_squared_error_derived(
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision mean_absolute_error(
+void mean_absolute_error(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static Precision result;
-
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result += std::fabs(y_true(i) - y_pred(i));
-
-    return result;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -121,11 +116,11 @@ void mean_absolute_error_derived(
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision mean_squared_log_error(
+void mean_squared_log_error(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static Precision result;
     static Precision f;
 
     result = 0.0;
@@ -135,7 +130,8 @@ Precision mean_squared_log_error(
         f = std::log(f);
         result += f * f;
     }
-    return result * 0.5;
+
+    result *= 0.5;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -152,20 +148,18 @@ void mean_squared_log_error_derived(
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision binary_cross_entropy(
+void binary_cross_entropy(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
     static constexpr Precision epsilon = 1e-9;
     static constexpr Precision alpha   = epsilon + 1.0;
-    static Precision result;
 
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result -= y_true(i) * std::log(y_pred(i) + epsilon)
                   + (1.0 - y_true(i)) * std::log(alpha - y_pred(i));
-
-    return result;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -194,17 +188,16 @@ void binary_cross_entropy_derived_sigmoid(
 
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision negative_log_likelihood(
+void negative_log_likelihood(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static Precision result;
-
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result += y_true(i) * y_pred(i);
 
-    return -std::log(result);
+    result = -std::log(result);
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
@@ -218,17 +211,14 @@ void negative_log_likelihood_derived_softmax(
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
-Precision logcosh(
+void logcosh(
+    Precision& result,
     const Vector<Precision, Args...>& y_true,
     const Vector<Precision, Args...>& y_pred) noexcept
 {
-    static Precision result;
-
     result = 0.0;
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result += std::log( std::cosh(y_pred(i) - y_true(i)) );
-
-    return result;
 }
 
 TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
