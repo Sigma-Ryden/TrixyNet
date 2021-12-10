@@ -6,29 +6,37 @@
 namespace lique
 {
 
-template <class Vector, class Matrix>
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
 class Linear
 {
 public:
     using size_type = std::size_t;
 
 public:
-    void dot(Vector& buff,
-             const Vector& vector,
-             const Matrix& matrix) const noexcept;
+    void dot(Vector<Precision, Args...>& buff,
+             const Vector<Precision, Args...>& vector,
+             const Matrix<Precision, Args...>& matrix) const noexcept;
 
-    void dottranspose(Vector& buff,
-                      const Vector& vector,
-                      const Matrix& matrix) const noexcept;
+    void dottranspose(Vector<Precision, Args...>& buff,
+                      const Vector<Precision, Args...>& vector,
+                      const Matrix<Precision, Args...>& matrix) const noexcept;
 
-    void tensordot(Matrix& buff,
-                   const Vector& col_vector,
-                   const Vector& row_vector) const noexcept;
+    void tensordot(Matrix<Precision, Args...>& buff,
+                   const Vector<Precision, Args...>& col_vector,
+                   const Vector<Precision, Args...>& row_vector) const noexcept;
 };
 
-template <class Vector, class Matrix>
-void Linear<Vector, Matrix>::dot(
-    Vector& buff, const Vector& vector, const Matrix& matrix) const noexcept
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
+void Linear<Vector, Matrix, Precision, Args...>::dot(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& vector,
+    const Matrix<Precision, Args...>& matrix) const noexcept
 {
     double result = 0.0;
     for(size_type i = 0; i < matrix.size().col(); ++i)
@@ -41,9 +49,14 @@ void Linear<Vector, Matrix>::dot(
     }
 }
 
-template <class Vector, class Matrix>
-void Linear<Vector, Matrix>::dottranspose(
-    Vector& buff, const Vector& vector, const Matrix& matrix) const noexcept
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
+void Linear<Vector, Matrix, Precision, Args...>::dottranspose(
+    Vector<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& vector,
+    const Matrix<Precision, Args...>& matrix) const noexcept
 {
     double result = 0.0;
     for(size_type i = 0; i < matrix.size().row(); ++i)
@@ -56,9 +69,14 @@ void Linear<Vector, Matrix>::dottranspose(
     }
 }
 
-template <class Vector, class Matrix>
-void Linear<Vector, Matrix>::tensordot(
-    Matrix& buff, const Vector& col_vector, const Vector& row_vector) const noexcept
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename... Args>
+void Linear<Vector, Matrix, Precision, Args...>::tensordot(
+    Matrix<Precision, Args...>& buff,
+    const Vector<Precision, Args...>& col_vector,
+    const Vector<Precision, Args...>& row_vector) const noexcept
 {
     for(size_type i = 0; i < col_vector.size(); ++i)
         for(size_type j = 0; j < row_vector.size(); ++j)

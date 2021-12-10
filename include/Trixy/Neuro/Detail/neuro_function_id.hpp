@@ -12,7 +12,7 @@ namespace function
 enum class ActivationId : std::uint8_t
 {
     undefined,         ///< default null value
-    identity,
+    identity,          ///< same value from input
     sigmoid,
     tanh,
     relu,
@@ -24,8 +24,8 @@ enum class ActivationId : std::uint8_t
     softplus,
     swish,
     softmax,
-    mod_relu,
-    mod_tanh,
+    mod_relu,          ///< relu for range [0, 1]
+    mod_tanh,          ///< tanh for range [0, 1]
     unstable_softmax,  ///< deprecated
     sigmoid_           ///< maybe unused
 };
