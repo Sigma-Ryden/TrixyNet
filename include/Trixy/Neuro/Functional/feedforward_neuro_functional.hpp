@@ -10,22 +10,22 @@
 
 #include "base_functional.hpp"
 
-#define TRIXY_FFNN_FUNCTIONAL_TPL                                           \
-    Functional<Neuro,                                                       \
-               meta::enable_if_t<meta::is_feedforward_neuro<Neuro>::value>>
+#define TRIXY_FFNN_FUNCTIONAL_TPL                                            \
+    Functional<NeuralNetwork,                                                \
+        meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
 
 namespace trixy
 {
 
-template <typename Neuro>
-class Functional<Neuro, meta::enable_if_t<meta::is_feedforward_neuro<Neuro>::value>>
+template <typename NeuralNetwork>
+class Functional<NeuralNetwork, meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
 {
 private:
-    using byte_type = typename Neuro::byte_type;
+    using byte_type            = typename NeuralNetwork::byte_type;
 
-    using ActivationFunction   = typename Neuro::ActivationFunction;
-    using LossFunction         = typename Neuro::LossFunction;
-    using OptimizationFunction = typename Neuro::OptimizationFunction;
+    using ActivationFunction   = typename NeuralNetwork::ActivationFunction;
+    using LossFunction         = typename NeuralNetwork::LossFunction;
+    using OptimizationFunction = typename NeuralNetwork::OptimizationFunction;
 
 public:
     ActivationFunction get(function::ActivationId id) const noexcept;
@@ -33,7 +33,7 @@ public:
     OptimizationFunction get(function::OptimizationId id) const noexcept;
 };
 
-template <typename Neuro>
+template <typename NeuralNetwork>
 typename TRIXY_FFNN_FUNCTIONAL_TPL::ActivationFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
     function::ActivationId id) const noexcept
 {
@@ -90,7 +90,7 @@ typename TRIXY_FFNN_FUNCTIONAL_TPL::ActivationFunction TRIXY_FFNN_FUNCTIONAL_TPL
     }
 }
 
-template <typename Neuro>
+template <typename NeuralNetwork>
 typename TRIXY_FFNN_FUNCTIONAL_TPL::LossFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
     function::LossId id) const noexcept
 {
@@ -130,7 +130,7 @@ typename TRIXY_FFNN_FUNCTIONAL_TPL::LossFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
     }
 }
 
-template <typename Neuro>
+template <typename NeuralNetwork>
 typename TRIXY_FFNN_FUNCTIONAL_TPL::OptimizationFunction TRIXY_FFNN_FUNCTIONAL_TPL::get(
     function::OptimizationId id) const noexcept
 {

@@ -180,7 +180,7 @@ public:
     using LossFunction         = function::Loss<Vector, Precision, Args...>;
 
 private:
-    Container<size_type> T;         ///< Network topology
+    Container<size_type> topology;  ///< Network topology
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
     mutable InnerBuffer ib;         ///< in - inner buffer (class for temporary hold storage)
@@ -194,7 +194,7 @@ private:
     TensorOperation li;             ///< li - linear (class for linear calculate)
 
 public:
-    FeedForwardNeuro(const Container<size_type>& topology);
+    FeedForwardNeuro(const Container<size_type>& neural_network_topology);
 
     const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 
@@ -522,25 +522,26 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::normalizeDelta(Precision alpha) 
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-TRIXY_FEED_FORWARD_NEURO_TPL::FeedForwardNeuro(const Container<std::size_t>& topology)
-    : T(topology)
-    , N(topology.size() - 1)
-    , ib(topology.size() - 1)
-    , B(topology.size() - 1)
-    , W(topology.size() - 1)
-    , function(topology.size() - 1)
+TRIXY_FEED_FORWARD_NEURO_TPL::FeedForwardNeuro(
+    const Container<std::size_t>& neural_network_topology)
+    : topology(neural_network_topology)
+    , N(neural_network_topology.size() - 1)
+    , ib(neural_network_topology.size() - 1)
+    , B(neural_network_topology.size() - 1)
+    , W(neural_network_topology.size() - 1)
+    , function(neural_network_topology.size() - 1)
     , li()
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].resize(T[i + 1]);
-        W[i].resize(T[i], T[i + 1]);
+        B[i].resize(topology[i + 1]);
+        W[i].resize(topology[i],topology[i + 1]);
     }
 
-    ib.startDefault(T);
-    ib.startDelta(T);
-    ib.startOptimizer(T);
-    ib.startBuffer(T);
+    ib.startDefault(topology);
+    ib.startDelta(topology);
+    ib.startOptimizer(topology);
+    ib.startBuffer(topology);
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
@@ -595,7 +596,7 @@ inline const Container<Matrix<Precision, Args...>>&
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 inline const Container<std::size_t>& TRIXY_FEED_FORWARD_NEURO_TPL::getTopology() const noexcept
 {
-    return T;
+    return topology;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION

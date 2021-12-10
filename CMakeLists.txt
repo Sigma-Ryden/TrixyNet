@@ -60,11 +60,3 @@ add_executable(${PROJECT_NAME}
     ${UTILS}
     ${TESTING}
 )
-
-#file(GLOB_RECURSE HEADERS "include/*.hpp")
-#file(GLOB TESTING "src/*.hpp")
-
-#target_link_libraries(
-#    ${PROJECT_NAME} STATIC
-#    ${HEADERS} ${TESTING}
-#)
