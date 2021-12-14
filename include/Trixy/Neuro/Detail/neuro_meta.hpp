@@ -26,12 +26,17 @@ template <template <template <typename, typename...> class T, typename P, typena
           typename Precision, typename... Args>
 struct is_activation_data
 {
-    using Tensor_t       = Tensor<Precision, Args...>;
-    using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+private:
+    using Tensor_t        = Tensor<Precision, Args...>;
+    using FunctionData_t  = FunctionData<Tensor, Precision, Args...>;
+
+public:
+    using Function        = void (*)(Tensor_t&, const Tensor_t&);
+    using FunctionDerived = void (*)(Tensor_t&, const Tensor_t&);
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f), void (*)(Tensor_t&, const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), void (*)(Tensor_t&, const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f),  Function>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), FunctionDerived>::value;
 };
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
@@ -39,12 +44,17 @@ template <template <template <typename, typename...> class T, typename P, typena
           typename Precision, typename... Args>
 struct is_loss_data
 {
-    using Tensor_t       = Tensor<Precision, Args...>;
-    using FunctionData_t = FunctionData<Tensor, Precision, Args...>;
+private:
+    using Tensor_t        = Tensor<Precision, Args...>;
+    using FunctionData_t  = FunctionData<Tensor, Precision, Args...>;
+
+public:
+    using Function        = void (*)(Precision&, const Tensor_t&, const Tensor_t&);
+    using FunctionDerived = void (*)(Tensor_t&,  const Tensor_t&, const Tensor_t&);
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f), void (*)(Precision&, const Tensor_t&, const Tensor_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().df), void (*)(Tensor_t&, const Tensor_t&, const Tensor_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f),  Function>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().df), FunctionDerived>::value;
 };
 
 template <template <template <typename, typename...> class V,
@@ -56,13 +66,18 @@ template <template <template <typename, typename...> class V,
           typename Precision, typename... Args>
 struct is_optimization_data
 {
-    using Vector_t       = Vector<Precision, Args...>;
-    using Matrix_t       = Matrix<Precision, Args...>;
-    using FunctionData_t = FunctionData<Vector, Matrix, Precision, Args...>;
+private:
+    using Tensor1D_t      = Vector<Precision, Args...>;
+    using Tensor2D_t      = Matrix<Precision, Args...>;
+    using FunctionData_t  = FunctionData<Vector, Matrix, Precision, Args...>;
+
+public:
+    using Function1D = void (*)(Tensor1D_t&, Tensor1D_t&, const Tensor1D_t&);
+    using Function2D = void (*)(Tensor2D_t&, Tensor2D_t&, const Tensor2D_t&);
 
     static constexpr bool value =
-        std::is_same<decltype(std::declval<FunctionData_t>().f1D), void (*)(Vector_t&, Vector_t&, const Vector_t&)>::value &&
-        std::is_same<decltype(std::declval<FunctionData_t>().f2D), void (*)(Matrix_t&, Matrix_t&, const Matrix_t&)>::value;
+        std::is_same<decltype(std::declval<FunctionData_t>().f1D), Function1D>::value &&
+        std::is_same<decltype(std::declval<FunctionData_t>().f2D), Function2D>::value;
 };
 
 template <class...> struct conjunction : std::true_type {};
@@ -74,25 +89,15 @@ TRIXY_NEURO_HAS_HELPER(ActivationFunction);
 TRIXY_NEURO_HAS_HELPER(LossFunction);
 TRIXY_NEURO_HAS_HELPER(OptimizationFunction);
 
-template <typename Neuro>
-struct is_feedforward_neuro
-    : conjunction<has_ActivationFunction<Neuro>,
-                  has_LossFunction<Neuro>,
-                  has_OptimizationFunction<Neuro>>
-{
-};
+template <typename Neuro> struct is_feedforward_neuro
+    : conjunction<has_ActivationFunction<Neuro>, has_LossFunction<Neuro>, has_OptimizationFunction<Neuro>> {};
 
 template <typename Neuro, decltype(
-    std::declval<Neuro>().getTopology(),
-    std::declval<Neuro>().getInnerBias(),
-    std::declval<Neuro>().getInnerWeight(),
-    std::declval<Neuro>().function.getEachActivation(),
-    std::declval<Neuro>().function.getLoss(),
+    std::declval<Neuro>().getTopology(), std::declval<Neuro>().getInnerBias(), std::declval<Neuro>().getInnerWeight(),
+    std::declval<Neuro>().function.getEachActivation(), std::declval<Neuro>().function.getLoss(),
     std::declval<Neuro>().function.getOptimization(),
     int()) = 0>
-struct is_serializable_neuro : std::true_type
-{
-};
+struct is_serializable_neuro : std::true_type {};
 
 template <bool condition, typename T = void>
 using enable_if_t = typename std::enable_if<condition, T>::type;
@@ -100,5 +105,8 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 } // namespace meta
 
 } // namespace trixy
+
+// clean up
+#undef TRIXY_NEURO_HAS_HELPER
 
 #endif // TIRXY_META_HPP

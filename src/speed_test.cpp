@@ -1,4 +1,4 @@
-#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, FFNNFunctional, FFNNSerializer
+#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, Functional, Serializer
 #include "Trixy/Lique/lique_core.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/container.hpp" // Container
@@ -157,3 +157,16 @@ int main()
     return 0;
 }
 //
+/*
+tr::function::Activation<li::Vector, float> activation;
+
+activation.f = [] (li::Vector<float>& buff, const li::Vector<float>& vector) -> void {
+    for(std::size_t i = 0; i < buff.size(); ++i)
+        buff(i) = (vector(i) > 0) ? vector(i) : 0.;
+};
+
+activation.df = [] (li::Vector<float>& buff, const li::Vector<float>& vector) -> void {
+    for(std::size_t i = 0; i < buff.size(); ++i)
+        buff(i) = (vector(i) > 0) ? 1. : 0.;
+};
+*/

@@ -13,17 +13,17 @@ enum class ActivationId : std::uint8_t
 {
     undefined,         ///< default null value
     identity,          ///< same value from input
-    sigmoid,
-    tanh,
-    relu,
-    elu,
-    lrelu,
-    selu,
-    gelu,
-    softsign,
-    softplus,
-    swish,
-    softmax,
+    sigmoid,           ///< sigmoid(x) = 1 / (exp(-x) + 1)
+    tanh,              ///<
+    relu,              ///< relu(x) = max(0,x) (Rectified Linear Unit)
+    elu,               ///<
+    lrelu,             ///< leaky relu
+    selu,              ///<
+    gelu,              ///<
+    softsign,          ///<
+    softplus,          ///<
+    swish,             ///< same as relu & sigmoid
+    softmax,           ///< normalization function
     mod_relu,          ///< relu for range [0, 1]
     mod_tanh,          ///< tanh for range [0, 1]
     unstable_softmax,  ///< deprecated

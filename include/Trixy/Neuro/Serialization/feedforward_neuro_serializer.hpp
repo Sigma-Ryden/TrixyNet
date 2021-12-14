@@ -91,7 +91,7 @@ template <typename NeuralNetwork>
 void TRIXY_FFNN_SERIALIZER_TPL::serialize(std::ofstream& out) const
 {
     size_type topology_size;
-    size_type n = 0;
+    size_type n;
 
     topology_size = topology.size();
     out.write(reinterpret_cast<const char*>(&topology_size), sizeof(size_type));

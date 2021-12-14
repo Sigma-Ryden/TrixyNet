@@ -1,4 +1,4 @@
-#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, FFNNFunctional, FFNNSerializer
+#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, Functional, Serializer
 #include "Trixy/Lique/lique_core.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/container.hpp" // Container
@@ -42,7 +42,7 @@ tr::Container<li::Vector<float>> initialize_o(
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < output_size; ++j)
-            output_batch[i](j) = data[i] == j ? 1.0 : 0.0;
+            output_batch[i](j) = (data[i] == j) ? 1.0 : 0.0;
 
     return output_batch;
 }
@@ -233,7 +233,6 @@ int main()
     return 0;
 }
 */
-
 /*
 template <typename Precision>
 li::Matrix<Precision> regression(

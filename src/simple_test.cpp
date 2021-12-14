@@ -1,4 +1,4 @@
-#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, FFNNFunctional, FFNNSerializer
+#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, Functional, Serializer
 #include "Trixy/Lique/lique_core.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/container.hpp" // Container

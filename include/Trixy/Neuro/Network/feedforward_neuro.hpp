@@ -831,7 +831,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::innerBackPropagation(
     {
         ib. derivedB[i].multiply(ib. buff[i], ib.derivedH[i]);
         li.tensordot(ib.derivedW[i], ib.H[j], ib.derivedB[i]);
-        li.dottranspose(ib.buff[j], ib.derivedB[i], W[i]);
+        li. dottranspose(ib.buff[j], ib.derivedB[i], W[i]);
     }
 
     ib. derivedB[0].multiply(ib.buff[0], ib.derivedH[0]);
