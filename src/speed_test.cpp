@@ -50,7 +50,6 @@ void speed_test_deserialization()
     NeuralNetwork net = sr.getTopology();
     NeuralFunctional manage;
 
-
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
     net.function.setActivation(manage.get(sr.getActivationId()));
@@ -144,7 +143,6 @@ void speed_test()
 
     std::cout << "End serialization\n";
 }
-
 //
 int main()
 {

@@ -31,7 +31,7 @@ void simple_test_deserialization()
     std::ifstream in("D:\\Serialized\\simple_test.bin");
     if (!in.is_open()) return;
 
-    NeuralFunctional sr;
+    NeuralSerializer sr;
 
     sr.deserialize(in);
     in.close();

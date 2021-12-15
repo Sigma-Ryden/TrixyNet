@@ -10,8 +10,8 @@ namespace trixy
 
 template <template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
-          template <template <typename, typename...> class T1,
-                    template <typename, typename...> class T2,
+          template <template <typename, typename...> class V,
+                    template <typename, typename...> class M,
                     typename P, typename...>
           class Linear,
           template <typename Type> class Container,
@@ -22,18 +22,18 @@ class FeedForwardNeuro;
 namespace function
 {
 
-template <template <typename T, typename...> class Vector,
+template <template <typename P, typename...> class Vector,
           typename Precision,
           typename... Args>
 struct Activation;
 
-template <template <typename T, typename...> class Vector,
+template <template <typename P, typename...> class Vector,
           typename Precision,
           typename... Args>
 struct Loss;
 
-template <template <typename T, typename...> class Vector,
-          template <typename T, typename...> class Matrix,
+template <template <typename P, typename...> class Vector,
+          template <typename P, typename...> class Matrix,
           typename Precision,
           typename... Args>
 struct Optimization;
@@ -63,7 +63,7 @@ namespace trixy
 namespace function
 {
 
-template <template <typename T, typename...> class Vector,
+template <template <typename P, typename...> class Vector,
           typename Precision, typename... Args>
 struct Activation
 {
@@ -71,7 +71,7 @@ public:
     using Tensor    = Vector<Precision, Args...>;
     using byte_type = std::uint8_t;
 
-    using Function  = void (*)(Tensor&, const Tensor&);
+    using Function        = void (*)(Tensor&, const Tensor&);
     using FunctionDerived = void (*)(Tensor&, const Tensor&);
 
 public:
@@ -91,7 +91,7 @@ public:
     , id(function_id) {}
 };
 
-template <template <typename T, typename...> class Vector,
+template <template <typename P, typename...> class Vector,
           typename Precision, typename... Args>
 struct Loss
 {
@@ -119,8 +119,8 @@ public:
     , df(function_derived) {}
 };
 
-template <template <typename T, typename...> class Vector,
-          template <typename T, typename...> class Matrix,
+template <template <typename P, typename...> class Vector,
+          template <typename P, typename...> class Matrix,
           typename Precision, typename... Args>
 struct Optimization
 {
@@ -163,6 +163,7 @@ private:
 public:
     using Tensor1D             = Vector<Precision, Args...>;
     using Tensor2D             = Matrix<Precision, Args...>;
+
     using TensorOperation      = Linear<Vector, Matrix, Precision, Args...>;
 
     template <typename... T>
@@ -171,9 +172,6 @@ public:
     using precision_type       = Precision;
     using size_type            = std::size_t;
     using byte_type            = std::uint8_t;
-
-    using GeneratorInteger     = int (*)();
-    using GeneratorPrecision   = Precision (*)();
 
     using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
     using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
@@ -198,6 +196,7 @@ public:
 
     const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 
+    template <typename GeneratorInteger = int (*)()>
     void trainStochastic(const Container<Tensor1D>& idata,
                          const Container<Tensor1D>& odata,
                          Precision learn_rate,
@@ -209,6 +208,7 @@ public:
                     Precision learn_rate,
                     size_type epoch_scale) noexcept;
 
+    template <typename GeneratorInteger = int (*)()>
     void trainMiniBatch(const Container<Tensor1D>& idata,
                         const Container<Tensor1D>& odata,
                         Precision learn_rate,
@@ -216,6 +216,7 @@ public:
                         size_type mini_batch_size,
                         GeneratorInteger generator) noexcept;
 
+    template <typename GeneratorInteger = int (*)()>
     void trainOptimize(const Container<Tensor1D>& idata,
                        const Container<Tensor1D>& odata,
                        Precision learn_rate,
@@ -266,8 +267,10 @@ private:
                 size_type& count) const noexcept;
 
 public:
+    template <typename GeneratorPrecision = Precision (*)()>
     void initializeInnerStruct(GeneratorPrecision generator_all) noexcept;
 
+    template <typename GeneratorPrecision = Precision (*)()>
     void initializeInnerStruct(GeneratorPrecision generator_bias,
                                GeneratorPrecision generator_weight) noexcept;
 
@@ -535,7 +538,7 @@ TRIXY_FEED_FORWARD_NEURO_TPL::FeedForwardNeuro(
     for(size_type i = 0; i < N; ++i)
     {
         B[i].resize(topology[i + 1]);
-        W[i].resize(topology[i],topology[i + 1]);
+        W[i].resize(topology[i], topology[i + 1]);
     }
 
     ib.startDefault(topology);
@@ -545,8 +548,9 @@ TRIXY_FEED_FORWARD_NEURO_TPL::FeedForwardNeuro(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+template <typename GeneratorPrecision>
 void TRIXY_FEED_FORWARD_NEURO_TPL::initializeInnerStruct(
-    Precision (*generator_all)()) noexcept
+    GeneratorPrecision generator_all) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -556,9 +560,10 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::initializeInnerStruct(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+template <typename GeneratorPrecision>
 void TRIXY_FEED_FORWARD_NEURO_TPL::initializeInnerStruct(
-    Precision (*generator_bias)(),
-    Precision (*generator_weight)()) noexcept
+    GeneratorPrecision generator_bias,
+    GeneratorPrecision generator_weight) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -616,12 +621,13 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_TPL::feedforward(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+template <typename GeneratorInteger>
 void TRIXY_FEED_FORWARD_NEURO_TPL::trainStochastic(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
     std::size_t epoch_scale,
-    int (*generator)()) noexcept
+    GeneratorInteger generator) noexcept
 {
     for(size_type epoch = 0, sample; epoch < epoch_scale; ++epoch)
     {
@@ -658,13 +664,14 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainBatch(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+template <typename GeneratorInteger>
 void TRIXY_FEED_FORWARD_NEURO_TPL::trainMiniBatch(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
     std::size_t epoch_scale,
     std::size_t mini_batch_size,
-    int (*generator)()) noexcept
+    GeneratorInteger generator) noexcept
 {
     size_type batch_part;
     size_type sample_beg;
@@ -694,13 +701,14 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainMiniBatch(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+template <typename GeneratorInteger>
 void TRIXY_FEED_FORWARD_NEURO_TPL::trainOptimize(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision learn_rate,
     std::size_t epoch_scale,
     std::size_t mini_batch_size,
-    int (*generator)()) noexcept
+    GeneratorInteger generator) noexcept
 {
     size_type batch_part;
     size_type sample_beg;
