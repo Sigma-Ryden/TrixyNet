@@ -14,14 +14,14 @@ enum class ActivationId : std::uint8_t
     undefined,         ///< default null value
     identity,          ///< same value from input
     sigmoid,           ///< sigmoid(x) = 1 / (exp(-x) + 1)
-    tanh,              ///<
+    tanh,              ///< hyperbolic tangent
     relu,              ///< relu(x) = max(0,x) (Rectified Linear Unit)
-    elu,               ///<
-    lrelu,             ///< leaky relu
-    selu,              ///<
-    gelu,              ///<
-    softsign,          ///<
-    softplus,          ///<
+    elu,               ///< exponential relu with alpha = 0.2
+    lrelu,             ///< leaky relu (same as relu, but with low negative signal)
+    selu,              ///< exponential relu with lambda = 1.050701, beta = 1.758099
+    gelu,              ///< gaussian relu
+    softsign,          ///< absolute value hyperbola
+    softplus,          ///< logarithm with exponential argument
     swish,             ///< same as relu & sigmoid
     softmax,           ///< normalization function
     mod_relu,          ///< relu for range [0, 1]

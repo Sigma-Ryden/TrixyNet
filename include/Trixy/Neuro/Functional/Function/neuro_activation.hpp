@@ -1,27 +1,23 @@
-#ifndef ACTIVATION_FUNCTION_HPP
-#define ACTIVATION_FUNCTION_HPP
+#ifndef NEURO_ACTIVATION_HPP
+#define NEURO_ACTIVATION_HPP
 
 #include <cstddef> // size_t
 #include <cstdint> // uint_8
 #include <cmath> // exp, log, fabs, tanh, cosh
 
-#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                  \
-    template <template <typename T, typename...> class Tensor, \
-              typename Precision,                              \
-              typename... Args>
+#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                                                        \
+    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
 
-#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                  \
-    template <template <typename T, typename...> class Vector, \
-              typename Precision,                              \
-              typename... Args>
+#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                                                        \
+    template <template <typename P, typename...> class Vector, typename Precision, typename... Args> \
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
-    template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
+    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
     void name(                                                                                       \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
         buff.apply(detail::name, tensor);                                                            \
     }                                                                                                \
-    template <template <typename T, typename...> class Tensor, typename Precision, typename... Args> \
+    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
     void name##_derived(                                                                             \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
         buff.apply(detail::name##_derived, tensor);                                                  \
@@ -313,4 +309,4 @@ void tensor_of_units(
 #undef TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 #undef TRIXY_FUNCTION_GENERIC_HELPER
 
-#endif // ACTIVATION_FUNCTION_HPP
+#endif // NEURO_ACTIVATION_HPP

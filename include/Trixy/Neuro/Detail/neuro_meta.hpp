@@ -1,5 +1,5 @@
-#ifndef TIRXY_META_HPP
-#define TIRXY_META_HPP
+#ifndef NEURO_META_HPP
+#define NEURO_META_HPP
 
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same, true_type
@@ -94,8 +94,8 @@ template <typename Neuro> struct is_feedforward_neuro
 
 template <typename Neuro, decltype(
     std::declval<Neuro>().getTopology(), std::declval<Neuro>().getInnerBias(), std::declval<Neuro>().getInnerWeight(),
-    std::declval<Neuro>().function.getEachActivation(), std::declval<Neuro>().function.getLoss(),
-    std::declval<Neuro>().function.getOptimization(),
+    std::declval<Neuro>().function.getLoss(), std::declval<Neuro>().function.getOptimization(),
+    std::declval<Neuro>().function.getEachActivation(),
     int()) = 0>
 struct is_serializable_neuro : std::true_type {};
 
@@ -109,4 +109,4 @@ using enable_if_t = typename std::enable_if<condition, T>::type;
 // clean up
 #undef TRIXY_NEURO_HAS_HELPER
 
-#endif // TIRXY_META_HPP
+#endif // NEURO_META_HPP

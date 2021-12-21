@@ -1,5 +1,5 @@
-#ifndef FFNN_SERIALIZER_HPP
-#define FFNN_SERIALIZER_HPP
+#ifndef FEED_FORWARD_NEURO_SERIALIZER_HPP
+#define FEED_FORWARD_NEURO_SERIALIZER_HPP
 
 #include "../Detail/neuro_function_id.hpp"
 #include "../Detail/neuro_meta.hpp"
@@ -8,7 +8,7 @@
 
 #include <fstream> // ifstream, ofstream
 
-#define TRIXY_FFNN_SERIALIZER_TPL                                            \
+#define TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL                              \
     Serializer<NeuralNetwork,                                                \
         meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
 
@@ -62,7 +62,7 @@ public:
 };
 
 template <typename NeuralNetwork>
-TRIXY_FFNN_SERIALIZER_TPL::Serializer()
+TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::Serializer()
     : N(0)
     , loss(function::LossId::undefined)
     , optimization(function::OptimizationId::undefined)
@@ -70,7 +70,7 @@ TRIXY_FFNN_SERIALIZER_TPL::Serializer()
 }
 
 template <typename NeuralNetwork>
-void TRIXY_FFNN_SERIALIZER_TPL::prepare(const NeuralNetwork& net)
+void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::prepare(const NeuralNetwork& net)
 {
     topology = net.getTopology();
 
@@ -88,7 +88,7 @@ void TRIXY_FFNN_SERIALIZER_TPL::prepare(const NeuralNetwork& net)
 }
 
 template <typename NeuralNetwork>
-void TRIXY_FFNN_SERIALIZER_TPL::serialize(std::ofstream& out) const
+void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
 {
     size_type topology_size;
     size_type n;
@@ -116,7 +116,7 @@ void TRIXY_FFNN_SERIALIZER_TPL::serialize(std::ofstream& out) const
 }
 
 template <typename NeuralNetwork>
-void TRIXY_FFNN_SERIALIZER_TPL::deserialize(std::ifstream& in)
+void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
 {
     size_type topology_size;
     size_type n;
@@ -158,6 +158,6 @@ void TRIXY_FFNN_SERIALIZER_TPL::deserialize(std::ifstream& in)
 } // namepace trixy
 
 // clean up
-#undef TRIXY_FFNN_SERIALIZER_TPL
+#undef TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL
 
-#endif // FFNN_SERIALIZER_HPP
+#endif // FEED_FORWARD_NEURO_SERIALIZER_HPP

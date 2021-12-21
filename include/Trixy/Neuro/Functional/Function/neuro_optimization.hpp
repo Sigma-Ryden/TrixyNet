@@ -5,15 +5,11 @@
 #include <cstdint> // uint_8
 #include <cmath> // sqrt
 
-#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                  \
-    template <template <typename T, typename...> class Tensor, \
-              typename Precision,                              \
-              typename... Args>
+#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                                                        \
+    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
 
-#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                  \
-    template <template <typename T, typename...> class Vector, \
-              typename Precision,                              \
-              typename... Args>
+#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                                                        \
+    template <template <typename P, typename...> class Vector, typename Precision, typename... Args> \
 
 namespace trixy
 {
