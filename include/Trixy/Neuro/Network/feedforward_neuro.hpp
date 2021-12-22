@@ -1,5 +1,5 @@
-#ifndef FEED_FORWARD_NEURO_HPP
-#define FEED_FORWARD_NEURO_HPP
+#ifndef FEEDFORWARD_NEURO_HPP
+#define FEEDFORWARD_NEURO_HPP
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
@@ -888,4 +888,4 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::checkg(
 #undef TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 #undef TRIXY_FEED_FORWARD_NEURO_TPL
 
-#endif // FEED_FORWARD_NEURO_HPP
+#endif // FEEDFORWARD_NEURO_HPP

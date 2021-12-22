@@ -1,5 +1,5 @@
-#ifndef FEED_FORWARD_NEURO_SERIALIZER_HPP
-#define FEED_FORWARD_NEURO_SERIALIZER_HPP
+#ifndef FEEDFORWARD_NEURO_SERIALIZER_HPP
+#define FEEDFORWARD_NEURO_SERIALIZER_HPP
 
 #include "../Detail/neuro_function_id.hpp"
 #include "../Detail/neuro_meta.hpp"
