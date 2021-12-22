@@ -33,6 +33,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/neuro_meta.hpp
     include/Trixy/Neuro/Detail/neuro_function_id.hpp
     include/Trixy/Neuro/Network/feedforward_neuro.hpp
+    include/Trixy/Neuro/Network/feedforward_neuro_less.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation.hpp
     include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
     include/Trixy/Neuro/Functional/Function/neuro_optimization.hpp

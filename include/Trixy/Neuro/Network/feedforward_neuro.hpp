@@ -19,27 +19,6 @@ template <template <typename, typename...> class Vector,
           typename... Args>
 class FeedForwardNeuro;
 
-namespace function
-{
-
-template <template <typename P, typename...> class Vector,
-          typename Precision,
-          typename... Args>
-struct Activation;
-
-template <template <typename P, typename...> class Vector,
-          typename Precision,
-          typename... Args>
-struct Loss;
-
-template <template <typename P, typename...> class Vector,
-          template <typename P, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
-struct Optimization;
-
-} // namespace function
-
 } // namespace trixy
 
 #define TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION                   \
@@ -60,102 +39,14 @@ struct Optimization;
 namespace trixy
 {
 
-namespace function
-{
-
-template <template <typename P, typename...> class Vector,
-          typename Precision, typename... Args>
-struct Activation
-{
-public:
-    using Tensor    = Vector<Precision, Args...>;
-    using byte_type = std::uint8_t;
-
-    using Function        = void (*)(Tensor&, const Tensor&);
-    using FunctionDerived = void (*)(Tensor&, const Tensor&);
-
-public:
-    Function f;             ///< void (*f)(Tensor& buff, const Tensor& tensor)
-    FunctionDerived df;     ///< void (*df)(Tensor& buff, const Tensor& tensor)
-
-    byte_type id;
-
-public:
-    Activation() noexcept : id(0), f(nullptr), df(nullptr) {}
-
-    Activation(Function function,
-               FunctionDerived function_derived,
-               byte_type function_id = 0) noexcept
-    : f(function)
-    , df(function_derived)
-    , id(function_id) {}
-};
-
-template <template <typename P, typename...> class Vector,
-          typename Precision, typename... Args>
-struct Loss
-{
-public:
-    using Tensor    = Vector<Precision, Args...>;
-    using byte_type = std::uint8_t;
-
-    using Function        = void (*)(Precision&, const Tensor&, const Tensor&);
-    using FunctionDerived = void (*)(Tensor&, const Tensor&, const Tensor&);
-
-public:
-    Function f;             ///< void (*)(Precision& result, const Tensor& target, const Tensor& prediction)
-    FunctionDerived df;     ///< void (*)(Tensor& buff, const Tensor& target, const Tensor& prediction)
-
-    byte_type id;
-
-public:
-    Loss() noexcept : id(0), f(nullptr), df(nullptr) {}
-
-    Loss(Function function,
-         FunctionDerived function_derived,
-         byte_type function_id = 0) noexcept
-    : id(function_id)
-    , f(function)
-    , df(function_derived) {}
-};
-
-template <template <typename P, typename...> class Vector,
-          template <typename P, typename...> class Matrix,
-          typename Precision, typename... Args>
-struct Optimization
-{
-private:
-    using Tensor1D  = Vector<Precision, Args...>;
-    using Tensor2D  = Matrix<Precision, Args...>;
-
-    using byte_type = std::uint8_t;
-
-public:
-    using Function1D = void (*)(Tensor1D&, Tensor1D&, const Tensor1D&);
-    using Function2D = void (*)(Tensor2D&, Tensor2D&, const Tensor2D&);
-
-public:
-    Function1D f1D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
-    Function2D f2D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
-
-    byte_type id;
-
-public:
-    Optimization() noexcept : id(0), f1D(nullptr), f2D(nullptr) {}
-
-    Optimization(Function1D tensor1d_optimizer,
-                 Function2D tensor2d_optimizer,
-                 byte_type function_id = 0) noexcept
-    : f1D(tensor1d_optimizer)
-    , f2D(tensor2d_optimizer)
-    , id(function_id) {}
-};
-
-} // namespace function
-
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 class FeedForwardNeuro
 {
+public:
+    struct ActivationFunction;
+    struct OptimizationFunction;
+    struct LossFunction;
+
 private:
     class InnerBuffer;
     class InnerFunctional;
@@ -163,7 +54,6 @@ private:
 public:
     using Tensor1D             = Vector<Precision, Args...>;
     using Tensor2D             = Matrix<Precision, Args...>;
-
     using TensorOperation      = Linear<Vector, Matrix, Precision, Args...>;
 
     template <typename... T>
@@ -173,15 +63,11 @@ public:
     using size_type            = std::size_t;
     using byte_type            = std::uint8_t;
 
-    using ActivationFunction   = function::Activation<Vector, Precision, Args...>;
-    using OptimizationFunction = function::Optimization<Vector, Matrix, Precision, Args...>;
-    using LossFunction         = function::Loss<Vector, Precision, Args...>;
-
 private:
     Container<size_type> topology;  ///< Network topology
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
-    mutable InnerBuffer ib;         ///< in - inner buffer (class for temporary hold storage)
+    mutable InnerBuffer ib;         ///< Inner buffer (class for temporary hold storage)
     Container<Tensor1D>  B;         ///< Container of network bias
     Container<Tensor2D>  W;         ///< Container of network weight
 
@@ -283,6 +169,78 @@ public:
 };
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+struct TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction
+{
+public:
+    using Function        = void (*)(Tensor1D&, const Tensor1D&);
+    using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&);
+
+public:
+    Function f;             ///< void (*f)(Tensor1D& buff, const Tensor1D& tensor)
+    FunctionDerived df;     ///< void (*df)(Tensor1D& buff, const Tensor1D& tensor)
+
+    byte_type id;
+
+public:
+    ActivationFunction() noexcept : id(0), f(nullptr), df(nullptr) {}
+
+    ActivationFunction(Function function,
+                       FunctionDerived function_derived,
+                       byte_type function_id = 0) noexcept
+    : f(function)
+    , df(function_derived)
+    , id(function_id) {}
+};
+
+TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+struct TRIXY_FEED_FORWARD_NEURO_TPL::OptimizationFunction
+{
+public:
+    using Function1D = void (*)(Tensor1D&, Tensor1D&, const Tensor1D&);
+    using Function2D = void (*)(Tensor2D&, Tensor2D&, const Tensor2D&);
+
+public:
+    Function1D f1D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+    Function2D f2D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+
+    byte_type id;
+
+public:
+    OptimizationFunction() noexcept : id(0), f1D(nullptr), f2D(nullptr) {}
+
+    OptimizationFunction(Function1D tensor1d_optimizer,
+                         Function2D tensor2d_optimizer,
+                         byte_type function_id = 0) noexcept
+    : f1D(tensor1d_optimizer)
+    , f2D(tensor2d_optimizer)
+    , id(function_id) {}
+};
+
+TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
+struct TRIXY_FEED_FORWARD_NEURO_TPL::LossFunction
+{
+public:
+    using Function        = void (*)(Precision&, const Tensor1D&, const Tensor1D&);
+    using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&, const Tensor1D&);
+
+public:
+    Function f;             ///< void (*)(Precision& result, const Tensor1D& target, const Tensor1D& prediction)
+    FunctionDerived df;     ///< void (*)(Tensor1D& buff, const Tensor1D& target, const Tensor1D& prediction)
+
+    byte_type id;
+
+public:
+    LossFunction() noexcept : id(0), f(nullptr), df(nullptr) {}
+
+    LossFunction(Function function,
+                 FunctionDerived function_derived,
+                 byte_type function_id = 0) noexcept
+    : id(function_id)
+    , f(function)
+    , df(function_derived) {}
+};
+
+TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 class TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer
 {
 friend class TRIXY_FEED_FORWARD_NEURO_TPL;
@@ -357,7 +315,7 @@ public:
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setActivation(
-    const function::Activation<Vector, Precision, Args...>& f)
+    const TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction& f)
 {
     for(size_type i = 0; i < activation.size() - 1; ++i)
         activation[i] = f;
@@ -365,7 +323,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setActivation(
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setEachActivation(
-    const Container<function::Activation<Vector, Precision, Args...>>& fs)
+    const Container<TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction>& fs)
 {
     for(size_type i = 0; i < activation.size(); ++i)
         activation[i] = fs[i];
@@ -373,55 +331,55 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setEachActivation(
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setNormalization(
-    const function::Activation<Vector, Precision, Args...>& f)
+    const TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction& f)
 {
     activation[activation.size() - 1] = f;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setLoss(
-    const function::Loss<Vector, Precision, Args...>& f)
+    const TRIXY_FEED_FORWARD_NEURO_TPL::LossFunction& f)
 {
     loss = f;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::setOptimization(
-    const function::Optimization<Vector, Matrix, Precision, Args...>& f)
+    const TRIXY_FEED_FORWARD_NEURO_TPL::OptimizationFunction& f)
 {
     optimization = f;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-inline const function::Activation<Vector, Precision, Args...>&
+inline const typename TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::getActivation() const noexcept
 {
     return activation[0];
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-inline const Container<function::Activation<Vector, Precision, Args...>>&
+inline const Container<typename TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction>&
     TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::getEachActivation() const noexcept
 {
     return activation;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-inline const function::Activation<Vector, Precision, Args...>&
+inline const typename TRIXY_FEED_FORWARD_NEURO_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::getNormalization() const noexcept
 {
     return activation[activation.size() - 1];
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-inline const function::Loss<Vector, Precision, Args...>&
+inline const typename TRIXY_FEED_FORWARD_NEURO_TPL::LossFunction&
     TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::getLoss() const noexcept
 {
     return loss;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-inline const function::Optimization<Vector, Matrix, Precision, Args...>&
+inline const typename TRIXY_FEED_FORWARD_NEURO_TPL::OptimizationFunction&
     TRIXY_FEED_FORWARD_NEURO_TPL::InnerFunctional::getOptimization() const noexcept
 {
     return optimization;
