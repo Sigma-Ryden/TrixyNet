@@ -2,7 +2,6 @@
 #define NEURO_OPTIMIZATION_HPP
 
 #include <cstddef> // size_t
-#include <cstdint> // uint_8
 #include <cmath> // sqrt
 
 #define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                                                        \
@@ -38,7 +37,7 @@ void momentum(
     const Tensor<Precision, Args...>& g) noexcept
 {
     static constexpr Precision beta1 = 0.9;
-    static constexpr Precision beta2 = 1.0 - beta1;
+    static constexpr Precision beta2 = 1. - beta1;
 
     s.join(beta1);
     s.add(buff.join(beta2, g));
@@ -53,7 +52,7 @@ void rms_prop(
     const Tensor<Precision, Args...>& g) noexcept
 {
     static constexpr Precision beta1 = 0.9;
-    static constexpr Precision beta2 = 1.0 - beta1;
+    static constexpr Precision beta2 = 1. - beta1;
 
     s.join(beta1);
     s.add(buff.multiply(g, g).join(beta2));

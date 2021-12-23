@@ -94,7 +94,7 @@ void speed_test()
     net.function.setNormalization(manage.get(ActivationId::softmax));
     net.function.setLoss(manage.get(LossId::CCE));
 
-    //net.function.setOptimization(manage.get(OptimizationId::ada_grad));
+    net.function.setOptimization(manage.get(OptimizationId::ada_grad));
 
     tr::Container<li::Vector<float>> train_in
     {
@@ -105,6 +105,7 @@ void speed_test()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
+
     tr::Container<li::Vector<float>> train_out
     {
         {1, 0, 0},
@@ -124,7 +125,7 @@ void speed_test()
     net.trainBatch(train_in, train_out, 0.1, 100000);
     net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
     net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
-    //net.trainOptimize(train_in, train_out, 0.1, 100000, 6, std::rand);
+    net.trainOptimize(train_in, train_out, 0.1, 100000, 6, std::rand);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 

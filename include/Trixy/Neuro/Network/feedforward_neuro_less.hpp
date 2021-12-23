@@ -1,3 +1,4 @@
+/*__EXPERIMENTAL__*/
 #ifndef FEEDFORWARD_NEURO_LESS_HPP
 #define FEEDFORWARD_NEURO_LESS_HPP
 
@@ -43,7 +44,6 @@ class FeedForwardNeuroLess
 {
 public:
     struct ActivationFunction;
-    struct LossFunction;
 
 private:
     class  InnerFunctional;
@@ -62,9 +62,7 @@ private:
 
 public:
     InnerFunctional function;   ///< Functional object for set & get each inner network function
-
-private:
-    TensorOperation li;         ///< li - linear (class for linear calculate)
+    TensorOperation linear;     ///< Linear class for tensor calculate
 
 public:
     FeedForwardNeuroLess(const Container<Tensor1D>& bias,
@@ -163,12 +161,12 @@ TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_LESS_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
-    li.dot(buff[0], sample, W[0]);
+    linear.dot(buff[0], sample, W[0]);
     function.activation[0].f(buff[0], buff[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
     {
-        li.dot(buff[i], buff[i - 1], W[i]);
+        linear.dot(buff[i], buff[i - 1], W[i]);
         function.activation[i].f(buff[i], buff[i].add(B[i]));
     }
 

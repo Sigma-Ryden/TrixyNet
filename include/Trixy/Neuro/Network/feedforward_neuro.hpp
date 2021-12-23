@@ -64,18 +64,18 @@ public:
     using byte_type            = std::uint8_t;
 
 private:
-    Container<size_type> topology;  ///< Network topology
-    size_type N;                    ///< Number of functional layer (same as topology_size - 1)
+    mutable InnerBuffer imanage;    ///< Inner buffer (class for temporary hold storage)
 
-    mutable InnerBuffer ib;         ///< Inner buffer (class for temporary hold storage)
-    Container<Tensor1D>  B;         ///< Container of network bias
-    Container<Tensor2D>  W;         ///< Container of network weight
+    Container<Tensor1D> B;          ///< Container of network bias
+    Container<Tensor2D> W;          ///< Container of network weight
+
+    const size_type N;              ///< Number of functional layer (same as topology_size - 1)
 
 public:
     InnerFunctional function;       ///< Functional object for set & get each inner network function
 
 private:
-    TensorOperation li;             ///< li - linear (class for linear calculate)
+    TensorOperation linear;         ///< Linear class for tensor calculate
 
 public:
     FeedForwardNeuro(const Container<size_type>& neural_network_topology);
@@ -176,8 +176,8 @@ public:
     using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&);
 
 public:
-    Function f;             ///< void (*f)(Tensor1D& buff, const Tensor1D& tensor)
-    FunctionDerived df;     ///< void (*df)(Tensor1D& buff, const Tensor1D& tensor)
+    Function f;           ///< void (*f)(Tensor1D& buff, const Tensor1D& tensor)
+    FunctionDerived df;   ///< void (*df)(Tensor1D& buff, const Tensor1D& tensor)
 
     byte_type id;
 
@@ -200,8 +200,8 @@ public:
     using Function2D = void (*)(Tensor2D&, Tensor2D&, const Tensor2D&);
 
 public:
-    Function1D f1D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
-    Function2D f2D;     ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+    Function1D f1D;  ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
+    Function2D f2D;  ///< void (*)(Tensor1D& buff, Tensor1D& otensor, const Tensor1D& tensor)
 
     byte_type id;
 
@@ -224,8 +224,8 @@ public:
     using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&, const Tensor1D&);
 
 public:
-    Function f;             ///< void (*)(Precision& result, const Tensor1D& target, const Tensor1D& prediction)
-    FunctionDerived df;     ///< void (*)(Tensor1D& buff, const Tensor1D& target, const Tensor1D& prediction)
+    Function f;           ///< void (*)(Precision& result, const Tensor1D& target, const Tensor1D& prediction)
+    FunctionDerived df;   ///< void (*)(Tensor1D& buff, const Tensor1D& target, const Tensor1D& prediction)
 
     byte_type id;
 
@@ -245,35 +245,34 @@ class TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer
 {
 friend class TRIXY_FEED_FORWARD_NEURO_TPL;
 
+private:
+    const size_type size_;               ///< Number of functional layer (same as topology_size - 1)
+    const Container<size_type> topology; ///< Network topology
+
+    Container<Tensor1D> H;               ///< hidden layer storage
+    Container<Tensor1D> derivedH;        ///< derived hidden layer storage
+
+    Container<Tensor1D> derivedB;        ///< derived bias storage
+    Container<Tensor2D> derivedW;        ///< derived weight storage
+
+    Container<Tensor1D> deltaB;          ///< delta bias storage
+    Container<Tensor2D> deltaW;          ///< delta weight storage
+
+    Container<Tensor1D> optimizedB;      ///< optimize bias storage
+    Container<Tensor2D> optimizedW;      ///< optimize weight storage
+
+    Container<Tensor1D> buff;            ///< 1D buffer for handle
+    Container<Tensor2D> buff2;           ///< 2D buffer for handle
+
 public:
-    using size_type = std::size_t;
+    explicit InnerBuffer(const Container<size_type>& neural_network_topology);
+
+    void initializeDefault();
+    void initializeDelta();
+    void initializeOptimizer();
+    void initializeBuffer();
 
 private:
-    size_type size_;
-
-    Container<Tensor1D> H;              ///< hidden layer storage
-    Container<Tensor1D> derivedH;       ///< derived hidden layer storage
-
-    Container<Tensor1D> derivedB;       ///< derived bias storage
-    Container<Tensor2D> derivedW;       ///< derived weight storage
-
-    Container<Tensor1D> deltaB;         ///< delta bias storage
-    Container<Tensor2D> deltaW;         ///< delta weight storage
-
-    Container<Tensor1D> optimizedB;     ///< optimize bias storage
-    Container<Tensor2D> optimizedW;     ///< optimize weight storage
-
-    Container<Tensor1D> buff;           ///< 1D buffer for handle
-    Container<Tensor2D> buff2;          ///< 2D buffer for handle
-
-public:
-    explicit InnerBuffer(size_type size);
-
-    void startDefault(const Container<size_type>& topology);
-    void startDelta(const Container<size_type>& topology);
-    void startOptimizer(const Container<size_type>& topology);
-    void startBuffer(const Container<size_type>& topology);
-
     void resetDelta() noexcept;
     void resetOptimizer() noexcept;
 
@@ -386,33 +385,43 @@ inline const typename TRIXY_FEED_FORWARD_NEURO_TPL::OptimizationFunction&
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::InnerBuffer(size_type size)
-    : size_(size)
-    , H(size),          derivedH(size)
-    , derivedB(size),   derivedW(size)
-    , deltaB(size),     deltaW(size)
-    , optimizedB(size), optimizedW(size)
-    , buff(size),       buff2(size)
+TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::InnerBuffer(
+    const Container<size_type>& neural_network_topology)
+    : size_(neural_network_topology.size() - 1)
+    , topology(neural_network_topology)
 {
+    initializeBuffer();
+
+    initializeDefault();
+    initializeDelta();
+    initializeOptimizer();
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startDefault(
-    const Container<std::size_t>& topology)
+void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::initializeDefault()
 {
+    H.resize(size_);
+    derivedH.resize(size_);
+
+    derivedB.resize(size_);
+    derivedW.resize(size_);
+
     for(size_type i = 0; i < size_; ++i)
     {
         H[i].resize(topology[i + 1]);
         derivedH[i].resize(topology[i + 1]);
+
         derivedB[i].resize(topology[i + 1]);
         derivedW[i].resize(topology[i], topology[i + 1]);
     }
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startDelta(
-    const Container<std::size_t>& topology)
+void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::initializeDelta()
 {
+    deltaB.resize(size_);
+    deltaW.resize(size_);
+
     for(size_type i = 0; i < size_; ++i)
     {
         deltaB[i].resize(topology[i + 1]);
@@ -421,9 +430,11 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startDelta(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startOptimizer(
-    const Container<std::size_t>& topology)
+void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::initializeOptimizer()
 {
+    optimizedB.resize(size_);
+    optimizedW.resize(size_);
+
     for(size_type i = 0; i < size_; ++i)
     {
         optimizedB[i].resize(topology[i + 1]);
@@ -432,9 +443,11 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startOptimizer(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::startBuffer(
-    const Container<std::size_t>& topology)
+void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::initializeBuffer()
 {
+    buff.resize(size_);
+    buff2.resize(size_);
+
     for(size_type i = 0; i < size_; ++i)
     {
         buff [i].resize(topology[i + 1]);
@@ -485,24 +498,17 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer::normalizeDelta(Precision alpha) 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NEURO_TPL::FeedForwardNeuro(
     const Container<std::size_t>& neural_network_topology)
-    : topology(neural_network_topology)
-    , N(neural_network_topology.size() - 1)
-    , ib(neural_network_topology.size() - 1)
+    : imanage(neural_network_topology)
     , B(neural_network_topology.size() - 1)
     , W(neural_network_topology.size() - 1)
+    , N(neural_network_topology.size() - 1)
     , function(neural_network_topology.size() - 1)
-    , li()
 {
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].resize(topology[i + 1]);
-        W[i].resize(topology[i], topology[i + 1]);
+        B[i].resize(imanage.topology[i + 1]);
+        W[i].resize(imanage.topology[i], imanage.topology[i + 1]);
     }
-
-    ib.startDefault(topology);
-    ib.startDelta(topology);
-    ib.startOptimizer(topology);
-    ib.startBuffer(topology);
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
@@ -559,23 +565,23 @@ inline const Container<Matrix<Precision, Args...>>&
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 inline const Container<std::size_t>& TRIXY_FEED_FORWARD_NEURO_TPL::getTopology() const noexcept
 {
-    return topology;
+    return imanage.topology;
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
-    li.dot(ib.buff[0], sample, W[0]);
-    function.activation[0].f(ib.buff[0], ib.buff[0].add(B[0]));
+    linear.dot(imanage.buff[0], sample, W[0]);
+    function.activation[0].f(imanage.buff[0], imanage.buff[0].add(B[0]));
 
     for(size_type i = 1; i < N; ++i)
     {
-        li.dot(ib.buff[i], ib.buff[i - 1], W[i]);
-        function.activation[i].f(ib.buff[i], ib.buff[i].add(B[i]));
+        linear.dot(imanage.buff[i], imanage.buff[i - 1], W[i]);
+        function.activation[i].f(imanage.buff[i], imanage.buff[i].add(B[i]));
     }
 
-    return ib.buff[N - 1];
+    return imanage.buff[N - 1];
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
@@ -593,7 +599,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainStochastic(
 
         innerFeedForward(idata[sample]);
         innerBackPropagation(idata[sample], odata[sample]);
-        innerUpdate(ib.derivedB, ib.derivedW, learn_rate);
+        innerUpdate(imanage.derivedB, imanage.derivedW, learn_rate);
     }
 }
 
@@ -608,16 +614,16 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainBatch(
 
     for(size_type epoch = 0; epoch < epoch_scale; ++epoch)
     {
-        ib.resetDelta();
+        imanage.resetDelta();
 
         for(size_type sample = 0; sample < idata.size(); ++sample)
         {
             innerFeedForward(idata[sample]);
             innerBackPropagation(idata[sample], odata[sample]);
-            ib.updateDelta();
+            imanage.updateDelta();
         }
 
-        innerUpdate(ib.deltaB, ib.deltaW, learn_rate);
+        innerUpdate(imanage.deltaB, imanage.deltaW, learn_rate);
     }
 }
 
@@ -643,18 +649,18 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainMiniBatch(
         sample_beg = batch_part * mini_batch_size;
         sample_end = sample_beg + mini_batch_size;
 
-        ib.resetDelta();
+        imanage.resetDelta();
 
         while(sample_beg < sample_end)
         {
             innerFeedForward(idata[sample_beg]);
             innerBackPropagation(idata[sample_beg], odata[sample_beg]);
-            ib.updateDelta();
+            imanage.updateDelta();
 
             ++sample_beg;
         }
 
-        innerUpdate(ib.deltaB, ib.deltaW, learn_rate);
+        innerUpdate(imanage.deltaB, imanage.deltaW, learn_rate);
     }
 }
 
@@ -672,7 +678,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainOptimize(
     size_type sample_beg;
     size_type sample_end;
 
-    ib.resetOptimizer();
+    imanage.resetOptimizer();
 
     const Precision alpha = 1.0 / static_cast<double>(mini_batch_size);
 
@@ -682,20 +688,20 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainOptimize(
         sample_beg = batch_part * mini_batch_size;
         sample_end = sample_beg + mini_batch_size;
 
-        ib.resetDelta();
+        imanage.resetDelta();
 
         while(sample_beg < sample_end)
         {
             innerFeedForward(idata[sample_beg]);
             innerBackPropagation(idata[sample_beg], odata[sample_beg]);
-            ib.updateDelta();
+            imanage.updateDelta();
 
             ++sample_beg;
         }
 
-        ib.normalizeDelta(alpha);
-        innerUpdateNormalize(ib.deltaB, ib.deltaW,
-                             ib.optimizedB, ib.optimizedW, learn_rate);
+        imanage.normalizeDelta(alpha);
+        innerUpdateNormalize(imanage.deltaB, imanage.deltaW,
+                             imanage.optimizedB, imanage.optimizedW, learn_rate);
     }
 }
 
@@ -766,20 +772,20 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::innerFeedForward(
     size_type i;
     size_type j;
 
-    li.dot(ib.buff[0], sample, W[0]);
-    ib.buff[0].add(B[0]);
+    linear.dot(imanage.buff[0], sample, W[0]);
+    imanage.buff[0].add(B[0]);
 
     for(i = 0, j = 1; j < N; ++i, ++j)
     {
-        function.activation[i]. f(ib.H[i],        ib.buff[i]);
-        function.activation[i].df(ib.derivedH[i], ib.buff[i]);
+        function.activation[i]. f(imanage.H[i],        imanage.buff[i]);
+        function.activation[i].df(imanage.derivedH[i], imanage.buff[i]);
 
-        li.dot(ib.buff[j], ib.H[i], W[j]);
-        ib.buff[j].add(B[j]);
+        linear.dot(imanage.buff[j], imanage.H[i], W[j]);
+        imanage.buff[j].add(B[j]);
     }
 
-    function.activation[i]. f(ib.H[i],        ib.buff[i]);
-    function.activation[i].df(ib.derivedH[i], ib.buff[i]);
+    function.activation[i]. f(imanage.H[i],        imanage.buff[i]);
+    function.activation[i].df(imanage.derivedH[i], imanage.buff[i]);
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
@@ -791,17 +797,17 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::innerBackPropagation(
     size_type j;
 
     i = N - 1;
-    function.loss.df(ib.buff[i], target, ib.H[i]);
+    function.loss.df(imanage.buff[i], target, imanage.H[i]);
 
     for(j = i - 1; i > 0; --i, --j)
     {
-        ib. derivedB[i].multiply(ib. buff[i], ib.derivedH[i]);
-        li.tensordot(ib.derivedW[i], ib.H[j], ib.derivedB[i]);
-        li. dottranspose(ib.buff[j], ib.derivedB[i], W[i]);
+        imanage.derivedB[i].multiply(imanage.buff[i], imanage.derivedH[i]);
+        linear.tensordot(imanage.derivedW[i], imanage.H[j], imanage.derivedB[i]);
+        linear.dottranspose(imanage. buff[j], imanage.derivedB[i], W[i]);
     }
 
-    ib. derivedB[0].multiply(ib.buff[0], ib.derivedH[0]);
-    li.tensordot(ib.derivedW[0], sample, ib.derivedB[0]);
+    imanage.derivedB[0].multiply(imanage.buff[0], imanage.derivedH[0]);
+    linear.tensordot(imanage.derivedW[0], sample, imanage.derivedB[0]);
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
@@ -827,11 +833,11 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::innerUpdateNormalize(
 {
     for(size_type i = 0; i < N; ++i)
     {
-        function.optimization.f1D(ib.buff [i], optimizedB[i], deltaB[i]);
-        function.optimization.f2D(ib.buff2[i], optimizedW[i], deltaW[i]);
+        function.optimization.f1D(imanage.buff [i], optimizedB[i], deltaB[i]);
+        function.optimization.f2D(imanage.buff2[i], optimizedW[i], deltaW[i]);
 
-        B[i].sub(ib.buff [i].join(learn_rate));
-        W[i].sub(ib.buff2[i].join(learn_rate));
+        B[i].sub(imanage.buff [i].join(learn_rate));
+        W[i].sub(imanage.buff2[i].join(learn_rate));
     }
 }
 
