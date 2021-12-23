@@ -7,9 +7,6 @@
 #define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                                                        \
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
 
-#define TRIXY_VECTOR_FUNCTION_TPL_DECLARATION                                                        \
-    template <template <typename P, typename...> class Vector, typename Precision, typename... Args> \
-
 namespace trixy
 {
 
@@ -78,6 +75,5 @@ void ada_grad(
 
 // clean up
 #undef TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
-#undef TRIXY_VECTOR_FUNCTION_TPL_DECLARATION
 
 #endif // NEURO_OPTIMIZATION_HPP

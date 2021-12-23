@@ -230,7 +230,6 @@ void logcosh_derived(
 } // namespace trixy
 
 // clean up
-#undef TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
 #undef TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
 
 #endif // NEURO_LOSS_HPP

@@ -6,53 +6,54 @@
 namespace ilique
 {
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 class ILiqueBase
 {
 protected:
     virtual ~ILiqueBase() = default;
 
 public:
-    virtual Tensor<Type, Args...>& copy(const Tensor<Type, Args...>&) noexcept = 0;
+    using TensorType = Tensor<Precision, Args...>;
 
-    virtual Tensor<Type, Args...>& fill(Type value) noexcept = 0;
-    virtual Tensor<Type, Args...>& fill(Type (*generator)()) noexcept = 0;
+public:
+    virtual TensorType& copy(const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...>  apply(Type (*function)(Type)) const = 0;
-    virtual Tensor<Type, Args...>& apply(Type (*function)(Type)) noexcept = 0;
+    virtual TensorType& fill(Precision value) noexcept = 0;
+    virtual TensorType& fill(Precision (*generator)()) noexcept = 0;
 
-    virtual Tensor<Type, Args...>& apply(Type (*function)(Type),
-                                         const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType  apply(Precision (*function)(Precision)) const = 0;
+    virtual TensorType& apply(Precision (*function)(Precision)) noexcept = 0;
 
-    virtual Tensor<Type, Args...>  multiply(const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...>& multiply(const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType& apply(Precision (*function)(Precision), const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...>& multiply(const Tensor<Type, Args...>&,
-                                            const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType  multiply(const TensorType&) const = 0;
+    virtual TensorType& multiply(const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...>  join(Type value) const = 0;
-    virtual Tensor<Type, Args...>& join(Type value) noexcept = 0;
+    virtual TensorType& multiply(const TensorType&, const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...>& join(Type value,
-                                        const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType  join(Precision value) const = 0;
+    virtual TensorType& join(Precision value) noexcept = 0;
 
-    virtual Tensor<Type, Args...>  add(const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...>& add(const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType& join(Precision value, const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...>  sub(const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...>& sub(const Tensor<Type, Args...>&) noexcept = 0;
+    virtual TensorType  add(const TensorType&) const = 0;
+    virtual TensorType& add(const TensorType&) noexcept = 0;
 
-    virtual Tensor<Type, Args...> operator+ (const Tensor<Type, Args...>&) const = 0; // maybe unused
-    virtual Tensor<Type, Args...> operator- (const Tensor<Type, Args...>&) const = 0; // maybe unused
+    virtual TensorType  sub(const TensorType&) const = 0;
+    virtual TensorType& sub(const TensorType&) noexcept = 0;
+
+    virtual TensorType operator+ (const TensorType&) const = 0; // maybe unused
+    virtual TensorType operator- (const TensorType&) const = 0; // maybe unused
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 class IVector
 {
 public:
+    using TensorType      = Tensor<Precision, Args...>;
     using size_type       = std::size_t;
-    using reference       = Type&;
-    using const_reference = const Type&;
+    using reference       = Precision&;
+    using const_reference = const Precision&;
 
 protected:
     virtual ~IVector() = default;
@@ -64,19 +65,20 @@ public:
     virtual size_type size() const noexcept = 0;
 
     virtual void resize(size_type new_size) = 0;
-    virtual Type dot(const Tensor<Type, Args...>&) const = 0;
+    virtual Precision dot(const TensorType&) const = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
 class IMatrix
 {
 protected:
     class Shape;
 
 public:
+    using TensorType      = Tensor<Precision, Args...>;
     using size_type       = std::size_t;
-    using reference       = Type&;
-    using const_reference = const Type&;
+    using reference       = Precision&;
+    using const_reference = const Precision&;
 
 protected:
     virtual ~IMatrix() = default;
@@ -90,18 +92,18 @@ public:
     virtual void resize(size_type m, size_type n) = 0;
     virtual void resize(const Shape& new_shape) = 0;
 
-    virtual Tensor<Type, Args...> dot(const Tensor<Type, Args...>&) const = 0;
-    virtual Tensor<Type, Args...> transpose() const = 0;
+    virtual TensorType dot(const TensorType&) const = 0;
+    virtual TensorType transpose() const = 0;
 
-    virtual Tensor<Type, Args...>  inverse() const = 0;
-    virtual Tensor<Type, Args...>& inverse() = 0;
+    virtual TensorType  inverse() const = 0;
+    virtual TensorType& inverse() = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Type, typename... Args>
-class IMatrix<Tensor, Type, Args...>::Shape
+template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
+class IMatrix<Tensor, Precision, Args...>::Shape
 {
-friend IMatrix<Tensor, Type, Args...>;
-friend Tensor<Type, Args...>;
+friend IMatrix<Tensor, Precision, Args...>;
+friend Tensor<Precision, Args...>;
 
 public:
     using size_type = std::size_t;
