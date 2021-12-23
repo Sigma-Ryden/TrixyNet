@@ -2,6 +2,28 @@
 #define LIQUE_LINEAR_HPP
 
 #include <cstddef> // size_t
+#include <type_traits> // enable_if, is_arithmetic
+
+namespace lique
+{
+
+template <template <typename, typename...> class Vector,
+          template <typename, typename...> class Matrix,
+          typename Precision,
+          typename enable = void, typename... Args>
+class Linear;
+
+} // namespace lique
+
+#define LIQUE_LINEAR_TPL_DECLARATION                                                     \
+    template <template <typename, typename...> class Vector,                             \
+              template <typename, typename...> class Matrix,                             \
+              typename Precision,                                                        \
+              typename... Args>
+
+#define LIQUE_LINEAR_TPL                                                                 \
+    Linear<Vector, Matrix, Precision,                                                    \
+           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 
 namespace lique
 {
@@ -10,7 +32,8 @@ template <template <typename, typename...> class Vector,
           template <typename, typename...> class Matrix,
           typename Precision,
           typename... Args>
-class Linear
+class Linear<Vector, Matrix, Precision,
+             typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 {
 public:
     using size_type = std::size_t;
@@ -29,11 +52,8 @@ public:
                    const Vector<Precision, Args...>& row_vector) const noexcept;
 };
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
-void Linear<Vector, Matrix, Precision, Args...>::dot(
+LIQUE_LINEAR_TPL_DECLARATION
+void LIQUE_LINEAR_TPL::dot(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector,
     const Matrix<Precision, Args...>& matrix) const noexcept
@@ -49,11 +69,8 @@ void Linear<Vector, Matrix, Precision, Args...>::dot(
     }
 }
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
-void Linear<Vector, Matrix, Precision, Args...>::dottranspose(
+LIQUE_LINEAR_TPL_DECLARATION
+void LIQUE_LINEAR_TPL::dottranspose(
     Vector<Precision, Args...>& buff,
     const Vector<Precision, Args...>& vector,
     const Matrix<Precision, Args...>& matrix) const noexcept
@@ -69,11 +86,8 @@ void Linear<Vector, Matrix, Precision, Args...>::dottranspose(
     }
 }
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
-void Linear<Vector, Matrix, Precision, Args...>::tensordot(
+LIQUE_LINEAR_TPL_DECLARATION
+void LIQUE_LINEAR_TPL::tensordot(
     Matrix<Precision, Args...>& buff,
     const Vector<Precision, Args...>& col_vector,
     const Vector<Precision, Args...>& row_vector) const noexcept
@@ -84,5 +98,9 @@ void Linear<Vector, Matrix, Precision, Args...>::tensordot(
 }
 
 } // namespace lique
+
+// clean up
+#undef LIQUE_LINEAR_TPL_DECLARATION
+#undef LIQUE_LINEAR_TPL
 
 #endif // LIQUE_LINEAR_HPP

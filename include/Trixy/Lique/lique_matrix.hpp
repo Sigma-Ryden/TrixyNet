@@ -4,24 +4,37 @@
 #include <cstddef> // size_t
 #include <cmath> // fabs
 #include <initializer_list> // initializer_list
+#include <type_traits> // enable_if, is_arithmetic
 
 namespace lique
 {
 
-template <typename Type>
-class Matrix
+template <typename Precision, typename enable = void>
+class Matrix;
+
+} // namespace lique
+
+#define LIQUE_MATRIX_TPL                                                     \
+    Matrix<Precision,                                                        \
+        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+
+namespace lique
+{
+
+template <typename Precision>
+class Matrix<Precision, typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
 {
 protected:
     class Shape;
 
 public:
     using size_type       = std::size_t;
-    using reference       = Type&;
-    using const_reference = const Type&;
+    using reference       = Precision&;
+    using const_reference = const Precision&;
 
 protected:
-    Type** data_;
-    Shape shape_;
+    Precision** data_;
+    Shape       shape_;
 
 public:
     Matrix() noexcept;
@@ -36,18 +49,18 @@ public:
     Matrix& operator= (Matrix&&) noexcept;
 
     Matrix& copy(const Matrix&) noexcept;
-    Matrix& copy(const std::initializer_list<Type>&) noexcept;
+    Matrix& copy(const std::initializer_list<Precision>&) noexcept;
 
     const Shape& size() const noexcept;
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
 
-    Matrix& fill(Type (*generator)()) noexcept;
-    Matrix& fill(Type value) noexcept;
+    Matrix& fill(Precision (*generator)()) noexcept;
+    Matrix& fill(Precision value) noexcept;
 
-    Matrix apply(Type (*function)(Type)) const;
-    Matrix& apply(Type (*function)(Type)) noexcept;
-    Matrix& apply(Type (*function)(Type), const Matrix&) noexcept;
+    Matrix apply(Precision (*function)(Precision)) const;
+    Matrix& apply(Precision (*function)(Precision)) noexcept;
+    Matrix& apply(Precision (*function)(Precision), const Matrix&) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
@@ -61,26 +74,26 @@ public:
     Matrix& multiply(const Matrix&) noexcept;
     Matrix& multiply(const Matrix&, const Matrix&) noexcept;
 
-    Matrix join(Type value) const;
-    Matrix& join(Type value) noexcept;
-    Matrix& join(Type value, const Matrix&) noexcept;
+    Matrix join(Precision value) const;
+    Matrix& join(Precision value) noexcept;
+    Matrix& join(Precision value, const Matrix&) noexcept;
 
     Matrix transpose() const;
 
     Matrix inverse() const;
     Matrix& inverse();
 
-    Type** data() noexcept;
-    const Type** data() const noexcept;
+    Precision** data() noexcept;
+    const Precision** data() const noexcept;
 
     Matrix operator+ (const Matrix&) const;
     Matrix operator- (const Matrix&) const;
 };
 
-template <typename Type>
-class Matrix<Type>::Shape
+template <typename Precision>
+class LIQUE_MATRIX_TPL::Shape
 {
-friend Matrix<Type>;
+friend LIQUE_MATRIX_TPL;
 
 public:
     using size_type = std::size_t;
@@ -97,13 +110,13 @@ public:
     size_type col() const noexcept { return col_; }
 };
 
-template <typename Type>
-inline Matrix<Type>::Matrix() noexcept : data_(nullptr), shape_(0, 0)
+template <typename Precision>
+inline LIQUE_MATRIX_TPL::Matrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
-template <typename Type>
-Matrix<Type>::~Matrix()
+template <typename Precision>
+LIQUE_MATRIX_TPL::~Matrix()
 {
     if(data_ != nullptr)
     {
@@ -113,41 +126,41 @@ Matrix<Type>::~Matrix()
     }
 }
 
-template <typename Type>
-Matrix<Type>::Matrix(std::size_t m, std::size_t n) : data_(new Type* [m]), shape_(m, n)
+template <typename Precision>
+LIQUE_MATRIX_TPL::Matrix(std::size_t m, std::size_t n) : data_(new Precision* [m]), shape_(m, n)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 }
 
-template <typename Type>
-Matrix<Type>::Matrix(const Matrix::Shape& shape) : data_(new Type* [shape.row_]), shape_(shape)
+template <typename Precision>
+LIQUE_MATRIX_TPL::Matrix(const Matrix::Shape& shape) : data_(new Precision* [shape.row_]), shape_(shape)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 }
 
-template <typename Type>
-Matrix<Type>::Matrix(const Matrix& matrix)
-    : data_(new Type* [matrix.shape_.row_]), shape_(matrix.shape_)
+template <typename Precision>
+LIQUE_MATRIX_TPL::Matrix(const Matrix& matrix)
+    : data_(new Precision* [matrix.shape_.row_]), shape_(matrix.shape_)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
             data_[i][j] = matrix.data_[i][j];
 }
 
-template <typename Type>
-inline Matrix<Type>::Matrix(Matrix&& matrix) noexcept
+template <typename Precision>
+inline LIQUE_MATRIX_TPL::Matrix(Matrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::operator= (const Matrix& matrix)
 {
     if(this == &matrix)
         return *this;
@@ -161,9 +174,9 @@ Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
 
     shape_ = matrix.shape_;
 
-    data_ = new Type* [shape_.row_];
+    data_ = new Precision* [shape_.row_];
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -172,8 +185,8 @@ Matrix<Type>& Matrix<Type>::operator= (const Matrix& matrix)
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::operator= (Matrix&& matrix) noexcept
 {
     if(this == &matrix)
         return *this;
@@ -193,8 +206,8 @@ Matrix<Type>& Matrix<Type>::operator= (Matrix&& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::copy(const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::copy(const Matrix& matrix) noexcept
 {
     if(this == &matrix)
         return *this;
@@ -206,8 +219,8 @@ Matrix<Type>& Matrix<Type>::copy(const Matrix& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::copy(const std::initializer_list<Type>& data) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::copy(const std::initializer_list<Precision>& data) noexcept
 {
     auto it = data.begin();
 
@@ -219,14 +232,14 @@ Matrix<Type>& Matrix<Type>::copy(const std::initializer_list<Type>& data) noexce
 }
 
 
-template <typename Type>
-inline const typename Matrix<Type>::Shape& Matrix<Type>::size() const noexcept
+template <typename Precision>
+inline const typename LIQUE_MATRIX_TPL::Shape& LIQUE_MATRIX_TPL::size() const noexcept
 {
     return shape_;
 }
 
-template <typename Type>
-void Matrix<Type>::resize(size_type m, size_type n)
+template <typename Precision>
+void LIQUE_MATRIX_TPL::resize(size_type m, size_type n)
 {
     if(data_ != nullptr)
     {
@@ -237,13 +250,13 @@ void Matrix<Type>::resize(size_type m, size_type n)
 
     shape_.row_ = m;
     shape_.col_ = n;
-    data_ = new Type* [shape_.row_];
+    data_ = new Precision* [shape_.row_];
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 }
 
-template <typename Type>
-void Matrix<Type>::resize(const Matrix::Shape& shape)
+template <typename Precision>
+void LIQUE_MATRIX_TPL::resize(const Matrix::Shape& shape)
 {
     if(data_ != nullptr)
     {
@@ -253,13 +266,13 @@ void Matrix<Type>::resize(const Matrix::Shape& shape)
     }
 
     shape_ = shape;
-    data_ = new Type* [shape_.row_];
+    data_ = new Precision* [shape_.row_];
     for(size_type i = 0; i < shape_.row_; ++i)
-        data_[i] = new Type[shape_.col_];
+        data_[i] = new Precision[shape_.col_];
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::fill(Type (*generator)()) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::fill(Precision (*generator)()) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -268,8 +281,8 @@ Matrix<Type>& Matrix<Type>::fill(Type (*generator)()) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::fill(Type value) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::fill(Precision value) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -278,8 +291,8 @@ Matrix<Type>& Matrix<Type>::fill(Type value) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::apply(Type (*function)(Type)) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::apply(Precision (*function)(Precision)) const
 {
     Matrix new_matrix(shape_);
 
@@ -290,8 +303,8 @@ Matrix<Type> Matrix<Type>::apply(Type (*function)(Type)) const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type)) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::apply(Precision (*function)(Precision)) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -300,8 +313,8 @@ Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type)) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type), const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::apply(Precision (*function)(Precision), const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -310,23 +323,23 @@ Matrix<Type>& Matrix<Type>::apply(Type (*function)(Type), const Matrix& matrix) 
     return *this;
 }
 
-template <typename Type>
-inline Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) noexcept
+template <typename Precision>
+inline Precision& LIQUE_MATRIX_TPL::operator() (std::size_t i, std::size_t j) noexcept
 {
     return data_[i][j];
 }
 
-template <typename Type>
-inline const Type& Matrix<Type>::operator() (std::size_t i, std::size_t j) const noexcept
+template <typename Precision>
+inline const Precision& LIQUE_MATRIX_TPL::operator() (std::size_t i, std::size_t j) const noexcept
 {
     return data_[i][j];
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::dot(const Matrix& matrix) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::dot(const Matrix& matrix) const
 {
     Matrix new_matrix(shape_.row_, matrix.shape_.col_);
-    Type result = 0.0;
+    Precision result = 0.0;
 
     for(size_type i = 0; i < shape_.row_; ++i)
     {
@@ -343,8 +356,8 @@ Matrix<Type> Matrix<Type>::dot(const Matrix& matrix) const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::add(const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::add(const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -353,8 +366,8 @@ Matrix<Type>& Matrix<Type>::add(const Matrix& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::sub(const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL&LIQUE_MATRIX_TPL::sub(const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -363,8 +376,8 @@ Matrix<Type>& Matrix<Type>::sub(const Matrix& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::multiply(const Matrix& matrix) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::multiply(const Matrix& matrix) const
 {
     Matrix new_matrix(matrix.shape_);
 
@@ -375,8 +388,8 @@ Matrix<Type> Matrix<Type>::multiply(const Matrix& matrix) const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::multiply(const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::multiply(const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -385,8 +398,8 @@ Matrix<Type>& Matrix<Type>::multiply(const Matrix& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::multiply(
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::multiply(
     const Matrix& lsh, const Matrix& rsh) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
@@ -396,8 +409,8 @@ Matrix<Type>& Matrix<Type>::multiply(
     return *this;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::join(Type value) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::join(Precision value) const
 {
     Matrix new_matrix(shape_);
 
@@ -408,8 +421,8 @@ Matrix<Type> Matrix<Type>::join(Type value) const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::join(Type value) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::join(Precision value) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -418,8 +431,8 @@ Matrix<Type>& Matrix<Type>::join(Type value) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::join(Type value, const Matrix& matrix) noexcept
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::join(Precision value, const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
@@ -428,8 +441,8 @@ Matrix<Type>& Matrix<Type>::join(Type value, const Matrix& matrix) noexcept
     return *this;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::transpose() const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::transpose() const
 {
     Matrix new_matrix(shape_.col_, shape_.row_);
 
@@ -440,15 +453,15 @@ Matrix<Type> Matrix<Type>::transpose() const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::inverse() const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::inverse() const
 {
     size_type N = shape_.row_;
 
     size_type i;
     size_type j;
 
-    Type buff;
+    Precision buff;
 
     Matrix A(*this);
     Matrix I(shape_);
@@ -500,15 +513,15 @@ Matrix<Type> Matrix<Type>::inverse() const
     return I;
 }
 
-template <typename Type>
-Matrix<Type>& Matrix<Type>::inverse()
+template <typename Precision>
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::inverse()
 {
     size_type N = shape_.row_;
 
     size_type i;
     size_type j;
 
-    Type buff;
+    Precision buff;
 
     Matrix I(shape_);
 
@@ -566,20 +579,20 @@ Matrix<Type>& Matrix<Type>::inverse()
     return *this;
 }
 
-template <typename Type>
-inline Type** Matrix<Type>::data() noexcept
+template <typename Precision>
+inline Precision** LIQUE_MATRIX_TPL::data() noexcept
 {
     return data_;
 }
 
-template <typename Type>
-inline const Type** Matrix<Type>::data() const noexcept
+template <typename Precision>
+inline const Precision** LIQUE_MATRIX_TPL::data() const noexcept
 {
     return data_;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::operator+ (const Matrix& matrix) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::operator+ (const Matrix& matrix) const
 {
     Matrix new_matrix(shape_);
 
@@ -590,8 +603,8 @@ Matrix<Type> Matrix<Type>::operator+ (const Matrix& matrix) const
     return new_matrix;
 }
 
-template <typename Type>
-Matrix<Type> Matrix<Type>::operator- (const Matrix& matrix) const
+template <typename Precision>
+LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::operator- (const Matrix& matrix) const
 {
     Matrix new_matrix(shape_);
 
@@ -603,5 +616,8 @@ Matrix<Type> Matrix<Type>::operator- (const Matrix& matrix) const
 }
 
 } // namespace lique
+
+// clean up
+#undef LIQUE_MATRIX_TPL
 
 #endif // LIQUE_MATRIX_HPP

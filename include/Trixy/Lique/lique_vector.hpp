@@ -3,21 +3,34 @@
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
+#include <type_traits> // enable_if, is_arithmetic
 
 namespace lique
 {
 
-template <typename Type>
-class Vector
+template <typename Precision, typename enable = void>
+class Vector;
+
+} // namespace lique
+
+#define LIQUE_VECTOR_TPL                                                     \
+    Vector<Precision,                                                        \
+        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+
+namespace lique
+{
+
+template <typename Precision>
+class Vector<Precision, typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
 {
 public:
     using size_type       = std::size_t;
-    using reference       = Type&;
-    using const_reference = const Type&;
+    using reference       = Precision&;
+    using const_reference = const Precision&;
 
 protected:
-    Type*     data_;
-    size_type size_;
+    Precision* data_;
+    size_type  size_;
 
 public:
     Vector() noexcept;
@@ -25,13 +38,13 @@ public:
     explicit Vector(size_type n);
     Vector(const Vector&);
     Vector(Vector&&) noexcept;
-    Vector(const std::initializer_list<Type>&);
+    Vector(const std::initializer_list<Precision>&);
 
     Vector& operator= (const Vector&);
     Vector& operator= (Vector&&) noexcept;
 
     Vector& copy(const Vector&) noexcept;
-    Vector& copy(const std::initializer_list<Type>&) noexcept;
+    Vector& copy(const std::initializer_list<Precision>&) noexcept;
 
     size_type size() const noexcept;
     void resize(size_type new_size);
@@ -39,14 +52,14 @@ public:
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
 
-    Vector& fill(Type (*generator)()) noexcept;
-    Vector& fill(Type value) noexcept;
+    Vector& fill(Precision (*generator)()) noexcept;
+    Vector& fill(Precision value) noexcept;
 
-    Vector apply(Type (*function)(Type)) const;
-    Vector& apply(Type (*function)(Type)) noexcept;
-    Vector& apply(Type (*function)(Type), const Vector&) noexcept;
+    Vector apply(Precision (*function)(Precision)) const;
+    Vector& apply(Precision (*function)(Precision)) noexcept;
+    Vector& apply(Precision (*function)(Precision), const Vector&) noexcept;
 
-    Type dot(const Vector&) const;
+    Precision dot(const Vector&) const;
 
     Vector& add(const Vector&) noexcept;
     Vector& sub(const Vector&) noexcept;
@@ -55,52 +68,52 @@ public:
     Vector& multiply(const Vector&) noexcept;
     Vector& multiply(const Vector&, const Vector&) noexcept;
 
-    Vector join(Type value) const;
-    Vector& join(Type value) noexcept;
-    Vector& join(Type value, const Vector&) noexcept;
+    Vector join(Precision value) const;
+    Vector& join(Precision value) noexcept;
+    Vector& join(Precision value, const Vector&) noexcept;
 
-    Type* data() noexcept;
-    const Type* data() const noexcept;
+    Precision* data() noexcept;
+    const Precision* data() const noexcept;
 
     Vector operator+ (const Vector&) const;
     Vector operator- (const Vector&) const;
 };
 
-template <typename Type>
-inline Vector<Type>::Vector() noexcept : data_(nullptr), size_(0)
+template <typename Precision>
+inline LIQUE_VECTOR_TPL::Vector() noexcept : data_(nullptr), size_(0)
 {
 }
 
-template <typename Type>
-inline Vector<Type>::~Vector()
+template <typename Precision>
+inline LIQUE_VECTOR_TPL::~Vector()
 {
     delete[] data_;
 }
 
-template <typename Type>
-inline Vector<Type>::Vector(std::size_t n)
-    : data_(new Type[n]), size_(n)
+template <typename Precision>
+inline LIQUE_VECTOR_TPL::Vector(std::size_t n)
+    : data_(new Precision[n]), size_(n)
 {
 }
 
-template <typename Type>
-Vector<Type>::Vector(const Vector& vector)
-    : data_(new Type[vector.size_]), size_(vector.size_)
+template <typename Precision>
+LIQUE_VECTOR_TPL::Vector(const Vector& vector)
+    : data_(new Precision[vector.size_]), size_(vector.size_)
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
 
-template <typename Type>
-inline Vector<Type>::Vector(Vector&& vector) noexcept
+template <typename Precision>
+inline LIQUE_VECTOR_TPL::Vector(Vector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
-template <typename Type>
-Vector<Type>::Vector(const std::initializer_list<Type>& init)
-    : data_(new Type[init.size()]), size_(init.size())
+template <typename Precision>
+LIQUE_VECTOR_TPL::Vector(const std::initializer_list<Precision>& init)
+    : data_(new Precision[init.size()]), size_(init.size())
 {
     size_type i = 0;
     for(const auto& arg: init)
@@ -110,8 +123,8 @@ Vector<Type>::Vector(const std::initializer_list<Type>& init)
     }
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::operator= (const Vector& vector)
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (const Vector& vector)
 {
     if(this == &vector)
         return *this;
@@ -119,7 +132,7 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
     delete[] data_;
 
     size_ = vector.size_;
-    data_ = new Type[size_];
+    data_ = new Precision[size_];
 
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
@@ -127,8 +140,8 @@ Vector<Type>& Vector<Type>::operator= (const Vector& vector)
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (Vector&& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -143,8 +156,8 @@ Vector<Type>& Vector<Type>::operator= (Vector&& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::copy(const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const Vector& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -155,8 +168,8 @@ Vector<Type>& Vector<Type>::copy(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::copy(const std::initializer_list<Type>& data) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const std::initializer_list<Precision>& data) noexcept
 {
     auto it = data.begin();
 
@@ -166,35 +179,35 @@ Vector<Type>& Vector<Type>::copy(const std::initializer_list<Type>& data) noexce
     return *this;
 }
 
-template <typename Type>
-inline std::size_t Vector<Type>::size() const noexcept
+template <typename Precision>
+inline std::size_t LIQUE_VECTOR_TPL::size() const noexcept
 {
     return size_;
 }
 
-template <typename Type>
-void Vector<Type>::resize(std::size_t new_size)
+template <typename Precision>
+void LIQUE_VECTOR_TPL::resize(std::size_t new_size)
 {
     delete[] data_;
 
     size_ = new_size;
-    data_ = new Type[size_];
+    data_ = new Precision[size_];
 }
 
-template <typename Type>
-inline Type& Vector<Type>::operator() (std::size_t i) noexcept
+template <typename Precision>
+inline Precision& LIQUE_VECTOR_TPL::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
-template <typename Type>
-inline const Type& Vector<Type>::operator() (std::size_t i) const noexcept
+template <typename Precision>
+inline const Precision& LIQUE_VECTOR_TPL::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::fill(Type (*generator)()) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision (*generator)()) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = generator();
@@ -202,8 +215,8 @@ Vector<Type>& Vector<Type>::fill(Type (*generator)()) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::fill(Type value) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value;
@@ -211,8 +224,8 @@ Vector<Type>& Vector<Type>::fill(Type value) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
+template <typename Precision>
+LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) const
 {
     Vector new_vector(size_);
 
@@ -222,8 +235,8 @@ Vector<Type> Vector<Type>::apply(Type (*function)(Type)) const
     return new_vector;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::apply(Type (*function)(Type)) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = function(data_[i]);
@@ -231,8 +244,8 @@ Vector<Type>& Vector<Type>::apply(Type (*function)(Type)) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::apply(Type (*function)(Type), const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision), const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = function(vector.data_[i]);
@@ -240,8 +253,8 @@ Vector<Type>& Vector<Type>::apply(Type (*function)(Type), const Vector& vector) 
     return *this;
 }
 
-template <typename Type>
-Type Vector<Type>::dot(const Vector& vector) const
+template <typename Precision>
+Precision LIQUE_VECTOR_TPL::dot(const Vector& vector) const
 {
     double result = 0.0;
 
@@ -251,8 +264,8 @@ Type Vector<Type>::dot(const Vector& vector) const
     return result;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::add(const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::add(const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] += vector.data_[i];
@@ -260,8 +273,8 @@ Vector<Type>& Vector<Type>::add(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::sub(const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::sub(const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];
@@ -269,8 +282,8 @@ Vector<Type>& Vector<Type>::sub(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type> Vector<Type>::multiply(const Vector& vector) const
+template <typename Precision>
+LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::multiply(const Vector& vector) const
 {
     Vector new_vector(size_);
 
@@ -280,8 +293,8 @@ Vector<Type> Vector<Type>::multiply(const Vector& vector) const
     return new_vector;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::multiply(const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= vector.data_[i];
@@ -289,8 +302,8 @@ Vector<Type>& Vector<Type>::multiply(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::multiply(const Vector& lsh, const Vector& rsh) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& lsh, const Vector& rsh) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = lsh.data_[i] * rsh.data_[i];
@@ -298,8 +311,8 @@ Vector<Type>& Vector<Type>::multiply(const Vector& lsh, const Vector& rsh) noexc
     return *this;
 }
 
-template <typename Type>
-Vector<Type> Vector<Type>::join(Type value) const
+template <typename Precision>
+LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::join(Precision value) const
 {
     Vector new_vector(size_);
 
@@ -309,8 +322,8 @@ Vector<Type> Vector<Type>::join(Type value) const
     return new_vector;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::join(Type value) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= value;
@@ -318,8 +331,8 @@ Vector<Type>& Vector<Type>::join(Type value) noexcept
     return *this;
 }
 
-template <typename Type>
-Vector<Type>& Vector<Type>::join(Type value, const Vector& vector) noexcept
+template <typename Precision>
+LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value, const Vector& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value * vector.data_[i];
@@ -327,20 +340,20 @@ Vector<Type>& Vector<Type>::join(Type value, const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Type>
-inline Type* Vector<Type>::data() noexcept
+template <typename Precision>
+inline Precision* LIQUE_VECTOR_TPL::data() noexcept
 {
     return data_;
 }
 
-template <typename Type>
-inline const Type* Vector<Type>::data() const noexcept
+template <typename Precision>
+inline const Precision* LIQUE_VECTOR_TPL::data() const noexcept
 {
     return data_;
 }
 
-template <typename Type>
-Vector<Type> Vector<Type>::operator+ (const Vector& vector) const
+template <typename Precision>
+LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator+ (const Vector& vector) const
 {
     Vector new_vector(size_);
 
@@ -350,8 +363,8 @@ Vector<Type> Vector<Type>::operator+ (const Vector& vector) const
     return new_vector;
 }
 
-template <typename Type>
-Vector<Type> Vector<Type>::operator- (const Vector& vector) const
+template <typename Precision>
+LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator- (const Vector& vector) const
 {
     Vector new_vector(size_);
 
@@ -362,5 +375,8 @@ Vector<Type> Vector<Type>::operator- (const Vector& vector) const
 }
 
 } // namespace lique
+
+// clean up
+#undef LIQUE_VECTOR_TPL
 
 #endif // LIQUE_VECTOR_HPP

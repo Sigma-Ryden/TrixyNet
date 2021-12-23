@@ -2,15 +2,28 @@
 #define ILIQUE_LINEAR_HPP
 
 #include <cstddef> // size_t
+#include <type_traits> // enable_if, is_arithmetic
 
 namespace ilique
 {
 
-template <template <typename, typename...> class Tensor1D,
-          template <typename, typename...> class Tensor2D,
+template <template <typename P, typename...> class Tensor1D,
+          template <typename P, typename...> class Tensor2D,
+          typename Precision,
+          typename enable = void, typename... Args>
+class ILinear;
+
+} // namespace ilique
+
+namespace ilique
+{
+
+template <template <typename P, typename...> class Tensor1D,
+          template <typename P, typename...> class Tensor2D,
           typename Precision,
           typename... Args>
-class ILinear
+class ILinear<Tensor1D, Tensor2D, Precision,
+              typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 {
 protected:
     virtual ~ILinear() = default;

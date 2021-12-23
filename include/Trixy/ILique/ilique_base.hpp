@@ -2,12 +2,38 @@
 #define ILIQUE_BASE_HPP
 
 #include <cstddef> // size_t
+#include <type_traits> // enable_if, is_arithmetic
 
 namespace ilique
 {
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-class ILiqueBase
+template <template <typename P, typename...> class Tensor, typename Precision,
+          typename enable = void, typename... Args>
+class ILiqueBase;
+
+template <template <typename P, typename...> class Tensor1D, typename Precision,
+          typename enable = void, typename... Args>
+class IVector;
+
+template <template <typename P, typename...> class Tensor2D, typename Precision,
+          typename enable = void, typename... Args>
+class IMatrix;
+
+} // namespace ilique
+
+namespace ilique
+{
+
+namespace meta
+{
+
+template <typename Precision>
+using enable_if_arithmetic_t =  typename std::enable_if<std::is_arithmetic<Precision>::value>::type;
+
+} // namespace meta
+
+template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>
+class ILiqueBase<Tensor, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
 {
 protected:
     virtual ~ILiqueBase() = default;
@@ -46,11 +72,11 @@ public:
     virtual TensorType operator- (const TensorType&) const = 0; // maybe unused
 };
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-class IVector
+template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
+class IVector<Tensor1D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
 {
 public:
-    using TensorType      = Tensor<Precision, Args...>;
+    using TensorType      = Tensor1D<Precision, Args...>;
     using size_type       = std::size_t;
     using reference       = Precision&;
     using const_reference = const Precision&;
@@ -68,14 +94,14 @@ public:
     virtual Precision dot(const TensorType&) const = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-class IMatrix
+template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
+class IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
 {
 protected:
     class Shape;
 
 public:
-    using TensorType      = Tensor<Precision, Args...>;
+    using TensorType      = Tensor2D<Precision, Args...>;
     using size_type       = std::size_t;
     using reference       = Precision&;
     using const_reference = const Precision&;
@@ -99,11 +125,11 @@ public:
     virtual TensorType& inverse() = 0;
 };
 
-template <template <typename T, typename...> class Tensor, typename Precision, typename... Args>
-class IMatrix<Tensor, Precision, Args...>::Shape
+template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
+class IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>::Shape
 {
-friend IMatrix<Tensor, Precision, Args...>;
-friend Tensor<Precision, Args...>;
+friend IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>;
+friend Tensor2D<Precision, Args...>;
 
 public:
     using size_type = std::size_t;

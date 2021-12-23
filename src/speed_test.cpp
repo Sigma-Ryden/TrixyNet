@@ -65,6 +65,7 @@ void speed_test_deserialization()
         {1, 0, 1, 0},
         {0, 0, 1, 1}
     };
+
     tr::Container<li::Vector<float>> train_out
     {
         {1, 0, 0},
