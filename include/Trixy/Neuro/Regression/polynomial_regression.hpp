@@ -2,41 +2,44 @@
 #define POLYNOMIAL_REGRESSION_HPP
 
 #include <cstddef> // size_t
+#include <type_traits> // enable_if, is_arithmetic
 
 namespace trixy
 {
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
+template <template <typename P, typename...> class Vector,
+          template <typename P, typename...> class Matrix,
           template <template <typename, typename...> class V,
                     template <typename, typename...> class M,
                     typename P, typename...>
           class Linear,
           typename Precision,
+          typename enable = void,
           typename... Args>
 class PolynomialRegression;
 
 } // namespace trixy
 
-#define TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION               \
-    template <template <typename, typename...> class Vector,      \
-              template <typename, typename...> class Matrix,      \
-              template <template <typename, typename...> class V, \
-                        template <typename, typename...> class M, \
-                        typename P, typename...>                  \
-              class Linear,                                       \
-              typename Precision,                                 \
+#define TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION                                      \
+    template <template <typename, typename...> class Vector,                             \
+              template <typename, typename...> class Matrix,                             \
+              template <template <typename, typename...> class V,                        \
+                        template <typename, typename...> class M,                        \
+                        typename P, typename...>                                         \
+              class Linear,                                                              \
+              typename Precision,                                                        \
               typename... Args>
 
-#define TRIXY_POLYNOMIAL_REGRESSION_TPL                           \
-    PolynomialRegression<Vector, Matrix, Linear,                  \
-                         Precision, Args...>
+#define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                  \
+    PolynomialRegression<Vector, Matrix, Linear, Precision,                              \
+           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 
 namespace trixy
 {
 
 TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
-class PolynomialRegression
+class PolynomialRegression<Vector, Matrix, Linear, Precision,
+    typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 {
 public:
     using Tensor1D        = Vector<Precision, Args...>;

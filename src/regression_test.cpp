@@ -2,7 +2,7 @@
 #include "Trixy/Neuro/Regression/polynomial_regression.hpp" // PolynomialRegression
 #include "Trixy/Neuro/Regression/linear_regression.hpp" // LinearRegression
 
-#include "Utility/util.hpp" // Timer
+#include "Utility/util.hpp" // operator<<
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
@@ -112,7 +112,7 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //polynomial_regression_test();
+    polynomial_regression_test();
     linear_regression_test();
 
     return 0;
