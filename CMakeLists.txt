@@ -11,6 +11,7 @@ set(TESTING
     src/simple_test.cpp
     src/mnist_test.cpp
     src/speed_test.cpp
+    src/regression_test.cpp
 )
 set(TRIXY_COLLECTION
     include/Trixy/Container/container.hpp
@@ -42,6 +43,8 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Functional/base_functional.hpp
     include/Trixy/Neuro/Serialization/feedforward_neuro_serializer.hpp
     include/Trixy/Neuro/Serialization/base_serializer.hpp
+    include/Trixy/Neuro/Regression/linear_regression.hpp
+    include/Trixy/Neuro/Regression/polynomial_regression.hpp
     include/Trixy/Neuro/neuro_core.hpp
 )
 set(MNIST_MASTER

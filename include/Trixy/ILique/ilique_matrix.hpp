@@ -181,7 +181,7 @@ ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (Matrix&& matrix) noexcept
         delete[] data_;
     }
 
-    data_ = matrix.data_;
+    data_  = matrix.data_;
     shape_ = matrix.shape_;
 
     matrix.data_ = nullptr;

@@ -34,7 +34,7 @@ public:
 
 protected:
     Precision** data_;
-    Shape       shape_;
+    Shape shape_;
 
 public:
     Matrix() noexcept;
@@ -52,6 +52,7 @@ public:
     Matrix& copy(const std::initializer_list<Precision>&) noexcept;
 
     const Shape& size() const noexcept;
+
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
 
@@ -108,6 +109,9 @@ public:
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }
+
+protected:
+    Shape& operator= (const Shape& shape) = default;
 };
 
 template <typename Precision>
@@ -231,7 +235,6 @@ LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::copy(const std::initializer_list<Precision>&
     return *this;
 }
 
-
 template <typename Precision>
 inline const typename LIQUE_MATRIX_TPL::Shape& LIQUE_MATRIX_TPL::size() const noexcept
 {
@@ -345,11 +348,12 @@ LIQUE_MATRIX_TPL LIQUE_MATRIX_TPL::dot(const Matrix& matrix) const
     {
         for(size_type j = 0; j <  matrix.shape_.col_; ++j)
         {
+            result = 0.0;
             for(size_type r = 0; r < shape_.col_; ++r)
                 result += data_[i][r] * matrix.data_[r][j];
 
             new_matrix.data_[i][j] = result;
-            result = 0.0;
+
         }
     }
 

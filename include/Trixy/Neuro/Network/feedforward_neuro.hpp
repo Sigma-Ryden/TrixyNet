@@ -110,19 +110,19 @@ public:
                        size_type mini_batch_size,
                        GeneratorInteger generator) noexcept;
 
-    double accuracy(const Container<Tensor1D>& idata,
-                    const Container<Tensor1D>& odata) const noexcept;
+    long double accuracy(const Container<Tensor1D>& idata,
+                         const Container<Tensor1D>& odata) const noexcept;
 
-    double accuracyf(const Container<Tensor1D>& idata,
-                     const Container<Tensor1D>& odata,
-                     Precision range_rate) const noexcept;
+    long double accuracyf(const Container<Tensor1D>& idata,
+                          const Container<Tensor1D>& odata,
+                          Precision range_rate) const noexcept;
 
-    double accuracyg(const Container<Tensor1D>& idata,
-                     const Container<Tensor1D>& odata,
-                     Precision range_rate) const noexcept;
+    long double accuracyg(const Container<Tensor1D>& idata,
+                          const Container<Tensor1D>& odata,
+                          Precision range_rate) const noexcept;
 
-    double loss(const Container<Tensor1D>& idata,
-                const Container<Tensor1D>& odata) const noexcept;
+    long double loss(const Container<Tensor1D>& idata,
+                     const Container<Tensor1D>& odata) const noexcept;
 
 private:
     void innerFeedForward(const Tensor1D& sample) const noexcept;
@@ -706,7 +706,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainOptimize(
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-double TRIXY_FEED_FORWARD_NEURO_TPL::accuracy(
+long double TRIXY_FEED_FORWARD_NEURO_TPL::accuracy(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata) const noexcept
 {
@@ -716,11 +716,11 @@ double TRIXY_FEED_FORWARD_NEURO_TPL::accuracy(
         if(check(odata[i], feedforward(idata[i])))
             ++count;
 
-    return static_cast<double>(count) / odata.size();
+    return static_cast<long double>(count) / odata.size();
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyf(
+long double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyf(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision range_rate) const noexcept
@@ -731,11 +731,11 @@ double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyf(
         if(checkf(odata[i], feedforward(idata[i]), range_rate))
             ++count;
 
-    return static_cast<double>(count) / odata.size();
+    return static_cast<long double>(count) / odata.size();
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyg(
+long double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyg(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     Precision range_rate) const noexcept
@@ -745,11 +745,11 @@ double TRIXY_FEED_FORWARD_NEURO_TPL::accuracyg(
     for(size_type i = 0; i < odata.size(); ++i)
         checkg(odata[i], feedforward(idata[i]), range_rate, count);
 
-    return static_cast<double>(count) / (odata.size() * odata[0].size());
+    return static_cast<long double>(count) / (odata.size() * odata[0].size());
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION
-double TRIXY_FEED_FORWARD_NEURO_TPL::loss(
+long double TRIXY_FEED_FORWARD_NEURO_TPL::loss(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata) const noexcept
 {
@@ -762,7 +762,7 @@ double TRIXY_FEED_FORWARD_NEURO_TPL::loss(
         result += error;
     }
 
-    return result / static_cast<double>(odata.size());
+    return result / static_cast<long double>(odata.size());
 }
 
 TRIXY_FEED_FORWARD_NEURO_TPL_DECLARATION

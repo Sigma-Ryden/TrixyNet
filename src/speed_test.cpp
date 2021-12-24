@@ -15,6 +15,8 @@ namespace li = lique;
 
 using namespace tr::function;
 
+static li::Linear<li::Vector, li::Matrix, double> linear;
+
 float random_real() noexcept
 {
     static constexpr int range = 1000;
@@ -151,14 +153,14 @@ int main()
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
 
     return 0;
 }
 //
 /*
-tr::function::Activation<li::Vector, float> activation;
+tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>::ActivationFunction activation;
 
 activation.f = [] (li::Vector<float>& buff, const li::Vector<float>& vector) -> void {
     for(std::size_t i = 0; i < buff.size(); ++i)

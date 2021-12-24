@@ -49,17 +49,14 @@ public:
 
     virtual TensorType  apply(Precision (*function)(Precision)) const = 0;
     virtual TensorType& apply(Precision (*function)(Precision)) noexcept = 0;
-
     virtual TensorType& apply(Precision (*function)(Precision), const TensorType&) noexcept = 0;
 
     virtual TensorType  multiply(const TensorType&) const = 0;
     virtual TensorType& multiply(const TensorType&) noexcept = 0;
-
     virtual TensorType& multiply(const TensorType&, const TensorType&) noexcept = 0;
 
     virtual TensorType  join(Precision value) const = 0;
     virtual TensorType& join(Precision value) noexcept = 0;
-
     virtual TensorType& join(Precision value, const TensorType&) noexcept = 0;
 
     virtual TensorType  add(const TensorType&) const = 0;

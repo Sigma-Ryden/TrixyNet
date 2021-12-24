@@ -29,17 +29,40 @@ protected:
     virtual ~ILinear() = default;
 
 public:
-    virtual void dot(Tensor1D<Precision, Args...>& buff,
-                     const Tensor1D<Precision, Args...>& vector,
-                     const Tensor2D<Precision, Args...>& matrix) const noexcept = 0;
+    using size_type    = std::size_t;
+    using TensorType1D = Tensor1D<Precision, Args...>;
+    using TensorType2D = Tensor2D<Precision, Args...>;
 
-    virtual void dottranspose(Tensor1D<Precision, Args...>& buff,
-                              const Tensor1D<Precision, Args...>& vector,
-                              const Tensor2D<Precision, Args...>& matrix) const noexcept = 0;
+public:
+    virtual void dot(TensorType1D& buff,
+                     const TensorType1D& row_vector,
+                     const TensorType2D& matrix) const noexcept = 0;
 
-    virtual void tensordot(Tensor2D<Precision, Args...>& buff,
-                           const Tensor1D<Precision, Args...>& col_vector,
-                           const Tensor1D<Precision, Args...>& row_vector) const noexcept = 0;
+    virtual void dot(TensorType1D& buff,
+                     const TensorType2D& matrix,
+                     const TensorType1D& col_vector) const noexcept = 0;
+
+    virtual void dottranspose(TensorType1D& buff,
+                              const TensorType1D& row_vector,
+                              const TensorType2D& matrix) const noexcept = 0;
+
+    virtual void tensordot(TensorType2D& buff,
+                           const TensorType1D& col_vector,
+                           const TensorType1D& row_vector) const noexcept = 0;
+
+    virtual TensorType1D dot(const TensorType1D& row_vector,
+                             const TensorType2D& matrix) const = 0;
+
+    virtual TensorType1D dot(const TensorType2D& matrix,
+                             const TensorType1D& col_vector) const = 0;
+
+    virtual TensorType2D tensordot(const TensorType1D& col_vector,
+                                   const TensorType1D& row_vector) const = 0;
+
+    virtual TensorType1D reshape(const TensorType2D& matrix) const = 0;
+
+    virtual TensorType2D reshape(const TensorType1D& vector,
+                                 size_type row, size_type col) const = 0;
 };
 
 } // namespace ilique
