@@ -25,7 +25,7 @@ private:
     size_type N;         ///< Size of weight vector (same as sample size + 1)
 
 public:
-    Serializer();
+    Serializer() = default;
 
     void prepare(const Serializable& reg);
 
@@ -35,11 +35,6 @@ public:
     const Tensor1D& getWeight() const noexcept { return W; };
     size_type getSize() const noexcept { return N; };
 };
-
-TRIXY_SERIALIZER_TPL_DECLARATION
-TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::Serializer()
-{
-}
 
 TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::prepare(const Serializable& reg)

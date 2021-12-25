@@ -130,10 +130,10 @@ void check_neuro(
     const Collection<Tensor1D<Type, Args...>>& idata,
     const Collection<Tensor1D<Type, Args...>>& odata)
 {
-    std::cout << "NNetwork tarin normal accuracy: "   << network.accuracy(idata, odata)
-              << "\nNNetwork tarin global accuracy: " << network.accuracyg(idata, odata, 0.05)
-              << "\nNNetwork tarin full accuracy: "   << network.accuracyf(idata, odata, 0.05)
-              << "\nNNetwork tarin Loss: "            << network.loss(idata, odata) << '\n';
+    std::cout << "NNetwork train normal accuracy: "   << network.accuracy(idata, odata)
+              << "\nNNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
+              << "\nNNetwork train full accuracy: "   << network.accuracyf(idata, odata, 0.05)
+              << "\nNNetwork train Loss: "            << network.loss(idata, odata) << '\n';
 }
 
 template <typename Neuro>

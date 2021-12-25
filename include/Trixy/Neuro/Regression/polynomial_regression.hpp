@@ -30,7 +30,7 @@ private:
     TensorOperation linear;
 
 public:
-    PolynomialRegression(size_type power);
+    explicit PolynomialRegression(size_type power);
 
     void initializeInnerStruct(Tensor1D weight) noexcept;
 

@@ -152,7 +152,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::deserialize(std::ifstream
                 in.read(reinterpret_cast<char*>(&W[n](i, j)), sizeof(precision_type));
 }
 
-} // namepace trixy
+} // namespace trixy
 
 #include "Trixy/Neuro/Detail/macro_unscope.hpp"
 

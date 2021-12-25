@@ -30,7 +30,7 @@ private:
     TensorOperation linear;
 
 public:
-    LinearRegression(size_type sample_size);
+    explicit LinearRegression(size_type sample_size);
 
     void initializeInnerStruct(Tensor1D weight) noexcept;
 
@@ -39,14 +39,14 @@ public:
     void train(const Tensor2D& idata,
                const Tensor1D& odata);
 
-    Precision feedforwardSample(const Tensor1D& idata) const;
+    Precision feedforwardSample(const Tensor1D& sample) const;
     Tensor1D feedforwardBatch(const Tensor2D& idata) const;
 
     long double loss(const Tensor2D& idata,
                      const Tensor1D& odata) const;
 
     const Tensor1D& getInnerWeight() const noexcept;
-    const size_type getInnerSize() const noexcept;
+    size_type getInnerSize() const noexcept;
 };
 
 TRIXY_REGRESSION_TPL_DECLARATION
@@ -136,7 +136,7 @@ inline const Vector<Precision, Args...>& TRIXY_LINEAR_REGRESSION_TPL::getInnerWe
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-inline const std::size_t TRIXY_LINEAR_REGRESSION_TPL::getInnerSize() const noexcept
+inline std::size_t TRIXY_LINEAR_REGRESSION_TPL::getInnerSize() const noexcept
 {
     return N - 1;
 }
