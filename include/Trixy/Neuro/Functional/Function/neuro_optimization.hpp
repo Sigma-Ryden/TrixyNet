@@ -4,8 +4,7 @@
 #include <cstddef> // size_t
 #include <cmath> // sqrt
 
-#define TRIXY_TENSOR_FUNCTION_TPL_DECLARATION                                                        \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
@@ -27,7 +26,7 @@ Precision invertSqrt(Precision x) noexcept
 
 } // namespace detail
 
-TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void momentum(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -42,7 +41,7 @@ void momentum(
     buff.copy(s);
 }
 
-TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void rms_prop(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -57,7 +56,7 @@ void rms_prop(
     buff.multiply(g, s.apply(detail::invertSqrt));
 }
 
-TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void ada_grad(
     Tensor<Precision, Args...>& buff,
     Tensor<Precision, Args...>& s,
@@ -73,7 +72,6 @@ void ada_grad(
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_TENSOR_FUNCTION_TPL_DECLARATION
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // NEURO_OPTIMIZATION_HPP

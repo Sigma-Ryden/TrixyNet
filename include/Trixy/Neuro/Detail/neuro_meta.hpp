@@ -4,16 +4,37 @@
 #include <utility> // declval
 #include <type_traits> // enable_if, is_same, true_type
 
-#define TRIXY_NEURO_HAS_HELPER(type)                                      \
-    template <typename T> struct has_##type {                             \
-    private:                                                              \
-        template <typename U, typename = typename U::type>                \
-        static int detect(U &&);                                          \
-        static void detect(...);                                          \
-    public:                                                               \
-        static constexpr bool value =                                     \
-            std::is_integral<decltype(detect(std::declval<T>()))>::value; \
-    }
+#include "Trixy/Neuro/Network/neuro_network_base.hpp"
+#include "Trixy/Neuro/Regression/regression_base.hpp"
+
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
+
+namespace trixy
+{
+
+namespace meta
+{
+
+template <typename> struct is_feedforward_neuro : std::false_type {};
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
+struct is_feedforward_neuro<TRIXY_FEED_FORWARD_NEURO_TPL> : std::true_type {};
+
+template <typename> struct is_feedforward_neuro_less : std::false_type {};
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
+struct is_feedforward_neuro_less<TRIXY_FEED_FORWARD_NEURO_LESS_TPL> : std::true_type {};
+
+template <typename> struct is_linear_regression : std::false_type {};
+TRIXY_REGRESSION_TPL_DECLARATION
+struct is_linear_regression<TRIXY_LINEAR_REGRESSION_TPL> : std::true_type {};
+
+template <typename> struct is_polynomial_regression : std::false_type {};
+TRIXY_REGRESSION_TPL_DECLARATION
+struct is_polynomial_regression<TRIXY_POLYNOMIAL_REGRESSION_TPL> : std::true_type {};
+
+} // namespace meta
+
+} // namespace trixy
+
 
 namespace trixy
 {
@@ -79,7 +100,7 @@ public:
         std::is_same<decltype(std::declval<FunctionData_t>().f1D), Function1D>::value &&
         std::is_same<decltype(std::declval<FunctionData_t>().f2D), Function2D>::value;
 };
-
+/*
 template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
 template <class B1, class... Bn> struct conjunction<B1, Bn...>
@@ -88,25 +109,12 @@ template <class B1, class... Bn> struct conjunction<B1, Bn...>
 TRIXY_NEURO_HAS_HELPER(ActivationFunction);
 TRIXY_NEURO_HAS_HELPER(LossFunction);
 TRIXY_NEURO_HAS_HELPER(OptimizationFunction);
-
-template <typename Neuro> struct is_feedforward_neuro
-    : conjunction<has_ActivationFunction<Neuro>, has_LossFunction<Neuro>, has_OptimizationFunction<Neuro>> {};
-
-template <typename Neuro, decltype(
-    std::declval<Neuro>().getTopology(), std::declval<Neuro>().getInnerBias(), std::declval<Neuro>().getInnerWeight(),
-    std::declval<Neuro>().function.getLoss(), std::declval<Neuro>().function.getOptimization(),
-    std::declval<Neuro>().function.getEachActivation(),
-    int()) = 0>
-struct is_serializable_neuro : std::true_type {};
-
-template <bool condition, typename T = void>
-using enable_if_t = typename std::enable_if<condition, T>::type;
+*/
 
 } // namespace meta
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_NEURO_HAS_HELPER
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // NEURO_META_HPP

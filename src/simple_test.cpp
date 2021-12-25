@@ -117,7 +117,7 @@ void simple_test()
     sr.serialize(out);
     out.close();
 
-    std::cout << "End serialization\n";
+    std::cout << "End of serialization\n";
 }
 
 /*

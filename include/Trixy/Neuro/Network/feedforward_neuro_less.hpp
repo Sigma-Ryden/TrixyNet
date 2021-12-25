@@ -1,45 +1,16 @@
-/*__EXPERIMENTAL__*/
 #ifndef FEEDFORWARD_NEURO_LESS_HPP
 #define FEEDFORWARD_NEURO_LESS_HPP
+/*__EXPERIMENTAL__*/
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
-namespace trixy
-{
-
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          template <template <typename, typename...> class V,
-                    template <typename, typename...> class M,
-                    typename P, typename...>
-          class Linear,
-          template <typename Type> class Container,
-          typename Precision,
-          typename... Args>
-class FeedForwardNeuroLess;
-
-} // namespace trixy
-
-#define TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION              \
-    template <template <typename, typename...> class Vector,       \
-              template <typename, typename...> class Matrix,       \
-              template <template <typename, typename...> class T1, \
-                        template <typename, typename...> class T2, \
-                        typename P, typename...>                   \
-              class Linear,                                        \
-              template <typename Type> class Container,            \
-              typename Precision,                                  \
-              typename... Args>
-
-#define TRIXY_FEED_FORWARD_NEURO_LESS_TPL                          \
-    FeedForwardNeuroLess<Vector, Matrix, Linear, Container,        \
-                     Precision, Args...>
+#include "../Detail/macro_scope.hpp"
 
 namespace trixy
 {
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 class FeedForwardNeuroLess
 {
 public:
@@ -71,7 +42,7 @@ public:
     const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 };
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction
 {
 public:
@@ -98,10 +69,10 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 class TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional
 {
-friend class TRIXY_FEED_FORWARD_NEURO_TPL;
+friend class TRIXY_FEED_FORWARD_NEURO_LESS_TPL;
 
 private:
     ~InnerFunctional() = default;
@@ -118,7 +89,7 @@ public:
     void setNormalization(const ActivationFunction&);
 };
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setEachActivation(
     const Container<TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction>& fs)
 {
@@ -126,7 +97,7 @@ void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setEachActivation(
         activation[i] = fs[i];
 }
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setActivation(
     const TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction& f)
 {
@@ -134,14 +105,14 @@ void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setActivation(
         activation[i] = f;
 }
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setNormalization(
     const TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction& f)
 {
     activation[activation.size() - 1] = f;
 }
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NEURO_LESS_TPL::FeedForwardNeuroLess(
     const Container<Tensor1D>& bias,
     const Container<Tensor2D>& weight)
@@ -157,7 +128,7 @@ TRIXY_FEED_FORWARD_NEURO_LESS_TPL::FeedForwardNeuroLess(
     }
 }
 
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
+TRIXY_NEURO_NETWORK_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_LESS_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
@@ -175,8 +146,6 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_LESS_TPL::feedforward
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_FEED_FORWARD_NEURO_LESS_TPL_DECLARATION
-#undef TRIXY_FEED_FORWARD_NEURO_LESS_TPL
+#include "Trixy/Detail/macro_unscope.hpp"
 
 #endif // FEEDFORWARD_NEURO_LESS_HPP

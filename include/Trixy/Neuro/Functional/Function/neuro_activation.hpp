@@ -1,22 +1,11 @@
 #ifndef NEURO_ACTIVATION_HPP
 #define NEURO_ACTIVATION_HPP
 
-#include "neuro_activation_less.hpp"
-
 #include <cstddef> // size_t
 #include <cmath> // exp
 
-#define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                          \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
-    void name(                                                                                       \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        buff.apply(detail::name, tensor);                                                            \
-    }                                                                                                \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args> \
-    void name##_derived(                                                                             \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {       \
-        buff.apply(detail::name##_derived, tensor);                                                  \
-    }
+#include "neuro_activation_less.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
@@ -45,7 +34,7 @@ TRIXY_FUNCTION_GENERIC_HELPER(swish)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
-template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void unstable_softmax(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& vector) noexcept
@@ -63,7 +52,7 @@ void unstable_softmax(
         buff(i) *= denominator;
 }
 
-template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void softmax(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& vector) noexcept
@@ -88,7 +77,7 @@ void softmax(
         buff(i) *= denominator;
 }
 
-template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void tensor_of_units(
     Tensor<Precision, Args...>& buff,
     const Tensor<Precision, Args...>& /*unused*/) noexcept
@@ -102,7 +91,6 @@ void tensor_of_units(
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_FUNCTION_GENERIC_HELPER
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // NEURO_ACTIVATION_HPP

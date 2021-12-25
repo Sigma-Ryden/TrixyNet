@@ -4,8 +4,7 @@
 #include <cstddef> // size_t
 #include <cmath> // log, fabs, tanh, cosh
 
-#define TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION                                                        \
-    template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args> \
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
@@ -16,7 +15,7 @@ namespace set
 namespace loss
 {
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void categorical_cross_entropy(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -29,7 +28,7 @@ void categorical_cross_entropy(
         result -= y_true(i) * std::log(y_pred(i) + epsilon);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void categorical_cross_entropy_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -41,7 +40,7 @@ void categorical_cross_entropy_derived(
         buff(i) = - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void categorical_cross_entropy_derived_softmax(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -51,7 +50,7 @@ void categorical_cross_entropy_derived_softmax(
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_squared_error(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -69,7 +68,7 @@ void mean_squared_error(
    result *= 0.5;
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_squared_error_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -79,7 +78,7 @@ void mean_squared_error_derived(
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_absolute_error(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -90,7 +89,7 @@ void mean_absolute_error(
         result += std::fabs(y_true(i) - y_pred(i));
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_absolute_error_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -107,7 +106,7 @@ void mean_absolute_error_derived(
     }
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_squared_log_error(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -126,7 +125,7 @@ void mean_squared_log_error(
     result *= 0.5;
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void mean_squared_log_error_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -139,7 +138,7 @@ void mean_squared_log_error_derived(
     }
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void binary_cross_entropy(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -154,7 +153,7 @@ void binary_cross_entropy(
                   + (1. - y_true(i)) * std::log(alpha - y_pred(i));
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void binary_cross_entropy_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -168,7 +167,7 @@ void binary_cross_entropy_derived(
             (y_true(i) - 1.) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void binary_cross_entropy_derived_sigmoid(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -179,7 +178,7 @@ void binary_cross_entropy_derived_sigmoid(
 }
 
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void negative_log_likelihood(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -192,7 +191,7 @@ void negative_log_likelihood(
     result = -std::log(result);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void negative_log_likelihood_derived_softmax(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -202,7 +201,7 @@ void negative_log_likelihood_derived_softmax(
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void logcosh(
     Precision& result,
     const Tensor1D<Precision, Args...>& y_true,
@@ -213,7 +212,7 @@ void logcosh(
         result += std::log( std::cosh(y_pred(i) - y_true(i)) );
 }
 
-TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
 void logcosh_derived(
     Tensor1D<Precision, Args...>& buff,
     const Tensor1D<Precision, Args...>& y_true,
@@ -229,7 +228,6 @@ void logcosh_derived(
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_TENSOR1D_FUNCTION_TPL_DECLARATION
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // NEURO_LOSS_HPP

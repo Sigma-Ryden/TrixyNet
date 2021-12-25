@@ -4,40 +4,13 @@
 #include <cstddef> // size_t
 #include <type_traits> // enable_if, is_arithmetic
 
-namespace trixy
-{
-
-template <template <typename P, typename...> class Vector,
-          template <typename P, typename...> class Matrix,
-          template <template <typename, typename...> class V,
-                    template <typename, typename...> class M,
-                    typename P, typename...>
-          class Linear,
-          typename Precision,
-          typename enable = void,
-          typename... Args>
-class LinearRegression;
-
-} // namespace trixy
-
-#define TRIXY_LINEAR_REGRESSION_TPL_DECLARATION                                          \
-    template <template <typename P, typename...> class Vector,                           \
-              template <typename P, typename...> class Matrix,                           \
-              template <template <typename, typename...> class V,                        \
-                        template <typename, typename...> class M,                        \
-                        typename P, typename...>                                         \
-              class Linear,                                                              \
-              typename Precision,                                                        \
-              typename... Args>
-
-#define TRIXY_LINEAR_REGRESSION_TPL                                                      \
-    LinearRegression<Vector, Matrix, Linear, Precision,                                  \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+#include "Trixy/Neuro/Regression/regression_base.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 class LinearRegression<Vector, Matrix, Linear, Precision,
     typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 {
@@ -47,6 +20,7 @@ public:
 
     using TensorOperation = Linear<Vector, Matrix, Precision, Args...>;
 
+    using precision_type  = Precision;
     using size_type       = std::size_t;
 
 private:
@@ -57,6 +31,10 @@ private:
 
 public:
     LinearRegression(size_type sample_size);
+
+    void initializeInnerStruct(Tensor1D weight) noexcept;
+
+    void reset(size_type new_sample_size);
 
     void train(const Tensor2D& idata,
                const Tensor1D& odata);
@@ -71,13 +49,26 @@ public:
     const size_type getInnerSize() const noexcept;
 };
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 TRIXY_LINEAR_REGRESSION_TPL::LinearRegression(size_type sample_size)
     : W(sample_size + 1), N(sample_size + 1)
 {
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
+void TRIXY_LINEAR_REGRESSION_TPL::initializeInnerStruct(Tensor1D weight) noexcept
+{
+    W.copy(weight);
+}
+
+TRIXY_REGRESSION_TPL_DECLARATION
+void TRIXY_LINEAR_REGRESSION_TPL::reset(size_type new_sample_size)
+{
+    W.resize(new_sample_size + 1);
+    N = new_sample_size + 1;
+}
+
+TRIXY_REGRESSION_TPL_DECLARATION
 void TRIXY_LINEAR_REGRESSION_TPL::train(
     const Matrix<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata)
@@ -98,7 +89,7 @@ void TRIXY_LINEAR_REGRESSION_TPL::train(
     linear.dot(W, X_T.dot(X).inverse().dot(X_T), odata);
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
     const Vector<Precision, Args...>& sample) const
 {
@@ -112,7 +103,7 @@ Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
     return result;
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 Vector<Precision, Args...> TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
     const Matrix<Precision, Args...>& idata) const
 {
@@ -128,7 +119,7 @@ Vector<Precision, Args...> TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
     return linear.dot(X, W);
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 long double TRIXY_LINEAR_REGRESSION_TPL::loss(
     const Matrix<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata) const
@@ -138,13 +129,13 @@ long double TRIXY_LINEAR_REGRESSION_TPL::loss(
     return r.dot(r) / static_cast<long double>(r.size());
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 inline const Vector<Precision, Args...>& TRIXY_LINEAR_REGRESSION_TPL::getInnerWeight() const noexcept
 {
     return W;
 }
 
-TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 inline const std::size_t TRIXY_LINEAR_REGRESSION_TPL::getInnerSize() const noexcept
 {
     return N - 1;
@@ -152,8 +143,6 @@ inline const std::size_t TRIXY_LINEAR_REGRESSION_TPL::getInnerSize() const noexc
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_LINEAR_REGRESSION_TPL_DECLARATION
-#undef TRIXY_LINEAR_REGRESSION_TPL
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // LINEAR_REGRESSION_HPP

@@ -1,40 +1,37 @@
 #ifndef FEEDFORWARD_NEURO_SERIALIZER_HPP
 #define FEEDFORWARD_NEURO_SERIALIZER_HPP
 
-#include "../Detail/neuro_function_id.hpp"
-#include "../Detail/neuro_meta.hpp"
-
-#include "base_serializer.hpp"
-
 #include <fstream> // ifstream, ofstream
 
-#define TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL                              \
-    Serializer<NeuralNetwork,                                                \
-        meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
+#include "base_serializer.hpp"
+#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
+#include "Trixy/Neuro/Detail/neuro_meta.hpp"
+
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
 
-template <class NeuralNetwork>
-class Serializer<NeuralNetwork, meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
+TRIXY_SERIALIZER_TPL_DECLARATION
+class TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)
 {
 private:
     template <class T>
-    using Container      = typename NeuralNetwork::template ContainerType<T>;
+    using Container      = typename Serializable::template ContainerType<T>;
 
-    using Tensor1D       = typename NeuralNetwork::Tensor1D;
-    using Tensor2D       = typename NeuralNetwork::Tensor2D;
+    using Tensor1D       = typename Serializable::Tensor1D;
+    using Tensor2D       = typename Serializable::Tensor2D;
 
-    using precision_type = typename NeuralNetwork::precision_type;
-    using size_type      = typename NeuralNetwork::size_type;
+    using precision_type = typename Serializable::precision_type;
+    using size_type      = typename Serializable::size_type;
 
 private:
-    Container<size_type> topology;
+    Container<size_type> topology;  ///< Network topology
 
-    Container<Tensor1D> B;
-    Container<Tensor2D> W;
+    Container<Tensor1D> B;          ///< Container of network bias
+    Container<Tensor2D> W;          ///< Container of network weight
 
-    size_type N;
+    size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
     Container<function::ActivationId> activation;
     function::LossId loss;
@@ -43,7 +40,7 @@ private:
 public:
     Serializer();
 
-    void prepare(const NeuralNetwork& net);
+    void prepare(const Serializable& net);
 
     void serialize(std::ofstream& out) const;
     void deserialize(std::ifstream& in);
@@ -61,16 +58,16 @@ public:
     function::OptimizationId getOptimizationId() const noexcept { return optimization; }
 };
 
-template <typename NeuralNetwork>
-TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::Serializer()
+TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::Serializer()
     : N(0)
     , loss(function::LossId::undefined)
     , optimization(function::OptimizationId::undefined)
 {
 }
 
-template <typename NeuralNetwork>
-void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::prepare(const NeuralNetwork& net)
+TRIXY_SERIALIZER_TPL_DECLARATION
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::prepare(const Serializable& net)
 {
     topology = net.getTopology();
 
@@ -87,8 +84,8 @@ void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::prepare(const NeuralNetwork& net)
     optimization = static_cast<function::OptimizationId>(net.function.getOptimization().id);
 }
 
-template <typename NeuralNetwork>
-void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) const
+TRIXY_SERIALIZER_TPL_DECLARATION
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::serialize(std::ofstream& out) const
 {
     size_type topology_size;
     size_type n;
@@ -115,8 +112,8 @@ void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::serialize(std::ofstream& out) cons
                 out.write(reinterpret_cast<const char*>(&W[n](i, j)), sizeof(precision_type));
 }
 
-template <typename NeuralNetwork>
-void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
+TRIXY_SERIALIZER_TPL_DECLARATION
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::deserialize(std::ifstream& in)
 {
     size_type topology_size;
     size_type n;
@@ -157,7 +154,6 @@ void TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL::deserialize(std::ifstream& in)
 
 } // namepace trixy
 
-// clean up
-#undef TRIXY_FEED_FORWARD_NEURO_SERIALIZER_TPL
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // FEEDFORWARD_NEURO_SERIALIZER_HPP

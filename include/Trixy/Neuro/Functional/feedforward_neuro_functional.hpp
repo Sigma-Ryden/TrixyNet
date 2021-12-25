@@ -1,31 +1,29 @@
 #ifndef FEEDFORWARD_NEURO_FUNCTIONAL_HPP
 #define FEEDFORWARD_NEURO_FUNCTIONAL_HPP
 
-#include "../Detail/neuro_function_id.hpp"
-#include "../Detail/neuro_meta.hpp"
+#include "base_functional.hpp"
 
 #include "Function/neuro_activation.hpp"
 #include "Function/neuro_optimization.hpp"
 #include "Function/neuro_loss.hpp"
 
-#include "base_functional.hpp"
+#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
+#include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
-#define TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL                              \
-    Functional<NeuralNetwork,                                                \
-        meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
 
-template <typename NeuralNetwork>
-class Functional<NeuralNetwork, meta::enable_if_t<meta::is_feedforward_neuro<NeuralNetwork>::value>>
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)
 {
 private:
-    using byte_type            = typename NeuralNetwork::byte_type;
+    using byte_type            = typename Functionable::byte_type;
 
-    using ActivationFunction   = typename NeuralNetwork::ActivationFunction;
-    using LossFunction         = typename NeuralNetwork::LossFunction;
-    using OptimizationFunction = typename NeuralNetwork::OptimizationFunction;
+    using ActivationFunction   = typename Functionable::ActivationFunction;
+    using LossFunction         = typename Functionable::LossFunction;
+    using OptimizationFunction = typename Functionable::OptimizationFunction;
 
 public:
     ActivationFunction get(function::ActivationId id) const noexcept;
@@ -33,8 +31,9 @@ public:
     OptimizationFunction get(function::OptimizationId id) const noexcept;
 };
 
-template <typename NeuralNetwork>
-typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::ActivationFunction TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::get(
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(
     function::ActivationId id) const noexcept
 {
     using namespace set::activation;
@@ -74,8 +73,9 @@ typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::ActivationFunction TRIXY_FEED_
     }
 }
 
-template <typename NeuralNetwork>
-typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::LossFunction TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::get(
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(
     function::LossId id) const noexcept
 {
     using namespace set::loss;
@@ -105,8 +105,9 @@ typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::LossFunction TRIXY_FEED_FORWAR
     }
 }
 
-template <typename NeuralNetwork>
-typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::OptimizationFunction TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::get(
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::OptimizationFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(
     function::OptimizationId id) const noexcept
 {
     using namespace set::optimization;
@@ -129,7 +130,6 @@ typename TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL::OptimizationFunction TRIXY_FEE
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_FEED_FORWARD_NEURO_FUNCTIONAL_TPL
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // FEEDFORWARD_NEURO_FUNCTIONAL_HPP

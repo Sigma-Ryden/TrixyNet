@@ -145,20 +145,22 @@ void speed_test()
     sr.serialize(out);
     out.close();
 
-    std::cout << "End serialization\n";
+    std::cout << "End of serialization\n";
 }
+
 //
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
+    speed_test();
+    //speed_test_deserialization();
 
     return 0;
 }
 //
+
 /*
 tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>::ActivationFunction activation;
 

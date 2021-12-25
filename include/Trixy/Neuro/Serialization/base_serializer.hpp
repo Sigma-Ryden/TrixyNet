@@ -4,7 +4,7 @@
 namespace trixy
 {
 
-template <class NeuralNetwork, typename enable = void>
+template <class Serializable, typename enable = void>
 class Serializer;
 
 } // namespace trixy

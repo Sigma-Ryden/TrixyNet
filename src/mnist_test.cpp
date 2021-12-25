@@ -216,7 +216,7 @@ void mnist_test()
     sr.serialize(out);
     out.close();
 
-    std::cout << "End serialization\n";
+    std::cout << "End of serialization\n";
 }
 
 /*
@@ -231,58 +231,5 @@ int main()
     std::cin.get();
 
     return 0;
-}
-*/
-/*
-template <typename Precision>
-li::Matrix<Precision> regression(
-    const li::Matrix<Precision>& X,
-    const li::Matrix<Precision>& Y)
-{
-    // B = (X^T . X)^(-1) . X^T . Y
-
-    li::Matrix<Precision> XT = X.transpose();
-
-    return XT.dot(X).inverse().dot(XT).dot(Y);
-}
-
-void test()
-{
-    li::Matrix<double> X(12, 2);
-    li::Matrix<double> Y(12, 1);
-
-    X.copy
-    ({
-        1, 75,
-        1, 78,
-        1, 81,
-        1, 93,
-        1, 86,
-        1, 77,
-        1, 85,
-        1, 77,
-        1, 89,
-        1, 95,
-        1, 72,
-        1, 115
-    });
-
-    Y.copy
-    ({
-        133,
-        125,
-        129,
-        153,
-        140,
-        135,
-        135,
-        132,
-        161,
-        159,
-        120,
-        160
-    });
-
-    std::cout << regression(X, Y) << '\n';
 }
 */

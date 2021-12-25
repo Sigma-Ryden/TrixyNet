@@ -4,40 +4,13 @@
 #include <cstddef> // size_t
 #include <type_traits> // enable_if, is_arithmetic
 
-namespace trixy
-{
-
-template <template <typename P, typename...> class Vector,
-          template <typename P, typename...> class Matrix,
-          template <template <typename, typename...> class V,
-                    template <typename, typename...> class M,
-                    typename P, typename...>
-          class Linear,
-          typename Precision,
-          typename enable = void,
-          typename... Args>
-class PolynomialRegression;
-
-} // namespace trixy
-
-#define TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION                                      \
-    template <template <typename, typename...> class Vector,                             \
-              template <typename, typename...> class Matrix,                             \
-              template <template <typename, typename...> class V,                        \
-                        template <typename, typename...> class M,                        \
-                        typename P, typename...>                                         \
-              class Linear,                                                              \
-              typename Precision,                                                        \
-              typename... Args>
-
-#define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                  \
-    PolynomialRegression<Vector, Matrix, Linear, Precision,                              \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+#include "Trixy/Neuro/Regression/regression_base.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 class PolynomialRegression<Vector, Matrix, Linear, Precision,
     typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 {
@@ -47,16 +20,21 @@ public:
 
     using TensorOperation = Linear<Vector, Matrix, Precision, Args...>;
 
+    using precision_type  = Precision;
     using size_type       = std::size_t;
 
 private:
-    Tensor1D  W;            ///< Inner weight
-    size_type N;            ///< Size of weight vector (same as power size + 1)
+    Tensor1D  W;          ///< Inner weight
+    size_type N;          ///< Size of weight vector (same as power size + 1)
 
     TensorOperation linear;
 
 public:
     PolynomialRegression(size_type power);
+
+    void initializeInnerStruct(Tensor1D weight) noexcept;
+
+    void reset(size_type new_power);
 
     void train(const Tensor1D& idata,
                const Tensor1D& odata);
@@ -71,13 +49,26 @@ public:
     Precision getInnerPower() const noexcept;
 };
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 TRIXY_POLYNOMIAL_REGRESSION_TPL::PolynomialRegression(size_type power)
     : W(power + 1), N(power + 1)
 {
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
+void TRIXY_POLYNOMIAL_REGRESSION_TPL::initializeInnerStruct(Tensor1D weight) noexcept
+{
+    W.copy(weight);
+}
+
+TRIXY_REGRESSION_TPL_DECLARATION
+void TRIXY_POLYNOMIAL_REGRESSION_TPL::reset(size_type new_power)
+{
+    W.resize(new_power + 1);
+    N = new_power + 1;
+}
+
+TRIXY_REGRESSION_TPL_DECLARATION
 void TRIXY_POLYNOMIAL_REGRESSION_TPL::train(
     const Vector<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata)
@@ -106,7 +97,7 @@ void TRIXY_POLYNOMIAL_REGRESSION_TPL::train(
     linear.dot(W, X_T.dot(X).inverse().dot(X_T), odata);
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(Precision sample) const noexcept
 {
     Precision result = W(0);
@@ -121,7 +112,7 @@ Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(Precision sample) const n
     return result;
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 Vector<Precision, Args...> TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(
     const Vector<Precision, Args...>& idata) const
 {
@@ -146,7 +137,7 @@ Vector<Precision, Args...> TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(
     return linear.dot(X, W);
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 long double TRIXY_POLYNOMIAL_REGRESSION_TPL::loss(
     const Vector<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata) const
@@ -156,13 +147,13 @@ long double TRIXY_POLYNOMIAL_REGRESSION_TPL::loss(
     return r.dot(r) / static_cast<long double>(r.size());
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 inline const Vector<Precision, Args...>& TRIXY_POLYNOMIAL_REGRESSION_TPL::getInnerWeight() const noexcept
 {
     return W;
 }
 
-TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
+TRIXY_REGRESSION_TPL_DECLARATION
 inline Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::getInnerPower() const noexcept
 {
     return N - 1;
@@ -170,8 +161,6 @@ inline Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::getInnerPower() const noexcept
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_POLYNOMIAL_REGRESSION_TPL_DECLARATION
-#undef TRIXY_POLYNOMIAL_REGRESSION_TPL
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // POLYNOMIAL_REGRESSION_HPP

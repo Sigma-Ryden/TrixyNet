@@ -1,15 +1,12 @@
 #ifndef NEURO_ACTIVATION_LESS_HPP
 #define NEURO_ACTIVATION_LESS_HPP
 
-#include "../../Detail/neuro_meta.hpp"
-
 #include <cstddef> // size_t
 #include <cmath> // exp, log, fabs, tanh, cosh
 #include <type_traits> // is_floating_point
 
-#define TRIXY_FUNCTION_TPL_DECLARATION                                        \
-    template <typename Precision,                                             \
-        meta::enable_if_t<std::is_floating_point<Precision>::value, int> = 0>
+#include "Trixy/Neuro/Detail/neuro_meta.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
@@ -223,7 +220,6 @@ Precision mod_tanh_derived(Precision x) noexcept
 
 } // namespace trixy
 
-// clean up
-#undef TRIXY_FUNCTION_TPL_DECLARATION
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // NEURO_ACTIVATION_LESS_HPP
