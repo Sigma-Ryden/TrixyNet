@@ -108,7 +108,6 @@ void mnist_test_deserialization()
     net.function.setActivation(manage.get(sr.getActivationId()));
     net.function.setNormalization(manage.get(sr.getNormalizationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
-
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
@@ -178,7 +177,9 @@ void mnist_test()
     net.function.setNormalization(manage.get(ActivationId::softmax));
 
     net.function.setLoss(manage.get(LossId::CCE));
-    net.function.setOptimization(manage.get(OptimizationId::momentum));
+
+    auto optimizer = manage.get<tr::function::OptimizationId::momentum>();
+    optimizer.prepare(net, 0.1);
 
     // Train network:
     util::Timer t;
@@ -187,10 +188,10 @@ void mnist_test()
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        //net.trainBatch(train_in, train_out, 0.1, 10);
-        //net.trainStochastic(train_in, train_out, 0.1, 5000, std::rand);
-        //net.trainMiniBatch(train_in, train_out, 0.1, 40, 64, std::rand);
-        net.trainOptimize(train_in, train_out, 0.1, 50, 32, std::rand);
+        //net.trainBatch(train_in, train_out, 10, optimizer);
+        //net.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
+        //net.trainMiniBatch(train_in, train_out, 40, 64, std::rand, optimizer);
+        net.trainMiniBatch(train_in, train_out, 50, 32, std::rand, optimizer);
         //if (i % 50 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -218,7 +219,6 @@ void mnist_test()
 
     std::cout << "End of serialization\n";
 }
-
 /*
 int main()
 {

@@ -45,7 +45,6 @@ void speed_test_deserialization()
     if(!in.is_open()) return;
 
     NeuralSerializer sr;
-
     sr.deserialize(in);
     in.close();
 
@@ -97,7 +96,8 @@ void speed_test()
     net.function.setNormalization(manage.get(ActivationId::softmax));
     net.function.setLoss(manage.get(LossId::CCE));
 
-    //net.function.setOptimization(manage.get(OptimizationId::ada_grad));
+    auto optimizer = manage.get<OptimizationId::adam>();
+    optimizer.prepare(net, 0.01);
 
     tr::Container<li::Vector<float>> train_in
     {
@@ -125,10 +125,9 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 0.1, 100000);
-    net.trainMiniBatch(train_in, train_out, 0.1, 100000, 2, std::rand);
-    net.trainStochastic(train_in, train_out, 0.15, 100000, std::rand);
-    //net.trainOptimize(train_in, train_out, 0.1, 100000, 6, std::rand);
+    net.trainBatch(train_in, train_out, 100000, optimizer);
+    net.trainMiniBatch(train_in, train_out, 100000, 2, std::rand, optimizer);
+    net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
@@ -140,37 +139,21 @@ void speed_test()
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
-
     sr.prepare(net);
     sr.serialize(out);
     out.close();
 
     std::cout << "End of serialization\n";
 }
-
 //
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
 
     return 0;
 }
 //
-
-/*
-tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>::ActivationFunction activation;
-
-activation.f = [] (li::Vector<float>& buff, const li::Vector<float>& vector) -> void {
-    for(std::size_t i = 0; i < buff.size(); ++i)
-        buff(i) = (vector(i) > 0) ? vector(i) : 0.;
-};
-
-activation.df = [] (li::Vector<float>& buff, const li::Vector<float>& vector) -> void {
-    for(std::size_t i = 0; i < buff.size(); ++i)
-        buff(i) = (vector(i) > 0) ? 1. : 0.;
-};
-*/

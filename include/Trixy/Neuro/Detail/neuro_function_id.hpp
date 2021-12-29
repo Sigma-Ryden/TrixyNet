@@ -46,10 +46,12 @@ enum class LossId : std::uint8_t
 
 enum class OptimizationId : std::uint8_t
 {
-    undefined,  ///< default null value
-    momentum,   ///< Momentum (slowed & stable)
-    rms_prop,   ///< RMSProp - root mean square propagation (horny)
-    ada_grad    ///< Adagrad - adaptive gradient algorithm (stable)
+    undefined,    ///< default null value
+    grad_descent, ///< Gradient descent optimizer
+    momentum,     ///< Momentum (slowed & stable)
+    ada_grad,     ///< Adaptive Gradient algorithm (stable)
+    rms_prop,     ///< Root Mean Square Propagation (horny)
+    adam,         ///< Adaptive moment estimation (quick)
 };
 
 } // namespace function

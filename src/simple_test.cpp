@@ -32,7 +32,6 @@ void simple_test_deserialization()
     if (!in.is_open()) return;
 
     NeuralSerializer sr;
-
     sr.deserialize(in);
     in.close();
 
@@ -86,6 +85,9 @@ void simple_test()
 
     net.function.setLoss(manage.get(LossId::CCE));
 
+    auto optimizer = manage.template get<tr::function::OptimizationId::grad_descent>();
+    optimizer.prepare(net, 0.1);
+
     tr::Container<li::Vector<Precision>> train_in
     {
         {-0.08, 0.04},
@@ -102,7 +104,7 @@ void simple_test()
     };
 
     util::Timer t;
-    net.trainStochastic(train_in, train_out, 0.1, 1000, generator);
+    net.trainStochastic(train_in, train_out, 1000, generator, optimizer);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     util::test_neuro(net, train_in, train_out);
@@ -112,14 +114,12 @@ void simple_test()
     if(!out.is_open()) return;
 
     NeuralSerializer sr;
-
     sr.prepare(net);
     sr.serialize(out);
     out.close();
 
     std::cout << "End of serialization\n";
 }
-
 /*
 int main()
 {

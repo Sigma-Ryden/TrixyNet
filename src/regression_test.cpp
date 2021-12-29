@@ -20,11 +20,9 @@ void polynomial_regression_test_deserialization()
     using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
 
     std::ifstream in("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-
     if(!in.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
-
     sr.deserialize(in);
     in.close();
 
@@ -53,10 +51,6 @@ void polynomial_regression_test()
 
     using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
 
-    std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-
-    if(!out.is_open()) return;
-
     PolynomialReg reg(3);
 
     li::Vector<double> X
@@ -76,8 +70,10 @@ void polynomial_regression_test()
     std::cout << "Test s:\n" << reg.feedforward(83.5) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
-    tr::Serializer<PolynomialReg> sr;
+    std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
+    if(!out.is_open()) return;
 
+    tr::Serializer<PolynomialReg> sr;
     sr.prepare(reg);
     sr.serialize(out);
     out.close();
@@ -92,11 +88,9 @@ void linear_regression_test_deserialization()
     using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
 
     std::ifstream in("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-
     if(!in.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
-
     sr.deserialize(in);
     in.close();
 
@@ -153,10 +147,6 @@ void linear_regression_test()
 
     using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
 
-    std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-
-    if(!out.is_open()) return;
-
     LinearReg reg(2);
 
     li::Matrix<double> X(12, 2);
@@ -201,8 +191,10 @@ void linear_regression_test()
     std::cout << "Test v:\n" << reg.feedforwardSample({83., 79.}) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
-    tr::Serializer<LinearReg> sr;
+    std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
+    if(!out.is_open()) return;
 
+    tr::Serializer<LinearReg> sr;
     sr.prepare(reg);
     sr.serialize(out);
     out.close();

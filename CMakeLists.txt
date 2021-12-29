@@ -42,7 +42,14 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Regression/regression_base.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation_less.hpp
     include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
-    include/Trixy/Neuro/Functional/Function/neuro_optimization.hpp
+    include/Trixy/Neuro/Functional/Optimization/Optimizer/gradient_descent_optimizer.hpp
+    include/Trixy/Neuro/Functional/Optimization/Optimizer/momentum_optimizer.hpp
+    include/Trixy/Neuro/Functional/Optimization/Optimizer/ada_grad_optimizer.hpp
+    include/Trixy/Neuro/Functional/Optimization/Optimizer/rms_prop_optimizer.hpp
+    include/Trixy/Neuro/Functional/Optimization/Optimizer/adam_optimizer.hpp
+    include/Trixy/Neuro/Functional/Optimization/neuro_optimization.hpp
+    include/Trixy/Neuro/Detail/function_detail.hpp
+    include/Trixy/Neuro/Functional/Optimization/base_optimizer.hpp
     include/Trixy/Neuro/Functional/feedforward_neuro_functional.hpp
     include/Trixy/Neuro/Functional/base_functional.hpp
     include/Trixy/Neuro/Serialization/feedforward_neuro_serializer.hpp

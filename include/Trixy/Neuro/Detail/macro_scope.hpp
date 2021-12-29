@@ -45,6 +45,14 @@
     Functional<Functionable,                                                                            \
         typename std::enable_if<is_type<Functionable>::value>::type>
 
+#define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
+    template <class Optimizeriable>
+
+#define TRIXY_OPTIMIZER_TPL(is_type, optimizer_id)                                                      \
+    Optimizer<Optimizeriable,                                                                           \
+        optimizer_id,                                                                                   \
+        typename std::enable_if<is_type<Optimizeriable>::value>::type>
+
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
 

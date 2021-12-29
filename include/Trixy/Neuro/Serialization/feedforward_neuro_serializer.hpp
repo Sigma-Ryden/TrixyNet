@@ -35,7 +35,6 @@ private:
 
     Container<function::ActivationId> activation;
     function::LossId loss;
-    function::OptimizationId optimization;
 
 public:
     Serializer();
@@ -55,14 +54,11 @@ public:
     const Container<function::ActivationId>& getEachActivationId() const noexcept { return activation; }
 
     function::LossId getLossId() const noexcept { return loss; }
-    function::OptimizationId getOptimizationId() const noexcept { return optimization; }
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
 TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::Serializer()
     : N(0)
-    , loss(function::LossId::undefined)
-    , optimization(function::OptimizationId::undefined)
 {
 }
 
@@ -81,7 +77,6 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::prepare(const Serializabl
         activation[i] = static_cast<function::ActivationId>(net.function.getEachActivation()[i].id);
 
     loss = static_cast<function::LossId>(net.function.getLoss().id);
-    optimization = static_cast<function::OptimizationId>(net.function.getOptimization().id);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -100,7 +95,6 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::serialize(std::ofstream& 
         out.write(reinterpret_cast<const char*>(&activation[n]), sizeof(function::ActivationId));
 
     out.write(reinterpret_cast<const char*>(&loss), sizeof(function::LossId));
-    out.write(reinterpret_cast<const char*>(&optimization), sizeof(function::OptimizationId));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
@@ -140,7 +134,6 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::deserialize(std::ifstream
         in.read(reinterpret_cast<char*>(&activation[n]), sizeof(function::ActivationId));
 
     in.read(reinterpret_cast<char*>(&loss), sizeof(function::LossId));
-    in.read(reinterpret_cast<char*>(&optimization), sizeof(function::OptimizationId));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)

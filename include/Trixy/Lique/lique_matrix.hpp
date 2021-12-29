@@ -371,7 +371,7 @@ LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::add(const Matrix& matrix) noexcept
 }
 
 template <typename Precision>
-LIQUE_MATRIX_TPL&LIQUE_MATRIX_TPL::sub(const Matrix& matrix) noexcept
+LIQUE_MATRIX_TPL& LIQUE_MATRIX_TPL::sub(const Matrix& matrix) noexcept
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         for(size_type j = 0; j < shape_.col_; ++j)
