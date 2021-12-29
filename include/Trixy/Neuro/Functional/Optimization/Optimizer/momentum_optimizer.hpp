@@ -41,7 +41,7 @@ private:
     size_type N;
 
 public:
-    Optimizer() noexcept;
+    Optimizer() noexcept : N(0) {}
 
     void setLearnRate(precision_type new_learn_rate) noexcept;
 
@@ -56,12 +56,6 @@ public:
 
     void reset() noexcept;
 };
-
-TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::Optimizer() noexcept
-    : N(0)
-{
-}
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::setLearnRate(
