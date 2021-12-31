@@ -173,13 +173,12 @@ void mnist_test()
         return static_cast<float>(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
-    net.function.setActivation(manage.get(ActivationId::relu));
-    net.function.setNormalization(manage.get(ActivationId::softmax));
+    net.function.setActivation(manage.get<ActivationId::relu>());
+    net.function.setNormalization(manage.get<ActivationId::softmax>());
 
-    net.function.setLoss(manage.get(LossId::CCE));
+    net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<tr::function::OptimizationId::momentum>();
-    optimizer.prepare(net, 0.1);
+    auto optimizer = manage.get<OptimizationId::momentum>(net, 0.1);
 
     // Train network:
     util::Timer t;

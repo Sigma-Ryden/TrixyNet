@@ -1,6 +1,8 @@
 #ifndef FEEDFORWARD_NEURO_FUNCTIONAL_HPP
 #define FEEDFORWARD_NEURO_FUNCTIONAL_HPP
 
+#include <utility> // forward
+
 #include "base_functional.hpp"
 
 #include "Function/neuro_activation.hpp"
@@ -31,9 +33,31 @@ public:
     ActivationFunction get(function::ActivationId id) const noexcept;
     LossFunction get(function::LossId id) const noexcept;
 
-    template <function::OptimizationId optimizer_id>
-    OptimizationFunction<optimizer_id> get() const noexcept;
+    template <function::ActivationId id>
+    ActivationFunction get() const noexcept;
+
+    template <function::LossId id>
+    LossFunction get() const noexcept;
+
+    template <function::OptimizationId id, typename... Args>
+    OptimizationFunction<id> get(Args... args) const;
 };
+
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+template <function::ActivationId id>
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get() const noexcept
+{
+    return get(id);
+}
+
+TRIXY_FUNCTIONAL_TPL_DECLARATION
+template <function::LossId id>
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get() const noexcept
+{
+    return get(id);
+}
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
 typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
@@ -110,11 +134,11 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
 }
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
-template <function::OptimizationId optimizer_id>
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::template OptimizationFunction<optimizer_id>
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get() const noexcept
+template <function::OptimizationId id, typename... Args>
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::template OptimizationFunction<id>
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(Args... args) const
 {
-    return OptimizationFunction<optimizer_id>();
+    return OptimizationFunction<id>(std::forward<Args>(args)...);
 }
 
 } // namespace trixy

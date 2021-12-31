@@ -80,13 +80,12 @@ void simple_test()
         return static_cast<Precision>(generator() % (2 * range + 1) - range) / range;
     });
 
-    net.function.setActivation(manage.get(ActivationId::relu));
-    net.function.setNormalization(manage.get(ActivationId::softmax));
+    net.function.setActivation(manage.template get<ActivationId::relu>());
+    net.function.setNormalization(manage.template get<ActivationId::softmax>());
 
-    net.function.setLoss(manage.get(LossId::CCE));
+    net.function.setLoss(manage.template get<LossId::CCE>());
 
-    auto optimizer = manage.template get<tr::function::OptimizationId::grad_descent>();
-    optimizer.prepare(net, 0.1);
+    auto optimizer = manage.template get<OptimizationId::grad_descent>(net, 0.1);
 
     tr::Container<li::Vector<Precision>> train_in
     {

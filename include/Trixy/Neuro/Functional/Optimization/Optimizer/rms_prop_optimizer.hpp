@@ -45,6 +45,10 @@ private:
 public:
     Optimizer() noexcept : N(0) {}
 
+    Optimizer(const Optimizeriable& net,
+              precision_type learn_rate,
+              precision_type beta = 0.9);
+
     void setLearnRate(precision_type new_learn_rate) noexcept;
 
     void update(Container<Tensor1D>& bias,
@@ -54,10 +58,19 @@ public:
 
     void prepare(const Optimizeriable& net,
                  precision_type learn_rate,
-                 precision_type beta = 0.9);
+                 precision_type beta = 0.9); // deprecated
 
     void reset() noexcept;
 };
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::Optimizer(
+    const Optimizeriable& net,
+    precision_type learn_rate,
+    precision_type beta)
+{
+    prepare(net, learn_rate, beta);
+}
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::setLearnRate(

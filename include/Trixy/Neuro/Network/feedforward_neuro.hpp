@@ -57,13 +57,13 @@ public:
                          const Container<Tensor1D>& odata,
                          size_type epoch_scale,
                          GeneratorInteger generator,
-                         Optimizer& optimizer) noexcept;
+                         Optimizer&& optimizer) noexcept;
 
     template <class Optimizer>
     void trainBatch(const Container<Tensor1D>& idata,
                     const Container<Tensor1D>& odata,
                     size_type epoch_scale,
-                    Optimizer& optimizer) noexcept;
+                    Optimizer&& optimizer) noexcept;
 
     template <class GeneratorInteger, class Optimizer>
     void trainMiniBatch(const Container<Tensor1D>& idata,
@@ -71,7 +71,7 @@ public:
                         size_type epoch_scale,
                         size_type mini_batch_size,
                         GeneratorInteger generator,
-                        Optimizer& optimizer) noexcept;
+                        Optimizer&& optimizer) noexcept;
 
     long double accuracy(const Container<Tensor1D>& idata,
                          const Container<Tensor1D>& odata) const noexcept;
@@ -175,17 +175,17 @@ class TRIXY_FEED_FORWARD_NEURO_TPL::InnerBuffer
 friend class TRIXY_FEED_FORWARD_NEURO_TPL;
 
 private:
-    const size_type size_;                ///< Number of functional layer (same as topology_size - 1)
+    const size_type size_;                ///< Number of functional layer for each storage (same as topology_size - 1)
     const Container<size_type> topology;  ///< Network topology
 
     Container<Tensor1D> H;                ///< hidden layer storage
     Container<Tensor1D> derivedH;         ///< derived hidden layer storage
 
-    Container<Tensor1D> derivedB;         ///< derived bias storage
-    Container<Tensor2D> derivedW;         ///< derived weight storage
+    Container<Tensor1D> derivedB;         ///< derived bias storage (using for inner updates)
+    Container<Tensor2D> derivedW;         ///< derived weight storage (using for inner updates)
 
-    Container<Tensor1D> deltaB;           ///< delta bias storage
-    Container<Tensor2D> deltaW;           ///< delta weight storage
+    Container<Tensor1D> deltaB;           ///< delta bias storage (using with derived bias and for inner updates)
+    Container<Tensor2D> deltaW;           ///< delta weight storage (using with derived weight and for inner updates)
 
     Container<Tensor1D> buff;             ///< 1D buffer for handle
 
@@ -200,7 +200,7 @@ private:
     void resetDelta() noexcept;
     void updateDelta() noexcept;
 
-    void normalizeDelta(Precision alpha) noexcept;
+    void normalizeDelta(Precision alpha) noexcept; ///< alpha should be in range (0, 1)
 };
 
 TRIXY_NEURO_NETWORK_TPL_DECLARATION
@@ -469,7 +469,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainStochastic(
     const Container<Vector<Precision, Args...>>& odata,
     std::size_t epoch_scale,
     GeneratorInteger generator,
-    Optimizer& optimizer) noexcept
+    Optimizer&& optimizer) noexcept
 {
     for(size_type epoch = 0, sample; epoch < epoch_scale; ++epoch)
     {
@@ -488,7 +488,7 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainBatch(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
     std::size_t epoch_scale,
-    Optimizer& optimizer) noexcept
+    Optimizer&& optimizer) noexcept
 {
     Precision alpha = 1. / static_cast<Precision>(idata.size());
 
@@ -517,9 +517,9 @@ void TRIXY_FEED_FORWARD_NEURO_TPL::trainMiniBatch(
     std::size_t epoch_scale,
     std::size_t mini_batch_size,
     GeneratorInteger generator,
-    Optimizer& optimizer) noexcept
+    Optimizer&& optimizer) noexcept
 {
-    Precision alpha = 1. / mini_batch_size;
+    Precision alpha = 1. / static_cast<Precision>(mini_batch_size);
 
     size_type batch_part;
     size_type sample_beg;

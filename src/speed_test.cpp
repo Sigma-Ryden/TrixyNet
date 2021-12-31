@@ -34,7 +34,7 @@ float random_normal() noexcept
 
     return std::exp(- x * x) / std::sqrt(2 * pi);
 }
-
+//
 void speed_test_deserialization()
 {
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
@@ -80,7 +80,7 @@ void speed_test_deserialization()
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 }
-
+//
 void speed_test()
 {
     using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
@@ -92,12 +92,11 @@ void speed_test()
 
     net.initializeInnerStruct(random_real);
 
-    net.function.setActivation(manage.get(ActivationId::relu));
-    net.function.setNormalization(manage.get(ActivationId::softmax));
-    net.function.setLoss(manage.get(LossId::CCE));
+    net.function.setActivation(manage.get<ActivationId::relu>());
+    net.function.setNormalization(manage.get<ActivationId::softmax>());
+    net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::adam>();
-    optimizer.prepare(net, 0.01);
+    auto optimizer = manage.get<OptimizationId::adam>(net, 0.001);
 
     tr::Container<li::Vector<float>> train_in
     {
@@ -125,8 +124,11 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, optimizer);
+    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::grad_descent>(net, 0.1));
+
     net.trainMiniBatch(train_in, train_out, 100000, 2, std::rand, optimizer);
+
+    optimizer.reset();
     net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -145,6 +147,9 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
+
+
+
 //
 int main()
 {
@@ -157,3 +162,19 @@ int main()
     return 0;
 }
 //
+/*
+struct A
+{
+    // will work
+    void f(int N) { std::cout << N; }
+    template <int N>
+    void f() { f(N); }
+    //
+    // wont work
+    template <int N>
+    void f() { std::cout << N; }
+
+    void f(int N) { f<N>(); }
+    //
+};
+*/

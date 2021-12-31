@@ -26,14 +26,14 @@ public:
     using size_type            = std::size_t;
 
 private:
-    Container<Tensor1D>  buff;  ///< 1D buffer for handle
-    Container<Tensor1D>  B;     ///< Container of network bias
-    Container<Tensor2D>  W;     ///< Container of network weight
-    size_type N;                ///< Number of functional layer (same as topology_size - 1)
+    mutable Container<Tensor1D>  buff;  ///< 1D buffer for handle
+    Container<Tensor1D>  B;             ///< Container of network bias
+    Container<Tensor2D>  W;             ///< Container of network weight
+    size_type N;                        ///< Number of functional layer (same as topology_size - 1)
 
 public:
-    InnerFunctional function;   ///< Functional object for set & get each inner network function
-    TensorOperation linear;     ///< Linear class for tensor calculate
+    InnerFunctional function;           ///< Functional object for set & get each inner network function
+    TensorOperation linear;             ///< Linear class for tensor calculate
 
 public:
     FeedForwardNeuroLess(const Container<Tensor1D>& bias,
