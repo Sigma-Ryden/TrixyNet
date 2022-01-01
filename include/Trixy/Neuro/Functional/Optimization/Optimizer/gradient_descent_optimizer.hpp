@@ -106,6 +106,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::g
     }
 }
 
+template <typename Optimizeriable>
+using GradDescentOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent);
+
 } // namespace train
 
 } // namespace trixy

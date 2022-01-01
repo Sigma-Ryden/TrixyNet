@@ -17,13 +17,15 @@ public:
     struct ActivationFunction;
 
 private:
-    class  InnerFunctional;
+    class InnerFunctional;
 
 public:
     using TensorOperation      = Linear<Vector, Matrix, Precision, Args...>;
     using Tensor1D             = Vector<Precision, Args...>;
     using Tensor2D             = Matrix<Precision, Args...>;
+
     using size_type            = std::size_t;
+    using byte_type            = std::uint8_t;
 
 private:
     mutable Container<Tensor1D>  buff;  ///< 1D buffer for handle
@@ -46,15 +48,12 @@ TRIXY_NEURO_NETWORK_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction
 {
 public:
-    using Tensor    = Vector<Precision, Args...>;
-    using byte_type = std::uint8_t;
-
-    using Function        = void (*)(Tensor&, const Tensor&);
-    using FunctionDerived = void (*)(Tensor&, const Tensor&);
+    using Function        = void (*)(Tensor1D&, const Tensor1D&);
+    using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&);
 
 public:
-    Function f;             ///< void (*f)(Tensor& buff, const Tensor& tensor)
-    FunctionDerived df;     ///< void (*df)(Tensor& buff, const Tensor& tensor)
+    Function f;           ///< void (*f)(Tensor1D& buff, const Tensor1D& tensor)
+    FunctionDerived df;   ///< void (*df)(Tensor1D& buff, const Tensor1D& tensor)
 
     byte_type id;
 
@@ -123,6 +122,8 @@ TRIXY_FEED_FORWARD_NEURO_LESS_TPL::FeedForwardNeuroLess(
 {
     for(size_type i = 0; i < N; ++i)
     {
+        buff[i].resize(bias[i]);
+
         B[i] = bias[i];
         W[i] = weight[i];
     }
@@ -146,6 +147,6 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_LESS_TPL::feedforward
 
 } // namespace trixy
 
-#include "Trixy/Detail/macro_unscope.hpp"
+#include "../Detail/macro_unscope.hpp"
 
 #endif // FEEDFORWARD_NEURO_LESS_HPP

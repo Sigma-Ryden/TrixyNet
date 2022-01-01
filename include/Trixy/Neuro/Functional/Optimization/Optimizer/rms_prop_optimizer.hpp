@@ -153,6 +153,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::r
     }
 }
 
+template <typename Optimizeriable>
+using RMSPropOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop);
+
 } // namespace train
 
 } // namespace trixy

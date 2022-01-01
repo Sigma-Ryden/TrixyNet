@@ -141,6 +141,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
     }
 }
 
+template <typename Optimizeriable>
+using AdaGradOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad);
+
 } // namespace train
 
 } // namespace trixy

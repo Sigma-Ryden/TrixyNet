@@ -40,7 +40,7 @@ public:
     LossFunction get() const noexcept;
 
     template <function::OptimizationId id, typename... Args>
-    OptimizationFunction<id> get(Args... args) const;
+    OptimizationFunction<id> get(Args&&... args) const;
 };
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
@@ -136,7 +136,7 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
 TRIXY_FUNCTIONAL_TPL_DECLARATION
 template <function::OptimizationId id, typename... Args>
 typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::template OptimizationFunction<id>
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(Args... args) const
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(Args&&... args) const
 {
     return OptimizationFunction<id>(std::forward<Args>(args)...);
 }

@@ -203,6 +203,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
     }
 }
 
+template <typename Optimizeriable>
+using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam);
+
 } // namespace train
 
 } // namespace trixy

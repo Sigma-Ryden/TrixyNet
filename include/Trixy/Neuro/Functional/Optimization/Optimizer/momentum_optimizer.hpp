@@ -137,6 +137,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::m
     }
 }
 
+template <typename Optimizeriable>
+using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum);
+
 } // namespace train
 
 } // namespace trixy
