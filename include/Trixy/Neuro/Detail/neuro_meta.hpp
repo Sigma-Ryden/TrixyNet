@@ -35,12 +35,18 @@ struct is_polynomial_regression<TRIXY_POLYNOMIAL_REGRESSION_TPL> : std::true_typ
 
 } // namespace trixy
 
-
 namespace trixy
 {
 
 namespace meta
 {
+template <class...> struct disjunction : std::true_type {};
+template <class B1> struct disjunction<B1> : B1 {};
+template <class B1, class... Bn>
+struct disjunction<B1, Bn...> : std::conditional<bool(B1::value), B1, disjunction<Bn...>>::type {};
+
+template <class Class, template <class T> class... Bn>
+struct has_true : disjunction<Bn<Class>...> {};
 
 template <template <template <typename, typename...> class T, typename P, typename...> class FunctionData,
           template <typename, typename...> class Tensor,

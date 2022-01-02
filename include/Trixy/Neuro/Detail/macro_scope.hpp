@@ -41,9 +41,9 @@
 #define TRIXY_FUNCTIONAL_TPL_DECLARATION                                                                \
     template <typename Functionable>
 
-#define TRIXY_FUNCTIONAL_TPL(is_type)                                                                   \
+#define TRIXY_FUNCTIONAL_TPL(is_type...)                                                                \
     Functional<Functionable,                                                                            \
-        typename std::enable_if<is_type<Functionable>::value>::type>
+        typename std::enable_if<meta::has_true<Functionable, is_type>::value>::type>
 
 #define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
     template <class Optimizeriable>
@@ -92,3 +92,18 @@
 #define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                                 \
     PolynomialRegression<Vector, Matrix, Linear, Precision,                                             \
            typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+
+#define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \
+    template <typename Class, typename enable = void>                                                   \
+    class class_name;
+
+#define TRIXY_CLASS_TPL_DECLARATION                                                                     \
+    template <typename Class>
+
+#define TRIXY_CLASS_TPL(class_name, is_type...)                                                         \
+    class_name<Class,                                                                                   \
+        typename std::enable_if<meta::has_true<Class, is_type>::value>::type>
+
+#define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
+    template <typename T = Class,                                                                       \
+              typename std::enable_if<is_type<T>::value, int>::type = 0>

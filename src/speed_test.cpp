@@ -147,46 +147,15 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-/*
-template <class...>
-struct conjunction : std::true_type {};
+//
 
-template <class B1>
-struct conjunction<B1> : B1 {};
-
-template <class B1, class... Bn>
-struct conjunction<B1, Bn...> : std::conditional<bool(B1::value), conjunction<Bn...>, B1>::type {};
-
-template <class Class, template <class T> class... Conditions>
-struct is_true_for
-{
-    static constexpr bool value = conjunction<Conditions<Class>...>::value;
-};
-
-#define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                        \
-    template <typename TClass, typename enable = void>                      \
-    class class_name;
-
-#define TRIXY_CLASS_TPL_DECLARATION                                         \
-    template <typename TClass>
-
-#define TRIXY_CLASS_TPL(class_name, is_type...)                             \
-    class_name<TClass,                                                      \
-        typename std::enable_if<is_true_for<TClass, is_type>::value>::type>
-
-TRIXY_BASE_CLASS_TPL_DECLARATION(Func)
-
-TRIXY_CLASS_TPL_DECLARATION
-class TRIXY_CLASS_TPL(Func, tr::meta::is_feedforward_neuro, tr::meta::is_feedforward_neuro_less);
-*/
 //
 int main()
 {
-
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
+    speed_test();
     //speed_test_deserialization();
 
     return 0;

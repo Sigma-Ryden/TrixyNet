@@ -34,12 +34,14 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/neuro_meta.hpp
     include/Trixy/Neuro/Detail/macro_scope.hpp
     include/Trixy/Neuro/Detail/macro_unscope.hpp
+    include/Trixy/Neuro/Detail/function_detail.hpp
     include/Trixy/Neuro/Detail/neuro_function_id.hpp
     include/Trixy/Neuro/Network/feedforward_neuro.hpp
     include/Trixy/Neuro/Network/feedforward_neuro_less.hpp
     include/Trixy/Neuro/Network/neuro_network_base.hpp
+    include/Trixy/Neuro/Functional/base_functional.hpp
+    include/Trixy/Neuro/Functional/feedforward_neuro_functional.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation.hpp
-    include/Trixy/Neuro/Regression/regression_base.hpp
     include/Trixy/Neuro/Functional/Function/neuro_activation_less.hpp
     include/Trixy/Neuro/Functional/Function/neuro_loss.hpp
     include/Trixy/Neuro/Functional/Optimization/Optimizer/gradient_descent_optimizer.hpp
@@ -48,14 +50,12 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Functional/Optimization/Optimizer/rms_prop_optimizer.hpp
     include/Trixy/Neuro/Functional/Optimization/Optimizer/adam_optimizer.hpp
     include/Trixy/Neuro/Functional/Optimization/neuro_optimization.hpp
-    include/Trixy/Neuro/Detail/function_detail.hpp
     include/Trixy/Neuro/Functional/Optimization/base_optimizer.hpp
-    include/Trixy/Neuro/Functional/feedforward_neuro_functional.hpp
-    include/Trixy/Neuro/Functional/base_functional.hpp
+    include/Trixy/Neuro/Serialization/base_serializer.hpp
     include/Trixy/Neuro/Serialization/feedforward_neuro_serializer.hpp
     include/Trixy/Neuro/Serialization/polynomial_regression_serializer.hpp
     include/Trixy/Neuro/Serialization/linear_regression_serializer.hpp
-    include/Trixy/Neuro/Serialization/base_serializer.hpp
+    include/Trixy/Neuro/Regression/regression_base.hpp
     include/Trixy/Neuro/Regression/linear_regression.hpp
     include/Trixy/Neuro/Regression/polynomial_regression.hpp
     include/Trixy/Neuro/neuro_core.hpp

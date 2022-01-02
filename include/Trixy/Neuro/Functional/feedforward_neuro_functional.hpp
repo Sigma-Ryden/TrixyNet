@@ -34,30 +34,23 @@ public:
     LossFunction get(function::LossId id) const noexcept;
 
     template <function::ActivationId id>
-    ActivationFunction get() const noexcept;
+    ActivationFunction get() const noexcept
+    {
+        return get(id);
+    }
 
     template <function::LossId id>
-    LossFunction get() const noexcept;
+    LossFunction get() const noexcept
+    {
+        return get(id);
+    }
 
     template <function::OptimizationId id, typename... Args>
-    OptimizationFunction<id> get(Args&&... args) const;
+    OptimizationFunction<id> get(Args&&... args) const
+    {
+        return OptimizationFunction<id>(std::forward<Args>(args)...);
+    }
 };
-
-TRIXY_FUNCTIONAL_TPL_DECLARATION
-template <function::ActivationId id>
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get() const noexcept
-{
-    return get(id);
-}
-
-TRIXY_FUNCTIONAL_TPL_DECLARATION
-template <function::LossId id>
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get() const noexcept
-{
-    return get(id);
-}
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
 typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
@@ -131,14 +124,6 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
     default:
         return { nullptr, nullptr, static_cast<byte_type>(LossId::undefined) };
     }
-}
-
-TRIXY_FUNCTIONAL_TPL_DECLARATION
-template <function::OptimizationId id, typename... Args>
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::template OptimizationFunction<id>
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(Args&&... args) const
-{
-    return OptimizationFunction<id>(std::forward<Args>(args)...);
 }
 
 } // namespace trixy
