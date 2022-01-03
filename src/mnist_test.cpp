@@ -69,12 +69,12 @@ void mnist_test_deserialization()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     // Data preparing:
-    auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
+    auto dataset = mnist::read_dataset("C:/mnist_data/");
 
     std::size_t train_batch_size = 60000; // max 60 000
     std::size_t test_batch_size  = 10000;
@@ -83,12 +83,12 @@ void mnist_test_deserialization()
     //tr::function::Loss<li::Vector, double> a;
 
     // Train batch initialize:
-    tr::Container<li::Vector<float>> train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
-    tr::Container<li::Vector<float>> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
+    auto train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
+    auto train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    tr::Container<li::Vector<float>> test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
-    tr::Container<li::Vector<float>> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
+    auto test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
+    auto test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
 
     // NeuralNetwork preparing:
 
@@ -96,12 +96,12 @@ void mnist_test_deserialization()
     std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
-    NeuralSerializer sr;
+    TrixyNetSerializer sr;
     sr.deserialize(in);
     in.close();
 
-    NeuralNetwork net = sr.getTopology();
-    NeuralFunctional manage;
+    TrixyNet net = sr.getTopology();
+    TrixyNetFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
@@ -141,12 +141,12 @@ void mnist_test()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     // Data preparing:
-    auto dataset = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>("C:/mnist_data/");
+    auto dataset = mnist::read_dataset("C:/mnist_data/");
 
     std::size_t train_batch_size = 60000; // max 60 000
     std::size_t test_batch_size  = 10000;
@@ -154,19 +154,19 @@ void mnist_test()
     std::size_t out_size   = 10;
 
     // Train batch initialize:
-    tr::Container<li::Vector<float>> train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
-    tr::Container<li::Vector<float>> train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
+    auto train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
+    auto train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    tr::Container<li::Vector<float>> test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
-    tr::Container<li::Vector<float>> test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
+    auto test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
+    auto test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);
 
     // NeuralNetwork topology:
-    NeuralNetwork net({ input_size, 256, out_size });
-    NeuralFunctional manage;
+    TrixyNet net({ input_size, 256, out_size });
+    TrixyNetFunctional manage;
 
     net.initializeInnerStruct([] {
         static constexpr int range = 1000;
@@ -178,20 +178,19 @@ void mnist_test()
 
     net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::momentum>(net, 0.1);
+    auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
     // Train network:
     util::Timer t;
     //
-    std::size_t times = 400;
+    std::size_t times = 10;
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
         //net.trainBatch(train_in, train_out, 10, optimizer);
         //net.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
-        //net.trainMiniBatch(train_in, train_out, 40, 64, std::rand, optimizer);
-        net.trainMiniBatch(train_in, train_out, 50, 32, std::rand, optimizer);
-        //if (i % 50 == 0) std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        net.trainMiniBatch(train_in, train_out, 1, 40, optimizer);
+        std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
     t.reset();
@@ -211,7 +210,7 @@ void mnist_test()
     std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
-    NeuralSerializer sr;
+    TrixyNetSerializer sr;
     sr.prepare(net);
     sr.serialize(out);
     out.close();

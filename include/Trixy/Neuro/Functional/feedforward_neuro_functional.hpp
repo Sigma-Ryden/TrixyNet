@@ -18,7 +18,7 @@ namespace trixy
 {
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
-class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)
+class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)
 {
 private:
     using byte_type            = typename Functionable::byte_type;
@@ -53,8 +53,8 @@ public:
 };
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::ActivationFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::get(
     function::ActivationId id) const noexcept
 {
     using namespace set::activation;
@@ -95,8 +95,8 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::ActivationFunction
 }
 
 TRIXY_FUNCTIONAL_TPL_DECLARATION
-typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::LossFunction
-    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_neuro)::get(
+typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::LossFunction
+    TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::get(
     function::LossId id) const noexcept
 {
     using namespace set::loss;

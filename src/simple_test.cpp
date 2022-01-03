@@ -19,45 +19,55 @@ int generator()
     return static_cast<int>(gen());
 }
 
-template <typename Precision>
-void simple_test_deserialization()
+tr::Container<li::Vector<float>> get_simple_test_idata()
 {
-    using namespace tr::function;
-
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
-
-    std::ifstream in("D:\\Serialized\\simple_test.bin");
-    if (!in.is_open()) return;
-
-    NeuralSerializer sr;
-    sr.deserialize(in);
-    in.close();
-
-    NeuralNetwork net = sr.getTopology();
-    NeuralFunctional manage;
-
-    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
-
-    net.function.setActivation(manage.get(sr.getActivationId()));
-    net.function.setNormalization(manage.get(sr.getNormalizationId()));
-    net.function.setLoss(manage.get(sr.getLossId()));
-
-    tr::Container<li::Vector<Precision>> train_in
+    return
     {
         {-0.08, 0.04},
         {0.92,  0.24},
         {0.4,   0.16},
         {-0.0, -0.24}
     };
-    tr::Container<li::Vector<Precision>> train_out
+}
+
+tr::Container<li::Vector<float>> get_simple_test_odata()
+{
+    return
     {
         {1, 0},
         {0, 1},
         {0, 1},
         {1, 0}
     };
+}
+
+template <typename Precision>
+void simple_test_deserialization()
+{
+    using namespace tr::function;
+
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+
+    std::ifstream in("D:\\Serialized\\simple_test.bin");
+    if (!in.is_open()) return;
+
+    auto train_in = get_simple_test_idata();
+    auto train_out = get_simple_test_odata();
+
+    TrixyNetSerializer sr;
+    sr.deserialize(in);
+    in.close();
+
+    TrixyNet net = sr.getTopology();
+    TrixyNetFunctional manage;
+
+    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
+
+    net.function.setActivation(manage.get(sr.getActivationId()));
+    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setLoss(manage.get(sr.getLossId()));
 
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
@@ -68,12 +78,15 @@ void simple_test()
 {
     using namespace tr::function;
 
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
-    NeuralNetwork net({2, 2, 2});
-    NeuralFunctional manage;
+    auto train_in = get_simple_test_idata();
+    auto train_out = get_simple_test_odata();
+
+    TrixyNet net({2, 2, 2});
+    TrixyNetFunctional manage;
 
     net.initializeInnerStruct([]() -> Precision {
         static constexpr int range = 1000;
@@ -87,21 +100,6 @@ void simple_test()
 
     auto optimizer = manage.template get<OptimizationId::grad_descent>(net, 0.1);
 
-    tr::Container<li::Vector<Precision>> train_in
-    {
-        {-0.08, 0.04},
-        {0.92,  0.24},
-        {0.4,   0.16},
-        {-0.0, -0.24}
-    };
-    tr::Container<li::Vector<Precision>> train_out
-    {
-        {1, 0},
-        {0, 1},
-        {0, 1},
-        {1, 0}
-    };
-
     util::Timer t;
     net.trainStochastic(train_in, train_out, 1000, generator, optimizer);
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -112,7 +110,7 @@ void simple_test()
     std::ofstream out("D:\\Serialized\\simple_test.bin");
     if(!out.is_open()) return;
 
-    NeuralSerializer sr;
+    TrixyNetSerializer sr;
     sr.prepare(net);
     sr.serialize(out);
     out.close();

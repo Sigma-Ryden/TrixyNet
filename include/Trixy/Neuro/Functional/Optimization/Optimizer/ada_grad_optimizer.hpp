@@ -16,7 +16,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)
 {
 private:
     template <class T>
@@ -59,7 +59,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)::Optimizer(
     const Optimizeriable& net,
     precision_type learn_rate)
 {
@@ -67,14 +67,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_gr
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)::setLearnRate(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)::setLearnRate(
     precision_type new_learn_rate) noexcept
 {
     learn_rate = new_learn_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -105,7 +105,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)::prepare(
     const Optimizeriable& net,
     precision_type learn_rate)
 {
@@ -132,7 +132,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad)::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -142,7 +142,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 template <typename Optimizeriable>
-using AdaGradOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::ada_grad);
+using AdaGradOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada_grad);
 
 } // namespace train
 

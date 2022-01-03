@@ -13,7 +13,7 @@ namespace trixy
 {
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-class TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)
+class TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)
 {
 private:
     template <class T>
@@ -57,13 +57,13 @@ public:
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::Serializer()
+TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::Serializer()
     : N(0)
 {
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::prepare(const Serializable& net)
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable& net)
 {
     topology = net.getTopology();
 
@@ -80,7 +80,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::prepare(const Serializabl
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::serialize(std::ofstream& out) const
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& out) const
 {
     size_type topology_size;
     size_type n;
@@ -107,7 +107,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::serialize(std::ofstream& 
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_neuro)::deserialize(std::ifstream& in)
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& in)
 {
     size_type topology_size;
     size_type n;

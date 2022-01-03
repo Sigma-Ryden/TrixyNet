@@ -34,15 +34,44 @@ float random_normal() noexcept
 
     return std::exp(- x * x) / std::sqrt(2 * pi);
 }
+
+tr::Container<li::Vector<float>> get_speed_test_idata()
+{
+    return
+    {
+        {1, 0, 1, 1},
+        {1, 1, 1, 0},
+        {1, 1, 0, 1},
+        {0, 1, 1, 0},
+        {1, 0, 1, 0},
+        {0, 0, 1, 1}
+    };
+}
+
+tr::Container<li::Vector<float>> get_speed_test_odata()
+{
+    return
+    {
+        {1, 0, 0},
+        {0, 1, 0},
+        {1, 0, 0},
+        {0, 0, 1},
+        {0, 1, 0},
+        {1, 0, 0}
+    };
+}
 //
 void speed_test_deserialization()
 {
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using NeuralNetwork    = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using NeuralFunctional = tr::Functional<NeuralNetwork>;
     using NeuralSerializer = tr::Serializer<NeuralNetwork>;
 
     std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
+
+    auto train_in = get_speed_test_idata();
+    auto train_out = get_speed_test_odata();
 
     NeuralSerializer sr;
     sr.deserialize(in);
@@ -57,38 +86,21 @@ void speed_test_deserialization()
     net.function.setNormalization(manage.get(sr.getNormalizationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
 
-    tr::Container<li::Vector<float>> train_in
-    {
-        {1, 0, 1, 1},
-        {1, 1, 1, 0},
-        {1, 1, 0, 1},
-        {0, 1, 1, 0},
-        {1, 0, 1, 0},
-        {0, 0, 1, 1}
-    };
-
-    tr::Container<li::Vector<float>> train_out
-    {
-        {1, 0, 0},
-        {0, 1, 0},
-        {1, 0, 0},
-        {0, 0, 1},
-        {0, 1, 0},
-        {1, 0, 0}
-    };
-
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 }
 //
 void speed_test()
 {
-    using NeuralNetwork    = tr::FeedForwardNeuro<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
-    NeuralNetwork net({4, 4, 5, 4, 3});
-    NeuralFunctional manage;
+    auto train_in = get_speed_test_idata();
+    auto train_out = get_speed_test_odata();
+
+    TrixyNet net({4, 4, 5, 4, 3});
+    TrixyNetFunctional manage;
 
     net.initializeInnerStruct(random_real);
 
@@ -96,27 +108,7 @@ void speed_test()
     net.function.setNormalization(manage.get<ActivationId::softmax>());
     net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::adam>(net, 0.001);
-
-    tr::Container<li::Vector<float>> train_in
-    {
-        {1, 0, 1, 1},
-        {1, 1, 1, 0},
-        {1, 1, 0, 1},
-        {0, 1, 1, 0},
-        {1, 0, 1, 0},
-        {0, 0, 1, 1}
-    };
-
-    tr::Container<li::Vector<float>> train_out
-    {
-        {1, 0, 0},
-        {0, 1, 0},
-        {1, 0, 0},
-        {0, 0, 1},
-        {0, 1, 0},
-        {1, 0, 0}
-    };
+    auto optimizer = manage.get<OptimizationId::grad_descent>(net, 0.1);
 
     std::cout << "Before train\n";
     util::test_neuro(net, train_in, train_out);
@@ -124,11 +116,11 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::grad_descent>(net, 0.1));
+    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::adam>(net, 0.001));
 
-    net.trainMiniBatch(train_in, train_out, 100000, 2, std::rand, optimizer);
+    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
 
-    optimizer.reset();
+    //optimizer.reset();
     net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -140,7 +132,7 @@ void speed_test()
     std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
-    NeuralSerializer sr;
+    TrixyNetSerializer sr;
     sr.prepare(net);
     sr.serialize(out);
     out.close();
@@ -148,7 +140,6 @@ void speed_test()
     std::cout << "End of serialization\n";
 }
 //
-
 //
 int main()
 {

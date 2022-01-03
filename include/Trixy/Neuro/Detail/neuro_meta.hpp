@@ -15,13 +15,13 @@ namespace trixy
 namespace meta
 {
 
-template <typename> struct is_feedforward_neuro : std::false_type {};
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-struct is_feedforward_neuro<TRIXY_FEED_FORWARD_NEURO_TPL> : std::true_type {};
+template <typename> struct is_feedforward_net : std::false_type {};
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+struct is_feedforward_net<TRIXY_FEED_FORWARD_NET_TPL> : std::true_type {};
 
-template <typename> struct is_feedforward_neuro_less : std::false_type {};
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-struct is_feedforward_neuro_less<TRIXY_FEED_FORWARD_NEURO_LESS_TPL> : std::true_type {};
+template <typename> struct is_feedforward_net_less : std::false_type {};
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+struct is_feedforward_net_less<TRIXY_FEED_FORWARD_NET_LESS_TPL> : std::true_type {};
 
 template <typename> struct is_linear_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION

@@ -13,7 +13,7 @@ template <template <typename, typename...> class Vector,
           template <typename Type> class Container,
           typename Precision,
           typename... Args>
-class FeedForwardNeuro;
+class FeedForwardNet;
 
 /*__EXPERIMENTAL__*/
 template <template <typename, typename...> class Vector,
@@ -25,7 +25,7 @@ template <template <typename, typename...> class Vector,
           template <typename Type> class Container,
           typename Precision,
           typename... Args>
-class FeedForwardNeuroLess;
+class FeedForwardNetLess;
 
 } // namespace trixy
 

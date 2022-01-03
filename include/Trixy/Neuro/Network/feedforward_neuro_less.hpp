@@ -10,8 +10,8 @@
 namespace trixy
 {
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-class FeedForwardNeuroLess
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+class FeedForwardNetLess
 {
 public:
     struct ActivationFunction;
@@ -38,14 +38,14 @@ public:
     TensorOperation linear;             ///< Linear class for tensor calculate
 
 public:
-    FeedForwardNeuroLess(const Container<Tensor1D>& bias,
-                         const Container<Tensor2D>& weight);
+    FeedForwardNetLess(const Container<Tensor1D>& bias,
+                       const Container<Tensor2D>& weight);
 
     const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 };
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-struct TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+struct TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction
 {
 public:
     using Function        = void (*)(Tensor1D&, const Tensor1D&);
@@ -68,10 +68,10 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-class TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+class TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional
 {
-friend class TRIXY_FEED_FORWARD_NEURO_LESS_TPL;
+friend class TRIXY_FEED_FORWARD_NET_LESS_TPL;
 
 private:
     ~InnerFunctional() = default;
@@ -88,31 +88,31 @@ public:
     void setNormalization(const ActivationFunction&);
 };
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setEachActivation(
-    const Container<TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction>& fs)
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setEachActivation(
+    const Container<TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction>& fs)
 {
     for(size_type i = 0; i < activation.size(); ++i)
         activation[i] = fs[i];
 }
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setActivation(
-    const TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction& f)
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setActivation(
+    const TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction& f)
 {
     for(size_type i = 0; i < activation.size() - 1; ++i)
         activation[i] = f;
 }
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-void TRIXY_FEED_FORWARD_NEURO_LESS_TPL::InnerFunctional::setNormalization(
-    const TRIXY_FEED_FORWARD_NEURO_LESS_TPL::ActivationFunction& f)
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setNormalization(
+    const TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction& f)
 {
     activation[activation.size() - 1] = f;
 }
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-TRIXY_FEED_FORWARD_NEURO_LESS_TPL::FeedForwardNeuroLess(
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_FEED_FORWARD_NET_LESS_TPL::FeedForwardNeuroLess(
     const Container<Tensor1D>& bias,
     const Container<Tensor2D>& weight)
     : buff(bias.size())
@@ -129,8 +129,8 @@ TRIXY_FEED_FORWARD_NEURO_LESS_TPL::FeedForwardNeuroLess(
     }
 }
 
-TRIXY_NEURO_NETWORK_TPL_DECLARATION
-const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NEURO_LESS_TPL::feedforward(
+TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_LESS_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
     linear.dot(buff[0], sample, W[0]);

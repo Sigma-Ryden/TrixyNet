@@ -16,7 +16,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)
 {
 private:
     template <class T>
@@ -64,7 +64,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)::Optimizer(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta)
@@ -73,14 +73,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_pr
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::setLearnRate(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)::setLearnRate(
     precision_type new_learn_rate) noexcept
 {
     learn_rate = new_learn_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -113,7 +113,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::r
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)::prepare(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta)
@@ -144,7 +144,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::r
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop)::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -154,7 +154,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::r
 }
 
 template <typename Optimizeriable>
-using RMSPropOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::rms_prop);
+using RMSPropOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::rms_prop);
 
 } // namespace train
 

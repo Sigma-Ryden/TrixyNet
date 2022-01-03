@@ -15,7 +15,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)
 {
 private:
     template <class T>
@@ -55,7 +55,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::Optimizer(
     const Optimizeriable& net,
     precision_type learn_rate)
 {
@@ -63,13 +63,13 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_d
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent)::setLearnRate(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::setLearnRate(
     precision_type new_learn_rate) noexcept
 {
     learn_rate = new_learn_rate;
 }
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::prepare(
     const Optimizeriable& net,
     precision_type learn_rate)
 {
@@ -88,7 +88,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::g
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -107,7 +107,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::g
 }
 
 template <typename Optimizeriable>
-using GradDescentOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::grad_descent);
+using GradDescentOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent);
 
 } // namespace train
 

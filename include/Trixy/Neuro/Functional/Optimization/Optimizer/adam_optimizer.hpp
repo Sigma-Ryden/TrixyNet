@@ -16,7 +16,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)
 {
 private:
     template <class T>
@@ -78,7 +78,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::Optimizer(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta1,
@@ -88,14 +88,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam):
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)::setLearnRate(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::setLearnRate(
     precision_type new_learn_rate) noexcept
 {
     learn_rate = new_learn_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -144,7 +144,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::prepare(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta1,
@@ -188,7 +188,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::reset() noexcept
 {
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -204,7 +204,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::a
 }
 
 template <typename Optimizeriable>
-using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::adam);
+using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam);
 
 } // namespace train
 

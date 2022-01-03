@@ -12,7 +12,7 @@
             std::is_integral<decltype(detect(std::declval<T>()))>::value;                               \
     }
 
-#define TRIXY_NEURO_NETWORK_TPL_DECLARATION                                                             \
+#define TRIXY_NEURAL_NETWORK_TPL_DECLARATION                                                            \
     template <template <typename, typename...> class Vector,                                            \
               template <typename, typename...> class Matrix,                                            \
               template <template <typename, typename...> class T1,                                      \
@@ -23,13 +23,13 @@
               typename Precision,                                                                       \
               typename... Args>
 
-#define TRIXY_FEED_FORWARD_NEURO_TPL                                                                    \
-    FeedForwardNeuro<Vector, Matrix, Linear, Container,                                                 \
-                     Precision, Args...>
+#define TRIXY_FEED_FORWARD_NET_TPL                                                                      \
+    FeedForwardNet<Vector, Matrix, Linear, Container,                                                   \
+                   Precision, Args...>
 
-#define TRIXY_FEED_FORWARD_NEURO_LESS_TPL                                                               \
-    FeedForwardNeuroLess<Vector, Matrix, Linear, Container,                                             \
-                     Precision, Args...>
+#define TRIXY_FEED_FORWARD_NET_LESS_TPL                                                                 \
+    FeedForwardNetLess<Vector, Matrix, Linear, Container,                                               \
+                       Precision, Args...>
 
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
     template <typename Serializable>

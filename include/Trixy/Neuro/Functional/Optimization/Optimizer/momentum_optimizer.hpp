@@ -15,7 +15,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)
 {
 private:
     template <class T>
@@ -62,7 +62,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::Optimizer(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta)
@@ -71,14 +71,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::moment
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::setLearnRate(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::setLearnRate(
     precision_type new_learn_rate) noexcept
 {
     learn_rate = new_learn_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -100,7 +100,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::m
     }
 }
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::prepare(
     const Optimizeriable& net,
     precision_type learn_rate,
     precision_type beta)
@@ -128,7 +128,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::m
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -138,7 +138,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::m
 }
 
 template <typename Optimizeriable>
-using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_neuro, function::OptimizationId::momentum);
+using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum);
 
 } // namespace train
 
