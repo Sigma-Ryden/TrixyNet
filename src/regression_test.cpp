@@ -13,6 +13,66 @@
 namespace tr = trixy;
 namespace li = lique;
 
+li::Vector<double> get_sin_idata()
+{
+    li::Vector<double> x(61);
+
+    double arg = -3.;
+
+    for(std::size_t i = 0; i < x.size(); ++i)
+    {
+        x(i) = arg;
+        arg += .1;
+    }
+
+    return x;
+}
+
+li::Vector<double> get_sin_odata()
+{
+    li::Vector<double> y(61);
+
+    double arg = -3.;
+
+    for(std::size_t i = 0; i < y.size(); ++i)
+    {
+        y(i) = std::sin(arg);
+        arg += .1;
+    }
+
+    return y;
+}
+
+li::Matrix<double> get_linear_idata()
+{
+    li::Matrix<double> x(101, 1);
+
+    double arg = -1.;
+
+    for(std::size_t i = 0; i < x.size().row(); ++i)
+    {
+        x(i, 0) = arg;
+        arg    += .02;
+    }
+
+    return x;
+}
+
+li::Vector<double> get_linear_odata()
+{
+    li::Vector<double> y(101);
+
+    double arg = -1.;
+
+    for(std::size_t i = 0; i < y.size(); ++i)
+    {
+        y(i) = arg * 8. + 2.;
+        arg += .02;
+    }
+
+    return y;
+}
+
 void polynomial_regression_test_deserialization()
 {
     using util::operator<<;
@@ -29,19 +89,11 @@ void polynomial_regression_test_deserialization()
     PolynomialReg reg(sr.getPower());
     reg.initializeInnerStruct(sr.getWeight());
 
-    li::Vector<double> X
-    {
-        75., 78., 81., 93., 86., 77., 85., 77., 89., 95., 72., 115.
-    };
-
-    li::Vector<double> Y
-    {
-        133., 125., 129., 153., 140., 135., 135., 132., 161., 159., 120., 160.
-    };
+    auto X = get_sin_idata();
+    auto Y = get_sin_odata();
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
-    std::cout << "Test s:\n" << reg.feedforward(83.5) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 }
 
@@ -51,23 +103,15 @@ void polynomial_regression_test()
 
     using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
 
-    PolynomialReg reg(3);
+    PolynomialReg reg(6);
 
-    li::Vector<double> X
-    {
-        75., 78., 81., 93., 86., 77., 85., 77., 89., 95., 72., 115.
-    };
-
-    li::Vector<double> Y
-    {
-        133., 125., 129., 153., 140., 135., 135., 132., 161., 159., 120., 160.
-    };
+    auto X = get_sin_idata();
+    auto Y = get_sin_odata();
 
     reg.train(X, Y);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
-    std::cout << "Test s:\n" << reg.feedforward(83.5) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
@@ -98,46 +142,13 @@ void linear_regression_test_deserialization()
 
     reg.initializeInnerStruct(sr.getWeight());
 
-    li::Matrix<double> X(12, 2);
-    li::Vector<double> Y(12);
-
-    X.copy
-    ({
-        75., 87.,
-        78., 85.,
-        81., 81.,
-        93., 96.,
-        86., 83.,
-        77., 71.,
-        85., 90.,
-        77., 73.,
-        89., 86.,
-        95., 100.,
-        72., 80.,
-        115., 110.
-    });
-
-    Y.copy
-    ({
-        133.,
-        125.,
-        129.,
-        153.,
-        140.,
-        135.,
-        135.,
-        132.,
-        161.,
-        159.,
-        120.,
-        160.
-    });
+    auto X = get_linear_idata();
+    auto Y = get_linear_odata();
 
     reg.train(X, Y);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
-    std::cout << "Test v:\n" << reg.feedforwardSample({83., 79.}) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 }
 
@@ -147,48 +158,15 @@ void linear_regression_test()
 
     using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
 
-    LinearReg reg(2);
+    LinearReg reg(1);
 
-    li::Matrix<double> X(12, 2);
-    li::Vector<double> Y(12);
-
-    X.copy
-    ({
-        75., 87.,
-        78., 85.,
-        81., 81.,
-        93., 96.,
-        86., 83.,
-        77., 71.,
-        85., 90.,
-        77., 73.,
-        89., 86.,
-        95., 100.,
-        72., 80.,
-        115., 110.
-    });
-
-    Y.copy
-    ({
-        133.,
-        125.,
-        129.,
-        153.,
-        140.,
-        135.,
-        135.,
-        132.,
-        161.,
-        159.,
-        120.,
-        160.
-    });
+    auto X = get_linear_idata();
+    auto Y = get_linear_odata();
 
     reg.train(X, Y);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
-    std::cout << "Test v:\n" << reg.feedforwardSample({83., 79.}) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
@@ -201,17 +179,46 @@ void linear_regression_test()
 
     std::cout << "End of serialization\n";
 }
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
     //polynomial_regression_test();
-    //linear_regression_test();
-    polynomial_regression_test_deserialization();
-    linear_regression_test_deserialization();
+    linear_regression_test();
+    //polynomial_regression_test_deserialization();
+    //linear_regression_test_deserialization();
 
     return 0;
 }
+//
+/*
+X.copy
+({
+    75., 69.,
+    77., 71.,
+    77., 73.,
+    78., 81.,
+    81., 84.,
+    85., 87.,
+    86., 90.,
+    89., 92.,
+    93., 96.,
+    95., 99.
+});
+
+Y.copy
+({
+    133.,
+    134.,
+    135.,
+    137.,
+    143.,
+    145.,
+    149.,
+    152.,
+    159.,
+    162.
+});
 */
