@@ -179,7 +179,7 @@ void linear_regression_test()
 
     std::cout << "End of serialization\n";
 }
-//
+/*
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -192,7 +192,7 @@ int main()
 
     return 0;
 }
-//
+*/
 /*
 X.copy
 ({

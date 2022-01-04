@@ -5,114 +5,106 @@
 #include <initializer_list> // initializer_list
 #include <type_traits> // enable_if, is_arithmetic
 
-namespace lique
-{
+#include "Trixy/Lique/lique_tensor_base.hpp"
+#include "Trixy/Lique/lique_tensor_id.hpp"
 
-template <typename Precision, typename enable = void>
-class Vector;
-
-} // namespace lique
-
-#define LIQUE_VECTOR_TPL                                                     \
-    Vector<Precision,                                                        \
-        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+#include "Trixy/Lique/Detail/macro_scope.hpp"
 
 namespace lique
 {
 
-template <typename Precision>
-class Vector<Precision, typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+LIQUE_TENSOR_TPL_DECLARATION
+class LIQUE_TENSOR_TPL(detail::TensorType::_1D)
 {
 public:
-    using size_type       = std::size_t;
-    using reference       = Precision&;
-    using const_reference = const Precision&;
+    using size_type = std::size_t;
 
 protected:
     Precision* data_;
     size_type  size_;
 
 public:
-    Vector() noexcept;
-    ~Vector();
-    explicit Vector(size_type n);
-    Vector(const Vector&);
-    Vector(Vector&&) noexcept;
-    Vector(const std::initializer_list<Precision>&);
+    Tensor() noexcept;
+    ~Tensor();
+    explicit Tensor(size_type n);
+    Tensor(const Tensor&);
+    Tensor(Tensor&&) noexcept;
+    Tensor(const std::initializer_list<Precision>&);
 
-    Vector& operator= (const Vector&);
-    Vector& operator= (Vector&&) noexcept;
+    Tensor& operator= (const Tensor&);
+    Tensor& operator= (Tensor&&) noexcept;
 
-    Vector& copy(const Vector&) noexcept;
-    Vector& copy(const std::initializer_list<Precision>&) noexcept;
+    Tensor& copy(const Tensor&) noexcept;
+    Tensor& copy(const std::initializer_list<Precision>&) noexcept;
 
     size_type size() const noexcept;
     void resize(size_type new_size);
 
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
+    Precision& operator() (size_type i) noexcept;
+    const Precision& operator() (size_type i) const noexcept;
 
-    Vector& fill(Precision (*generator)()) noexcept;
-    Vector& fill(Precision value) noexcept;
+    Tensor& fill(Precision (*generator)()) noexcept;
+    Tensor& fill(Precision value) noexcept;
 
-    Vector apply(Precision (*function)(Precision)) const;
-    Vector& apply(Precision (*function)(Precision)) noexcept;
-    Vector& apply(Precision (*function)(Precision), const Vector&) noexcept;
+    Tensor apply(Precision (*function)(Precision)) const;
+    Tensor& apply(Precision (*function)(Precision)) noexcept;
+    Tensor& apply(Precision (*function)(Precision), const Tensor&) noexcept;
 
-    Precision dot(const Vector&) const;
+    Precision dot(const Tensor&) const;
 
-    Vector& add(const Vector&) noexcept;
-    Vector& sub(const Vector&) noexcept;
+    Tensor& add(const Tensor&) noexcept;
+    Tensor& sub(const Tensor&) noexcept;
 
-    Vector multiply(const Vector&) const;
-    Vector& multiply(const Vector&) noexcept;
-    Vector& multiply(const Vector&, const Vector&) noexcept;
+    Tensor multiply(const Tensor&) const;
+    Tensor& multiply(const Tensor&) noexcept;
+    Tensor& multiply(const Tensor&, const Tensor&) noexcept;
 
-    Vector join(Precision value) const;
-    Vector& join(Precision value) noexcept;
-    Vector& join(Precision value, const Vector&) noexcept;
+    Tensor join(Precision value) const;
+    Tensor& join(Precision value) noexcept;
+    Tensor& join(Precision value, const Tensor&) noexcept;
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
 
-    Vector operator+ (const Vector&) const;
-    Vector operator- (const Vector&) const;
+    Tensor operator+ (const Tensor&) const;
+    Tensor operator- (const Tensor&) const;
 };
 
-template <typename Precision>
-inline LIQUE_VECTOR_TPL::Vector() noexcept : data_(nullptr), size_(0)
+LIQUE_TENSOR_TPL_DECLARATION
+inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor() noexcept
+    : data_(nullptr), size_(0)
 {
 }
 
-template <typename Precision>
-inline LIQUE_VECTOR_TPL::~Vector()
+LIQUE_TENSOR_TPL_DECLARATION
+inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::~Tensor()
 {
     delete[] data_;
 }
 
-template <typename Precision>
-inline LIQUE_VECTOR_TPL::Vector(std::size_t n)
+LIQUE_TENSOR_TPL_DECLARATION
+inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(std::size_t n)
     : data_(new Precision[n]), size_(n)
 {
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL::Vector(const Vector& vector)
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(const Tensor& vector)
     : data_(new Precision[vector.size_]), size_(vector.size_)
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
 
-template <typename Precision>
-inline LIQUE_VECTOR_TPL::Vector(Vector&& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(Tensor&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL::Vector(const std::initializer_list<Precision>& init)
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(const std::initializer_list<Precision>& init)
     : data_(new Precision[init.size()]), size_(init.size())
 {
     size_type i = 0;
@@ -123,8 +115,9 @@ LIQUE_VECTOR_TPL::Vector(const std::initializer_list<Precision>& init)
     }
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (const Vector& vector)
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator= (
+    const Tensor& vector)
 {
     if(this == &vector)
         return *this;
@@ -140,8 +133,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (const Vector& vector)
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (Vector&& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator= (
+    Tensor&& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -156,8 +150,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::operator= (Vector&& vector) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::copy(
+    const Tensor& vector) noexcept
 {
     if(this == &vector)
         return *this;
@@ -168,8 +163,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const std::initializer_list<Precision>& data) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::copy(
+    const std::initializer_list<Precision>& data) noexcept
 {
     auto it = data.begin();
 
@@ -179,14 +175,15 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::copy(const std::initializer_list<Precision>&
     return *this;
 }
 
-template <typename Precision>
-inline std::size_t LIQUE_VECTOR_TPL::size() const noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline std::size_t LIQUE_TENSOR_TPL(detail::TensorType::_1D)::size() const noexcept
 {
     return size_;
 }
 
-template <typename Precision>
-void LIQUE_VECTOR_TPL::resize(std::size_t new_size)
+LIQUE_TENSOR_TPL_DECLARATION
+void LIQUE_TENSOR_TPL(detail::TensorType::_1D)::resize(
+    std::size_t new_size)
 {
     delete[] data_;
 
@@ -194,20 +191,23 @@ void LIQUE_VECTOR_TPL::resize(std::size_t new_size)
     data_ = new Precision[size_];
 }
 
-template <typename Precision>
-inline Precision& LIQUE_VECTOR_TPL::operator() (std::size_t i) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline Precision& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator() (
+    std::size_t i) noexcept
 {
     return data_[i];
 }
 
-template <typename Precision>
-inline const Precision& LIQUE_VECTOR_TPL::operator() (std::size_t i) const noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline const Precision& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator() (
+    std::size_t i) const noexcept
 {
     return data_[i];
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision (*generator)()) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::fill(
+    Precision (*generator)()) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = generator();
@@ -215,8 +215,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision (*generator)()) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision value) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::fill(
+    Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value;
@@ -224,10 +225,11 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::fill(Precision value) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) const
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D) LIQUE_TENSOR_TPL(detail::TensorType::_1D)::apply(
+    Precision (*function)(Precision)) const
 {
-    Vector new_vector(size_);
+    Tensor new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = function(data_[i]);
@@ -235,8 +237,9 @@ LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) const
     return new_vector;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::apply(
+    Precision (*function)(Precision)) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = function(data_[i]);
@@ -244,8 +247,10 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision)) noex
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision), const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::apply(
+    Precision (*function)(Precision),
+    const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = function(vector.data_[i]);
@@ -253,8 +258,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::apply(Precision (*function)(Precision), cons
     return *this;
 }
 
-template <typename Precision>
-Precision LIQUE_VECTOR_TPL::dot(const Vector& vector) const
+LIQUE_TENSOR_TPL_DECLARATION
+Precision LIQUE_TENSOR_TPL(detail::TensorType::_1D)::dot(
+    const Tensor& vector) const
 {
     double result = 0.0;
 
@@ -264,8 +270,9 @@ Precision LIQUE_VECTOR_TPL::dot(const Vector& vector) const
     return result;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::add(const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::add(
+    const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] += vector.data_[i];
@@ -273,8 +280,9 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::add(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::sub(const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::sub(
+    const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];
@@ -282,10 +290,11 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::sub(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::multiply(const Vector& vector) const
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D) LIQUE_TENSOR_TPL(detail::TensorType::_1D)::multiply(
+    const Tensor& vector) const
 {
-    Vector new_vector(size_);
+    Tensor new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] * vector.data_[i];
@@ -293,8 +302,9 @@ LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::multiply(const Vector& vector) const
     return new_vector;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::multiply(
+    const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= vector.data_[i];
@@ -302,8 +312,10 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& vector) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& lsh, const Vector& rsh) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::multiply(
+    const Tensor& lsh,
+    const Tensor& rsh) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = lsh.data_[i] * rsh.data_[i];
@@ -311,10 +323,11 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::multiply(const Vector& lsh, const Vector& rs
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::join(Precision value) const
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D) LIQUE_TENSOR_TPL(detail::TensorType::_1D)::join(
+    Precision value) const
 {
-    Vector new_vector(size_);
+    Tensor new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = value * data_[i];
@@ -322,8 +335,9 @@ LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::join(Precision value) const
     return new_vector;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::join(
+    Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= value;
@@ -331,8 +345,10 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value) noexcept
     return *this;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value, const Vector& vector) noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)& LIQUE_TENSOR_TPL(detail::TensorType::_1D)::join(
+    Precision value,
+    const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value * vector.data_[i];
@@ -340,22 +356,23 @@ LIQUE_VECTOR_TPL& LIQUE_VECTOR_TPL::join(Precision value, const Vector& vector) 
     return *this;
 }
 
-template <typename Precision>
-inline Precision* LIQUE_VECTOR_TPL::data() noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline Precision* LIQUE_TENSOR_TPL(detail::TensorType::_1D)::data() noexcept
 {
     return data_;
 }
 
-template <typename Precision>
-inline const Precision* LIQUE_VECTOR_TPL::data() const noexcept
+LIQUE_TENSOR_TPL_DECLARATION
+inline const Precision* LIQUE_TENSOR_TPL(detail::TensorType::_1D)::data() const noexcept
 {
     return data_;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator+ (const Vector& vector) const
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D) LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator+ (
+    const Tensor& vector) const
 {
-    Vector new_vector(size_);
+    Tensor new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] + vector.data_[i];
@@ -363,10 +380,11 @@ LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator+ (const Vector& vector) const
     return new_vector;
 }
 
-template <typename Precision>
-LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator- (const Vector& vector) const
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D) LIQUE_TENSOR_TPL(detail::TensorType::_1D)::operator- (
+    const Tensor& vector) const
 {
-    Vector new_vector(size_);
+    Tensor new_vector(size_);
 
     for(size_type i = 0; i < size_; ++i)
         new_vector.data_[i] = data_[i] - vector.data_[i];
@@ -374,9 +392,11 @@ LIQUE_VECTOR_TPL LIQUE_VECTOR_TPL::operator- (const Vector& vector) const
     return new_vector;
 }
 
+LIQUE_TENSOR_TPL_DECLARATION
+using Vector = LIQUE_TENSOR_TPL(detail::TensorType::_1D);
+
 } // namespace lique
 
-// clean up
-#undef LIQUE_VECTOR_TPL
+#include "Trixy/Lique/Detail/macro_unscope.hpp"
 
 #endif // LIQUE_VECTOR_HPP

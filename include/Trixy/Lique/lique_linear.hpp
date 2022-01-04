@@ -4,6 +4,8 @@
 #include <cstddef> // size_t
 #include <type_traits> // enable_if, is_arithmetic
 
+#include "Trixy/Lique/Detail/macro_scope.hpp"
+
 namespace lique
 {
 
@@ -15,25 +17,11 @@ class Linear;
 
 } // namespace lique
 
-#define LIQUE_LINEAR_TPL_DECLARATION                                                     \
-    template <template <typename, typename...> class Vector,                             \
-              template <typename, typename...> class Matrix,                             \
-              typename Precision,                                                        \
-              typename... Args>
-
-#define LIQUE_LINEAR_TPL                                                                 \
-    Linear<Vector, Matrix, Precision,                                                    \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
-
 namespace lique
 {
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          typename Precision,
-          typename... Args>
-class Linear<Vector, Matrix, Precision,
-             typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+LIQUE_LINEAR_TPL_DECLARATION
+class LIQUE_LINEAR_TPL
 {
 public:
     using Tensor1D  = Vector<Precision, Args...>;
@@ -215,8 +203,6 @@ Matrix<Precision, Args...> LIQUE_LINEAR_TPL::reshape(
 
 } // namespace lique
 
-// clean up
-#undef LIQUE_LINEAR_TPL_DECLARATION
-#undef LIQUE_LINEAR_TPL
+#include "Trixy/Lique/Detail/macro_unscope.hpp"
 
 #endif // LIQUE_LINEAR_HPP

@@ -7,6 +7,9 @@
 #include <utility> // declval
 #include <chrono> // chrono
 
+#include "Trixy/Lique/lique_vector.hpp"
+#include "Trixy/Lique/lique_matrix.hpp"
+
 namespace util
 {
 
@@ -34,8 +37,8 @@ public:
     }
 };
 
-template <template <typename, typename...> class Tensor1D, typename Precision, typename... Args>
-std::size_t max(const Tensor1D<Precision, Args...>& vector) noexcept
+template <typename Precision>
+std::size_t max(const lique::Vector<Precision>& vector) noexcept
 {
     static std::size_t max;
 
@@ -63,12 +66,9 @@ void network_size(const Collection<std::size_t>& topology)
               << count % 1024 << " Byte(s)\n";
 }
 
-template <template <typename T, typename...> class Tensor1D, typename Type, typename... Args,
-          typename std::enable_if<
-                   std::is_same<decltype(std::declval<Tensor1D<Type, Args...>>().operator()(0)),
-                                Type&>::value, int>::type = 0>
+template <typename Precision>
 std::ostream& operator<< (
-    std::ostream& out, const Tensor1D<Type, Args...>& vector)
+    std::ostream& out, const lique::Vector<Precision>& vector)
 {
     out << '[';
     for(std::size_t i = 0; i < vector.size() - 1; ++i)
@@ -79,12 +79,9 @@ std::ostream& operator<< (
     return out;
 }
 
-template <template <typename T, typename...> class Tensor2D, typename Type, typename... Args,
-          typename std::enable_if<
-                   std::is_same<decltype(std::declval<Tensor2D<Type, Args...>>().operator()(0, 0)),
-                                Type&>::value, int>::type = 0>
+template <typename Precision>
 std::ostream& operator<< (
-    std::ostream& out, const Tensor2D<Type, Args...>& matrix)
+    std::ostream& out, const lique::Matrix<Precision>& matrix)
 {
     out << '[';
     for(std::size_t i = 0; i < matrix.size().row() - 1; ++i)
@@ -105,30 +102,22 @@ std::ostream& operator<< (
     return out;
 }
 
-template <typename Neuro,
-          template <typename T, typename...> class Tensor1D,
-          template <typename...> class Collection,
-          typename Type,
-          typename... Args>
+template <typename Neuro, template <typename...> class Collection, typename Precision>
 void test_neuro(
     const Neuro& network,
-    const Collection<Tensor1D<Type, Args...>>& idata,
-    const Collection<Tensor1D<Type, Args...>>& odata)
+    const Collection<lique::Vector<Precision>>& idata,
+    const Collection<lique::Vector<Precision>>& odata)
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
             << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
 }
 
-template <typename Neuro,
-          template <typename T, typename...> class Tensor1D,
-          template <typename...> class Collection,
-          typename Type,
-          typename... Args>
+template <typename Neuro, template <typename...> class Collection, typename Precision>
 void check_neuro(
     const Neuro& network,
-    const Collection<Tensor1D<Type, Args...>>& idata,
-    const Collection<Tensor1D<Type, Args...>>& odata)
+    const Collection<lique::Vector<Precision>>& idata,
+    const Collection<lique::Vector<Precision>>& odata)
 {
     std::cout << "NNetwork train normal accuracy: "   << network.accuracy(idata, odata)
               << "\nNNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)

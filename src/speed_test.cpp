@@ -91,7 +91,7 @@ void speed_test_deserialization()
 }
 //
 void speed_test()
-{    
+{
     using namespace tr::functional;
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
@@ -118,12 +118,12 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::nestorov>(net, 0.01));
+    net.trainBatch(train_in, train_out, 100000, optimizer);
 
-    //net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
+    net.trainMiniBatch(train_in, train_out, 100000, 2, manage.get<OptimizationId::nestorov>(net, 0.01));
 
     //optimizer.reset();
-    //net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
+    net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
@@ -142,7 +142,7 @@ void speed_test()
     std::cout << "End of serialization\n";
 }
 //
-/*
+//1.38
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -153,7 +153,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 struct A
 {

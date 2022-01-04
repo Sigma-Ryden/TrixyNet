@@ -21,6 +21,10 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/lique_linear.hpp
     include/Trixy/Lique/lique_matrix.hpp
     include/Trixy/Lique/lique_vector.hpp
+    include/Trixy/Lique/lique_tensor_id.hpp
+    include/Trixy/Lique/lique_tensor_base.hpp
+    include/Trixy/Lique/Detail/macro_scope.hpp
+    include/Trixy/Lique/Detail/macro_unscope.hpp
     include/Trixy/Lique/lique_core.hpp
 )
 set(TRIXY_ILIQUE
