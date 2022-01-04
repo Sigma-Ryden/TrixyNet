@@ -4,7 +4,7 @@
 namespace trixy
 {
 
-template <class NeuralNetwork, typename enable = void>
+template <class TrixyNet, typename enable = void>
 class Functional;
 
 } // namespace trixy

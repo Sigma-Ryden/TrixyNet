@@ -4,12 +4,11 @@
 #include <utility> // forward
 
 #include "base_functional.hpp"
+#include "neuro_functional_id.hpp"
 
 #include "Function/neuro_activation.hpp"
-#include "Optimization/neuro_optimization.hpp"
 #include "Function/neuro_loss.hpp"
-
-#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
+#include "Optimization/neuro_optimization.hpp"
 #include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
 #include "Trixy/Neuro/Detail/macro_scope.hpp"
@@ -26,26 +25,26 @@ private:
     using ActivationFunction   = typename Functionable::ActivationFunction;
     using LossFunction         = typename Functionable::LossFunction;
 
-    template <function::OptimizationId optimizer_id>
+    template <functional::OptimizationId optimizer_id>
     using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_id>;
 
 public:
-    ActivationFunction get(function::ActivationId id) const noexcept;
-    LossFunction get(function::LossId id) const noexcept;
+    ActivationFunction get(functional::ActivationId id) const noexcept;
+    LossFunction get(functional::LossId id) const noexcept;
 
-    template <function::ActivationId id>
+    template <functional::ActivationId id>
     ActivationFunction get() const noexcept
     {
         return get(id);
     }
 
-    template <function::LossId id>
+    template <functional::LossId id>
     LossFunction get() const noexcept
     {
         return get(id);
     }
 
-    template <function::OptimizationId id, typename... Args>
+    template <functional::OptimizationId id, typename... Args>
     OptimizationFunction<id> get(Args&&... args) const
     {
         return OptimizationFunction<id>(std::forward<Args>(args)...);
@@ -55,10 +54,10 @@ public:
 TRIXY_FUNCTIONAL_TPL_DECLARATION
 typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::ActivationFunction
     TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::get(
-    function::ActivationId id) const noexcept
+    functional::ActivationId id) const noexcept
 {
     using namespace set::activation;
-    using namespace function;
+    using namespace functional;
 
     static byte_type f_id;
 
@@ -97,10 +96,10 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::ActivationFunction
 TRIXY_FUNCTIONAL_TPL_DECLARATION
 typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::LossFunction
     TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::get(
-    function::LossId id) const noexcept
+    functional::LossId id) const noexcept
 {
     using namespace set::loss;
-    using namespace function;
+    using namespace functional;
 
     static byte_type f_id;
 

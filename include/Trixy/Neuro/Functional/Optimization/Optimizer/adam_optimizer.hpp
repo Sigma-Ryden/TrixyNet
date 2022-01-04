@@ -2,8 +2,8 @@
 #define ADAM_OPTIMIZER_HPP
 
 #include "Trixy/Neuro/Functional/Optimization/base_optimizer.hpp"
+#include "Trixy/Neuro/Functional/neuro_functional_id.hpp"
 
-#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
 #include "Trixy/Neuro/Detail/function_detail.hpp"
 #include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
@@ -16,7 +16,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)
 {
 private:
     template <class T>
@@ -38,7 +38,7 @@ private:
     Container<Tensor1D> optimizedB2;
     Container<Tensor2D> optimizedW2;
 
-    precision_type learn_rate;
+    precision_type learning_rate;
 
     precision_type beta1;
     precision_type beta2;
@@ -58,11 +58,11 @@ public:
     Optimizer() noexcept : N(0) {}
 
     Optimizer(const Optimizeriable& net,
-              precision_type learn_rate,
+              precision_type learning_rate,
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
-    void setLearnRate(precision_type new_learn_rate) noexcept;
+    void setLearnRate(precision_type new_learning_rate) noexcept;
 
     void update(Container<Tensor1D>& bias,
                 Container<Tensor2D>& weight,
@@ -70,41 +70,51 @@ public:
                 const Container<Tensor2D>& gradWeight) noexcept;
 
     void prepare(const Optimizeriable& net,
-                 precision_type learn_rate,
-                 precision_type beta1 = 0.9,
-                 precision_type beta2 = 0.999); // deprecated
+                 precision_type new_learning_rate,
+                 precision_type new_beta1,
+                 precision_type new_beta2); // deprecated
 
     void reset() noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::Optimizer(
     const Optimizeriable& net,
-    precision_type learn_rate,
+    precision_type learning_rate,
     precision_type beta1,
     precision_type beta2)
 {
-    prepare(net, learn_rate, beta1, beta2);
+    prepare(net, learning_rate, beta1, beta2);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::setLearnRate(
-    precision_type new_learn_rate) noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::setLearnRate(
+    precision_type new_learning_rate) noexcept
 {
-    learn_rate = new_learn_rate;
+    learning_rate = new_learning_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    // m = beta1 * m - (1 - beta1) * g
+    // s = beta2 * m + (1 - beta2) * g * g
+
+    // xm = m / (1 - beta1 ^ t)
+    // xs = x / (1 - beta2 ^ t)
+
+    // w = w + learning_rate * xm / sqrt(xs)
+
+    // where: t - is number of calls this function (or number of iteration in train)
+
     tbeta1 *= beta1;
     tbeta2 *= beta2;
 
-    alpha1 = learn_rate / (1. - tbeta1);
+    alpha1 = learning_rate / (1. - tbeta1);
     alpha2 = 1. / (1. - tbeta2);
 
     for(size_type i = 0; i < N; ++i)
@@ -144,19 +154,19 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::prepare(
     const Optimizeriable& net,
-    precision_type learn_rate,
-    precision_type beta1,
-    precision_type beta2)
+    precision_type new_learning_rate,
+    precision_type new_beta1,
+    precision_type new_beta2)
 {
-    this->learn_rate = learn_rate;
+    learning_rate = new_learning_rate;
 
-    this->beta1 = beta1;
-    this->beta2 = beta2;
+    beta1 = new_beta1;
+    beta2 = new_beta2;
 
-    rbeta1 = 1. - beta1;
-    rbeta2 = 1. - beta2;
+    rbeta1 = 1. - new_beta1;
+    rbeta2 = 1. - new_beta2;
 
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -188,7 +198,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::reset() noexcept
 {
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -204,7 +214,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::ada
 }
 
 template <typename Optimizeriable>
-using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::adam);
+using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam);
 
 } // namespace train
 

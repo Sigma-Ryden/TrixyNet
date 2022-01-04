@@ -2,8 +2,8 @@
 #define GRADIENT_DESCENT_OPTIMIZER_HPP
 
 #include "Trixy/Neuro/Functional/Optimization/base_optimizer.hpp"
+#include "Trixy/Neuro/Functional/neuro_functional_id.hpp"
 
-#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
 #include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
 #include "Trixy/Neuro/Detail/macro_scope.hpp"
@@ -15,7 +15,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)
 {
 private:
     template <class T>
@@ -31,7 +31,7 @@ private:
     Container<Tensor1D> buff1;
     Container<Tensor2D> buff2;
 
-    precision_type learn_rate;
+    precision_type learning_rate;
 
     size_type N;
 
@@ -39,9 +39,9 @@ public:
     Optimizer() noexcept : N(0) {}
 
     Optimizer(const Optimizeriable& net,
-              precision_type learn_rate);
+              precision_type learning_rate);
 
-    void setLearnRate(precision_type new_learn_rate) noexcept;
+    void setLearnRate(precision_type new_learning_rate) noexcept;
 
     void update(Container<Tensor1D>& bias,
                 Container<Tensor2D>& weight,
@@ -49,31 +49,31 @@ public:
                 const Container<Tensor2D>& gradWeight) noexcept;
 
     void prepare(const Optimizeriable& net,
-                 precision_type learn_rate); // deprecated
+                 precision_type new_learning_rate); // deprecated
 
     void reset() noexcept = delete;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)::Optimizer(
     const Optimizeriable& net,
-    precision_type learn_rate)
+    precision_type learning_rate)
 {
-    prepare(net, learn_rate);
+    prepare(net, learning_rate);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::setLearnRate(
-    precision_type new_learn_rate) noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)::setLearnRate(
+    precision_type new_learning_rate) noexcept
 {
-    learn_rate = new_learn_rate;
+    learning_rate = new_learning_rate;
 }
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::prepare(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)::prepare(
     const Optimizeriable& net,
-    precision_type learn_rate)
+    precision_type new_learning_rate)
 {
-    this->learn_rate = learn_rate;
+    learning_rate = new_learning_rate;
 
     N = net.getTopology().size() - 1;
 
@@ -88,26 +88,28 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::gra
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    // w = w - learning_rate * g
+
     for(size_type i = 0; i < N; ++i)
     {
         bias[i].sub(
-            buff1[i].join(learn_rate, gradBias[i])
+            buff1[i].join(learning_rate, gradBias[i])
         );
 
         weight[i].sub(
-            buff2[i].join(learn_rate, gradWeight[i])
+            buff2[i].join(learning_rate, gradWeight[i])
         );
     }
 }
 
 template <typename Optimizeriable>
-using GradDescentOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::grad_descent);
+using GradDescentOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent);
 
 } // namespace train
 

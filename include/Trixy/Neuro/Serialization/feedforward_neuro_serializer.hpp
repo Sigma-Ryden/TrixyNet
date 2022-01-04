@@ -4,7 +4,7 @@
 #include <fstream> // ifstream, ofstream
 
 #include "base_serializer.hpp"
-#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
+#include "Trixy/Neuro/Functional/neuro_functional_id.hpp"
 #include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
 #include "Trixy/Neuro/Detail/macro_scope.hpp"
@@ -33,8 +33,8 @@ private:
 
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
-    Container<function::ActivationId> activation;
-    function::LossId loss;
+    Container<functional::ActivationId> activation;
+    functional::LossId loss;
 
 public:
     Serializer();
@@ -48,12 +48,12 @@ public:
     const Container<Tensor1D>& getBias() const noexcept { return B; }
     const Container<Tensor2D>& getWeight() const noexcept { return W; }
 
-    function::ActivationId getActivationId() const noexcept { return activation[0]; }
-    function::ActivationId getNormalizationId() const noexcept { return activation[N - 1]; }
+    functional::ActivationId getActivationId() const noexcept { return activation[0]; }
+    functional::ActivationId getNormalizationId() const noexcept { return activation[N - 1]; }
 
-    const Container<function::ActivationId>& getEachActivationId() const noexcept { return activation; }
+    const Container<functional::ActivationId>& getEachActivationId() const noexcept { return activation; }
 
-    function::LossId getLossId() const noexcept { return loss; }
+    functional::LossId getLossId() const noexcept { return loss; }
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -74,9 +74,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     activation.resize(N);
     for(size_type i = 0; i < N; ++i)
-        activation[i] = static_cast<function::ActivationId>(net.function.getEachActivation()[i].id);
+        activation[i] = static_cast<functional::ActivationId>(net.function.getEachActivation()[i].id);
 
-    loss = static_cast<function::LossId>(net.function.getLoss().id);
+    loss = static_cast<functional::LossId>(net.function.getLoss().id);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -92,9 +92,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& ou
         out.write(reinterpret_cast<const char*>(&topology[n]), sizeof(size_type));
 
     for(n = 0; n < N; ++n)
-        out.write(reinterpret_cast<const char*>(&activation[n]), sizeof(function::ActivationId));
+        out.write(reinterpret_cast<const char*>(&activation[n]), sizeof(functional::ActivationId));
 
-    out.write(reinterpret_cast<const char*>(&loss), sizeof(function::LossId));
+    out.write(reinterpret_cast<const char*>(&loss), sizeof(functional::LossId));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
@@ -131,9 +131,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
     }
 
     for(n = 0; n < N; ++n)
-        in.read(reinterpret_cast<char*>(&activation[n]), sizeof(function::ActivationId));
+        in.read(reinterpret_cast<char*>(&activation[n]), sizeof(functional::ActivationId));
 
-    in.read(reinterpret_cast<char*>(&loss), sizeof(function::LossId));
+    in.read(reinterpret_cast<char*>(&loss), sizeof(functional::LossId));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)

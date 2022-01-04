@@ -13,8 +13,6 @@
 namespace tr = trixy;
 namespace li = lique;
 
-using namespace tr::function;
-
 static li::Linear<li::Vector, li::Matrix, double> linear;
 
 float random_real() noexcept
@@ -63,6 +61,8 @@ tr::Container<li::Vector<float>> get_speed_test_odata()
 //
 void speed_test_deserialization()
 {
+    using namespace tr::functional;
+
     using NeuralNetwork    = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using NeuralFunctional = tr::Functional<NeuralNetwork>;
     using NeuralSerializer = tr::Serializer<NeuralNetwork>;
@@ -91,7 +91,9 @@ void speed_test_deserialization()
 }
 //
 void speed_test()
-{
+{    
+    using namespace tr::functional;
+
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
@@ -116,12 +118,12 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::adam>(net, 0.001));
+    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::nestorov>(net, 0.01));
 
-    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
+    //net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
 
     //optimizer.reset();
-    net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
+    //net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 

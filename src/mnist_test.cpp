@@ -67,7 +67,7 @@ void show_image_batch(const tr::Container<li::Vector<float>>& data) noexcept
 
 void mnist_test_deserialization()
 {
-    using namespace tr::function;
+    using namespace tr::functional;
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
@@ -139,7 +139,7 @@ void mnist_test_deserialization()
 
 void mnist_test()
 {
-    using namespace tr::function;
+    using namespace tr::functional;
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;

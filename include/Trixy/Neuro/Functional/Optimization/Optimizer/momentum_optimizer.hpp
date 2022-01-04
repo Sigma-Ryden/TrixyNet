@@ -2,8 +2,8 @@
 #define MOMENTUM_OPTIMIZER_HPP
 
 #include "Trixy/Neuro/Functional/Optimization/base_optimizer.hpp"
+#include "Trixy/Neuro/Functional/neuro_functional_id.hpp"
 
-#include "Trixy/Neuro/Detail/neuro_function_id.hpp"
 #include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
 #include "Trixy/Neuro/Detail/macro_scope.hpp"
@@ -15,7 +15,7 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)
 {
 private:
     template <class T>
@@ -34,9 +34,9 @@ private:
     Container<Tensor1D> optimizedB;
     Container<Tensor2D> optimizedW;
 
-    precision_type learn_rate;
+    precision_type learning_rate;
 
-    precision_type beta;
+    precision_type momentum;
 
     size_type N;
 
@@ -44,10 +44,10 @@ public:
     Optimizer() noexcept : N(0) {}
 
     Optimizer(const Optimizeriable& net,
-              precision_type learn_rate,
-              precision_type beta = 0.9);
+              precision_type learning_rate,
+              precision_type momentum = 0.9);
 
-    void setLearnRate(precision_type new_learn_rate) noexcept;
+    void setLearnRate(precision_type new_learning_rate) noexcept;
 
     void update(Container<Tensor1D>& bias,
                 Container<Tensor2D>& weight,
@@ -55,58 +55,62 @@ public:
                 const Container<Tensor2D>& gradWeight) noexcept;
 
     void prepare(const Optimizeriable& net,
-                 precision_type learn_rate,
-                 precision_type beta = 0.9); // deprecated
+                 precision_type new_learning_rate,
+                 precision_type new_momentum); // deprecated
 
     void reset() noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::Optimizer(
+TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::Optimizer(
     const Optimizeriable& net,
-    precision_type learn_rate,
-    precision_type beta)
+    precision_type learning_rate,
+    precision_type momentum)
 {
-    prepare(net, learn_rate, beta);
+    prepare(net, learning_rate, momentum);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::setLearnRate(
-    precision_type new_learn_rate) noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::setLearnRate(
+    precision_type new_learning_rate) noexcept
 {
-    learn_rate = new_learn_rate;
+    learning_rate = new_learning_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::update(
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    // velocity = momentum * velocity - learning_rate * g
+    // w = w + velocity
+
     for(size_type i = 0; i < N; ++i)
     {
-        optimizedB[i].join(beta).sub(
-            buff1[i].join(learn_rate, gradBias[i])
+        optimizedB[i].join(momentum).sub(
+            buff1[i].join(learning_rate, gradBias[i])
         );
 
         bias[i].add(optimizedB[i]);
 
-        optimizedW[i].join(beta).sub(
-            buff2[i].join(learn_rate, gradWeight[i])
+        optimizedW[i].join(momentum).sub(
+            buff2[i].join(learning_rate, gradWeight[i])
         );
 
         weight[i].add(optimizedW[i]);
     }
 }
-TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::prepare(
-    const Optimizeriable& net,
-    precision_type learn_rate,
-    precision_type beta)
-{
-    this->learn_rate = learn_rate;
 
+TRIXY_OPTIMIZER_TPL_DECLARATION
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::prepare(
+    const Optimizeriable& net,
+    precision_type new_learning_rate,
+    precision_type new_momentum)
+{
+    learning_rate = new_learning_rate;
+    momentum = new_momentum;
     N = net.getTopology().size() - 1;
 
     buff1.resize(N);
@@ -128,7 +132,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::mom
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum)::reset() noexcept
+void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -138,7 +142,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::mom
 }
 
 template <typename Optimizeriable>
-using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, function::OptimizationId::momentum);
+using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum);
 
 } // namespace train
 

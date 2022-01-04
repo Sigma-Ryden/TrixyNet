@@ -44,7 +44,7 @@ tr::Container<li::Vector<float>> get_simple_test_odata()
 template <typename Precision>
 void simple_test_deserialization()
 {
-    using namespace tr::function;
+    using namespace tr::functional;
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
@@ -76,7 +76,7 @@ void simple_test_deserialization()
 template <typename Precision>
 void simple_test()
 {
-    using namespace tr::function;
+    using namespace tr::functional;
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
