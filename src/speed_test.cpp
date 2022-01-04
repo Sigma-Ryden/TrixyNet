@@ -63,9 +63,9 @@ void speed_test_deserialization()
 {
     using namespace tr::functional;
 
-    using NeuralNetwork    = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
-    using NeuralFunctional = tr::Functional<NeuralNetwork>;
-    using NeuralSerializer = tr::Serializer<NeuralNetwork>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
@@ -73,12 +73,12 @@ void speed_test_deserialization()
     auto train_in = get_speed_test_idata();
     auto train_out = get_speed_test_odata();
 
-    NeuralSerializer sr;
+    TrixyNetSerializer sr;
     sr.deserialize(in);
     in.close();
 
-    NeuralNetwork net = sr.getTopology();
-    NeuralFunctional manage;
+    TrixyNet net = sr.getTopology();
+    TrixyNetFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
