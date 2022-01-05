@@ -4,7 +4,7 @@
 namespace trixy
 {
 
-template <class TrixyNet, typename enable = void>
+template <class Functionable, typename enable = void>
 class Functional;
 
 } // namespace trixy

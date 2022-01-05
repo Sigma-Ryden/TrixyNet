@@ -251,7 +251,7 @@ TRIXY_NEURAL_NETWORK_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setNormalization(
     const TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction& f)
 {
-    activation[activation.size() - 1] = f;
+    activation.back() = f;
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
@@ -265,7 +265,7 @@ TRIXY_NEURAL_NETWORK_TPL_DECLARATION
 inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getActivation() const noexcept
 {
-    return activation[0];
+    return activation.front();
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
@@ -279,7 +279,7 @@ TRIXY_NEURAL_NETWORK_TPL_DECLARATION
 inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getNormalization() const noexcept
 {
-    return activation[activation.size() - 1];
+    return activation.back();
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
@@ -458,7 +458,7 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
         function.activation[i].f(imanage.buff[i], imanage.buff[i].add(B[i]));
     }
 
-    return imanage.buff[N - 1];
+    return imanage.buff.back();
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION

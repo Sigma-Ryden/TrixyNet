@@ -26,7 +26,10 @@ protected:
 public:
     Tensor() noexcept;
     ~Tensor();
-    explicit Tensor(size_type n);
+
+    explicit Tensor(size_type size);
+    explicit Tensor(size_type size, const Precision* ptr);
+
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
     Tensor(const std::initializer_list<Precision>&);
@@ -38,7 +41,9 @@ public:
     Tensor& copy(const std::initializer_list<Precision>&) noexcept;
 
     size_type size() const noexcept;
+
     void resize(size_type new_size);
+    void resize(size_type new_size, Precision fill_value);
 
     Precision& operator() (size_type i) noexcept;
     const Precision& operator() (size_type i) const noexcept;
@@ -83,9 +88,17 @@ inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::~Tensor()
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(std::size_t n)
-    : data_(new Precision[n]), size_(n)
+inline LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(std::size_t size)
+    : data_(new Precision[size]), size_(size)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_1D)::Tensor(std::size_t size, const Precision* ptr)
+    : data_(new Precision[size]), size_(size)
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = ptr[i];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -189,6 +202,15 @@ void LIQUE_TENSOR_TPL(detail::TensorType::_1D)::resize(
 
     size_ = new_size;
     data_ = new Precision[size_];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void LIQUE_TENSOR_TPL(detail::TensorType::_1D)::resize(
+    std::size_t new_size,
+    Precision fill_value)
+{
+    resize(new_size);
+    fill(fill_value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

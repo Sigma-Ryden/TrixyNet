@@ -15,6 +15,10 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
+using MomentumOptimizer =
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum);
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)
 {
 private:
@@ -58,11 +62,11 @@ public:
                  precision_type new_learning_rate,
                  precision_type new_momentum); // deprecated
 
-    void reset() noexcept;
+    Optimizer& reset() noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::Optimizer(
+MomentumOptimizer<Optimizeriable>::Optimizer(
     const Optimizeriable& net,
     precision_type learning_rate,
     precision_type momentum)
@@ -71,14 +75,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::moment
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::setLearnRate(
+void MomentumOptimizer<Optimizeriable>::setLearnRate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::update(
+void MomentumOptimizer<Optimizeriable>::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -104,13 +108,14 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::m
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::prepare(
+void MomentumOptimizer<Optimizeriable>::prepare(
     const Optimizeriable& net,
     precision_type new_learning_rate,
     precision_type new_momentum)
 {
     learning_rate = new_learning_rate;
     momentum = new_momentum;
+
     N = net.getTopology().size() - 1;
 
     buff1.resize(N);
@@ -121,28 +126,25 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::m
 
     for(size_type i = 0; i < N; ++i)
     {
-        buff1[i].resize(net.getInnerBias()[i].size());
+        buff1[i].resize(net.  getInnerBias()[i].size());
         buff2[i].resize(net.getInnerWeight()[i].size());
 
-        optimizedB[i].resize(net.getInnerBias()[i].size());
-        optimizedW[i].resize(net.getInnerWeight()[i].size());
+        optimizedB[i].resize(net.  getInnerBias()[i].size(), 0.);
+        optimizedW[i].resize(net.getInnerWeight()[i].size(), 0.);
     }
-
-    reset();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum)::reset() noexcept
+MomentumOptimizer<Optimizeriable>& MomentumOptimizer<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
         optimizedB[i].fill(0.);
         optimizedW[i].fill(0.);
     }
-}
 
-template <typename Optimizeriable>
-using MomentumOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::momentum);
+    return *this;
+}
 
 } // namespace train
 

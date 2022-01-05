@@ -27,13 +27,13 @@ namespace ilique
 namespace meta
 {
 
-template <typename Precision>
-using enable_if_arithmetic_t =  typename std::enable_if<std::is_arithmetic<Precision>::value>::type;
+template <typename T>
+using set_void_if_arithmetic_t = typename std::enable_if<std::is_arithmetic<T>::value>::type;
 
 } // namespace meta
 
 template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>
-class ILiqueBase<Tensor, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
+class ILiqueBase<Tensor, Precision, meta::set_void_if_arithmetic_t<Precision>, Args...>
 {
 protected:
     virtual ~ILiqueBase() = default;
@@ -70,7 +70,7 @@ public:
 };
 
 template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
-class IVector<Tensor1D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
+class IVector<Tensor1D, Precision, meta::set_void_if_arithmetic_t<Precision>, Args...>
 {
 public:
     using TensorType      = Tensor1D<Precision, Args...>;
@@ -92,7 +92,7 @@ public:
 };
 
 template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
-class IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>
+class IMatrix<Tensor2D, Precision, meta::set_void_if_arithmetic_t<Precision>, Args...>
 {
 protected:
     class Shape;
@@ -123,9 +123,9 @@ public:
 };
 
 template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
-class IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>::Shape
+class IMatrix<Tensor2D, Precision, meta::set_void_if_arithmetic_t<Precision>, Args...>::Shape
 {
-friend IMatrix<Tensor2D, Precision, meta::enable_if_arithmetic_t<Precision>, Args...>;
+friend IMatrix<Tensor2D, Precision, meta::set_void_if_arithmetic_t<Precision>, Args...>;
 friend Tensor2D<Precision, Args...>;
 
 public:

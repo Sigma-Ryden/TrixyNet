@@ -48,8 +48,8 @@ public:
     const Container<Tensor1D>& getBias() const noexcept { return B; }
     const Container<Tensor2D>& getWeight() const noexcept { return W; }
 
-    functional::ActivationId getActivationId() const noexcept { return activation[0]; }
-    functional::ActivationId getNormalizationId() const noexcept { return activation[N - 1]; }
+    functional::ActivationId getActivationId() const noexcept { return activation.front(); }
+    functional::ActivationId getNormalizationId() const noexcept { return activation.back(); }
 
     const Container<functional::ActivationId>& getEachActivationId() const noexcept { return activation; }
 
@@ -57,8 +57,7 @@ public:
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::Serializer()
-    : N(0)
+TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::Serializer() : N(0)
 {
 }
 

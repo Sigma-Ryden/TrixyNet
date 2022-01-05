@@ -8,6 +8,7 @@ namespace trixy
 
 namespace train
 {
+
 template <typename Optimizeriable, functional::OptimizationId optimizer_id, typename enable = void>
 class Optimizer;
 

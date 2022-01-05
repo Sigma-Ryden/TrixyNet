@@ -32,7 +32,10 @@ protected:
 public:
     Tensor() noexcept;
     ~Tensor();
+
     explicit Tensor(size_type m, size_type n);
+    explicit Tensor(size_type m, size_type n, const Precision** ptr);
+
     explicit Tensor(const Shape& shape);
 
     Tensor(const Tensor&);
@@ -48,6 +51,9 @@ public:
 
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
+
+    void resize(size_type m, size_type n, Precision fill_value);
+    void resize(const Shape& new_shape, Precision fill_value);
 
     Tensor& fill(Precision (*generator)()) noexcept;
     Tensor& fill(Precision value) noexcept;
@@ -130,6 +136,18 @@ LIQUE_TENSOR_TPL(detail::TensorType::_2D)::Tensor(std::size_t m, std::size_t n)
 {
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Precision[shape_.col_];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TPL(detail::TensorType::_2D)::Tensor(std::size_t m, std::size_t n, const Precision** ptr)
+    : data_(new Precision* [m]), shape_(m, n)
+{
+    for(size_type i = 0; i < shape_.row_; ++i)
+        data_[i] = new Precision[shape_.col_];
+
+    for(size_type i = 0; i < shape_.row_; ++i)
+        for(size_type j = 0; j < shape_.col_; ++j)
+            data_[i][j] = ptr[i][j];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -276,6 +294,25 @@ void LIQUE_TENSOR_TPL(detail::TensorType::_2D)::resize(
     data_ = new Precision* [shape_.row_];
     for(size_type i = 0; i < shape_.row_; ++i)
         data_[i] = new Precision[shape_.col_];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void LIQUE_TENSOR_TPL(detail::TensorType::_2D)::resize(
+    size_type m,
+    size_type n,
+    Precision fill_value)
+{
+    resize(m, n);
+    fill(fill_value);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void LIQUE_TENSOR_TPL(detail::TensorType::_2D)::resize(
+    const Tensor::Shape& shape,
+    Precision fill_value)
+{
+    resize(shape);
+    fill(fill_value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

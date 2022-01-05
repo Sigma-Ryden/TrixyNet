@@ -11,8 +11,7 @@ namespace trixy
 {
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class PolynomialRegression<Vector, Matrix, Linear, Precision,
-    typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+class TRIXY_POLYNOMIAL_REGRESSION_TPL
 {
 public:
     using Tensor1D        = Vector<Precision, Args...>;

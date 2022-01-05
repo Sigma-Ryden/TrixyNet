@@ -37,6 +37,12 @@ public:
     iterator begin() const noexcept;
     iterator end() const noexcept;
 
+    reference front() noexcept;
+    const_reference front() const noexcept;
+
+    reference back() noexcept;
+    const_reference back() const noexcept;
+
     Type* data() noexcept;
     const Type* data() const noexcept;
 
@@ -159,6 +165,30 @@ template <typename Type>
 inline typename Container<Type>::iterator Container<Type>::end() const noexcept
 {
     return iterator(data_ + size_);
+}
+
+template <typename Type>
+inline Type& Container<Type>::front() noexcept
+{
+    return data_[0];
+}
+
+template <typename Type>
+inline const Type& Container<Type>::front() const noexcept
+{
+    return data_[0];
+}
+
+template <typename Type>
+inline Type& Container<Type>::back() noexcept
+{
+    return data_[size_ - 1];
+}
+
+template <typename Type>
+inline const Type& Container<Type>::back() const noexcept
+{
+    return data_[size_ - 1];
 }
 
 template <typename Type>

@@ -108,11 +108,11 @@ TRIXY_NEURAL_NETWORK_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setNormalization(
     const TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction& f)
 {
-    activation[activation.size() - 1] = f;
+    activation.back() = f;
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
-TRIXY_FEED_FORWARD_NET_LESS_TPL::FeedForwardNeuroLess(
+TRIXY_FEED_FORWARD_NET_LESS_TPL::FeedForwardNetLess(
     const Container<Tensor1D>& bias,
     const Container<Tensor2D>& weight)
     : buff(bias.size())

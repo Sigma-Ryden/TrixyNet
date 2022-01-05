@@ -58,7 +58,7 @@ tr::Container<li::Vector<float>> get_speed_test_odata()
         {1, 0, 0}
     };
 }
-//
+
 void speed_test_deserialization()
 {
     using namespace tr::functional;
@@ -85,11 +85,12 @@ void speed_test_deserialization()
     net.function.setActivation(manage.get(sr.getActivationId()));
     net.function.setNormalization(manage.get(sr.getNormalizationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
+    li::Vector<double> a;
 
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 }
-//
+
 void speed_test()
 {
     using namespace tr::functional;
@@ -110,7 +111,7 @@ void speed_test()
     net.function.setNormalization(manage.get<ActivationId::softmax>());
     net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::grad_descent>(net, 0.1);
+    auto optimizer = manage.get<OptimizationId::rms_prop>(net, 0.01);
 
     std::cout << "Before train\n";
     util::test_neuro(net, train_in, train_out);
@@ -118,12 +119,9 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, optimizer);
-
-    net.trainMiniBatch(train_in, train_out, 100000, 2, manage.get<OptimizationId::nestorov>(net, 0.01));
-
-    //optimizer.reset();
+    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::grad_descent>(net, 0.01));
     net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
+    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer.reset());
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
@@ -142,9 +140,9 @@ void speed_test()
     std::cout << "End of serialization\n";
 }
 //
-//1.38
 int main()
 {
+
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 

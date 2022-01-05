@@ -16,6 +16,10 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
+using AdamOptimizer =
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam);
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)
 {
 private:
@@ -74,11 +78,11 @@ public:
                  precision_type new_beta1,
                  precision_type new_beta2); // deprecated
 
-    void reset() noexcept;
+    Optimizer& reset() noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::Optimizer(
+AdamOptimizer<Optimizeriable>::Optimizer(
     const Optimizeriable& net,
     precision_type learning_rate,
     precision_type beta1,
@@ -88,14 +92,14 @@ TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam):
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::setLearnRate(
+void AdamOptimizer<Optimizeriable>::setLearnRate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::update(
+void AdamOptimizer<Optimizeriable>::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
@@ -154,7 +158,7 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::a
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::prepare(
+void AdamOptimizer<Optimizeriable>::prepare(
     const Optimizeriable& net,
     precision_type new_learning_rate,
     precision_type new_beta1,
@@ -165,8 +169,8 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::a
     beta1 = new_beta1;
     beta2 = new_beta2;
 
-    rbeta1 = 1. - new_beta1;
-    rbeta2 = 1. - new_beta2;
+    rbeta1 = 1. - beta1;
+    rbeta2 = 1. - beta2;
 
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -184,21 +188,19 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::a
 
     for(size_type i = 0; i < N; ++i)
     {
-        buff1[i].resize(net.getInnerBias()[i].size());
+        buff1[i].resize(net.  getInnerBias()[i].size());
         buff2[i].resize(net.getInnerWeight()[i].size());
 
-        optimizedB1[i].resize(net.getInnerBias()[i].size());
-        optimizedW1[i].resize(net.getInnerWeight()[i].size());
+        optimizedB1[i].resize(net.  getInnerBias()[i].size(), 0.);
+        optimizedW1[i].resize(net.getInnerWeight()[i].size(), 0.);
 
-        optimizedB2[i].resize(net.getInnerBias()[i].size());
-        optimizedW2[i].resize(net.getInnerWeight()[i].size());
+        optimizedB2[i].resize(net.  getInnerBias()[i].size(), 0.);
+        optimizedW2[i].resize(net.getInnerWeight()[i].size(), 0.);
     }
-
-    reset();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam)::reset() noexcept
+AdamOptimizer<Optimizeriable>& AdamOptimizer<Optimizeriable>::reset() noexcept
 {
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -211,10 +213,9 @@ void TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::a
         optimizedB2[i].fill(0.);
         optimizedW2[i].fill(0.);
     }
-}
 
-template <typename Optimizeriable>
-using AdamOptimizer = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::adam);
+    return *this;
+}
 
 } // namespace train
 

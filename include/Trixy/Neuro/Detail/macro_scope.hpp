@@ -43,7 +43,7 @@
 
 #define TRIXY_FUNCTIONAL_TPL(is_type...)                                                                \
     Functional<Functionable,                                                                            \
-        typename std::enable_if<meta::has_true<Functionable, is_type>::value>::type>
+        typename std::enable_if<::trixy::meta::has_true<Functionable, is_type>::value>::type>
 
 #define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
     template <class Optimizeriable>
@@ -67,12 +67,12 @@
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
     void name(                                                                                          \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(detail::name, tensor);                                                               \
+        buff.apply(::trixy::set::activation::detail::name, tensor);                                                               \
     }                                                                                                   \
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
     void name##_derived(                                                                                \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(detail::name##_derived, tensor);                                                     \
+        buff.apply(::trixy::set::activation::detail::name##_derived, tensor);                                                     \
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
@@ -102,7 +102,7 @@
 
 #define TRIXY_CLASS_TPL(class_name, is_type...)                                                         \
     class_name<Class,                                                                                   \
-        typename std::enable_if<meta::has_true<Class, is_type>::value>::type>
+        typename std::enable_if<::trixy::meta::has_true<Class, is_type>::value>::type>
 
 #define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
     template <typename T = Class,                                                                       \
