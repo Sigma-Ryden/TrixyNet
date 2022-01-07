@@ -65,7 +65,7 @@ void mean_squared_error(
         result += f * f;
     }
 
-   result >>= 1;
+   result *= 0.5;
 }
 
 TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
@@ -122,7 +122,7 @@ void mean_squared_log_error(
         result += f * f;
     }
 
-    result >>= 1;
+    result *= 0.5;
 }
 
 TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
