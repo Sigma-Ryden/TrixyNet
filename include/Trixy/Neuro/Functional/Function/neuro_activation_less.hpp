@@ -47,7 +47,7 @@ TRIXY_FUNCTION_TPL_DECLARATION
 Precision elu(Precision x) noexcept
 {
     static constexpr Precision alpha = 0.2;
-    return x > 0. ? x : alpha * (std::exp(x) - 1.);
+    return x > 0. ? x : alpha * std::expm1(x);
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision elu_derived(Precision x) noexcept
@@ -75,7 +75,7 @@ Precision selu(Precision x) noexcept
     static constexpr Precision lambda = 1.050701;
     static constexpr Precision beta   = 1.758099;
 
-    return x > 0. ? lambda * x : beta * (std::exp(x) - 1.);
+    return x > 0. ? lambda * x : beta * std::expm1(x);
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision selu_derived(Precision x) noexcept

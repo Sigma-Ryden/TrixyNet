@@ -65,7 +65,7 @@ void mean_squared_error(
         result += f * f;
     }
 
-   result *= 0.5;
+   result >>= 1;
 }
 
 TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
@@ -122,7 +122,7 @@ void mean_squared_log_error(
         result += f * f;
     }
 
-    result *= 0.5;
+    result >>= 1;
 }
 
 TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
@@ -145,12 +145,10 @@ void binary_cross_entropy(
     const Tensor1D<Precision, Args...>& y_pred) noexcept
 {
     static constexpr Precision epsilon = 1e-9;
-    static constexpr Precision alpha   = epsilon + 1.;
-
     result = 0.;
     for(std::size_t i = 0; i < y_true.size(); ++i)
         result -= y_true(i) * std::log(y_pred(i) + epsilon)
-                  + (1. - y_true(i)) * std::log(alpha - y_pred(i));
+                  + (1. - y_true(i)) * std::log1p(epsilon - y_pred(i));
 }
 
 TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
