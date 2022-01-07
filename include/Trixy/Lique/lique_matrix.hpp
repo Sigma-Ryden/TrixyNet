@@ -652,7 +652,7 @@ inline Precision** LIQUE_TENSOR_TPL(detail::TensorType::_2D)::data() noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 inline const Precision** LIQUE_TENSOR_TPL(detail::TensorType::_2D)::data() const noexcept
 {
-    return data_;
+    return const_cast<const Precision**>(data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

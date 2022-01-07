@@ -142,7 +142,6 @@ void speed_test()
 //
 int main()
 {
-
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 

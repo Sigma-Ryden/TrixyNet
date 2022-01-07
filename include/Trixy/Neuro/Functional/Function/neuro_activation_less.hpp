@@ -46,42 +46,42 @@ Precision relu_derived(Precision x) noexcept
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision elu(Precision x) noexcept
 {
-    static const Precision alpha = 0.2;
+    static constexpr Precision alpha = 0.2;
     return x > 0. ? x : alpha * (std::exp(x) - 1.);
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision elu_derived(Precision x) noexcept
 {
-    static const Precision alpha = 0.2;
+    static constexpr Precision alpha = 0.2;
     return x > 0. ? 1. : alpha * std::exp(x);
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision lrelu(Precision x) noexcept
 {
-    static const Precision alpha = 0.01;
+    static constexpr Precision alpha = 0.01;
     return x > 0. ? x : alpha * x;
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision lrelu_derived(Precision x) noexcept
 {
-    static const Precision alpha = 0.01;
+    static constexpr Precision alpha = 0.01;
     return x > 0. ? 1. : alpha;
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision selu(Precision x) noexcept
 {
-    static const Precision lambda = 1.050701;
-    static const Precision beta   = 1.758099;
+    static constexpr Precision lambda = 1.050701;
+    static constexpr Precision beta   = 1.758099;
 
     return x > 0. ? lambda * x : beta * (std::exp(x) - 1.);
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision selu_derived(Precision x) noexcept
 {
-    static const Precision lambda = 1.050701;
-    static const Precision beta   = 1.758099;
+    static constexpr Precision lambda = 1.050701;
+    static constexpr Precision beta   = 1.758099;
 
     return x > 0. ? lambda : beta * std::exp(x);
 }
@@ -89,18 +89,18 @@ Precision selu_derived(Precision x) noexcept
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision gelu(Precision x) noexcept
 {
-    static const Precision a = 0.797885;
-    static const Precision b = 0.0356774;
+    static constexpr Precision a = 0.797885;
+    static constexpr Precision b = 0.0356774;
 
     return 0.5 * x * (std::tanh(x * a + x * x * x * b) + 1.);
 }
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision gelu_derived(Precision x) noexcept
 {
-    static const Precision a = 0.797885;
-    static const Precision b = 0.0356774;
-    static const Precision c = 0.0535161;
-    static const Precision d = 0.398942;
+    static constexpr Precision a = 0.797885;
+    static constexpr Precision b = 0.0356774;
+    static constexpr Precision c = 0.0535161;
+    static constexpr Precision d = 0.398942;
 
     static Precision x3;
     static Precision y;

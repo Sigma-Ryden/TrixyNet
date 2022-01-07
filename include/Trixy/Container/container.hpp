@@ -12,6 +12,7 @@ class Container
 {
 public:
     class iterator;
+    class const_iterator;
 
     using size_type       = std::size_t;
     using reference       = Type&;
@@ -34,8 +35,11 @@ public:
     size_type size() const noexcept;
     void resize(size_type new_size);
 
-    iterator begin() const noexcept;
-    iterator end() const noexcept;
+    iterator begin() noexcept;
+    iterator end() noexcept;
+
+    const_iterator begin() const noexcept;
+    const_iterator end() const noexcept;
 
     reference front() noexcept;
     const_reference front() const noexcept;
@@ -63,6 +67,24 @@ public:
     Type* operator-> () noexcept { return ptr_; }
 
     bool operator!= (const iterator& it) const noexcept { return ptr_ != it.ptr_; }
+
+    iterator operator++ () noexcept { ++ptr_; return *this; }
+    iterator operator-- () noexcept { --ptr_; return *this; }
+};
+
+template <typename Type>
+class Container<Type>::const_iterator
+{
+private:
+    Type* ptr_;
+
+public:
+    explicit const_iterator(Type* ptr) noexcept : ptr_(ptr) {}
+
+    const Type& operator* () noexcept { return *ptr_; }
+    const Type* operator-> () noexcept { return ptr_; }
+
+    bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
     iterator operator++ () noexcept { ++ptr_; return *this; }
     iterator operator-- () noexcept { --ptr_; return *this; }
@@ -156,13 +178,13 @@ void Container<Type>::resize(std::size_t new_size)
 }
 
 template <typename Type>
-inline typename Container<Type>::iterator Container<Type>::begin() const noexcept
+inline typename Container<Type>::iterator Container<Type>::begin() noexcept
 {
     return iterator(data_);
 }
 
 template <typename Type>
-inline typename Container<Type>::iterator Container<Type>::end() const noexcept
+inline typename Container<Type>::iterator Container<Type>::end() noexcept
 {
     return iterator(data_ + size_);
 }

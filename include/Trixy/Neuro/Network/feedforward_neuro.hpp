@@ -636,7 +636,7 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
     for(size_type i = 0; i < odata.size(); ++i)
         checkg(odata[i], feedforward(idata[i]), range_rate, count);
 
-    return static_cast<long double>(count) / (odata.size() * odata[0].size());
+    return static_cast<long double>(count) / (odata.size() * odata.front().size());
 }
 
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
