@@ -140,11 +140,11 @@ void RMSPropOptimizer<Optimizeriable>::prepare(
 
     for(size_type i = 0; i < N; ++i)
     {
-        buff1[i].resize(net.  getInnerBias()[i].size());
-        buff2[i].resize(net.getInnerWeight()[i].size());
+        buff1[i].resize(net.  getInnerBias()[i]. size());
+        buff2[i].resize(net.getInnerWeight()[i].shape());
 
-        optimizedB[i].resize(net.  getInnerBias()[i].size(), 0.);
-        optimizedW[i].resize(net.getInnerWeight()[i].size(), 0.);
+        optimizedB[i].resize(net.  getInnerBias()[i]. size(), 0.);
+        optimizedW[i].resize(net.getInnerWeight()[i].shape(), 0.);
     }
 }
 

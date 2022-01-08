@@ -49,7 +49,7 @@ li::Matrix<double> get_linear_idata()
 
     double arg = -1.;
 
-    for(std::size_t i = 0; i < x.size().row(); ++i)
+    for(std::size_t i = 0; i < x.shape().row(); ++i)
     {
         x(i, 0) = arg;
         arg    += .02;

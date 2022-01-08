@@ -188,14 +188,14 @@ void AdamOptimizer<Optimizeriable>::prepare(
 
     for(size_type i = 0; i < N; ++i)
     {
-        buff1[i].resize(net.  getInnerBias()[i].size());
-        buff2[i].resize(net.getInnerWeight()[i].size());
+        buff1[i].resize(net.  getInnerBias()[i]. size());
+        buff2[i].resize(net.getInnerWeight()[i].shape());
 
-        optimizedB1[i].resize(net.  getInnerBias()[i].size(), 0.);
-        optimizedW1[i].resize(net.getInnerWeight()[i].size(), 0.);
+        optimizedB1[i].resize(net.  getInnerBias()[i]. size(), 0.);
+        optimizedW1[i].resize(net.getInnerWeight()[i].shape(), 0.);
 
-        optimizedB2[i].resize(net.  getInnerBias()[i].size(), 0.);
-        optimizedW2[i].resize(net.getInnerWeight()[i].size(), 0.);
+        optimizedB2[i].resize(net.  getInnerBias()[i]. size(), 0.);
+        optimizedW2[i].resize(net.getInnerWeight()[i].shape(), 0.);
     }
 }
 

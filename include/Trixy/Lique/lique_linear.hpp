@@ -68,7 +68,7 @@ void LIQUE_LINEAR_TPL::dot(
     const Matrix<Precision, Args...>& matrix) const noexcept
 {
     Precision result;
-    for(size_type i = 0; i < matrix.size().col(); ++i)
+    for(size_type i = 0; i < matrix.shape().col(); ++i)
     {
         result = 0.;
         for(size_type j = 0; j < row_vector.size(); ++j)
@@ -128,7 +128,7 @@ Vector<Precision, Args...> LIQUE_LINEAR_TPL::dot(
     const Vector<Precision, Args...>& row_vector,
     const Matrix<Precision, Args...>& matrix) const
 {
-    Tensor1D buff(matrix.size().col());
+    Tensor1D buff(matrix.shape().col());
 
     dot(buff, row_vector, matrix);
 
@@ -140,7 +140,7 @@ Vector<Precision, Args...> LIQUE_LINEAR_TPL::dot(
     const Matrix<Precision, Args...>& matrix,
     const Vector<Precision, Args...>& col_vector) const
 {
-    Tensor1D buff(matrix.size().row());
+    Tensor1D buff(matrix.shape().row());
 
     dot(buff, matrix, col_vector);
 
@@ -152,7 +152,7 @@ Vector<Precision, Args...> LIQUE_LINEAR_TPL::dottranspose(
     const Vector<Precision, Args...>& row_vector,
     const Matrix<Precision, Args...>& matrix) const
 {
-    Tensor1D buff(matrix.size().row());
+    Tensor1D buff(matrix.shape().row());
 
     dottranspose(buff, row_vector, matrix);
 
@@ -175,10 +175,10 @@ LIQUE_LINEAR_TPL_DECLARATION
 Vector<Precision, Args...> LIQUE_LINEAR_TPL::reshape(
     const Matrix<Precision, Args...>& matrix) const
 {
-    Tensor1D vector(matrix.size().row() * matrix.size().col());
+    Tensor1D vector(matrix.shape().row() * matrix.shape().col());
 
-    for(size_type i = 0, k = 0; i < matrix.size().row(); ++i)
-        for(size_type j = 0; j < matrix.size().col(); ++j, ++k)
+    for(size_type i = 0, k = 0; i < matrix.shape().row(); ++i)
+        for(size_type j = 0; j < matrix.shape().col(); ++j, ++k)
             vector(k) = matrix(i, j);
 
     return vector;

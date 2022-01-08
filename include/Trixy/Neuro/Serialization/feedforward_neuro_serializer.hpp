@@ -100,9 +100,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& ou
             out.write(reinterpret_cast<const char*>(&B[n](i)), sizeof(precision_type));
 
     for(n = 0; n < N; ++n)
-        for(size_type i = 0; i < W[n].size().row(); ++i)
-            for(size_type j = 0; j < W[n].size().col(); ++j)
-                out.write(reinterpret_cast<const char*>(&W[n](i, j)), sizeof(precision_type));
+        for(size_type i = 0; i < W[n].size(); ++i)
+            out.write(reinterpret_cast<const char*>(&W[n](i)), sizeof(precision_type));
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -139,9 +138,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
             in.read(reinterpret_cast<char*>(&B[n](i)), sizeof(precision_type));
 
     for(n = 0; n < N; ++n)
-        for(size_type i = 0; i < W[n].size().row(); ++i)
-            for(size_type j = 0; j < W[n].size().col(); ++j)
-                in.read(reinterpret_cast<char*>(&W[n](i, j)), sizeof(precision_type));
+        for(size_type i = 0; i < W[n].size(); ++i)
+            in.read(reinterpret_cast<char*>(&W[n](i)), sizeof(precision_type));
 }
 
 } // namespace trixy

@@ -111,7 +111,7 @@ void speed_test()
     net.function.setNormalization(manage.get<ActivationId::softmax>());
     net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::rms_prop>(net, 0.01);
+    auto optimizer = manage.get<OptimizationId::grad_descent>(net, 0.1);
 
     std::cout << "Before train\n";
     util::test_neuro(net, train_in, train_out);
@@ -119,9 +119,9 @@ void speed_test()
 
     util::Timer t;
     //
-    net.trainBatch(train_in, train_out, 100000, manage.get<OptimizationId::grad_descent>(net, 0.01));
-    net.trainStochastic(train_in, train_out, 100000, std::rand, optimizer);
-    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer.reset());
+    net.trainBatch(train_in, train_out, 100000,optimizer);
+    net.trainStochastic(train_in, train_out, 100000, std::rand, manage.get<OptimizationId::adam>(net, 0.001));
+    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
@@ -150,6 +150,16 @@ int main()
 
     return 0;
 }
+/*
+using util::operator<<;
+
+li::Matrix<int> a(2, 4);
+
+a.copy({0, 1, 2, 3, 4, 5, 6, 7});
+
+std::cout << a << '\n';
+std::cout << const_cast<li::Matrix<int>&>(a).transpose()  << '\n';
+*/
 /*
 struct A
 {

@@ -72,9 +72,9 @@ void TRIXY_LINEAR_REGRESSION_TPL::train(
     const Matrix<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata)
 {
-    Tensor2D X(idata.size().row(), N);
+    Tensor2D X(idata.shape().row(), N);
 
-    for(size_type i = 0; i < X.size().row(); ++i)
+    for(size_type i = 0; i < X.shape().row(); ++i)
     {
         X(i, 0) = 1.;
         for(size_type j = 1; j < N; ++j)
@@ -106,9 +106,9 @@ TRIXY_REGRESSION_TPL_DECLARATION
 Vector<Precision, Args...> TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
     const Matrix<Precision, Args...>& idata) const
 {
-    Tensor2D X(idata.size().row(), N);
+    Tensor2D X(idata.shape().row(), N);
 
-    for(size_type i = 0; i < X.size().row(); ++i)
+    for(size_type i = 0; i < X.shape().row(); ++i)
     {
         X(i, 0) = 1.;
         for(size_type j = 1; j < N; ++j)
