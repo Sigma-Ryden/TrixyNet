@@ -44,6 +44,8 @@ public:
     explicit Tensor(size_type m, size_type n, const Precision* ptr);
 
     explicit Tensor(const Shape& shape);
+    explicit Tensor(const Shape& shape, Precision fill_value);
+    explicit Tensor(const Shape& shape, const Precision* ptr);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
@@ -169,6 +171,22 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline Matrix<Precision>::Tensor(const Tensor::Shape& shape)
     : data_(new Precision [shape.size_]), shape_(shape)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const Tensor::Shape& shape, Precision fill_value)
+    : data_(new Precision [shape.size_]), shape_(shape)
+{
+    for(size_type i = 0; i < shape_.size_; ++i)
+        data_[i] = fill_value;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const Tensor::Shape& shape, const Precision* ptr)
+    : data_(new Precision [shape.size_]), shape_(shape)
+{
+    for(size_type i = 0; i < shape_.size_; ++i)
+        data_[i] = ptr[i];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

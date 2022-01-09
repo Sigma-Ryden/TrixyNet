@@ -34,6 +34,7 @@ public:
     ~Tensor();
 
     explicit Tensor(size_type size);
+    explicit Tensor(size_type size, Precision fill_value);
     explicit Tensor(size_type size, const Precision* ptr);
 
     Tensor(const Tensor&);
@@ -98,6 +99,14 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline Vector<Precision>::Tensor(std::size_t size)
     : data_(new Precision[size]), size_(size)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>::Tensor(std::size_t size, Precision fill_value)
+    : data_(new Precision[size]), size_(size)
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = fill_value;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
