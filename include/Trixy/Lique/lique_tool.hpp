@@ -5,7 +5,13 @@
 
 namespace lique
 {
+/*
+template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>
+Precision mean(const Tensor<Precision, Args...>& tensor)
+{
 
+}
+*/
 } // namespace lique
 
 #endif // LIQUE_TOOL_HPP

@@ -139,7 +139,9 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-//
+// matrix dot
+// old: 6.123078 6.154318 6.123045
+// new: 1.546356 1.530802 1.546423 1.530736 1.515183
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
