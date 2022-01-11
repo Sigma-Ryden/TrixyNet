@@ -220,7 +220,7 @@ void mnist_test()
 /*
 int main()
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
     //mnist_test();

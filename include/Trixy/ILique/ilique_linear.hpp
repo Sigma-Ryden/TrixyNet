@@ -42,10 +42,6 @@ public:
                      const TensorType2D& matrix,
                      const TensorType1D& col_vector) const noexcept = 0;
 
-    virtual void dottranspose(TensorType1D& buff,
-                              const TensorType1D& row_vector,
-                              const TensorType2D& matrix) const noexcept = 0;
-
     virtual void tensordot(TensorType2D& buff,
                            const TensorType1D& col_vector,
                            const TensorType1D& row_vector) const noexcept = 0;
@@ -58,11 +54,6 @@ public:
 
     virtual TensorType2D tensordot(const TensorType1D& col_vector,
                                    const TensorType1D& row_vector) const = 0;
-
-    virtual TensorType1D reshape(const TensorType2D& matrix) const = 0;
-
-    virtual TensorType2D reshape(const TensorType1D& vector,
-                                 size_type row, size_type col) const = 0;
 };
 
 } // namespace ilique

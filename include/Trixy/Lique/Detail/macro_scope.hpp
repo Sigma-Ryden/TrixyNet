@@ -4,8 +4,8 @@
 #define LIQUE_TENSOR_TPL_DECLARATION                                                                    \
     template <typename Precision>
 
-#define LIQUE_TENSOR_TPL(tensor_id)                                                                     \
-    Tensor<Precision, tensor_id,                                                                        \
+#define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
+    Tensor<Precision, tensor_type,                                                                      \
         typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
 
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
@@ -17,3 +17,7 @@
 #define LIQUE_LINEAR_TPL                                                                                \
     Linear<Vector, Matrix, Precision,                                                                   \
            typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+
+#define LIQUE_FUNCTION_TPL                                                                              \
+    template <typename Precision,                                                                       \
+              typename std::enable_if<std::is_arithmetic<Precision>::value, int>::type = 0>

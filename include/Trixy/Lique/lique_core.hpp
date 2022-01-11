@@ -4,5 +4,6 @@
 #include "lique_vector.hpp"
 #include "lique_matrix.hpp"
 #include "lique_linear.hpp"
+#include "lique_tool.hpp"
 
 #endif // LIQUE_CORE_HPP

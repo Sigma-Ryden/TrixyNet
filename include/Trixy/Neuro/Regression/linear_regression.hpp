@@ -123,7 +123,8 @@ long double TRIXY_LINEAR_REGRESSION_TPL::loss(
     const Matrix<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata) const
 {
-    Tensor1D r = feedforwardBatch(idata) - odata;
+    Tensor1D r = feedforwardBatch(idata);
+    r.sub(odata);
 
     return r.dot(r) / static_cast<long double>(r.size());
 }

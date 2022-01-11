@@ -40,16 +40,21 @@ protected:
 
 public:
     using TensorType = Tensor<Precision, Args...>;
+    using Generator  = Precision (*)();
+    using Function   = Precision (*)(Precision);
+    using size_type  = std::size_t;
 
 public:
     virtual TensorType& copy(const TensorType&) noexcept = 0;
 
     virtual TensorType& fill(Precision value) noexcept = 0;
-    virtual TensorType& fill(Precision (*generator)()) noexcept = 0;
+    virtual TensorType& fill(Generator) noexcept = 0;
 
-    virtual TensorType  apply(Precision (*function)(Precision)) const = 0;
-    virtual TensorType& apply(Precision (*function)(Precision)) noexcept = 0;
-    virtual TensorType& apply(Precision (*function)(Precision), const TensorType&) noexcept = 0;
+    virtual size_type size() const noexcept = 0;
+
+    virtual TensorType  apply(Function) const = 0;
+    virtual TensorType& apply(Function) noexcept = 0;
+    virtual TensorType& apply(Function, const TensorType&) noexcept = 0;
 
     virtual TensorType  multiply(const TensorType&) const = 0;
     virtual TensorType& multiply(const TensorType&) noexcept = 0;
@@ -61,12 +66,11 @@ public:
 
     virtual TensorType  add(const TensorType&) const = 0;
     virtual TensorType& add(const TensorType&) noexcept = 0;
+    virtual TensorType& add(const TensorType&, const TensorType&) noexcept = 0;
 
     virtual TensorType  sub(const TensorType&) const = 0;
     virtual TensorType& sub(const TensorType&) noexcept = 0;
-
-    virtual TensorType operator+ (const TensorType&) const = 0; // maybe unused
-    virtual TensorType operator- (const TensorType&) const = 0; // maybe unused
+    virtual TensorType& sub(const TensorType&, const TensorType&) noexcept = 0;
 };
 
 template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
@@ -84,8 +88,6 @@ protected:
 public:
     virtual reference operator() (size_type i) noexcept = 0;
     virtual const_reference operator() (size_type i) const noexcept = 0;
-
-    virtual size_type size() const noexcept = 0;
 
     virtual void resize(size_type new_size) = 0;
     virtual Precision dot(const TensorType&) const = 0;
@@ -110,10 +112,18 @@ public:
     virtual reference operator() (size_type i, size_type j) noexcept = 0;
     virtual const_reference operator() (size_type i, size_type j) const noexcept = 0;
 
-    virtual const Shape& size() const noexcept = 0;
+    virtual reference operator() (size_type i) noexcept = 0;
+    virtual const_reference operator() (size_type i) const noexcept = 0;
+
+    virtual const Shape& shape() const noexcept = 0;
 
     virtual void resize(size_type m, size_type n) = 0;
     virtual void resize(const Shape& new_shape) = 0;
+
+    virtual void resize(size_type m, size_type n, Precision fill_value) = 0;
+    virtual void resize(const Shape& new_shape, Precision fill_value) = 0;
+
+    virtual void reshape(size_type m, size_type n) noexcept = 0;
 
     virtual TensorType dot(const TensorType&) const = 0;
     virtual TensorType transpose() const = 0;
@@ -134,10 +144,11 @@ public:
 protected:
     size_type row_;
     size_type col_;
+    size_type size_;
 
 public:
-    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n) {}
-    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_) {}
+    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n), size_(m * n) {}
+    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_), size_(shape.size_) {}
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }

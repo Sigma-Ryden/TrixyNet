@@ -37,11 +37,7 @@ public:
              const Tensor2D& matrix,
              const Tensor1D& col_vector) const noexcept;
 
-    void dottranspose(Tensor1D& buff,
-                      const Tensor1D& row_vector,
-                      const Tensor2D& matrix) const noexcept;
-
-    void tensordot(Tensor2D& buff,
+    void tensordot(Tensor2D& buff2,
                    const Tensor1D& col_vector,
                    const Tensor1D& row_vector) const noexcept;
 
@@ -51,14 +47,8 @@ public:
     Tensor1D dot(const Tensor2D& matrix,
                  const Tensor1D& col_vector) const;
 
-    Tensor1D dottranspose(const Tensor1D& row_vector,
-                          const Tensor2D& matrix) const;
-
     Tensor2D tensordot(const Tensor1D& col_vector,
                        const Tensor1D& row_vector) const;
-
-    Tensor1D reshape(const Tensor2D& matrix) const;
-    Tensor2D reshape(const Tensor1D& vector, size_type row, size_type col) const;
 };
 
 LIQUE_LINEAR_TPL_DECLARATION
@@ -67,14 +57,15 @@ void LIQUE_LINEAR_TPL::dot(
     const Vector<Precision, Args...>& row_vector,
     const Matrix<Precision, Args...>& matrix) const noexcept
 {
-    Precision result;
-    for(size_type i = 0; i < matrix.shape().col(); ++i)
-    {
-        result = 0.;
-        for(size_type j = 0; j < row_vector.size(); ++j)
-           result += row_vector(j) * matrix(j, i);
+    Precision temp;
 
-        buff(i) = result;
+    buff.fill(0.);
+
+    for(size_type j = 0; j < row_vector.size(); ++j)
+    {
+        temp = row_vector(j);
+        for(size_type i = 0; i < buff.size(); ++i)
+           buff(i) += temp * matrix(j, i);
     }
 }
 
@@ -84,32 +75,11 @@ void LIQUE_LINEAR_TPL::dot(
     const Matrix<Precision, Args...>& matrix,
     const Vector<Precision, Args...>& col_vector) const noexcept
 {
-    Precision result;
+    buff.fill(0.);
+
     for(size_type i = 0; i < buff.size(); ++i)
-    {
-        result = 0.;
         for(size_type j = 0; j < col_vector.size(); ++j)
-            result += matrix(i, j) * col_vector(j);
-
-        buff(i) = result;
-    }
-}
-
-LIQUE_LINEAR_TPL_DECLARATION
-void LIQUE_LINEAR_TPL::dottranspose(
-    Vector<Precision, Args...>& buff,
-    const Vector<Precision, Args...>& row_vector,
-    const Matrix<Precision, Args...>& matrix) const noexcept
-{
-    Precision result;
-    for(size_type i = 0; i < buff.size(); ++i)
-    {
-        result = 0.;
-        for(size_type j = 0; j < row_vector.size(); ++j)
-            result += row_vector(j) * matrix(i, j);
-
-        buff(i) = result;
-    }
+            buff(i) += matrix(i, j) * col_vector(j);
 }
 
 LIQUE_LINEAR_TPL_DECLARATION
@@ -148,18 +118,6 @@ Vector<Precision, Args...> LIQUE_LINEAR_TPL::dot(
 }
 
 LIQUE_LINEAR_TPL_DECLARATION
-Vector<Precision, Args...> LIQUE_LINEAR_TPL::dottranspose(
-    const Vector<Precision, Args...>& row_vector,
-    const Matrix<Precision, Args...>& matrix) const
-{
-    Tensor1D buff(matrix.shape().row());
-
-    dottranspose(buff, row_vector, matrix);
-
-    return buff;
-}
-
-LIQUE_LINEAR_TPL_DECLARATION
 Matrix<Precision, Args...> LIQUE_LINEAR_TPL::tensordot(
     const Vector<Precision, Args...>& col_vector,
     const Vector<Precision, Args...>& row_vector) const
@@ -169,33 +127,6 @@ Matrix<Precision, Args...> LIQUE_LINEAR_TPL::tensordot(
     tensordot(buff2, col_vector, row_vector);
 
     return buff2;
-}
-
-LIQUE_LINEAR_TPL_DECLARATION
-Vector<Precision, Args...> LIQUE_LINEAR_TPL::reshape(
-    const Matrix<Precision, Args...>& matrix) const
-{
-    Tensor1D vector(matrix.shape().row() * matrix.shape().col());
-
-    for(size_type i = 0, k = 0; i < matrix.shape().row(); ++i)
-        for(size_type j = 0; j < matrix.shape().col(); ++j, ++k)
-            vector(k) = matrix(i, j);
-
-    return vector;
-}
-
-LIQUE_LINEAR_TPL_DECLARATION
-Matrix<Precision, Args...> LIQUE_LINEAR_TPL::reshape(
-    const Vector<Precision, Args...>& vector,
-    size_type row, size_type col) const
-{
-    Tensor2D matrix(row, col);
-
-    for(size_type i = 0, k = 0; i < row; ++i)
-        for(size_type j = 0; j < col; ++j, ++k)
-            matrix(i, j) = vector(k);
-
-    return matrix;
 }
 
 } // namespace lique

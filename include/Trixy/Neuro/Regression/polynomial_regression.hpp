@@ -141,7 +141,8 @@ long double TRIXY_POLYNOMIAL_REGRESSION_TPL::loss(
     const Vector<Precision, Args...>& idata,
     const Vector<Precision, Args...>& odata) const
 {
-    Tensor1D r = feedforward(idata) - odata;
+    Tensor1D r = feedforward(idata);
+    r.sub(odata);
 
     return r.dot(r) / static_cast<long double>(r.size());
 }

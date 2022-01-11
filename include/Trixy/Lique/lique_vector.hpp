@@ -6,7 +6,6 @@
 #include <type_traits> // enable_if, is_arithmetic
 
 #include "Trixy/Lique/lique_tensor_base.hpp"
-#include "Trixy/Lique/lique_tensor_id.hpp"
 
 #include "Trixy/Lique/Detail/macro_scope.hpp"
 
@@ -65,8 +64,13 @@ public:
 
     Precision dot(const Tensor&) const;
 
+    Tensor add(const Tensor&) const;
     Tensor& add(const Tensor&) noexcept;
+    Tensor& add(const Tensor&, const Tensor&) noexcept;
+
+    Tensor sub(const Tensor&) const;
     Tensor& sub(const Tensor&) noexcept;
+    Tensor& sub(const Tensor&, const Tensor&) noexcept;
 
     Tensor multiply(const Tensor&) const;
     Tensor& multiply(const Tensor&) noexcept;
@@ -78,9 +82,6 @@ public:
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
-
-    Tensor operator+ (const Tensor&) const;
-    Tensor operator- (const Tensor&) const;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -304,6 +305,17 @@ Precision Vector<Precision>::dot(const Tensor& vector) const
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision> Vector<Precision>::add(const Tensor& vector) const
+{
+    Tensor new_vector(size_);
+
+    for(size_type i = 0; i < size_; ++i)
+        new_vector.data_[i] = data_[i] + vector.data_[i];
+
+    return new_vector;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::add(const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
@@ -313,10 +325,39 @@ Vector<Precision>& Vector<Precision>::add(const Tensor& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>& Vector<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = lhs.data_[i] + rhs.data_[i];
+
+    return *this;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision> Vector<Precision>::sub(const Tensor& vector) const
+{
+    Tensor new_vector(size_);
+
+    for(size_type i = 0; i < size_; ++i)
+        new_vector.data_[i] = data_[i] - vector.data_[i];
+
+    return new_vector;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::sub(const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];
+
+    return *this;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>& Vector<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = lhs.data_[i] - rhs.data_[i];
 
     return *this;
 }
@@ -389,28 +430,6 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline const Precision* Vector<Precision>::data() const noexcept
 {
     return data_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision> Vector<Precision>::operator+ (const Tensor& vector) const
-{
-    Tensor new_vector(size_);
-
-    for(size_type i = 0; i < size_; ++i)
-        new_vector.data_[i] = data_[i] + vector.data_[i];
-
-    return new_vector;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision> Vector<Precision>::operator- (const Tensor& vector) const
-{
-    Tensor new_vector(size_);
-
-    for(size_type i = 0; i < size_; ++i)
-        new_vector.data_[i] = data_[i] - vector.data_[i];
-
-    return new_vector;
 }
 
 } // namespace lique

@@ -589,7 +589,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::innerBackPropagation(
     {
         imanage.derivedB[i].multiply(imanage.buff[i], imanage.derivedH[i]);
         linear.tensordot(imanage.derivedW[i], imanage.H[j], imanage.derivedB[i]);
-        linear.dottranspose(imanage. buff[j], imanage.derivedB[i], W[i]);
+        linear.dot(imanage.buff[j], W[i], imanage.derivedB[i]);
     }
 
     imanage.derivedB[0].multiply(imanage.buff[0], imanage.derivedH[0]);

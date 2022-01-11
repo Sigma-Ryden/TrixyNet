@@ -121,7 +121,7 @@ void speed_test()
     //
     net.trainBatch(train_in, train_out, 100000,optimizer);
     net.trainStochastic(train_in, train_out, 100000, std::rand, manage.get<OptimizationId::adam>(net, 0.001));
-    net.trainMiniBatch(train_in, train_out, 100000, 2, optimizer);
+    net.trainMiniBatch(train_in, train_out, 100000 / 6, 2, optimizer);
     //
     std::cout << "Train time: " << t.elapsed() << '\n';
 
@@ -139,20 +139,51 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-// matrix dot
-// old: 6.123078 6.154318 6.123045
-// new: 1.546356 1.530802 1.546423 1.530736 1.515183
+
 int main()
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
 
     return 0;
 }
 //
+/*
+li::Matrix<float> a(2, 2);
+a.copy({1, 2, 3, 4});
+std::cout << lique::mean(a, Axis::Y);
+*/
+/*
+li::Matrix<float> a(2, 3);
+a.copy({1, 5, 9, 7, 15, 22});
+
+std::cout << a << '\n';
+std::cout << lique::std(a, Axis::X, true);
+*/
+/*
+li::Matrix<float> m(1000, 1000, 3.14);
+li::Vector<float> v(1000, 2.17);
+li::Vector<float> buff(1000);
+
+util::Timer t;
+// V*M : 0.062484
+// M*V : 0.140612
+for(int i = 0; i < 100; ++i)
+    lique::dot(buff, m, v);
+
+std::cout << t.elapsed() << '\n';
+*/
+/*
+li::Matrix<int> m(3, 2);
+li::Vector<int> v(3);
+m.copy({1, 2, -1, 0, -2, 1});
+v.copy({-1, 0, 1});
+
+std::cout << lique::dot(v, m);
+*/
 /*
 using util::operator<<;
 
