@@ -2,7 +2,10 @@
 #define ILIQUE_MATRIX_HPP
 
 #include <cstddef> // size_t
-#include <type_traits> // enable_if, is_arithmetic
+
+#include "Detail/ilique_meta.hpp"
+
+#include "Detail/macro_scope.hpp"
 
 namespace ilique
 {
@@ -12,19 +15,12 @@ class Matrix;
 
 } // namespace ilique
 
-#define ILIQUE_MATRIX_TPL_DECLARATION                                                                   \
-    template <template <typename P> class Tensor2D, typename Precision>
-
-#define ILIQUE_MATRIX_TPL                                                                               \
-    Matrix<Tensor2D, Precision,                                                                         \
-        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
-
 namespace ilique
 {
 
 template <template <typename P> class Tensor2D, typename Precision>
 class Matrix<Tensor2D, Precision,
-             typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+             meta::use_for_arithmetic_t<Precision>>
 {
 protected:
     class Shape;
@@ -229,8 +225,6 @@ inline std::size_t ILIQUE_MATRIX_TPL::size() const noexcept
 
 } // namespace ilique
 
-// clean up
-#undef ILIQUE_MATRIX_TPL_DECLARATION
-#undef ILIQUE_MATRIX_TPL
+#include "Detail/macro_unscope.hpp"
 
 #endif // ILIQUE_MATRIX_HPP

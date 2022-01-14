@@ -16,10 +16,10 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using NestorovOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::nestorov);
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::nestorov);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::nestorov)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::nestorov)
 {
 private:
     template <class T>

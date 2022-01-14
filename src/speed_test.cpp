@@ -140,73 +140,15 @@ void speed_test()
     std::cout << "End of serialization\n";
 }
 
+//
 int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
+    speed_test();
+    //speed_test_deserialization();
 
     return 0;
 }
 //
-/*
-li::Matrix<float> a(2, 2);
-a.copy({1, 2, 3, 4});
-std::cout << lique::mean(a, Axis::Y);
-*/
-/*
-li::Matrix<float> a(2, 3);
-a.copy({1, 5, 9, 7, 15, 22});
-
-std::cout << a << '\n';
-std::cout << lique::std(a, Axis::X, true);
-*/
-/*
-li::Matrix<float> m(1000, 1000, 3.14);
-li::Vector<float> v(1000, 2.17);
-li::Vector<float> buff(1000);
-
-util::Timer t;
-// V*M : 0.062484
-// M*V : 0.140612
-for(int i = 0; i < 100; ++i)
-    lique::dot(buff, m, v);
-
-std::cout << t.elapsed() << '\n';
-*/
-/*
-li::Matrix<int> m(3, 2);
-li::Vector<int> v(3);
-m.copy({1, 2, -1, 0, -2, 1});
-v.copy({-1, 0, 1});
-
-std::cout << lique::dot(v, m);
-*/
-/*
-using util::operator<<;
-
-li::Matrix<int> a(2, 4);
-
-a.copy({0, 1, 2, 3, 4, 5, 6, 7});
-
-std::cout << a << '\n';
-std::cout << const_cast<li::Matrix<int>&>(a).transpose()  << '\n';
-*/
-/*
-struct A
-{
-    // will work
-    void f(int N) { std::cout << N; }
-    template <int N>
-    void f() { f(N); }
-    //
-    // wont work
-    template <int N>
-    void f() { std::cout << N; }
-
-    void f(int N) { f<N>(); }
-    //
-};
-*/

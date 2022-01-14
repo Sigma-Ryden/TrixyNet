@@ -6,7 +6,7 @@
 
 #define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
     Tensor<Precision, tensor_type,                                                                      \
-        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+           ::lique::meta::use_for_arithmetic_t<Precision>>
 
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
     template <template <typename, typename...> class Vector,                                            \
@@ -16,8 +16,8 @@
 
 #define LIQUE_LINEAR_TPL                                                                                \
     Linear<Vector, Matrix, Precision,                                                                   \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+           ::lique::meta::use_for_arithmetic_t<Precision>, Args...>
 
 #define LIQUE_FUNCTION_TPL                                                                              \
     template <typename Precision,                                                                       \
-              typename std::enable_if<std::is_arithmetic<Precision>::value, int>::type = 0>
+              ::lique::meta::select_if_arithmetic_t<Precision> = 0>

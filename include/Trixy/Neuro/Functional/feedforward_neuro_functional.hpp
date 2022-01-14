@@ -25,8 +25,11 @@ private:
     using ActivationFunction   = typename Functionable::ActivationFunction;
     using LossFunction         = typename Functionable::LossFunction;
 
-    template <functional::OptimizationId optimizer_id>
-    using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_id>;
+    template <class optimizer_type>
+    using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_type>;
+
+    template <functional::OptimizationId id>
+    using optimizer_type_from  = typename functional::OptimizationType::from<id>::type;
 
 public:
     ActivationFunction get(functional::ActivationId id) const noexcept;
@@ -45,9 +48,9 @@ public:
     }
 
     template <functional::OptimizationId id, typename... Args>
-    OptimizationFunction<id> get(Args&&... args) const
+    OptimizationFunction<optimizer_type_from<id>> get(Args&&... args) const
     {
-        return OptimizationFunction<id>(std::forward<Args>(args)...);
+        return OptimizationFunction<optimizer_type_from<id>>(std::forward<Args>(args)...);
     }
 };
 

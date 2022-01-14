@@ -2,7 +2,8 @@
 #define LIQUE_LINEAR_HPP
 
 #include <cstddef> // size_t
-#include <type_traits> // enable_if, is_arithmetic
+
+#include "Detail/lique_meta.hpp"
 
 #include "Trixy/Lique/Detail/macro_scope.hpp"
 

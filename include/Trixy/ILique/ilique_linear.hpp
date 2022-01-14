@@ -2,7 +2,8 @@
 #define ILIQUE_LINEAR_HPP
 
 #include <cstddef> // size_t
-#include <type_traits> // enable_if, is_arithmetic
+
+#include "Detail/ilique_meta.hpp"
 
 namespace ilique
 {
@@ -23,7 +24,7 @@ template <template <typename P, typename...> class Tensor1D,
           typename Precision,
           typename... Args>
 class ILinear<Tensor1D, Tensor2D, Precision,
-              typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+              meta::use_for_arithmetic_t<Precision>, Args...>
 {
 protected:
     virtual ~ILinear() = default;

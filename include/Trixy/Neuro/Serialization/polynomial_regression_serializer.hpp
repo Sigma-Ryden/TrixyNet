@@ -4,9 +4,9 @@
 #include <fstream> // ifstream, ofstream
 
 #include "base_serializer.hpp"
-#include "../Detail/neuro_meta.hpp"
+#include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
-#include "../Detail/macro_scope.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {
@@ -64,5 +64,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserialize(std::ifst
 }
 
 } // namespace trixy
+
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // POLYNOMIAL_REGRESSION_SERIALIZER_HPP

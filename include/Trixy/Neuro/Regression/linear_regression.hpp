@@ -23,8 +23,8 @@ public:
     using size_type       = std::size_t;
 
 private:
-    Tensor1D  W;            ///< Inner weight
-    size_type N;            ///< Size of weight vector (same as sample size + 1)
+    Tensor1D  W;          ///< Inner weight
+    size_type N;          ///< Size of weight vector (same as sample size + 1)
 
     TensorOperation linear;
 

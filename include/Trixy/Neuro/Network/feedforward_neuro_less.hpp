@@ -147,6 +147,6 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_LESS_TPL::feedforward(
 
 } // namespace trixy
 
-#include "../Detail/macro_unscope.hpp"
+#include "Trixy/Neuro/Detail/macro_unscope.hpp"
 
 #endif // FEEDFORWARD_NEURO_LESS_HPP

@@ -3,10 +3,11 @@
 
 #include <cstddef> // size_t
 #include <cmath> // fabs
-#include <type_traits> // enable_if, is_arithmetic
 
 #include "lique_vector.hpp"
 #include "lique_matrix.hpp"
+
+#include "Detail/lique_meta.hpp"
 
 #include "Detail/macro_scope.hpp"
 
@@ -19,6 +20,129 @@ enum class Axis
     Y,
     None
 };
+
+template <typename Type>
+using Binary = bool (*)(Type, Type);
+
+namespace comp
+{
+
+LIQUE_FUNCTION_TPL
+inline bool is_bigger(Precision lhs, Precision rhs)
+{
+    return lhs > rhs;
+}
+
+LIQUE_FUNCTION_TPL
+inline bool is_less(Precision lhs, Precision rhs)
+{
+    return lhs < rhs;
+}
+
+} // namespace comparator
+
+template <typename Precision,
+          Binary<Precision> compare,
+          meta::select_if_arithmetic_t<Precision> = 0>
+std::size_t find(const Vector<Precision>& vector)
+{
+    std::size_t arg = 0;
+    for(std::size_t i = 1; i < vector.size(); ++i)
+        if(compare(vector(arg), vector(i)))
+            arg = i;
+
+    return arg;
+}
+
+template <typename Precision,
+          Binary<Precision> compare,
+          meta::select_if_arithmetic_t<Precision> = 0>
+Vector<std::size_t> find(
+    const Matrix<Precision>& matrix,
+    Axis axis = Axis::None)
+{
+    Vector<std::size_t> vector;
+    std::size_t arg;
+
+    switch(axis)
+    {
+    case Axis::X:
+        vector.resize(matrix.shape().col(), 0);
+
+        for(std::size_t i = 1; i < matrix.shape().row(); ++i)
+            for(std::size_t n = 0; n < vector.size(); ++n)
+                if(compare(matrix(vector(n), n), matrix(i, n)))
+                    vector(n) = i;
+
+        break;
+
+    case Axis::Y:
+        vector.resize(matrix.shape().row());
+
+        for(std::size_t n = 0; n < vector.size(); ++n)
+        {
+            for(std::size_t min = 0, i = 1; i < matrix.shape().col(); ++i)
+                if(compare(matrix(n, arg), matrix(n, i)))
+                    arg = i;
+
+            vector(n) = arg;
+        }
+        break;
+
+    default:
+        vector.resize(1);
+
+        arg = 0;
+        for(std::size_t i = 1; i < matrix.size(); ++i)
+            if(compare(matrix(arg), matrix(i)))
+                arg = i;
+
+        vector(0) = arg;
+        break;
+    }
+
+    return vector;
+}
+
+LIQUE_FUNCTION_TPL
+std::size_t argmin(const Vector<Precision>& vector)
+{
+    return find<Precision, comp::is_bigger>(vector);
+}
+
+LIQUE_FUNCTION_TPL
+std::size_t argmax(const Vector<Precision>& vector)
+{
+    return find<Precision, comp::is_less>(vector);
+}
+
+LIQUE_FUNCTION_TPL
+Vector<std::size_t> argmin(
+    const Matrix<Precision>& matrix,
+    Axis axis = Axis::None)
+{
+    return find<Precision, comp::is_bigger>(matrix, axis);
+}
+
+LIQUE_FUNCTION_TPL
+Vector<std::size_t> argmax(
+    const Matrix<Precision>& matrix,
+    Axis axis = Axis::None)
+{
+    return find<Precision, comp::is_less>(matrix, axis);
+}
+
+LIQUE_FUNCTION_TPL
+Precision min(const Vector<Precision>& vector)
+{
+    return vector(find<Precision, comp::is_bigger>(vector));
+}
+
+LIQUE_FUNCTION_TPL
+Precision max(const Vector<Precision>& vector)
+{
+    return vector(find<Precision, comp::is_less>(vector));
+}
 
 LIQUE_FUNCTION_TPL
 Precision mean(const Vector<Precision>& vector)

@@ -25,6 +25,7 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/lique_tool.hpp
     include/Trixy/Lique/Detail/macro_scope.hpp
     include/Trixy/Lique/Detail/macro_unscope.hpp
+    include/Trixy/Lique/Detail/lique_meta.hpp
     include/Trixy/Lique/lique_core.hpp
 )
 set(TRIXY_ILIQUE
@@ -32,6 +33,9 @@ set(TRIXY_ILIQUE
     include/Trixy/ILique/ilique_linear.hpp
     include/Trixy/ILique/ilique_matrix.hpp
     include/Trixy/ILique/ilique_vector.hpp
+    include/Trixy/ILique/Detail/macro_scope.hpp
+    include/Trixy/ILique/Detail/macro_unscope.hpp
+    include/Trixy/ILique/Detail/ilique_meta.hpp
     include/Trixy/ILique/ilique_core.hpp
 )
 set(TRIXY_NEURO

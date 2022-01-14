@@ -17,10 +17,10 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using AdaGradOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::ada_grad);
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::ada_grad);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::ada_grad)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::ada_grad)
 {
 private:
     template <class T>

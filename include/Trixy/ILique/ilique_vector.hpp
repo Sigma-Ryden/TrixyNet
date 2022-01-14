@@ -2,7 +2,10 @@
 #define ILIQUE_VECTOR_HPP
 
 #include <cstddef> // size_t
-#include <type_traits> // enable_if, is_arithmetic
+
+#include "Detail/ilique_meta.hpp"
+
+#include "Detail/macro_scope.hpp"
 
 namespace ilique
 {
@@ -12,19 +15,12 @@ class Vector;
 
 } // namespace ilique
 
-#define ILIQUE_VECTOR_TPL_DECLARATION                                                                   \
-    template <template <typename P> class Tensor1D, typename Precision>
-
-#define ILIQUE_VECTOR_TPL                                                                               \
-    Vector<Tensor1D, Precision,                                                                         \
-        typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
-
 namespace ilique
 {
 
 template <template <typename P> class Tensor1D, typename Precision>
 class Vector<Tensor1D, Precision,
-             typename std::enable_if<std::is_arithmetic<Precision>::value>::type>
+             meta::use_for_arithmetic_t<Precision>>
 {
 public:
     using TensorType      = Tensor1D<Precision>;
@@ -163,8 +159,6 @@ inline std::size_t ILIQUE_VECTOR_TPL::size() const noexcept
 
 } // namespace ilique
 
-// clean up
-#undef ILIQUE_VECTOR_TPL_DECLARATION
-#undef ILIQUE_VECTOR_TPL
+#include "Detail/macro_unscope.hpp"
 
 #endif // ILIQUE_VECTOR_HPP

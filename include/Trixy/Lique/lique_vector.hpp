@@ -3,9 +3,9 @@
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
-#include <type_traits> // enable_if, is_arithmetic
 
 #include "Trixy/Lique/lique_tensor_base.hpp"
+#include "Trixy/Lique/Detail/lique_meta.hpp"
 
 #include "Trixy/Lique/Detail/macro_scope.hpp"
 

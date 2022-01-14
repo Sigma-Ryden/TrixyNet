@@ -5,7 +5,7 @@
 #include <cstdint> // uint8_t
 #include <cmath> // fabs
 
-#include "../Detail/macro_scope.hpp"
+#include "Trixy/Neuro/Detail/macro_scope.hpp"
 
 namespace trixy
 {

@@ -2,7 +2,7 @@
 #define NEURO_META_HPP
 
 #include <utility> // declval
-#include <type_traits> // enable_if, is_same, true_type
+#include <type_traits> // enable_if, is_arithmetic, is_same, conditional, true_type, false_type
 
 #include "Trixy/Neuro/Network/neuro_network_base.hpp"
 #include "Trixy/Neuro/Regression/regression_base.hpp"
@@ -24,6 +24,18 @@ struct disjunction<B1, Bn...> : std::conditional<bool(B1::value), B1, disjunctio
 template <class Class, template <class T> class... Bn>
 struct has_true : disjunction<Bn<Class>...> {};
 
+template <typename T>
+struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
+
+template <typename T>
+using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
+
+template <bool condition, typename T>
+struct select_if : std::enable_if<condition, T>
+{
+    static constexpr bool value = condition;
+};
+
 template <typename> struct is_feedforward_net : std::false_type {};
 TRIXY_NEURAL_NETWORK_TPL_DECLARATION
 struct is_feedforward_net<TRIXY_FEED_FORWARD_NET_TPL> : std::true_type {};
@@ -39,7 +51,6 @@ struct is_linear_regression<TRIXY_LINEAR_REGRESSION_TPL> : std::true_type {};
 template <typename> struct is_polynomial_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION
 struct is_polynomial_regression<TRIXY_POLYNOMIAL_REGRESSION_TPL> : std::true_type {};
-
 
 } // namespace meta
 

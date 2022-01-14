@@ -16,10 +16,10 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using GradDescentOptimizer
-    = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent);
+    = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::grad_descent);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationId::grad_descent)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::grad_descent)
 {
 private:
     template <class T>

@@ -2,6 +2,7 @@
 #define NEURO_FUNCTIONAL_ID_HPP
 
 #include <cstdint> // uint8_t
+#include <type_traits> // enable_if, conditional, integral_constant
 
 namespace trixy
 {
@@ -53,6 +54,42 @@ enum class OptimizationId : std::uint8_t
     ada_grad,           ///< Adaptive Gradient algorithm (stable)
     rms_prop,           ///< Root Mean Square Propagation (horny)
     adam,               ///< Adaptive moment estimation (quick)
+};
+
+struct OptimizationType
+{
+private:
+    template <bool condition, typename T>
+    struct select_if : std::enable_if<condition, T>
+    {
+        static constexpr bool value = condition;
+    };
+
+    template <class...> struct switch_enable : std::true_type {};
+    template <class B1> struct switch_enable<B1> : B1 {};
+    template <class B1, class... Bn>
+    struct switch_enable<B1, Bn...>
+        : std::conditional<bool(B1::value), B1, switch_enable<Bn...>>::type {};
+
+public:
+    struct undefined;
+    struct grad_descent;
+    struct momentum;
+    struct nestorov;
+    struct ada_grad;
+    struct rms_prop;
+    struct adam;
+
+    template <OptimizationId id>
+    struct from : switch_enable<
+        select_if<id == OptimizationId::undefined,    undefined>,
+        select_if<id == OptimizationId::grad_descent, grad_descent>,
+        select_if<id == OptimizationId::momentum,     momentum>,
+        select_if<id == OptimizationId::nestorov,     nestorov>,
+        select_if<id == OptimizationId::ada_grad,     ada_grad>,
+        select_if<id == OptimizationId::rms_prop,     rms_prop>,
+        select_if<id == OptimizationId::adam,         adam>>
+    {};
 };
 
 } // namespace functional
