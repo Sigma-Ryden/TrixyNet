@@ -1,8 +1,6 @@
 #ifndef BASE_OPTIMIZER_HPP
 #define BASE_OPTIMIZER_HPP
 
-#include "Trixy/Neuro/Functional/neuro_functional_id.hpp"
-
 namespace trixy
 {
 

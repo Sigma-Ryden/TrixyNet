@@ -29,7 +29,7 @@ private:
     using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_type>;
 
     template <functional::OptimizationId id>
-    using optimizer_type_from  = typename functional::OptimizationType::from<id>::type;
+    using optimizer_type_from  = functional::OptimizationType::type_from<id>;
 
 public:
     ActivationFunction get(functional::ActivationId id) const noexcept;

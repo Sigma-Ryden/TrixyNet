@@ -31,7 +31,7 @@ template <typename T>
 using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
 
 template <bool condition, typename T>
-struct select_if : std::enable_if<condition, T>
+struct select_for : std::enable_if<condition, T>
 {
     static constexpr bool value = condition;
 };

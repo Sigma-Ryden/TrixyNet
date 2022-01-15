@@ -2,7 +2,8 @@
 #define NEURO_FUNCTIONAL_ID_HPP
 
 #include <cstdint> // uint8_t
-#include <type_traits> // enable_if, conditional, integral_constant
+
+#include "Trixy/Neuro/Detail/neuro_meta.hpp"
 
 namespace trixy
 {
@@ -58,38 +59,63 @@ enum class OptimizationId : std::uint8_t
 
 struct OptimizationType
 {
-private:
-    template <bool condition, typename T>
-    struct select_if : std::enable_if<condition, T>
+public:
+    struct undefined
     {
-        static constexpr bool value = condition;
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::undefined, undefined>;
     };
 
-    template <class...> struct switch_enable : std::true_type {};
-    template <class B1> struct switch_enable<B1> : B1 {};
-    template <class B1, class... Bn>
-    struct switch_enable<B1, Bn...>
-        : std::conditional<bool(B1::value), B1, switch_enable<Bn...>>::type {};
+    struct grad_descent
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::grad_descent, grad_descent>;
+    };
+
+    struct momentum
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::momentum, momentum>;
+    };
+
+    struct nestorov
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::nestorov, nestorov>;
+    };
+
+    struct ada_grad
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::ada_grad, ada_grad>;
+    };
+
+    struct rms_prop
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::rms_prop, rms_prop>;
+    };
+
+    struct adam
+    {
+        template <OptimizationId id>
+        using check = meta::select_for<id == OptimizationId::adam, adam>;
+    };
+
+private:
+    template <OptimizationId id> struct from : meta::disjunction<
+        undefined::check<id>,
+        grad_descent::check<id>,
+        momentum::check<id>,
+        nestorov::check<id>,
+        ada_grad::check<id>,
+        rms_prop::check<id>,
+        adam::check<id>>
+    {};
 
 public:
-    struct undefined;
-    struct grad_descent;
-    struct momentum;
-    struct nestorov;
-    struct ada_grad;
-    struct rms_prop;
-    struct adam;
-
     template <OptimizationId id>
-    struct from : switch_enable<
-        select_if<id == OptimizationId::undefined,    undefined>,
-        select_if<id == OptimizationId::grad_descent, grad_descent>,
-        select_if<id == OptimizationId::momentum,     momentum>,
-        select_if<id == OptimizationId::nestorov,     nestorov>,
-        select_if<id == OptimizationId::ada_grad,     ada_grad>,
-        select_if<id == OptimizationId::rms_prop,     rms_prop>,
-        select_if<id == OptimizationId::adam,         adam>>
-    {};
+    using type_from = typename from<id>::type;
 };
 
 } // namespace functional
