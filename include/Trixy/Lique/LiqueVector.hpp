@@ -38,14 +38,14 @@ public:
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
-    Tensor(const std::initializer_list<Precision>&);
+    Tensor(std::initializer_list<Precision>);
 
     Tensor& operator= (const Tensor&);
     Tensor& operator= (Tensor&&) noexcept;
 
     Tensor& copy(const Precision* ptr) noexcept;
     Tensor& copy(const Tensor&) noexcept;
-    Tensor& copy(const std::initializer_list<Precision>&) noexcept;
+    Tensor& copy(std::initializer_list<Precision>) noexcept;
 
     size_type size() const noexcept;
 
@@ -134,7 +134,7 @@ inline Vector<Precision>::Tensor(Tensor&& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>::Tensor(const std::initializer_list<Precision>& init)
+Vector<Precision>::Tensor(std::initializer_list<Precision> init)
     : data_(new Precision[init.size()]), size_(init.size())
 {
     size_type i = 0;
@@ -201,7 +201,7 @@ Vector<Precision>& Vector<Precision>::copy(const Tensor& vector) noexcept
 
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(
-    const std::initializer_list<Precision>& data) noexcept
+    std::initializer_list<Precision> data) noexcept
 {
     auto it = data.begin();
 

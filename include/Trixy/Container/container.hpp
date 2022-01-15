@@ -27,7 +27,7 @@ public:
     explicit Container(size_type size);
     Container(const Container&);
     Container(Container&&) noexcept;
-    Container(const std::initializer_list<Type>&);
+    Container(std::initializer_list<Type>);
 
     Container<Type>& operator= (const Container&);
     Container<Type>& operator= (Container&&) noexcept;
@@ -118,7 +118,7 @@ Container<Type>::Container(Container&& container) noexcept
 }
 
 template <typename Type>
-Container<Type>::Container(const std::initializer_list<Type>& list)
+Container<Type>::Container(std::initializer_list<Type> list)
     : data_(new Type[list.size()]), size_(list.size())
 {
     std::size_t i = 0;

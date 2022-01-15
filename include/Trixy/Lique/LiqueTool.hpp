@@ -2,7 +2,7 @@
 #define LIQUE_TOOL_HPP
 
 #include <cstddef> // size_t
-#include <cmath> // fabs
+#include <initializer_list> // initializer_list
 
 #include "LiqueVector.hpp"
 #include "LiqueMatrix.hpp"
@@ -393,6 +393,24 @@ void for_each(const Matrix<Precision>& matrix, Function func)
 {
     for(std::size_t i = 0; i < matrix.size(); ++i)
         func(matrix(i));
+}
+
+LIQUE_FUNCTION_TPL
+Vector<Precision> concate(std::initializer_list<Vector<Precision>> list)
+{
+    std::size_t accumulate = 0;
+
+    for(const auto& it : list)
+        accumulate += it.size();
+
+    Vector<Precision> vector(accumulate);
+
+    std::size_t i = 0;
+    for(auto it = list.begin(); it != list.end(); ++it)
+        for(std::size_t n = 0; n < it->size(); ++n, ++i)
+            vector(i) = it->operator()(n);
+
+    return vector;
 }
 
 } // namespace lique

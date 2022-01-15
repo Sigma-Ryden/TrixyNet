@@ -54,7 +54,7 @@ public:
 
     Tensor& copy(const Precision* ptr) noexcept;
     Tensor& copy(const Tensor&) noexcept;
-    Tensor& copy(const std::initializer_list<Precision>&) noexcept;
+    Tensor& copy(std::initializer_list<Precision>) noexcept;
 
     const Shape& shape() const noexcept;
     size_type size() const noexcept;
@@ -260,7 +260,7 @@ Matrix<Precision>& Matrix<Precision>::copy(const Tensor& matrix) noexcept
 
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::copy(
-    const std::initializer_list<Precision>& data) noexcept
+    std::initializer_list<Precision> data) noexcept
 {
     auto it = data.begin();
 
