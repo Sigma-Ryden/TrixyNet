@@ -1,7 +1,7 @@
-#include "Trixy/Neuro/neuro_core.hpp" // FeedForwardNeuro, Functional, Serializer
-#include "Trixy/Lique/lique_core.hpp" // Vector, Matrix, Linear
+#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Serializer
+#include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
 
-#include "Trixy/Container/container.hpp" // Container
+#include "Trixy/Container/Container.hpp" // Container
 #include "Utility/util.hpp" // Timer, max, operator<<
 
 #include "MnistMaster/mnist_reader.hpp" // read_dataset
