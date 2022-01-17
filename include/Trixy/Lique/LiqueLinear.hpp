@@ -5,7 +5,7 @@
 
 #include "Detail/LiqueMeta.hpp"
 
-#include "Trixy/Lique/Detail/MacroScope.hpp"
+#include "Detail/MacroScope.hpp"
 
 namespace lique
 {
@@ -132,6 +132,6 @@ Matrix<Precision, Args...> LIQUE_LINEAR_TPL::tensordot(
 
 } // namespace lique
 
-#include "Trixy/Lique/Detail/MacroUnscope.hpp"
+#include "Detail/MacroUnscope.hpp"
 
 #endif // LIQUE_LINEAR_HPP

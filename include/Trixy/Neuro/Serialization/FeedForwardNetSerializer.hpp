@@ -1,5 +1,5 @@
-#ifndef FEEDFORWARD_NEURO_SERIALIZER_HPP
-#define FEEDFORWARD_NEURO_SERIALIZER_HPP
+#ifndef FEED_FORWARD_NET_SERIALIZER_HPP
+#define FEED_FORWARD_NET_SERIALIZER_HPP
 
 #include <fstream> // ifstream, ofstream
 
@@ -146,4 +146,4 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // FEEDFORWARD_NEURO_SERIALIZER_HPP
+#endif // FEED_FORWARD_NET_SERIALIZER_HPP

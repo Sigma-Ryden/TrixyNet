@@ -1,7 +1,7 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
-#define TRIXY_NEURO_HAS_HELPER(type)                                                                    \
+#define TRIXY_HAS_HELPER(type)                                                                          \
     template <typename T> struct has_##type {                                                           \
     private:                                                                                            \
         template <typename U, typename = typename U::type>                                              \
@@ -12,7 +12,7 @@
             std::is_integral<decltype(detect(std::declval<T>()))>::value;                               \
     }
 
-#define TRIXY_NEURAL_NETWORK_TPL_DECLARATION                                                            \
+#define TRIXY_NET_TPL_DECLARATION                                                                       \
     template <template <typename, typename...> class Vector,                                            \
               template <typename, typename...> class Matrix,                                            \
               template <template <typename, typename...> class T1,                                      \
@@ -48,9 +48,9 @@
 #define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
     template <class Optimizeriable>
 
-#define TRIXY_OPTIMIZER_TPL(is_type, optimizer_id)                                                      \
+#define TRIXY_OPTIMIZER_TPL(is_type, optimizer_type)                                                    \
     Optimizer<Optimizeriable,                                                                           \
-        optimizer_id,                                                                                   \
+        optimizer_type,                                                                                 \
         typename std::enable_if<is_type<Optimizeriable>::value>::type>
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \

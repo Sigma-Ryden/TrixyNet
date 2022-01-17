@@ -1,5 +1,5 @@
-#ifndef NEURO_FUNCTIONAL_ID_HPP
-#define NEURO_FUNCTIONAL_ID_HPP
+#ifndef ID_FUNCTIONAL_HPP
+#define ID_FUNCTIONAL_HPP
 
 #include <cstdint> // uint8_t
 
@@ -122,4 +122,4 @@ public:
 
 } // namespace trixy
 
-#endif // NEURO_FUNCTIONAL_ID_HPP
+#endif // ID_FUNCTIONAL_HPP

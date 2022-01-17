@@ -46,27 +46,32 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/FeedForwardNetLess.hpp
     include/Trixy/Neuro/Network/BaseTrixyNet.hpp
-    include/Trixy/Neuro/Functional/BaseFunctional.hpp
-    include/Trixy/Neuro/Functional/IdFunctional.hpp
-    include/Trixy/Neuro/Functional/FeedForwardNetFunctional.hpp
+    include/Trixy/Neuro/Network/TrixyNetCore.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp
     include/Trixy/Neuro/Functional/Function/LossFunction.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/GradientDescentOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/MomentumOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/NestorovOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/AdaGradOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/RMSPropOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/AdamOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/Optimizer/BaseOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimization/OptimizationCore.hpp
+    include/Trixy/Neuro/Functional/Function/FunctionCore.hpp
+    include/Trixy/Neuro/Functional/Optimizer/GradientDescentOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/MomentumOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/NestorovOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/AdaGradOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/RMSPropOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/AdamOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/OptimizerCore.hpp
+    include/Trixy/Neuro/Functional/BaseFunctional.hpp
+    include/Trixy/Neuro/Functional/IdFunctional.hpp
+    include/Trixy/Neuro/Functional/FeedForwardNetFunctional.hpp
+    include/Trixy/Neuro/Functional/FunctionalCore.hpp
     include/Trixy/Neuro/Serialization/BaseSerializer.hpp
     include/Trixy/Neuro/Serialization/FeedForwardNetSerializer.hpp
     include/Trixy/Neuro/Serialization/PolynomialRegressionSerializer.hpp
     include/Trixy/Neuro/Serialization/LinearRegressionSerializer.hpp
+    include/Trixy/Neuro/Serialization/SerializerCore.hpp
     include/Trixy/Neuro/Regression/BaseRegression.hpp
     include/Trixy/Neuro/Regression/LinearRegression.hpp
     include/Trixy/Neuro/Regression/PolynomialRegression.hpp
+    include/Trixy/Neuro/Regression/RegressionCore.hpp
     include/Trixy/Neuro/NeuroCore.hpp
 )
 set(MNIST_MASTER

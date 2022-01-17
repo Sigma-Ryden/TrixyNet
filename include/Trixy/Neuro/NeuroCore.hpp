@@ -1,8 +1,11 @@
 #ifndef NEURO_CORE_HPP
 #define NEURO_CORE_HPP
 
-#include "Network/FeedForwardNet.hpp"
-#include "Functional/FeedForwardNetFunctional.hpp"
-#include "Serialization/FeedForwardNetSerializer.hpp"
+#include "Network/TrixyNetCore.hpp"
+#include "Regression/RegressionCore.hpp"
+
+#include "Functional/FunctionalCore.hpp"
+
+#include "Serialization/SerializerCore.hpp"
 
 #endif // NEURO_CORE_HPP

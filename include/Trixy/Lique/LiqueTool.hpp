@@ -395,22 +395,30 @@ void for_each(const Matrix<Precision>& matrix, Function func)
         func(matrix(i));
 }
 
+template <typename Precision,
+          template <typename...> class Container,
+          meta::select_if_arithmetic_t<Precision> = 0>
+Vector<Precision> concate(const Container<Vector<Precision>>& list)
+{
+    std::size_t n = 0;
+
+    for(const auto& it : list)
+        n += it.size();
+
+    Vector<Precision> vector(n);
+
+    std::size_t i = 0;
+    for(const auto& it : list)
+        for(n = 0; n < it.size(); ++n, ++i)
+            vector(i) = it(n);
+
+    return vector;
+}
+
 LIQUE_FUNCTION_TPL
 Vector<Precision> concate(std::initializer_list<Vector<Precision>> list)
 {
-    std::size_t accumulate = 0;
-
-    for(const auto& it : list)
-        accumulate += it.size();
-
-    Vector<Precision> vector(accumulate);
-
-    std::size_t i = 0;
-    for(auto it = list.begin(); it != list.end(); ++it)
-        for(std::size_t n = 0; n < it->size(); ++n, ++i)
-            vector(i) = it->operator()(n);
-
-    return vector;
+    return concate<Precision, std::initializer_list>(list);
 }
 
 } // namespace lique

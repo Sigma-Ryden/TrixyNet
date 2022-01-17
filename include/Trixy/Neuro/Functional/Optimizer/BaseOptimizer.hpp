@@ -7,7 +7,7 @@ namespace trixy
 namespace train
 {
 
-template <class Optimizeriable, class optimizer_type, typename enable = void>
+template <class Optimizeriable, class OptimizationType, typename enable = void>
 class Optimizer;
 
 } // namespace train

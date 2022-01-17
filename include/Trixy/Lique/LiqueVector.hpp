@@ -4,10 +4,10 @@
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
 
-#include "Trixy/Lique/LiqueBaseTensor.hpp"
-#include "Trixy/Lique/Detail/LiqueMeta.hpp"
+#include "LiqueBaseTensor.hpp"
+#include "Detail/LiqueMeta.hpp"
 
-#include "Trixy/Lique/Detail/MacroScope.hpp"
+#include "Detail/MacroScope.hpp"
 
 namespace lique
 {
@@ -434,6 +434,6 @@ inline const Precision* Vector<Precision>::data() const noexcept
 
 } // namespace lique
 
-#include "Trixy/Lique/Detail/MacroUnscope.hpp"
+#include "Detail/MacroUnscope.hpp"
 
 #endif // LIQUE_VECTOR_HPP

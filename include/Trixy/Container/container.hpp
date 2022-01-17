@@ -86,8 +86,8 @@ public:
 
     bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
-    iterator operator++ () noexcept { ++ptr_; return *this; }
-    iterator operator-- () noexcept { --ptr_; return *this; }
+    const_iterator operator++ () noexcept { ++ptr_; return *this; }
+    const_iterator operator-- () noexcept { --ptr_; return *this; }
 };
 
 template <typename Type>
@@ -187,6 +187,18 @@ template <typename Type>
 inline typename Container<Type>::iterator Container<Type>::end() noexcept
 {
     return iterator(data_ + size_);
+}
+
+template <typename Type>
+inline typename Container<Type>::const_iterator Container<Type>::begin() const noexcept
+{
+    return const_iterator(data_);
+}
+
+template <typename Type>
+inline typename Container<Type>::const_iterator Container<Type>::end() const noexcept
+{
+    return const_iterator(data_ + size_);
 }
 
 template <typename Type>

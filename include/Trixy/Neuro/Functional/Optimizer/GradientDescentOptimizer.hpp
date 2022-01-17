@@ -1,7 +1,7 @@
 #ifndef GRADIENT_DESCENT_OPTIMIZER_HPP
 #define GRADIENT_DESCENT_OPTIMIZER_HPP
 
-#include "Trixy/Neuro/Functional/Optimization/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"

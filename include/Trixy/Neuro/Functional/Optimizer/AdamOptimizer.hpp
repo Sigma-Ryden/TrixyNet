@@ -1,7 +1,7 @@
 #ifndef ADAM_OPTIMIZER_HPP
 #define ADAM_OPTIMIZER_HPP
 
-#include "Trixy/Neuro/Functional/Optimization/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
 #include "Trixy/Neuro/Detail/FunctionDetail.hpp"

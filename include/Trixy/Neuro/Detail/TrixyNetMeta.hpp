@@ -1,12 +1,17 @@
-#ifndef NEURO_META_HPP
-#define NEURO_META_HPP
+#ifndef TRIXY_NET_META_HPP
+// This file contains all extern meta function
+// For safer use, you MUST only include the Base*.hpp file from lib
+#define TRIXY_NET_META_HPP
 
 #include <utility> // declval
 #include <type_traits> // enable_if, is_arithmetic, is_same, conditional, true_type, false_type
 
 #include "Trixy/Neuro/Network/BaseTrixyNet.hpp"
 #include "Trixy/Neuro/Regression/BaseRegression.hpp"
-#include "Trixy/Neuro/Functional/Optimization/Optimizer/BaseOptimizer.hpp"
+
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Neuro/Functional/BaseFunctional.hpp"
+#include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 
@@ -37,11 +42,11 @@ struct select_for : std::enable_if<condition, T>
 };
 
 template <typename> struct is_feedforward_net : std::false_type {};
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 struct is_feedforward_net<TRIXY_FEED_FORWARD_NET_TPL> : std::true_type {};
 
 template <typename> struct is_feedforward_net_less : std::false_type {};
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 struct is_feedforward_net_less<TRIXY_FEED_FORWARD_NET_LESS_TPL> : std::true_type {};
 
 template <typename> struct is_linear_regression : std::false_type {};
@@ -52,10 +57,22 @@ template <typename> struct is_polynomial_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION
 struct is_polynomial_regression<TRIXY_POLYNOMIAL_REGRESSION_TPL> : std::true_type {};
 
+template <typename> struct is_optimizer : std::false_type {};
+template <class Optimizeriable, class OptimizationType>
+struct is_optimizer<train::Optimizer<Optimizeriable, OptimizationType>> : std::true_type {};
+
+template <typename> struct is_serializer : std::false_type {};
+template <class Serializable>
+struct is_serializer<Serializer<Serializable>> : std::true_type {};
+
+template <typename> struct is_functional : std::false_type {};
+template <class Functionable>
+struct is_functional<Functional<Functionable>> : std::true_type {};
+
 } // namespace meta
 
 } // namespace trixy
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // NEURO_META_HPP
+#endif // TRIXY_NET_META_HPP

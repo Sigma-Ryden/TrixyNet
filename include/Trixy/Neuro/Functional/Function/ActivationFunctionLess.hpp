@@ -1,5 +1,5 @@
-#ifndef NEURO_ACTIVATION_LESS_HPP
-#define NEURO_ACTIVATION_LESS_HPP
+#ifndef ACTIVATION_FUNCTION_LESS_HPP
+#define ACTIVATION_FUNCTION_LESS_HPP
 
 #include <cstddef> // size_t
 #include <cmath> // exp, log, fabs, tanh, cosh
@@ -222,4 +222,4 @@ Precision mod_tanh_derived(Precision x) noexcept
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // NEURO_ACTIVATION_LESS_HPP
+#endif // ACTIVATION_FUNCTION_LESS_HPP

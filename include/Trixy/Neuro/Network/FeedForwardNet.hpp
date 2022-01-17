@@ -12,7 +12,7 @@
 namespace trixy
 {
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 class FeedForwardNet
 {
 public:
@@ -122,7 +122,7 @@ public:
     const Container<size_type>& getTopology() const noexcept;
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction
 {
 public:
@@ -146,7 +146,7 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_TPL::LossFunction
 {
 public:
@@ -170,7 +170,7 @@ public:
     , df(function_derived) {}
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 class TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer
 {
 friend class TRIXY_FEED_FORWARD_NET_TPL;
@@ -204,7 +204,7 @@ private:
     void normalizeDelta(Precision alpha) noexcept; ///< alpha should be in range (0, 1)
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 class TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional
 {
 friend class TRIXY_FEED_FORWARD_NET_TPL;
@@ -233,7 +233,7 @@ public:
     const LossFunction& getLoss() const noexcept;
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setActivation(
     const TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction& f)
 {
@@ -241,7 +241,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setActivation(
         activation[i] = f;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setEachActivation(
     const Container<TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction>& fs)
 {
@@ -249,49 +249,49 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setEachActivation(
         activation[i] = fs[i];
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setNormalization(
     const TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction& f)
 {
     activation.back() = f;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setLoss(
     const TRIXY_FEED_FORWARD_NET_TPL::LossFunction& f)
 {
     loss = f;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getActivation() const noexcept
 {
     return activation.front();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction>&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getEachActivation() const noexcept
 {
     return activation;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getNormalization() const noexcept
 {
     return activation.back();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const typename TRIXY_FEED_FORWARD_NET_TPL::LossFunction&
     TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getLoss() const noexcept
 {
     return loss;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::InnerBuffer(
     const Container<size_type>& neural_network_topology)
     : size_(neural_network_topology.size() - 1)
@@ -303,7 +303,7 @@ TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::InnerBuffer(
     initializeDelta();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeDefault()
 {
     H.resize(size_);
@@ -322,7 +322,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeDefault()
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeDelta()
 {
     deltaB.resize(size_);
@@ -335,7 +335,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeDelta()
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeBuffer()
 {
     buff.resize(size_);
@@ -344,7 +344,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::initializeBuffer()
         buff[i].resize(topology[i + 1]);
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::resetDelta() noexcept
 {
     for(size_type i = 0; i < size_; ++i)
@@ -354,7 +354,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::resetDelta() noexcept
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::updateDelta() noexcept
 {
     for(size_type i = 0; i < size_; ++i)
@@ -364,7 +364,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::updateDelta() noexcept
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::normalizeDelta(Precision alpha) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
@@ -374,7 +374,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerBuffer::normalizeDelta(Precision alpha) no
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NET_TPL::FeedForwardNet(
     const Container<std::size_t>& neural_network_topology)
     : imanage(neural_network_topology)
@@ -390,7 +390,7 @@ TRIXY_FEED_FORWARD_NET_TPL::FeedForwardNet(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 template <typename GeneratorPrecision>
 void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     GeneratorPrecision generator_all) noexcept
@@ -402,7 +402,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 template <typename GeneratorPrecision>
 void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     GeneratorPrecision generator_bias,
@@ -415,7 +415,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     const Container<Tensor1D>& bias,
     const Container<Tensor2D>& weight) noexcept
@@ -427,27 +427,27 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const Container<Vector<Precision, Args...>>&
     TRIXY_FEED_FORWARD_NET_TPL::getInnerBias() const noexcept
 {
     return B;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const Container<Matrix<Precision, Args...>>&
     TRIXY_FEED_FORWARD_NET_TPL::getInnerWeight() const noexcept
 {
     return W;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 inline const Container<std::size_t>& TRIXY_FEED_FORWARD_NET_TPL::getTopology() const noexcept
 {
     return imanage.topology;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
@@ -463,7 +463,7 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
     return imanage.buff.back();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 template <class GeneratorInteger, class Optimizer>
 void TRIXY_FEED_FORWARD_NET_TPL::trainStochastic(
     const Container<Vector<Precision, Args...>>& idata,
@@ -483,7 +483,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::trainStochastic(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 template <class Optimizer>
 void TRIXY_FEED_FORWARD_NET_TPL::trainBatch(
     const Container<Vector<Precision, Args...>>& idata,
@@ -510,7 +510,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::trainBatch(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 template <class Optimizer>
 void TRIXY_FEED_FORWARD_NET_TPL::trainMiniBatch(
     const Container<Vector<Precision, Args...>>& idata,
@@ -553,7 +553,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::trainMiniBatch(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::innerFeedForward(
     const Vector<Precision, Args...>& sample) const noexcept
 {
@@ -576,7 +576,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::innerFeedForward(
     function.activation[i].df(imanage.derivedH[i], imanage.buff[i]);
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::innerBackPropagation(
     const Vector<Precision, Args...>& sample,
     const Vector<Precision, Args...>& target) const noexcept
@@ -598,7 +598,7 @@ void TRIXY_FEED_FORWARD_NET_TPL::innerBackPropagation(
     linear.tensordot(imanage.derivedW[0], sample, imanage.derivedB[0]);
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata) const noexcept
@@ -612,7 +612,7 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
     return static_cast<long double>(count) / odata.size();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
@@ -627,7 +627,7 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
     return static_cast<long double>(count) / odata.size();
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata,
@@ -641,7 +641,7 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
     return static_cast<long double>(count) / (odata.size() * odata.front().size());
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::loss(
     const Container<Vector<Precision, Args...>>& idata,
     const Container<Vector<Precision, Args...>>& odata) const noexcept
@@ -658,7 +658,7 @@ long double TRIXY_FEED_FORWARD_NET_TPL::loss(
     return result / static_cast<long double>(odata.size());
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::check(
     const Vector<Precision, Args...>& target,
     const Vector<Precision, Args...>& prediction) const noexcept
@@ -680,7 +680,7 @@ bool TRIXY_FEED_FORWARD_NET_TPL::check(
     return max_true_out == max_pred_out;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
     const Vector<Precision, Args...>& target,
     const Vector<Precision, Args...>& prediction,
@@ -693,7 +693,7 @@ bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
     return true;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::checkg(
     const Vector<Precision, Args...>& target,
     const Vector<Precision, Args...>& prediction,

@@ -1,10 +1,9 @@
-#ifndef RMS_PROP_OPTIMIZER_HPP
-#define RMS_PROP_OPTIMIZER_HPP
+#ifndef NESTOROV_OPTIMIZER_HPP
+#define NESTOROV_OPTIMIZER_HPP
 
-#include "Trixy/Neuro/Functional/Optimization/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
-#include "Trixy/Neuro/Detail/FunctionDetail.hpp"
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -16,11 +15,11 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using RMSPropOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::rms_prop);
+using NestorovOptimizer =
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::nestorov);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::rms_prop)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::nestorov)
 {
 private:
     template <class T>
@@ -41,8 +40,7 @@ private:
 
     precision_type learning_rate;
 
-    precision_type beta;
-    precision_type rbeta;
+    precision_type momentum;
 
     size_type N;
 
@@ -51,7 +49,7 @@ public:
 
     Optimizer(const Optimizeriable& net,
               precision_type learning_rate,
-              precision_type beta = 0.9);
+              precision_type momentum = 0.9);
 
     void setLearnRate(precision_type new_learning_rate) noexcept;
 
@@ -62,73 +60,65 @@ public:
 
     void prepare(const Optimizeriable& net,
                  precision_type new_learning_rate,
-                 precision_type new_beta); // deprecated
+                 precision_type new_momentum); // deprecated
 
     Optimizer& reset() noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-RMSPropOptimizer<Optimizeriable>::Optimizer(
+NestorovOptimizer<Optimizeriable>::Optimizer(
     const Optimizeriable& net,
     precision_type learning_rate,
-    precision_type beta)
+    precision_type momentum)
 {
-    prepare(net, learning_rate, beta);
+    prepare(net, learning_rate, momentum);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::setLearnRate(
+void NestorovOptimizer<Optimizeriable>::setLearnRate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::update(
+void NestorovOptimizer<Optimizeriable>::update(
     Container<Tensor1D>& bias,
     Container<Tensor2D>& weight,
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
-    // velocity = beta * velocity + (1 - beta) * g * g
-    // w = w - learning_rate * g / sqrt(velocity)
+    // velocity = momentum * velocity - learning_rate * g
+    // w = w + momentum * velocity - learning_rate * g
 
     for(size_type i = 0; i < N; ++i)
     {
-        optimizedB[i].join(beta).add(
-            buff1[i].multiply(gradBias[i], gradBias[i])
-                    .join(rbeta)
+        optimizedB[i].join(momentum).sub(
+            buff1[i].join(learning_rate, gradBias[i])
         );
 
-        bias[i].sub(
-            buff1[i].apply(detail::invertSqrt, optimizedB[i])
-                    .multiply(gradBias[i])
-                    .join(learning_rate)
+        bias[i].sub(buff1[i]).add(
+            buff1[i].join(momentum, optimizedB[i])
         );
 
-        optimizedW[i].join(beta).add(
-            buff2[i].multiply(gradWeight[i], gradWeight[i])
-                    .join(rbeta)
+        optimizedW[i].join(momentum).sub(
+            buff2[i].join(learning_rate, gradWeight[i])
         );
 
-        weight[i].sub(
-            buff2[i].apply(detail::invertSqrt, optimizedW[i])
-                    .multiply(gradWeight[i])
-                    .join(learning_rate)
+        weight[i].sub(buff2[i]).add(
+            buff2[i].join(momentum, optimizedW[i])
         );
     }
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::prepare(
+void NestorovOptimizer<Optimizeriable>::prepare(
     const Optimizeriable& net,
     precision_type new_learning_rate,
-    precision_type new_beta)
+    precision_type new_momentum)
 {
     learning_rate = new_learning_rate;
-
-    beta = new_beta;
-    rbeta = 1. - new_beta;
+    momentum = new_momentum;
 
     N = net.getTopology().size() - 1;
 
@@ -149,7 +139,7 @@ void RMSPropOptimizer<Optimizeriable>::prepare(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-RMSPropOptimizer<Optimizeriable>& RMSPropOptimizer<Optimizeriable>::reset() noexcept
+NestorovOptimizer<Optimizeriable>& NestorovOptimizer<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
@@ -166,4 +156,4 @@ RMSPropOptimizer<Optimizeriable>& RMSPropOptimizer<Optimizeriable>::reset() noex
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // RMS_PROP_OPTIMIZER_HPP
+#endif // NESTOROV_OPTIMIZER_HPP

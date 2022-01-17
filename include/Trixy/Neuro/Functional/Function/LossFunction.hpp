@@ -1,5 +1,5 @@
-#ifndef NEURO_LOSS_HPP
-#define NEURO_LOSS_HPP
+#ifndef LOSS_FUNCTION_HPP
+#define LOSS_FUNCTION_HPP
 
 #include <cstddef> // size_t
 #include <cmath> // log, fabs, tanh, cosh
@@ -230,4 +230,4 @@ void logcosh_derived(
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // NEURO_LOSS_HPP
+#endif // LOSS_FUNCTION_HPP

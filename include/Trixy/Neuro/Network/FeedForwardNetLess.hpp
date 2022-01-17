@@ -11,7 +11,7 @@
 namespace trixy
 {
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 class FeedForwardNetLess
 {
 public:
@@ -45,7 +45,7 @@ public:
     const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction
 {
 public:
@@ -69,7 +69,7 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 class TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional
 {
 friend class TRIXY_FEED_FORWARD_NET_LESS_TPL;
@@ -89,7 +89,7 @@ public:
     void setNormalization(const ActivationFunction&);
 };
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setEachActivation(
     const Container<TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction>& fs)
 {
@@ -97,7 +97,7 @@ void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setEachActivation(
         activation[i] = fs[i];
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setActivation(
     const TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction& f)
 {
@@ -105,14 +105,14 @@ void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setActivation(
         activation[i] = f;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_LESS_TPL::InnerFunctional::setNormalization(
     const TRIXY_FEED_FORWARD_NET_LESS_TPL::ActivationFunction& f)
 {
     activation.back() = f;
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NET_LESS_TPL::FeedForwardNetLess(
     const Container<Tensor1D>& bias,
     const Container<Tensor2D>& weight)
@@ -130,7 +130,7 @@ TRIXY_FEED_FORWARD_NET_LESS_TPL::FeedForwardNetLess(
     }
 }
 
-TRIXY_NEURAL_NETWORK_TPL_DECLARATION
+TRIXY_NET_TPL_DECLARATION
 const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_LESS_TPL::feedforward(
     const Vector<Precision, Args...>& sample) const noexcept
 {

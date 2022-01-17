@@ -1,5 +1,5 @@
-#ifndef NEURO_ACTIVATION_HPP
-#define NEURO_ACTIVATION_HPP
+#ifndef ACTIVATION_FUNCTION_HPP
+#define ACTIVATION_FUNCTION_HPP
 
 #include <cstddef> // size_t
 #include <cmath> // exp
@@ -95,4 +95,4 @@ void tensor_of_units(
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // NEURO_ACTIVATION_HPP
+#endif // ACTIVATION_FUNCTION_HPP

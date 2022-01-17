@@ -1,14 +1,14 @@
-#ifndef FEEDFORWARD_NEURO_FUNCTIONAL_HPP
-#define FEEDFORWARD_NEURO_FUNCTIONAL_HPP
+#ifndef FEED_FORWARD_NET_FUNCTIONAL_HPP
+#define FEED_FORWARD_NET_FUNCTIONAL_HPP
 
 #include <utility> // forward
 
 #include "Trixy/Neuro/Functional/BaseFunctional.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
-#include "Trixy/Neuro/Functional/Function/ActivationFunction.hpp"
-#include "Trixy/Neuro/Functional/Function/LossFunction.hpp"
-#include "Trixy/Neuro/Functional/Optimization/OptimizationCore.hpp" // ?
+#include "Trixy/Neuro/Functional/Function/FunctionCore.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/OptimizerCore.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -132,4 +132,4 @@ typename TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)::LossFunction
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // FEEDFORWARD_NEURO_FUNCTIONAL_HPP
+#endif // FEED_FORWARD_NET_FUNCTIONAL_HPP
