@@ -1,9 +1,5 @@
+#include "Trixy/Neuro/NeuroCore.hpp" // // LinearRegression, PolynomialRegression, Serializer
 #include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
-#include "Trixy/Neuro/Regression/PolynomialRegression.hpp" // PolynomialRegression
-#include "Trixy/Neuro/Regression/LinearRegression.hpp" // LinearRegression
-
-#include "Trixy/Neuro/Serialization/PolynomialRegressionSerializer.hpp" // Serializer
-#include "Trixy/Neuro/Serialization/LinearRegressionSerializer.hpp" // Serializer
 
 #include "Utility/util.hpp" // operator<<
 

@@ -222,6 +222,33 @@ void logcosh_derived(
         buff(i) = std::tanh(y_pred(i) - y_true(i));
 }
 
+template <class LossFunction, typename CastType, typename LossId>
+LossFunction get_loss_function(LossId id)
+{
+    static CastType f_id;
+
+    f_id = static_cast<CastType>(id);
+
+    switch (id)
+    {
+    case LossId::MSE:  return { mean_squared_error, mean_squared_error_derived, f_id };
+    case LossId::MAE:  return { mean_absolute_error, mean_absolute_error_derived, f_id };
+    case LossId::CCE:  return { categorical_cross_entropy, categorical_cross_entropy_derived_softmax, f_id };
+
+    case LossId::BCE:  return { binary_cross_entropy, binary_cross_entropy_derived_sigmoid, f_id };
+    case LossId::MSLE: return { mean_squared_log_error, mean_squared_log_error_derived, f_id };
+    case LossId::NLL:  return { negative_log_likelihood, negative_log_likelihood_derived_softmax, f_id };
+
+    case LossId::LC:   return { logcosh, logcosh_derived, f_id };
+
+    case LossId::CCE_: return { categorical_cross_entropy, categorical_cross_entropy_derived, f_id };
+    case LossId::BCE_: return { binary_cross_entropy, binary_cross_entropy_derived, f_id };
+
+    default:
+        return { nullptr, nullptr, static_cast<CastType>(LossId::undefined) };
+    }
+}
+
 } // namespace loss
 
 } // namespace set

@@ -21,24 +21,24 @@ namespace detail
 {
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Precision identity(Precision x) noexcept
+inline Precision identity(Precision x) noexcept
 {
     return x;
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Precision identity_derived(Precision x) noexcept
+inline Precision identity_derived(Precision x) noexcept
 {
     return 1.;
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Precision relu(Precision x) noexcept
+inline Precision relu(Precision x) noexcept
 {
     return x > 0. ? x : 0.;
 }
 TRIXY_FUNCTION_TPL_DECLARATION
-Precision relu_derived(Precision x) noexcept
+inline Precision relu_derived(Precision x) noexcept
 {
     return x > 0. ? 1. : 0.;
 }

@@ -87,6 +87,43 @@ void tensor_of_units(
     buff.fill(1.);
 }
 
+template <class ActivationFunction, typename CastType, typename ActivationId>
+ActivationFunction get_activation_function(ActivationId id)
+{
+    static CastType f_id;
+
+    f_id = static_cast<CastType>(id);
+
+    switch (id)
+    {
+    case ActivationId::identity:    return { identity, identity_derived, f_id };
+
+    case ActivationId::sigmoid:     return { sigmoid, sigmoid_derived, f_id};
+    case ActivationId::tanh:        return { tanh, tanh_derived, f_id };
+    case ActivationId::relu:        return { relu, relu_derived, f_id };
+
+    case ActivationId::elu:         return { elu, elu_derived, f_id };
+    case ActivationId::lrelu:       return { lrelu, lrelu_derived, f_id };
+    case ActivationId::selu:        return { selu, selu_derived, f_id };
+    case ActivationId::gelu:        return { gelu, gelu_derived, f_id };
+
+    case ActivationId::softsign:    return { softsign, softsign_derived, f_id };
+    case ActivationId::softplus:    return { softplus, softplus_derived, f_id };
+    case ActivationId::swish:       return { swish, swish_derived, f_id };
+
+    case ActivationId::mod_relu:    return { mod_relu, mod_relu_derived, f_id };
+    case ActivationId::mod_tanh:    return { mod_tanh, mod_tanh_derived, f_id };
+
+    case ActivationId::softmax:     return { softmax, tensor_of_units, f_id };
+
+    case ActivationId::unstable_softmax:    return { unstable_softmax, tensor_of_units, f_id };
+    case ActivationId::sigmoid_:            return { sigmoid, tensor_of_units, f_id };
+
+    default:
+        return { nullptr, nullptr, static_cast<CastType>(ActivationId::undefined) };
+    }
+}
+
 } // namespace activation
 
 } // namespace set

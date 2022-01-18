@@ -138,7 +138,6 @@ void speed_test()
     std::cout << "End of serialization\n";
 }
 
-//
 int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));

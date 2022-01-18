@@ -28,15 +28,15 @@ namespace comp
 {
 
 LIQUE_FUNCTION_TPL
-inline bool is_bigger(Precision lhs, Precision rhs)
+inline bool is_bigger(Precision previous, Precision next)
 {
-    return lhs > rhs;
+    return previous > next;
 }
 
 LIQUE_FUNCTION_TPL
-inline bool is_less(Precision lhs, Precision rhs)
+inline bool is_less(Precision previous, Precision next)
 {
-    return lhs < rhs;
+    return previous < next;
 }
 
 } // namespace comp
