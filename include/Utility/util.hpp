@@ -97,7 +97,7 @@ std::ostream& operator<< (
     for(std::size_t j = 0; j < matrix.shape().col() - 1; ++j)
         out << matrix(matrix.shape().row() - 1, j) << ", ";
 
-    out << matrix(matrix.shape().row() - 1, matrix.shape().col() - 1) << "]]";
+    out << matrix(matrix.size() - 1) << "]]";
 
     return out;
 }

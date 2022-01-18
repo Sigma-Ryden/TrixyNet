@@ -6,7 +6,6 @@
 #include "IdFunctional.hpp"
 
 #include "FeedForwardNetFunctional.hpp"
-#include "FeedForwardNetLessFunctional.hpp"
 
 #include "Function/FunctionCore.hpp"
 #include "Optimizer/OptimizerCore.hpp"
