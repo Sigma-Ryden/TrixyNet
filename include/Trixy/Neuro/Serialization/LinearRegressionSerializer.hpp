@@ -14,7 +14,7 @@ namespace trixy
 TRIXY_SERIALIZER_TPL_DECLARATION
 class TRIXY_SERIALIZER_TPL(meta::is_linear_regression)
 {
-private:
+public:
     using Tensor1D       = typename Serializable::Tensor1D;
 
     using precision_type = typename Serializable::precision_type;

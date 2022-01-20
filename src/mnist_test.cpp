@@ -1,4 +1,4 @@
-#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Serializer
+#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Training, Serializer
 #include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
@@ -143,6 +143,7 @@ void mnist_test()
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     // Data preparing:
@@ -167,6 +168,7 @@ void mnist_test()
     // NeuralNetwork topology:
     TrixyNet net({ input_size, 256, out_size });
     TrixyNetFunctional manage;
+    TrixyNetTraining teach(net);
 
     net.initializeInnerStruct([] {
         static constexpr int range = 1000;
@@ -187,9 +189,9 @@ void mnist_test()
     for(std::size_t i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        //net.trainBatch(train_in, train_out, 10, optimizer);
-        //net.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
-        net.trainMiniBatch(train_in, train_out, 1, 40, optimizer);
+        //teach.trainBatch(train_in, train_out, 10, optimizer);
+        //teach.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
+        teach.trainMiniBatch(train_in, train_out, 1, 40, optimizer);
         std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';

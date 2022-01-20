@@ -51,7 +51,7 @@ public:
     functional::ActivationId getActivationId() const noexcept { return activation.front(); }
     functional::ActivationId getNormalizationId() const noexcept { return activation.back(); }
 
-    const Container<functional::ActivationId>& getEachActivationId() const noexcept { return activation; }
+    const Container<functional::ActivationId>& getAllActivationId() const noexcept { return activation; }
 
     functional::LossId getLossId() const noexcept { return loss; }
 };
@@ -73,7 +73,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     activation.resize(N);
     for(size_type i = 0; i < N; ++i)
-        activation[i] = static_cast<functional::ActivationId>(net.function.getEachActivation()[i].id);
+        activation[i] = static_cast<functional::ActivationId>(net.function.getAllActivation()[i].id);
 
     loss = static_cast<functional::LossId>(net.function.getLoss().id);
 }

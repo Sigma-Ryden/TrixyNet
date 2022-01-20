@@ -1,4 +1,4 @@
-#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Serializer
+#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Training, Serializer
 #include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
@@ -95,13 +95,16 @@ void speed_test()
 
     using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
+    using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     auto train_in = get_speed_test_idata();
     auto train_out = get_speed_test_odata();
 
     TrixyNet net({4, 4, 5, 4, 3});
+
     TrixyNetFunctional manage;
+    TrixyNetTraining teach(net);
 
     net.initializeInnerStruct(random_real);
 
@@ -116,11 +119,9 @@ void speed_test()
     util::check_neuro(net, train_in, train_out);
 
     util::Timer t;
-    //
-    net.trainBatch(train_in, train_out, 100000,optimizer);
-    net.trainStochastic(train_in, train_out, 100000, std::rand, manage.get<OptimizationId::adam>(net, 0.001));
-    net.trainMiniBatch(train_in, train_out, 100000 / 6, 2, optimizer);
-    //
+    teach.trainBatch(train_in, train_out, 100000, optimizer);
+    teach.trainStochastic(train_in, train_out, 100000, std::rand, manage.get<OptimizationId::adam>(net, 0.001));
+    teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, optimizer);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -137,7 +138,7 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-
+/*
 int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -148,4 +149,13 @@ int main()
 
     return 0;
 }
-//
+*/
+/*
+enum class Accuracy
+{
+    undefined,
+    normal,
+    global,
+    full
+};
+*/

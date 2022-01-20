@@ -44,7 +44,6 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Detail/FunctionDetail.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
-    include/Trixy/Neuro/Network/FeedForwardNetLess.hpp
     include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetCore.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
@@ -72,6 +71,11 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Regression/LinearRegression.hpp
     include/Trixy/Neuro/Regression/PolynomialRegression.hpp
     include/Trixy/Neuro/Regression/RegressionCore.hpp
+    include/Trixy/Neuro/Training/BaseTraining.hpp
+    include/Trixy/Neuro/Training/FeedForwardNetTraining.hpp
+    include/Trixy/Neuro/Training/LinearRegressionTraining.hpp
+    include/Trixy/Neuro/Training/PolynomialRegressionTraining.hpp
+    include/Trixy/Neuro/Training/TrainingCore.hpp
     include/Trixy/Neuro/NeuroCore.hpp
 )
 set(MNIST_MASTER

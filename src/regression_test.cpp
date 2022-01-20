@@ -97,14 +97,16 @@ void polynomial_regression_test()
 {
     using util::operator<<;
 
-    using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
+    using PolynomialReg         = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
+    using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
 
     PolynomialReg reg(6);
+    PolynomialRegTraining teach(reg);
 
     auto X = get_sin_idata();
     auto Y = get_sin_odata();
 
-    reg.train(X, Y);
+    teach.train(X, Y);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
@@ -141,8 +143,6 @@ void linear_regression_test_deserialization()
     auto X = get_linear_idata();
     auto Y = get_linear_odata();
 
-    reg.train(X, Y);
-
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
@@ -152,14 +152,16 @@ void linear_regression_test()
 {
     using util::operator<<;
 
-    using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
+    using LinearReg         = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
+    using LinearRegTraining = tr::train::Training<LinearReg>;
 
     LinearReg reg(1);
+    LinearRegTraining teach(reg);
 
     auto X = get_linear_idata();
     auto Y = get_linear_odata();
 
-    reg.train(X, Y);
+    teach.train(X, Y);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
@@ -175,17 +177,16 @@ void linear_regression_test()
 
     std::cout << "End of serialization\n";
 }
-/*
+//
 int main()
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
     //polynomial_regression_test();
-    linear_regression_test();
-    //polynomial_regression_test_deserialization();
-    //linear_regression_test_deserialization();
+    //linear_regression_test();
+    polynomial_regression_test_deserialization();
+    linear_regression_test_deserialization();
 
     return 0;
 }
-*/
+//

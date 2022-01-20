@@ -4,6 +4,5 @@
 #include "BaseTrixyNet.hpp"
 
 #include "FeedForwardNet.hpp"
-#include "FeedForwardNetLess.hpp"
 
 #endif // TRIXY_NET_CORE_HPP

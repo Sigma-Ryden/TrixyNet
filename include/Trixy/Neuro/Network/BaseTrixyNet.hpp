@@ -15,17 +15,6 @@ template <template <typename, typename...> class Vector,
           typename... Args>
 class FeedForwardNet;
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          template <template <typename, typename...> class V,
-                    template <typename, typename...> class M,
-                    typename P, typename...>
-          class Linear,
-          template <typename Type> class Container,
-          typename Precision,
-          typename... Args>
-class FeedForwardNetLess;
-
 } // namespace trixy
 
 #endif // BASE_TRIXY_NET_HPP

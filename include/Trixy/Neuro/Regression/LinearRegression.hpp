@@ -14,6 +14,8 @@ namespace trixy
 TRIXY_REGRESSION_TPL_DECLARATION
 class TRIXY_LINEAR_REGRESSION_TPL
 {
+friend train::Training<TRIXY_LINEAR_REGRESSION_TPL>;
+
 public:
     using Tensor1D        = Vector<Precision, Args...>;
     using Tensor2D        = Matrix<Precision, Args...>;
@@ -35,9 +37,6 @@ public:
     void initializeInnerStruct(Tensor1D weight) noexcept;
 
     void reset(size_type new_sample_size);
-
-    void train(const Tensor2D& idata,
-               const Tensor1D& odata);
 
     Precision feedforwardSample(const Tensor1D& sample) const;
     Tensor1D feedforwardBatch(const Tensor2D& idata) const;
@@ -66,27 +65,6 @@ void TRIXY_LINEAR_REGRESSION_TPL::reset(size_type new_sample_size)
 {
     W.resize(new_sample_size + 1);
     N = new_sample_size + 1;
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_LINEAR_REGRESSION_TPL::train(
-    const Matrix<Precision, Args...>& idata,
-    const Vector<Precision, Args...>& odata)
-{
-    Tensor2D X(idata.shape().row(), N);
-
-    for(size_type i = 0; i < X.shape().row(); ++i)
-    {
-        X(i, 0) = 1.;
-        for(size_type j = 1; j < N; ++j)
-            X(i, j) = idata(i, j - 1);
-    }
-
-    Tensor2D X_T = X.transpose();
-
-    // W = (X^T . X)^(-1) . X^T . Y
-
-    linear.dot(W, X_T.dot(X).inverse().dot(X_T), odata);
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION

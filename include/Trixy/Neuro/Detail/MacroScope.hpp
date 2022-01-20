@@ -27,10 +27,6 @@
     FeedForwardNet<Vector, Matrix, Linear, Container,                                                   \
                    Precision, Args...>
 
-#define TRIXY_FEED_FORWARD_NET_LESS_TPL                                                                 \
-    FeedForwardNetLess<Vector, Matrix, Linear, Container,                                               \
-                       Precision, Args...>
-
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
     template <typename Serializable>
 
@@ -53,6 +49,13 @@
         optimizer_type,                                                                                 \
         typename std::enable_if<is_type<Optimizeriable>::value>::type>
 
+#define TRIXY_TRAINING_TPL_DECLARATION                                                                  \
+    template <class Trainable>
+
+#define TRIXY_TRAINING_TPL(is_type)                                                                     \
+    Training<Trainable,                                                                                 \
+        typename std::enable_if<is_type<Trainable>::value>::type>
+
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
 
@@ -67,12 +70,12 @@
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
     void name(                                                                                          \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(::trixy::set::activation::detail::name, tensor);                                                               \
+        buff.apply(::trixy::set::activation::detail::name, tensor);                                     \
     }                                                                                                   \
     template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
     void name##_derived(                                                                                \
         Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(::trixy::set::activation::detail::name##_derived, tensor);                                                     \
+        buff.apply(::trixy::set::activation::detail::name##_derived, tensor);                           \
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \

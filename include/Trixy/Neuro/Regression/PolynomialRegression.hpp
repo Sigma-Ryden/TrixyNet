@@ -4,6 +4,8 @@
 #include <cstddef> // size_t
 
 #include "Trixy/Neuro/Regression/BaseRegression.hpp"
+#include "Trixy/Neuro/Training/PolynomialRegressionTraining.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -14,6 +16,8 @@ namespace trixy
 TRIXY_REGRESSION_TPL_DECLARATION
 class TRIXY_POLYNOMIAL_REGRESSION_TPL
 {
+friend train::Training<TRIXY_POLYNOMIAL_REGRESSION_TPL>;
+
 public:
     using Tensor1D        = Vector<Precision, Args...>;
     using Tensor2D        = Matrix<Precision, Args...>;
@@ -35,9 +39,6 @@ public:
     void initializeInnerStruct(Tensor1D weight) noexcept;
 
     void reset(size_type new_power);
-
-    void train(const Tensor1D& idata,
-               const Tensor1D& odata);
 
     Precision feedforward(Precision sample) const noexcept;
     Tensor1D feedforward(const Tensor1D& idata) const;
@@ -66,35 +67,6 @@ void TRIXY_POLYNOMIAL_REGRESSION_TPL::reset(size_type new_power)
 {
     W.resize(new_power + 1);
     N = new_power + 1;
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_POLYNOMIAL_REGRESSION_TPL::train(
-    const Vector<Precision, Args...>& idata,
-    const Vector<Precision, Args...>& odata)
-{
-    Tensor2D X(idata.size(), N);
-
-    Precision sample;
-    Precision power;
-
-    for(size_type i = 0; i < idata.size(); ++i)
-    {
-        sample = idata(i);
-        power  = 1.;
-
-        for(size_type j = 0; j < N; ++j)
-        {
-            X(i, j) = power;
-            power  *= sample;
-        }
-    }
-
-    Tensor2D X_T = X.transpose();
-
-    // W = (X^T . X)^(-1) . X^T . Y
-
-    linear.dot(W, X_T.dot(X).inverse().dot(X_T), odata);
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION

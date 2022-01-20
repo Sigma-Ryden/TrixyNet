@@ -411,7 +411,7 @@ Matrix<Precision> Matrix<Precision>::dot(const Tensor& matrix) const
         {
             buff = data_[i * shape_.col_ + r];
             for(size_type j = 0; j <  matrix.shape_.col_; ++j)
-                new_matrix.data_[i * shape_.row_ + j] += buff * matrix.data_[r * shape_.row_ + j];
+                new_matrix.data_[i * matrix.shape_.col_ + j] += buff * matrix.data_[r * matrix.shape_.col_ + j];
         }
     }
 
@@ -541,7 +541,7 @@ Matrix<Precision> Matrix<Precision>::transpose() const
 
     for(size_type i = 0; i < shape_.col_; ++i)
         for(size_type j = 0; j < shape_.row_; ++j)
-            new_matrix.data_[i * shape_.col_ + j] = data_[j * shape_.col_ + i];
+            new_matrix.data_[i * shape_.row_ + j] = data_[j * shape_.col_ + i];
 
     return new_matrix;
 }
@@ -594,7 +594,7 @@ Matrix<Precision> Matrix<Precision>::inverse() const
         {
             for(j = k; j < N; ++j)
             {
-                buff = A.data_[k][j];
+                buff = A.data_[k * N + j];
                 A.data_[k * N + j] = A.data_[p * N + j];
                 A.data_[p * N + j] = buff;
             }

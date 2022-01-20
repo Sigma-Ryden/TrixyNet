@@ -1,6 +1,6 @@
-#ifndef TRIXY_NET_META_HPP
 // This file contains all extern meta function
 // For safer use, you MUST only include the Base*.hpp file from lib
+#ifndef TRIXY_NET_META_HPP
 #define TRIXY_NET_META_HPP
 
 #include <utility> // declval
@@ -11,6 +11,8 @@
 
 #include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 #include "Trixy/Neuro/Functional/BaseFunctional.hpp"
+#include "Trixy/Neuro/Training/BaseTraining.hpp"
+
 #include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -45,10 +47,6 @@ template <typename> struct is_feedforward_net : std::false_type {};
 TRIXY_NET_TPL_DECLARATION
 struct is_feedforward_net<TRIXY_FEED_FORWARD_NET_TPL> : std::true_type {};
 
-template <typename> struct is_feedforward_net_less : std::false_type {};
-TRIXY_NET_TPL_DECLARATION
-struct is_feedforward_net_less<TRIXY_FEED_FORWARD_NET_LESS_TPL> : std::true_type {};
-
 template <typename> struct is_linear_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION
 struct is_linear_regression<TRIXY_LINEAR_REGRESSION_TPL> : std::true_type {};
@@ -68,6 +66,10 @@ struct is_serializer<Serializer<Serializable>> : std::true_type {};
 template <typename> struct is_functional : std::false_type {};
 template <class Functionable>
 struct is_functional<Functional<Functionable>> : std::true_type {};
+
+template <typename> struct is_training : std::false_type {};
+template <class Trainable>
+struct is_training<train::Training<Trainable>> : std::true_type {};
 
 } // namespace meta
 

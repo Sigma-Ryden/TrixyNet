@@ -5,6 +5,7 @@
 #include "Regression/RegressionCore.hpp"
 
 #include "Functional/FunctionalCore.hpp"
+#include "Training/TrainingCore.hpp"
 
 #include "Serialization/SerializerCore.hpp"
 
