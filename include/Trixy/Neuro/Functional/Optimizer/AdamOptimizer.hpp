@@ -21,6 +21,7 @@ using AdamOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::adam)
+    : public BaseOptimizer<Optimizeriable, AdamOptimizer>
 {
 private:
     template <class T>

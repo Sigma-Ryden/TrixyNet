@@ -20,6 +20,7 @@ using GradDescentOptimizer
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::grad_descent)
+    : public BaseOptimizer<Optimizeriable, GradDescentOptimizer>
 {
 private:
     template <class T>

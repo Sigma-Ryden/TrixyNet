@@ -112,16 +112,17 @@ void speed_test()
     net.function.setNormalization(manage.get<ActivationId::softmax>());
     net.function.setLoss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.get<OptimizationId::grad_descent>(net, 0.1);
+    auto grad_descent = manage.get<OptimizationId::grad_descent>(net, 0.1);
+    auto adam         = manage.get<OptimizationId::adam>(net, 0.001);
 
     std::cout << "Before train\n";
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 
     util::Timer t;
-    teach.trainBatch(train_in, train_out, 100000, optimizer);
-    teach.trainStochastic(train_in, train_out, 100000, std::rand, manage.get<OptimizationId::adam>(net, 0.001));
-    teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, optimizer);
+    teach.trainBatch(train_in, train_out, 100000, grad_descent);
+    teach.trainStochastic(train_in, train_out, 100000, std::rand, adam);
+    teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, grad_descent);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -138,7 +139,7 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-/*
+//
 int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -149,7 +150,7 @@ int main()
 
     return 0;
 }
-*/
+//
 /*
 enum class Accuracy
 {

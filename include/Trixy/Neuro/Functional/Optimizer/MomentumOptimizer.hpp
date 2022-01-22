@@ -20,6 +20,7 @@ using MomentumOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::momentum)
+    : public BaseOptimizer<Optimizeriable, MomentumOptimizer>
 {
 private:
     template <class T>

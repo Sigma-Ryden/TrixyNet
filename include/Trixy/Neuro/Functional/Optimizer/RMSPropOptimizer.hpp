@@ -21,6 +21,7 @@ using RMSPropOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::rms_prop)
+    : public BaseOptimizer<Optimizeriable, RMSPropOptimizer>
 {
 private:
     template <class T>

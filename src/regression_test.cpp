@@ -177,7 +177,7 @@ void linear_regression_test()
 
     std::cout << "End of serialization\n";
 }
-//
+/*
 int main()
 {
     std::cout << std::fixed << std::setprecision(6);
@@ -189,4 +189,4 @@ int main()
 
     return 0;
 }
-//
+*/
