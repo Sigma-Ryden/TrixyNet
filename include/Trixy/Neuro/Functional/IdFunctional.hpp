@@ -5,6 +5,8 @@
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
+#include "Trixy/Neuro/Detail/MacroScope.hpp"
+
 namespace trixy
 {
 
@@ -60,47 +62,13 @@ enum class OptimizationId : std::uint8_t
 struct OptimizationType
 {
 public:
-    struct undefined
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::undefined, undefined>;
-    };
-
-    struct grad_descent
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::grad_descent, grad_descent>;
-    };
-
-    struct momentum
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::momentum, momentum>;
-    };
-
-    struct nestorov
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::nestorov, nestorov>;
-    };
-
-    struct ada_grad
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::ada_grad, ada_grad>;
-    };
-
-    struct rms_prop
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::rms_prop, rms_prop>;
-    };
-
-    struct adam
-    {
-        template <OptimizationId id>
-        using check = meta::select_for<id == OptimizationId::adam, adam>;
-    };
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, undefined);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, grad_descent);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, momentum);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, nestorov);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, ada_grad);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, rms_prop);
+    TRIXY_CHECK_TYPE_HELPER(OptimizationId, adam);
 
 private:
     template <OptimizationId id> struct from : meta::disjunction<
@@ -121,5 +89,7 @@ public:
 } // namespace functional
 
 } // namespace trixy
+
+#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
 #endif // ID_FUNCTIONAL_HPP

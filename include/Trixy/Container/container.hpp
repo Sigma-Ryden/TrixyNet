@@ -3,7 +3,7 @@
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
-
+#include <iostream>
 namespace trixy
 {
 

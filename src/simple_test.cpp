@@ -67,8 +67,7 @@ void simple_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.get(sr.getActivationId()));
-    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
 
     util::test_neuro(net, train_in, train_out);

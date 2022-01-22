@@ -105,9 +105,9 @@ void mnist_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.get(sr.getActivationId()));
-    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
+
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';

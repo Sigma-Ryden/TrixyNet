@@ -80,10 +80,8 @@ void speed_test_deserialization()
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
 
-    net.function.setActivation(manage.get(sr.getActivationId()));
-    net.function.setNormalization(manage.get(sr.getNormalizationId()));
+    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
-    li::Vector<double> a;
 
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
@@ -123,6 +121,7 @@ void speed_test()
     teach.trainBatch(train_in, train_out, 100000, grad_descent);
     teach.trainStochastic(train_in, train_out, 100000, std::rand, adam);
     teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, grad_descent);
+
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
@@ -145,8 +144,8 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
 
     return 0;
 }

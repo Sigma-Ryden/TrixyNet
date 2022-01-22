@@ -20,7 +20,7 @@ using MomentumOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::momentum)
-    : public BaseOptimizer<Optimizeriable, MomentumOptimizer>
+    : public IOptimizer<Optimizeriable>
 {
 private:
     template <class T>
@@ -46,18 +46,18 @@ private:
     size_type N;
 
 public:
-    Optimizer() noexcept : N(0) {}
+    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
 
     Optimizer(const Optimizeriable& net,
               precision_type learning_rate,
               precision_type momentum = 0.9);
 
-    void setLearnRate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& bias,
-                Container<Tensor2D>& weight,
-                const Container<Tensor1D>& gradBias,
-                const Container<Tensor2D>& gradWeight) noexcept;
+    void update(Container<Tensor1D>& B,
+                Container<Tensor2D>& W,
+                const Container<Tensor1D>& gradB,
+                const Container<Tensor2D>& gradW) noexcept;
 
     void prepare(const Optimizeriable& net,
                  precision_type new_learning_rate,
@@ -79,11 +79,13 @@ MomentumOptimizer<Optimizeriable>::Optimizer(
     precision_type learning_rate,
     precision_type momentum)
 {
+    this->template initialize<Optimizer>();
+
     prepare(net, learning_rate, momentum);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void MomentumOptimizer<Optimizeriable>::setLearnRate(
+void MomentumOptimizer<Optimizeriable>::set_learning_rate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
@@ -91,15 +93,15 @@ void MomentumOptimizer<Optimizeriable>::setLearnRate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void MomentumOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& bias,
-    Container<Tensor2D>& weight,
-    const Container<Tensor1D>& gradBias,
-    const Container<Tensor2D>& gradWeight) noexcept
+    Container<Tensor1D>& B,
+    Container<Tensor2D>& W,
+    const Container<Tensor1D>& gradB,
+    const Container<Tensor2D>& gradW) noexcept
 {
     for(size_type i = 0; i < N; ++i)
     {
-        update(buff1[i], optimizedB[i],   bias[i],   gradBias[i]);
-        update(buff2[i], optimizedW[i], weight[i], gradWeight[i]);
+        update(buff1[i], optimizedB[i], B[i], gradB[i]);
+        update(buff2[i], optimizedW[i], W[i], gradW[i]);
     }
 }
 

@@ -21,7 +21,7 @@ using AdamOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::adam)
-    : public BaseOptimizer<Optimizeriable, AdamOptimizer>
+    : public IOptimizer<Optimizeriable>
 {
 private:
     template <class T>
@@ -60,19 +60,19 @@ private:
     size_type N;
 
 public:
-    Optimizer() noexcept : N(0) {}
+    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
 
     Optimizer(const Optimizeriable& net,
               precision_type learning_rate,
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
-    void setLearnRate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& bias,
-                Container<Tensor2D>& weight,
-                const Container<Tensor1D>& gradBias,
-                const Container<Tensor2D>& gradWeight) noexcept;
+    void update(Container<Tensor1D>& B,
+                Container<Tensor2D>& W,
+                const Container<Tensor1D>& gradB,
+                const Container<Tensor2D>& gradW) noexcept;
 
     void prepare(const Optimizeriable& net,
                  precision_type new_learning_rate,
@@ -97,11 +97,13 @@ AdamOptimizer<Optimizeriable>::Optimizer(
     precision_type beta1,
     precision_type beta2)
 {
+    this->template initialize<Optimizer>();
+
     prepare(net, learning_rate, beta1, beta2);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void AdamOptimizer<Optimizeriable>::setLearnRate(
+void AdamOptimizer<Optimizeriable>::set_learning_rate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
@@ -109,10 +111,10 @@ void AdamOptimizer<Optimizeriable>::setLearnRate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void AdamOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& bias,
-    Container<Tensor2D>& weight,
-    const Container<Tensor1D>& gradBias,
-    const Container<Tensor2D>& gradWeight) noexcept
+    Container<Tensor1D>& B,
+    Container<Tensor2D>& W,
+    const Container<Tensor1D>& gradB,
+    const Container<Tensor2D>& gradW) noexcept
 {
     tbeta1 *= beta1;
     tbeta2 *= beta2;
@@ -122,8 +124,8 @@ void AdamOptimizer<Optimizeriable>::update(
 
     for(size_type i = 0; i < N; ++i)
     {
-        update(buff1[i], optimizedB1[i], optimizedB2[i],   bias[i],   gradBias[i]);
-        update(buff2[i], optimizedW1[i], optimizedW2[i], weight[i], gradWeight[i]);
+        update(buff1[i], optimizedB1[i], optimizedB2[i], B[i], gradB[i]);
+        update(buff2[i], optimizedW1[i], optimizedW2[i], W[i], gradW[i]);
     }
 }
 

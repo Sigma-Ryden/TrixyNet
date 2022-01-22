@@ -1,7 +1,7 @@
 #ifndef FEED_FORWARD_NET_FUNCTIONAL_HPP
 #define FEED_FORWARD_NET_FUNCTIONAL_HPP
 
-#include <utility> // forward
+#include <utility> // forward, move
 
 #include "Trixy/Neuro/Functional/BaseFunctional.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
@@ -20,6 +20,10 @@ TRIXY_FUNCTIONAL_TPL_DECLARATION
 class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)
 {
 private:
+    template <typename T>
+    using Container            = typename Functionable::template ContainerType<T>;
+
+    using size_type            = typename Functionable::size_type;
     using byte_type            = typename Functionable::byte_type;
 
     using ActivationFunction   = typename Functionable::ActivationFunction;
@@ -35,6 +39,15 @@ public:
     ActivationFunction get(functional::ActivationId id) const noexcept
     {
         return set::activation::get_activation_function<ActivationFunction, byte_type>(id);
+    }
+
+    Container<ActivationFunction> get(const Container<functional::ActivationId>& all_id) const noexcept
+    {
+        Container<ActivationFunction> all_activation(all_id.size());
+        for(size_type i = 0; i < all_id.size(); ++i)
+            all_activation[i] = get(all_id[i]);
+
+        return all_activation;
     }
 
     LossFunction get(functional::LossId id) const noexcept

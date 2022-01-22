@@ -110,3 +110,9 @@
 #define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
     template <typename T = Class,                                                                       \
               typename std::enable_if<is_type<T>::value, int>::type = 0>
+
+#define TRIXY_CHECK_TYPE_HELPER(check_for, type)                                                        \
+    struct type {                                                                                       \
+        template <check_for id>                                                                         \
+        using check = meta::select_for<id == check_for::type, type>;                                    \
+    }

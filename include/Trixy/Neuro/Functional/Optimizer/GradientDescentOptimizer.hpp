@@ -20,7 +20,7 @@ using GradDescentOptimizer
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::grad_descent)
-    : public BaseOptimizer<Optimizeriable, GradDescentOptimizer>
+    : public IOptimizer<Optimizeriable>
 {
 private:
     template <class T>
@@ -41,17 +41,17 @@ private:
     size_type N;
 
 public:
-    Optimizer() noexcept : N(0) {}
+    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
 
     Optimizer(const Optimizeriable& net,
               precision_type learning_rate);
 
-    void setLearnRate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& bias,
-                Container<Tensor2D>& weight,
-                const Container<Tensor1D>& gradBias,
-                const Container<Tensor2D>& gradWeight) noexcept;
+    void update(Container<Tensor1D>& B,
+                Container<Tensor2D>& W,
+                const Container<Tensor1D>& gradB,
+                const Container<Tensor2D>& gradW) noexcept;
 
     void prepare(const Optimizeriable& net,
                  precision_type new_learning_rate); // deprecated
@@ -64,11 +64,13 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
     const Optimizeriable& net,
     precision_type learning_rate)
 {
+    this->template initialize<Optimizer>();
+
     prepare(net, learning_rate);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void GradDescentOptimizer<Optimizeriable>::setLearnRate(
+void GradDescentOptimizer<Optimizeriable>::set_learning_rate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
@@ -94,21 +96,21 @@ void GradDescentOptimizer<Optimizeriable>::prepare(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void GradDescentOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& bias,
-    Container<Tensor2D>& weight,
-    const Container<Tensor1D>& gradBias,
-    const Container<Tensor2D>& gradWeight) noexcept
+    Container<Tensor1D>& B,
+    Container<Tensor2D>& W,
+    const Container<Tensor1D>& gradB,
+    const Container<Tensor2D>& gradW) noexcept
 {
     // w = w - learning_rate * g
 
     for(size_type i = 0; i < N; ++i)
     {
-        bias[i].sub(
-            buff1[i].join(learning_rate, gradBias[i])
+        B[i].sub(
+            buff1[i].join(learning_rate, gradB[i])
         );
 
-        weight[i].sub(
-            buff2[i].join(learning_rate, gradWeight[i])
+        W[i].sub(
+            buff2[i].join(learning_rate, gradW[i])
         );
     }
 }
