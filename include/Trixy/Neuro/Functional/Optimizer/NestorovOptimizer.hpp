@@ -64,6 +64,13 @@ public:
                  precision_type new_momentum); // deprecated
 
     Optimizer& reset() noexcept;
+
+private:
+    template <class Tensor>
+    void update(Tensor& buff,
+                Tensor& optimized,
+                Tensor& parameter,
+                const Tensor& grad) noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -89,27 +96,31 @@ void NestorovOptimizer<Optimizeriable>::update(
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    for(size_type i = 0; i < N; ++i)
+    {
+        update(buff1[i], optimizedB[i],   bias[i],   gradBias[i]);
+        update(buff2[i], optimizedW[i], weight[i], gradWeight[i]);
+    }
+}
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
+template <class Tensor>
+void NestorovOptimizer<Optimizeriable>::update(
+    Tensor& buff,
+    Tensor& optimized,
+    Tensor& parameter,
+    const Tensor& grad) noexcept
+{
     // velocity = momentum * velocity - learning_rate * g
     // w = w + momentum * velocity - learning_rate * g
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        optimizedB[i].join(momentum).sub(
-            buff1[i].join(learning_rate, gradBias[i])
-        );
+    optimized.join(momentum).sub(
+        buff.join(learning_rate, grad)
+    );
 
-        bias[i].sub(buff1[i]).add(
-            buff1[i].join(momentum, optimizedB[i])
-        );
-
-        optimizedW[i].join(momentum).sub(
-            buff2[i].join(learning_rate, gradWeight[i])
-        );
-
-        weight[i].sub(buff2[i]).add(
-            buff2[i].join(momentum, optimizedW[i])
-        );
-    }
+    parameter.sub(buff).add(
+        buff.join(momentum, optimized)
+    );
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION

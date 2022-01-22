@@ -61,6 +61,13 @@ public:
                  precision_type new_learning_rate); // deprecated
 
     Optimizer& reset() noexcept;
+
+private:
+    template <class Tensor>
+    void update(Tensor& buff,
+                Tensor& optimized,
+                Tensor& parameter,
+                const Tensor& grad) noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -85,31 +92,33 @@ void AdaGradOptimizer<Optimizeriable>::update(
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    for(size_type i = 0; i < N; ++i)
+    {
+        update(buff1[i], optimizedB[i],   bias[i],   gradBias[i]);
+        update(buff2[i], optimizedW[i], weight[i], gradWeight[i]);
+    }
+}
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
+template <class Tensor>
+void AdaGradOptimizer<Optimizeriable>::update(
+    Tensor& buff,
+    Tensor& optimized,
+    Tensor& parameter,
+    const Tensor& grad) noexcept
+{
     // velocity = velocity + g * g
     // w = w - learning_rate * g / sqrt(velocity)
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        optimizedB[i].add(
-            buff1[i].multiply(gradBias[i], gradBias[i])
-        );
+    optimized.add(
+        buff.multiply(grad, grad)
+    );
 
-        bias[i].sub(
-            buff1[i].apply(detail::invertSqrt, optimizedB[i])
-                    .multiply(gradBias[i])
-                    .join(learning_rate)
-        );
-
-        optimizedW[i].add(
-            buff2[i].multiply(gradWeight[i], gradWeight[i])
-        );
-
-        weight[i].sub(
-            buff2[i].apply(detail::invertSqrt, optimizedW[i])
-                    .multiply(gradWeight[i])
-                    .join(learning_rate)
-        );
-    }
+    parameter.sub(
+        buff.apply(detail::invertSqrt, optimized)
+            .multiply(grad)
+            .join(learning_rate)
+    );
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION

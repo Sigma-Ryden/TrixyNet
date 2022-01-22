@@ -23,18 +23,11 @@ private:
     using Tensor2D         = typename Optimizeriable::Tensor2D;
 
     using precision_type   = typename Optimizeriable::precision_type;
-    using size_type        = typename Optimizeriable::size_type;
-
-private:
-    DerivedOptimizer& derived()
-    {
-        return *static_cast<DerivedOptimizer*>(this);
-    }
 
 public:
     void setLearnRate(precision_type new_learning_rate) noexcept
     {
-        derived().setLearnRate(new_learning_rate);
+        static_cast<DerivedOptimizer&>(*this).setLearnRate(new_learning_rate);
     }
 
     void update(Container<Tensor1D>& bias,
@@ -42,18 +35,7 @@ public:
                 const Container<Tensor1D>& gradBias,
                 const Container<Tensor2D>& gradWeight) noexcept
     {
-        derived().update(bias, weight, gradBias, gradWeight);
-    }
-
-    void prepare(const Optimizeriable& net,
-                 precision_type new_learning_rate)
-    {
-        derived().prepare(net, new_learning_rate);
-    }
-
-    BaseOptimizer& reset() noexcept
-    {
-        return derived().reset();
+        static_cast<DerivedOptimizer&>(*this).update(bias, weight, gradBias, gradWeight);
     }
 };
 

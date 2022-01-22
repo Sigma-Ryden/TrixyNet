@@ -54,8 +54,8 @@ private:
     precision_type tbeta1;
     precision_type tbeta2;
 
-    precision_type alpha1; // maybe unused
-    precision_type alpha2; // maybe unused
+    precision_type alpha1;
+    precision_type alpha2;
 
     size_type N;
 
@@ -80,6 +80,14 @@ public:
                  precision_type new_beta2); // deprecated
 
     Optimizer& reset() noexcept;
+
+private:
+    template <class Tensor>
+    void update(Tensor& buff,
+                Tensor& optimized1,
+                Tensor& optimized2,
+                Tensor& parameter,
+                const Tensor& grad) noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -106,6 +114,28 @@ void AdamOptimizer<Optimizeriable>::update(
     const Container<Tensor1D>& gradBias,
     const Container<Tensor2D>& gradWeight) noexcept
 {
+    tbeta1 *= beta1;
+    tbeta2 *= beta2;
+
+    alpha1 = learning_rate / (1. - tbeta1);
+    alpha2 = 1. / (1. - tbeta2);
+
+    for(size_type i = 0; i < N; ++i)
+    {
+        update(buff1[i], optimizedB1[i], optimizedB2[i],   bias[i],   gradBias[i]);
+        update(buff2[i], optimizedW1[i], optimizedW2[i], weight[i], gradWeight[i]);
+    }
+}
+
+TRIXY_OPTIMIZER_TPL_DECLARATION
+template <class Tensor>
+void AdamOptimizer<Optimizeriable>::update(
+    Tensor& buff,
+    Tensor& optimized1,
+    Tensor& optimized2,
+    Tensor& parameter,
+    const Tensor& grad) noexcept
+{
     // m = beta1 * m - (1 - beta1) * g
     // s = beta2 * m + (1 - beta2) * g * g
 
@@ -116,46 +146,21 @@ void AdamOptimizer<Optimizeriable>::update(
 
     // where: t - is number of calls this function (or number of iteration in train)
 
-    tbeta1 *= beta1;
-    tbeta2 *= beta2;
+    optimized1.join(beta1).add(
+        buff.join(rbeta1, grad)
+    );
 
-    alpha1 = learning_rate / (1. - tbeta1);
-    alpha2 = 1. / (1. - tbeta2);
+    optimized2.join(beta2).add(
+        buff.multiply(grad, grad)
+            .join(rbeta2)
+    );
 
-    for(size_type i = 0; i < N; ++i)
-    {
-        optimizedB1[i].join(beta1).add(
-            buff1[i].join(rbeta1, gradBias[i])
-        );
-
-        optimizedB2[i].join(beta2).add(
-            buff1[i].multiply(gradBias[i], gradBias[i])
-                    .join(rbeta2)
-        );
-
-        bias[i].sub(
-            buff1[i].join(alpha2, optimizedB2[i])
-                    .apply(detail::invertSqrt)
-                    .multiply(optimizedB1[i])
-                    .join(alpha1)
-        );
-
-        optimizedW1[i].join(beta1).add(
-            buff2[i].join(rbeta1, gradWeight[i])
-        );
-
-        optimizedW2[i].join(beta2).add(
-            buff2[i].multiply(gradWeight[i], gradWeight[i])
-                    .join(rbeta2)
-        );
-
-        weight[i].sub(
-            buff2[i].join(alpha2, optimizedW2[i])
-                    .apply(detail::invertSqrt)
-                    .multiply(optimizedW1[i])
-                    .join(alpha1)
-        );
-    }
+    parameter.sub(
+        buff.join(alpha2, optimized2)
+            .apply(detail::invertSqrt)
+            .multiply(optimized1)
+            .join(alpha1)
+    );
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
