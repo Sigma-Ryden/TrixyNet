@@ -1,7 +1,7 @@
 #ifndef FEED_FORWARD_NET_FUNCTIONAL_HPP
 #define FEED_FORWARD_NET_FUNCTIONAL_HPP
 
-#include <utility> // forward, move
+#include <utility> // forward
 
 #include "Trixy/Neuro/Functional/BaseFunctional.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
