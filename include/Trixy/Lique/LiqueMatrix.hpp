@@ -14,10 +14,10 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using Matrix = LIQUE_TENSOR_TPL(detail::TensorType::_2D);
+using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(detail::TensorType::_2D)
+class LIQUE_TENSOR_TPL(TensorType::matrix)
 {
 protected:
     class Shape;

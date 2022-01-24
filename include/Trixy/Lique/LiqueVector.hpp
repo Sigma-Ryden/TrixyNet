@@ -13,10 +13,10 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using Vector = LIQUE_TENSOR_TPL(detail::TensorType::_1D);
+using Vector = LIQUE_TENSOR_TPL(TensorType::vector);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(detail::TensorType::_1D)
+class LIQUE_TENSOR_TPL(TensorType::vector)
 {
 public:
     using size_type = std::size_t;

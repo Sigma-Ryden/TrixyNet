@@ -3,6 +3,7 @@
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
+#include <utility> // forward
 
 #include "LiqueVector.hpp"
 #include "LiqueMatrix.hpp"
@@ -40,6 +41,19 @@ inline bool is_less(Precision previous, Precision next)
 }
 
 } // namespace comp
+
+template <class T>
+T sum(T&& t1)
+{
+    return t1;
+}
+
+template <class T, class... Tn,
+          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+T sum(T&& t1, Tn&&... tn)
+{
+    return t1 + sum(std::forward<T>(tn)...);
+}
 
 template <typename Precision,
           Binary<Precision> compare,
@@ -379,46 +393,67 @@ Matrix<Precision> tensordot(
     return buff2;
 }
 
-template <typename Precision, typename Function,
-          meta::select_if_arithmetic_t<Precision> = 0>
-void for_each(const Vector<Precision>& vector, Function func)
+template <class Tensor, class Function,
+          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
+void for_each(const Tensor& tensor, Function func)
 {
-    for(std::size_t i = 0; i < vector.size(); ++i)
-        func(vector(i));
+    for(std::size_t i = 0; i < tensor.size(); ++i)
+        func(tensor(i));
 }
 
-template <typename Precision, typename Function,
-          meta::select_if_arithmetic_t<Precision> = 0>
-void for_each(const Matrix<Precision>& matrix, Function func)
+namespace detail
 {
-    for(std::size_t i = 0; i < matrix.size(); ++i)
-        func(matrix(i));
+
+template <class T, typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0>
+void concate_tensor(T& out, std::size_t& pos, const T& tensor_1)
+{
+    for(std::size_t n = 0; n < tensor_1.size(); ++n, ++pos)
+        out(pos) = tensor_1(n);
 }
 
-template <typename Precision,
-          template <typename...> class Container,
-          meta::select_if_arithmetic_t<Precision> = 0>
-Vector<Precision> concate(const Container<Vector<Precision>>& list)
+template <class T, class... Tn,
+          typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
+          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+void concate_tensor(T& out, std::size_t& pos, const T& tensor_1, const Tn&... tensor_n)
+{
+    for(std::size_t n = 0; n < tensor_1.size(); ++n, ++pos)
+        out(pos) = tensor_1(n);
+
+    concate_tensor(out, pos, tensor_n...);
+}
+
+} // namespace detail
+
+template <class T, class... Tn,
+          typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
+          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+T concate(const T& tensor_1, const Tn&... tensor_n)
+{
+    T out(sum(tensor_1.size(), tensor_n.size()...));
+
+    std::size_t pos = 0;
+    detail::concate_tensor(out, pos, tensor_1, tensor_n...);
+
+    return out;
+}
+
+template <class Tensor, template <typename...> class Container,
+          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
+Tensor concate(const Container<Tensor>& list)
 {
     std::size_t n = 0;
 
     for(const auto& it : list)
         n += it.size();
 
-    Vector<Precision> vector(n);
+    Tensor tensor(n);
 
     std::size_t i = 0;
     for(const auto& it : list)
         for(n = 0; n < it.size(); ++n, ++i)
-            vector(i) = it(n);
+            tensor(i) = it(n);
 
-    return vector;
-}
-
-LIQUE_FUNCTION_TPL
-Vector<Precision> concate(std::initializer_list<Vector<Precision>> list)
-{
-    return concate<Precision, std::initializer_list>(list);
+    return tensor;
 }
 
 } // namespace lique

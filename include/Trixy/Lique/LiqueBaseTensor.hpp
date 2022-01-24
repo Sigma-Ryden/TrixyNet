@@ -4,16 +4,11 @@
 namespace lique
 {
 
-namespace detail
-{
-
 struct TensorType
 {
-    struct _1D;
-    struct _2D;
+    struct vector;
+    struct matrix;
 };
-
-} // namespace detail
 
 template <typename Precision, typename tensor_type, typename enable = void>
 class Tensor;
