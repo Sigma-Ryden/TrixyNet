@@ -49,7 +49,7 @@ inline T sum(T&& t1)
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 inline T sum(T&& t1, Tn&&... tn)
 {
     return t1 + sum(std::forward<T>(tn)...);
@@ -413,7 +413,7 @@ void concate_tensor(T& out, std::size_t& pos, const T& tensor_1)
 
 template <class T, class... Tn,
           typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
-          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 void concate_tensor(T& out, std::size_t& pos, const T& tensor_1, const Tn&... tensor_n)
 {
     for(std::size_t n = 0; n < tensor_1.size(); ++n, ++pos)
@@ -426,7 +426,7 @@ void concate_tensor(T& out, std::size_t& pos, const T& tensor_1, const Tn&... te
 
 template <class T, class... Tn,
           typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
-          typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 T concate(const T& tensor_1, const Tn&... tensor_n)
 {
     T out(sum(tensor_1.size(), tensor_n.size()...));

@@ -138,10 +138,7 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-// container S: 0.078101
-// recursion: 0.109370
-// initializer_list S: 0.078106
-// initializer_list R: 0.218682
+//
 int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));

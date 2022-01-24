@@ -29,7 +29,7 @@ template <typename Precision>
 struct is_matrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
 
 template <class T, class... Tn>
-struct common_type : meta::conjunction<std::is_same<T, Tn>...> {};
+struct is_same_types: meta::conjunction<std::is_same<T, Tn>...> {};
 
 template <typename T>
 struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
