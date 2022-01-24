@@ -43,14 +43,14 @@ inline bool is_less(Precision previous, Precision next)
 } // namespace comp
 
 template <class T>
-T sum(T&& t1)
+inline T sum(T&& t1)
 {
     return t1;
 }
 
 template <class T, class... Tn,
           typename std::enable_if<meta::common_type<T, Tn...>::value, int>::type = 0>
-T sum(T&& t1, Tn&&... tn)
+inline T sum(T&& t1, Tn&&... tn)
 {
     return t1 + sum(std::forward<T>(tn)...);
 }
