@@ -33,40 +33,36 @@ private:
     using size_type      = typename Optimizeriable::size_type;
 
 private:
-    Container<Tensor1D> buff1;
-    Container<Tensor2D> buff2;
+    Optimizeriable& net;
 
     precision_type learning_rate;
 
-    size_type N;
+    Container<Tensor1D> buff1;
+    Container<Tensor2D> buff2;
 
 public:
-    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
-
-    Optimizer(const Optimizeriable& net,
+    Optimizer(Optimizeriable& network,
               precision_type learning_rate);
 
     void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& B,
-                Container<Tensor2D>& W,
-                const Container<Tensor1D>& gradB,
+    void update(const Container<Tensor1D>& gradB,
                 const Container<Tensor2D>& gradW) noexcept;
 
-    void prepare(const Optimizeriable& net,
-                 precision_type new_learning_rate); // deprecated
-
-    void reset() noexcept = delete;
+private:
+    void initialize_inner_struct();
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 GradDescentOptimizer<Optimizeriable>::Optimizer(
-    const Optimizeriable& net,
+    Optimizeriable& network,
     precision_type learning_rate)
+    : net(network)
+    , learning_rate(learning_rate)
 {
     this->template initialize<Optimizer>();
 
-    prepare(net, learning_rate);
+    initialize_inner_struct();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -76,40 +72,32 @@ void GradDescentOptimizer<Optimizeriable>::set_learning_rate(
     learning_rate = new_learning_rate;
 }
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void GradDescentOptimizer<Optimizeriable>::prepare(
-    const Optimizeriable& net,
-    precision_type new_learning_rate)
+void GradDescentOptimizer<Optimizeriable>::initialize_inner_struct()
 {
-    learning_rate = new_learning_rate;
+    buff1.resize(net.inner.N);
+    buff2.resize(net.inner.N);
 
-    N = net.getTopology().size() - 1;
-
-    buff1.resize(N);
-    buff2.resize(N);
-
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        buff1[i].resize(net.  getInnerBias()[i]. size());
-        buff2[i].resize(net.getInnerWeight()[i].shape());
+        buff1[i].resize(net.inner.B[i]. size());
+        buff2[i].resize(net.inner.W[i].shape());
     }
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void GradDescentOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& B,
-    Container<Tensor2D>& W,
     const Container<Tensor1D>& gradB,
     const Container<Tensor2D>& gradW) noexcept
 {
     // w = w - learning_rate * g
 
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        B[i].sub(
+        net.inner.B[i].sub(
             buff1[i].join(learning_rate, gradB[i])
         );
 
-        W[i].sub(
+        net.inner.W[i].sub(
             buff2[i].join(learning_rate, gradW[i])
         );
     }

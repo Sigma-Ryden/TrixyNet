@@ -34,14 +34,7 @@ private:
     using size_type      = typename Optimizeriable::size_type;
 
 private:
-    Container<Tensor1D> buff1;
-    Container<Tensor2D> buff2;
-
-    Container<Tensor1D> optimizedB1;
-    Container<Tensor2D> optimizedW1;
-
-    Container<Tensor1D> optimizedB2;
-    Container<Tensor2D> optimizedW2;
+    Optimizeriable& net;
 
     precision_type learning_rate;
 
@@ -57,31 +50,31 @@ private:
     precision_type alpha1;
     precision_type alpha2;
 
-    size_type N;
+    Container<Tensor1D> buff1;
+    Container<Tensor2D> buff2;
+
+    Container<Tensor1D> optimizedB1;
+    Container<Tensor2D> optimizedW1;
+
+    Container<Tensor1D> optimizedB2;
+    Container<Tensor2D> optimizedW2;
 
 public:
-    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
-
-    Optimizer(const Optimizeriable& net,
+    Optimizer(Optimizeriable& network,
               precision_type learning_rate,
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
     void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& B,
-                Container<Tensor2D>& W,
-                const Container<Tensor1D>& gradB,
+    void update(const Container<Tensor1D>& gradB,
                 const Container<Tensor2D>& gradW) noexcept;
-
-    void prepare(const Optimizeriable& net,
-                 precision_type new_learning_rate,
-                 precision_type new_beta1,
-                 precision_type new_beta2); // deprecated
 
     Optimizer& reset() noexcept;
 
 private:
+    void initialize_inner_struct();
+
     template <class Tensor>
     void update(Tensor& buff,
                 Tensor& optimized1,
@@ -92,14 +85,18 @@ private:
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 AdamOptimizer<Optimizeriable>::Optimizer(
-    const Optimizeriable& net,
+    Optimizeriable& network,
     precision_type learning_rate,
     precision_type beta1,
     precision_type beta2)
+    : net(network)
+    , learning_rate(learning_rate)
+    , beta1(beta1)
+    , beta2(beta2)
 {
     this->template initialize<Optimizer>();
 
-    prepare(net, learning_rate, beta1, beta2);
+    initialize_inner_struct();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -111,8 +108,6 @@ void AdamOptimizer<Optimizeriable>::set_learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void AdamOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& B,
-    Container<Tensor2D>& W,
     const Container<Tensor1D>& gradB,
     const Container<Tensor2D>& gradW) noexcept
 {
@@ -122,10 +117,10 @@ void AdamOptimizer<Optimizeriable>::update(
     alpha1 = learning_rate / (1. - tbeta1);
     alpha2 = 1. / (1. - tbeta2);
 
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        update(buff1[i], optimizedB1[i], optimizedB2[i], B[i], gradB[i]);
-        update(buff2[i], optimizedW1[i], optimizedW2[i], W[i], gradW[i]);
+        update(buff1[i], optimizedB1[i], optimizedB2[i], net.inner.B[i], gradB[i]);
+        update(buff2[i], optimizedW1[i], optimizedW2[i], net.inner.W[i], gradW[i]);
     }
 }
 
@@ -166,44 +161,33 @@ void AdamOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void AdamOptimizer<Optimizeriable>::prepare(
-    const Optimizeriable& net,
-    precision_type new_learning_rate,
-    precision_type new_beta1,
-    precision_type new_beta2)
+void AdamOptimizer<Optimizeriable>::initialize_inner_struct()
 {
-    learning_rate = new_learning_rate;
-
-    beta1 = new_beta1;
-    beta2 = new_beta2;
-
     rbeta1 = 1. - beta1;
     rbeta2 = 1. - beta2;
 
     tbeta1 = 1.;
     tbeta2 = 1.;
 
-    N = net.getTopology().size() - 1;
+    buff1.resize(net.inner.N);
+    buff2.resize(net.inner.N);
 
-    buff1.resize(N);
-    buff2.resize(N);
+    optimizedB1.resize(net.inner.N);
+    optimizedW1.resize(net.inner.N);
 
-    optimizedB1.resize(N);
-    optimizedW1.resize(N);
+    optimizedB2.resize(net.inner.N);
+    optimizedW2.resize(net.inner.N);
 
-    optimizedB2.resize(N);
-    optimizedW2.resize(N);
-
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        buff1[i].resize(net.  getInnerBias()[i]. size());
-        buff2[i].resize(net.getInnerWeight()[i].shape());
+        buff1[i].resize(net.inner.B[i]. size());
+        buff2[i].resize(net.inner.W[i].shape());
 
-        optimizedB1[i].resize(net.  getInnerBias()[i]. size(), 0.);
-        optimizedW1[i].resize(net.getInnerWeight()[i].shape(), 0.);
+        optimizedB1[i].resize(net.inner.B[i]. size(), 0.);
+        optimizedW1[i].resize(net.inner.W[i].shape(), 0.);
 
-        optimizedB2[i].resize(net.  getInnerBias()[i]. size(), 0.);
-        optimizedW2[i].resize(net.getInnerWeight()[i].shape(), 0.);
+        optimizedB2[i].resize(net.inner.B[i]. size(), 0.);
+        optimizedW2[i].resize(net.inner.W[i].shape(), 0.);
     }
 }
 
@@ -213,7 +197,7 @@ AdamOptimizer<Optimizeriable>& AdamOptimizer<Optimizeriable>::reset() noexcept
     tbeta1 = 1.;
     tbeta2 = 1.;
 
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
         optimizedB1[i].fill(0.);
         optimizedW1[i].fill(0.);

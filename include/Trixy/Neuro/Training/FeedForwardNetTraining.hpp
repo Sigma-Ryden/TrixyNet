@@ -93,29 +93,29 @@ private:
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network) : net(network)
 {
-    H.resize(net.N);
-    derivedH.resize(net.N);
+    H.resize(net.inner.N);
+    derivedH.resize(net.inner.N);
 
-    derivedB.resize(net.N);
-    derivedW.resize(net.N);
+    derivedB.resize(net.inner.N);
+    derivedW.resize(net.inner.N);
 
-    deltaB.resize(net.N);
-    deltaW.resize(net.N);
+    deltaB.resize(net.inner.N);
+    deltaW.resize(net.inner.N);
 
-    buff.resize(net.N);
+    buff.resize(net.inner.N);
 
-    for(size_type i = 0; i < net.N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        H[i].resize(net.topology[i + 1]);
-        derivedH[i].resize(net.topology[i + 1]);
+        H[i].resize(net.inner.topology[i + 1]);
+        derivedH[i].resize(net.inner.topology[i + 1]);
 
-        derivedB[i].resize(net.topology[i + 1]);
-        derivedW[i].resize(net.topology[i], net.topology[i + 1]);
+        derivedB[i].resize(net.inner.topology[i + 1]);
+        derivedW[i].resize(net.inner.topology[i], net.inner.topology[i + 1]);
 
-        deltaB[i].resize(net.topology[i + 1]);
-        deltaW[i].resize(net.topology[i], net.topology[i + 1]);
+        deltaB[i].resize(net.inner.topology[i + 1]);
+        deltaW[i].resize(net.inner.topology[i], net.inner.topology[i + 1]);
 
-        buff[i].resize(net.topology[i + 1]);
+        buff[i].resize(net.inner.topology[i + 1]);
     }
 }
 
@@ -135,7 +135,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         innerFeedForward(idata[sample]);
         innerBackPropagation(idata[sample], odata[sample]);
 
-        optimizer.update(net.B, net.W, derivedB, derivedW);
+        optimizer.update(derivedB, derivedW);
     }
 }
 
@@ -161,7 +161,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 
         normalizeDelta(alpha);
 
-        optimizer.update(net.B, net.W, deltaB, deltaW);
+        optimizer.update(deltaB, deltaW);
     }
 }
 
@@ -202,7 +202,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
 
             normalizeDelta(alpha);
 
-            optimizer.update(net.B, net.W, deltaB, deltaW);
+            optimizer.update(deltaB, deltaW);
         }
     }
 }
@@ -248,16 +248,16 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerFeedForward(
     size_type i;
     size_type j;
 
-    net.linear.dot(buff[0], sample, net.W[0]);
-    buff[0].add(net.B[0]);
+    net.linear.dot(buff[0], sample, net.inner.W[0]);
+    buff[0].add(net.inner.B[0]);
 
-    for(i = 0, j = 1; j < net.N; ++i, ++j)
+    for(i = 0, j = 1; j < net.inner.N; ++i, ++j)
     {
         net.function.activation[i]. f(H[i],        buff[i]);
         net.function.activation[i].df(derivedH[i], buff[i]);
 
-        net.linear.dot(buff[j], H[i], net.W[j]);
-        buff[j].add(net.B[j]);
+        net.linear.dot(buff[j], H[i], net.inner.W[j]);
+        buff[j].add(net.inner.B[j]);
     }
 
     net.function.activation[i]. f(H[i],        buff[i]);
@@ -272,14 +272,14 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackPropagation(
     size_type i;
     size_type j;
 
-    i = net.N - 1;
+    i = net.inner.N - 1;
     net.function.loss.df(buff[i], target, H[i]);
 
     for(j = i - 1; i > 0; --i, --j)
     {
         derivedB[i].multiply(buff[i], derivedH[i]);
         net.linear.tensordot(derivedW[i], H[j], derivedB[i]);
-        net.linear.dot(buff[j], net.W[i], derivedB[i]);
+        net.linear.dot(buff[j], net.inner.W[i], derivedB[i]);
     }
 
     derivedB[0].multiply(buff[0], derivedH[0]);
@@ -289,7 +289,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackPropagation(
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::resetDelta() noexcept
 {
-    for(size_type i = 0; i < net.N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
         deltaB[i].fill(0.0);
         deltaW[i].fill(0.0);
@@ -299,7 +299,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::resetDelta() noexcept
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateDelta() noexcept
 {
-    for(size_type i = 0; i < net.N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
         deltaB[i].add(derivedB[i]);
         deltaW[i].add(derivedW[i]);
@@ -310,7 +310,7 @@ TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::normalizeDelta(
     precision_type alpha) noexcept
 {
-    for(size_type i = 0; i < net.N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
         deltaB[i].join(alpha);
         deltaW[i].join(alpha);

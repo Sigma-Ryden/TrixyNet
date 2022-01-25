@@ -34,40 +34,34 @@ private:
     using size_type      = typename Optimizeriable::size_type;
 
 private:
-    Container<Tensor1D> buff1;
-    Container<Tensor2D> buff2;
-
-    Container<Tensor1D> optimizedB;
-    Container<Tensor2D> optimizedW;
+    Optimizeriable& net;
 
     precision_type learning_rate;
 
     precision_type beta;
     precision_type rbeta;
 
-    size_type N;
+    Container<Tensor1D> buff1;
+    Container<Tensor2D> buff2;
+
+    Container<Tensor1D> optimizedB;
+    Container<Tensor2D> optimizedW;
 
 public:
-    Optimizer() noexcept : N(0) { this->template initialize<Optimizer>(); }
-
-    Optimizer(const Optimizeriable& net,
+    Optimizer(const Optimizeriable& network,
               precision_type learning_rate,
               precision_type beta = 0.9);
 
     void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(Container<Tensor1D>& bias,
-                Container<Tensor2D>& weight,
-                const Container<Tensor1D>& grad_bias,
+    void update(const Container<Tensor1D>& grad_bias,
                 const Container<Tensor2D>& grad_weight) noexcept;
-
-    void prepare(const Optimizeriable& net,
-                 precision_type new_learning_rate,
-                 precision_type new_beta); // deprecated
 
     Optimizer& reset() noexcept;
 
 private:
+    void initialize_inner_struct();
+
     template <class Tensor>
     void update(Tensor& buff,
                 Tensor& optimized,
@@ -77,13 +71,16 @@ private:
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 RMSPropOptimizer<Optimizeriable>::Optimizer(
-    const Optimizeriable& net,
+    const Optimizeriable& network,
     precision_type learning_rate,
     precision_type beta)
+    : net(network)
+    , learning_rate(learning_rate)
+    , beta(beta)
 {
     this->template initialize<Optimizer>();
 
-    prepare(net, learning_rate, beta);
+    initialize_inner_struct();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -95,15 +92,13 @@ void RMSPropOptimizer<Optimizeriable>::set_learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void RMSPropOptimizer<Optimizeriable>::update(
-    Container<Tensor1D>& B,
-    Container<Tensor2D>& W,
     const Container<Tensor1D>& gradB,
     const Container<Tensor2D>& gradW) noexcept
 {
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        update(buff1[i], optimizedB[i], B[i], gradB[i]);
-        update(buff2[i], optimizedW[i], W[i], gradW[i]);
+        update(buff1[i], optimizedB[i], net.inner.B[i], gradB[i]);
+        update(buff2[i], optimizedW[i], net.inner.W[i], gradW[i]);
     }
 }
 
@@ -131,38 +126,30 @@ void RMSPropOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::prepare(
-    const Optimizeriable& net,
-    precision_type new_learning_rate,
-    precision_type new_beta)
+void RMSPropOptimizer<Optimizeriable>::initialize_inner_struct()
 {
-    learning_rate = new_learning_rate;
+    rbeta = 1. - beta;
 
-    beta = new_beta;
-    rbeta = 1. - new_beta;
+    buff1.resize(net.inner.N);
+    buff2.resize(net.inner.N);
 
-    N = net.getTopology().size() - 1;
+    optimizedB.resize(net.inner.N);
+    optimizedW.resize(net.inner.N);
 
-    buff1.resize(N);
-    buff2.resize(N);
-
-    optimizedB.resize(N);
-    optimizedW.resize(N);
-
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
-        buff1[i].resize(net.  getInnerBias()[i]. size());
-        buff2[i].resize(net.getInnerWeight()[i].shape());
+        buff1[i].resize(net.inner.B[i]. size());
+        buff2[i].resize(net.inner.W[i].shape());
 
-        optimizedB[i].resize(net.  getInnerBias()[i]. size(), 0.);
-        optimizedW[i].resize(net.getInnerWeight()[i].shape(), 0.);
+        optimizedB[i].resize(net.inner.B[i]. size(), 0.);
+        optimizedW[i].resize(net.inner.W[i].shape(), 0.);
     }
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 RMSPropOptimizer<Optimizeriable>& RMSPropOptimizer<Optimizeriable>::reset() noexcept
 {
-    for(size_type i = 0; i < N; ++i)
+    for(size_type i = 0; i < net.inner.N; ++i)
     {
         optimizedB[i].fill(0.);
         optimizedW[i].fill(0.);

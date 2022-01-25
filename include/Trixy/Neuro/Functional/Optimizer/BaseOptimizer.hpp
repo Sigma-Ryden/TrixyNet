@@ -30,8 +30,6 @@ private:
 
     void (*ptr_derived_update)(
         void *const,
-        Container<Tensor1D>&,
-        Container<Tensor2D>&,
         const Container<Tensor1D>&,
         const Container<Tensor2D>&
     );
@@ -50,12 +48,10 @@ private:
     template <class Derived>
     static void derived_update(
         void *const self,
-        Container<Tensor1D>& B,
-        Container<Tensor2D>& W,
         const Container<Tensor1D>& gradB,
         const Container<Tensor2D>& gradW) noexcept
     {
-        static_cast<Derived*>(self)->update(B, W, gradB, gradW);
+        static_cast<Derived*>(self)->update(gradB, gradW);
     }
 
     template <class Derived>
@@ -78,12 +74,10 @@ public:
         ptr_derived_set_learning_rate(this, new_learning_rate);
     }
 
-    void update(Container<Tensor1D>& B,
-                Container<Tensor2D>& W,
-                const Container<Tensor1D>& gradB,
+    void update(const Container<Tensor1D>& gradB,
                 const Container<Tensor2D>& gradW) noexcept
     {
-        ptr_derived_update(this, B, W, gradB, gradW);
+        ptr_derived_update(this, gradB, gradW);
     }
 };
 
