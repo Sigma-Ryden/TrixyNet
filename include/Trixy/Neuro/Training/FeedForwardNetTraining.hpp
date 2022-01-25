@@ -17,6 +17,10 @@ namespace train
 TRIXY_TRAINING_TPL_DECLARATION
 class TRIXY_TRAINING_TPL(meta::is_feedforward_net)
 {
+public:
+    struct FeedForwardData;
+    struct BackPropData;
+
 private:
     using IOptimizer                = typename train::IOptimizer<Trainable>;
 
@@ -30,21 +34,22 @@ private:
     using size_type                 = typename Trainable::size_type;
 
 private:
-    Trainable& net;
+    Trainable& net;                 ///< reference to network prevent her copying
 
-    Container<Tensor1D> H;          ///< hidden layer storage
-    Container<Tensor1D> derivedH;   ///< derived hidden layer storage
+public:
+    FeedForwardData feedforward;    ///< data struct only for feed forward signal
+    BackPropData backprop;          ///< data struct only for back propagation signal
 
-    Container<Tensor1D> derivedB;   ///< derived bias storage (using for inner updates)
-    Container<Tensor2D> derivedW;   ///< derived weight storage (using for inner updates)
-
-    Container<Tensor1D> deltaB;     ///< delta bias storage (using with derived bias and for inner updates)
-    Container<Tensor2D> deltaW;     ///< delta weight storage (using with derived weight and for inner updates)
-
+private:
     Container<Tensor1D> buff;       ///< 1D buffer for handle
 
 public:
     Training(Trainable& network);
+
+    void innerFeedForward(const Tensor1D& sample) noexcept;
+
+    void innerBackProp(const Tensor1D& sample,
+                       const Tensor1D& target) noexcept;
 
     template <class GeneratorInteger>
     void trainStochastic(const Container<Tensor1D>& idata,
@@ -77,46 +82,117 @@ public:
 
     long double loss(const Container<Tensor1D>& idata,
                      const Container<Tensor1D>& odata) const noexcept;
+};
 
-private:
-    void innerFeedForward(const Tensor1D& sample) noexcept;
+TRIXY_TRAINING_TPL_DECLARATION
+struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData
+{
+public:
+    const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
 
-    void innerBackPropagation(const Tensor1D& sample,
-                              const Tensor1D& target) noexcept;
+    Container<Tensor1D> S;          ///< non-activated value for hidden layer
+    Container<Tensor1D> H;          ///< hidden layer storage
+
+public:
+    FeedForwardData(const Container<size_type>& topology);
+};
+
+TRIXY_TRAINING_TPL_DECLARATION
+struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData
+{
+public:
+    const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
+
+    Container<Tensor1D> derivedB;   ///< derived bias storage (using for inner updates)
+    Container<Tensor2D> derivedW;   ///< derived weight storage (using for inner updates)
+
+    Container<Tensor1D> deltaB;     ///< delta bias is accumulator of derived bias
+    Container<Tensor2D> deltaW;     ///< delta weight is accumulator of derived weight
+
+public:
+    BackPropData(const Container<size_type>& topology);
 
     void resetDelta() noexcept;
     void updateDelta() noexcept;
 
-    void normalizeDelta(precision_type alpha) noexcept; ///< alpha should be in range (0, 1)
+    void normalizeDelta(precision_type alpha) noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
-TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network) : net(network)
+TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(
+    const Container<size_type>& topology)
+    : size(topology.size() - 1)
+    , S(topology.size() - 1)
+    , H(topology.size() - 1)
 {
-    H.resize(net.inner.N);
-    derivedH.resize(net.inner.N);
+    for(size_type i = 0; i < size; ++i)
+    {
+        H[i].resize(topology[i + 1]);
+        S[i].resize(topology[i + 1]);
+    }
+}
 
-    derivedB.resize(net.inner.N);
-    derivedW.resize(net.inner.N);
+TRIXY_TRAINING_TPL_DECLARATION
+TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(
+    const Container<size_type>& topology)
+    : size(topology.size() - 1)
+    , derivedB(topology.size() - 1)
+    , derivedW(topology.size() - 1)
+    , deltaB(topology.size() - 1)
+    , deltaW(topology.size() - 1)
+{
+    for(size_type i = 0; i < size; ++i)
+    {
+        derivedB[i].resize(topology[i + 1]);
+        derivedW[i].resize(topology[i],topology[i + 1]);
 
-    deltaB.resize(net.inner.N);
-    deltaW.resize(net.inner.N);
+        deltaB[i].resize(topology[i + 1]);
+        deltaW[i].resize(topology[i], topology[i + 1]);
+    }
+}
 
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::resetDelta() noexcept
+{
+    for(size_type i = 0; i < size; ++i)
+    {
+        deltaB[i].fill(0.0);
+        deltaW[i].fill(0.0);
+    }
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::updateDelta() noexcept
+{
+    for(size_type i = 0; i < size; ++i)
+    {
+        deltaB[i].add(derivedB[i]);
+        deltaW[i].add(derivedW[i]);
+    }
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::normalizeDelta(
+    precision_type alpha) noexcept
+{
+    for(size_type i = 0; i < size; ++i)
+    {
+        deltaB[i].join(alpha);
+        deltaW[i].join(alpha);
+    }
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
+    : net(network)
+    , feedforward(network.inner.topology)
+    , backprop(network.inner.topology)
+    , buff(network.inner.N)
+{
     buff.resize(net.inner.N);
 
     for(size_type i = 0; i < net.inner.N; ++i)
-    {
-        H[i].resize(net.inner.topology[i + 1]);
-        derivedH[i].resize(net.inner.topology[i + 1]);
-
-        derivedB[i].resize(net.inner.topology[i + 1]);
-        derivedW[i].resize(net.inner.topology[i], net.inner.topology[i + 1]);
-
-        deltaB[i].resize(net.inner.topology[i + 1]);
-        deltaW[i].resize(net.inner.topology[i], net.inner.topology[i + 1]);
-
         buff[i].resize(net.inner.topology[i + 1]);
-    }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -133,9 +209,9 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         sample = generator() % idata.size();
 
         innerFeedForward(idata[sample]);
-        innerBackPropagation(idata[sample], odata[sample]);
+        innerBackProp(idata[sample], odata[sample]);
 
-        optimizer.update(derivedB, derivedW);
+        optimizer.update(backprop.derivedB, backprop.derivedW);
     }
 }
 
@@ -150,18 +226,18 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 
     for(size_type epoch = 0, sample; epoch < epoch_scale; ++epoch)
     {
-        resetDelta();
+        backprop.resetDelta();
 
         for(sample = 0; sample < idata.size(); ++sample)
         {
             innerFeedForward(idata[sample]);
-            innerBackPropagation(idata[sample], odata[sample]);
-            updateDelta();
+            innerBackProp(idata[sample], odata[sample]);
+            backprop.updateDelta();
         }
 
-        normalizeDelta(alpha);
+        backprop.normalizeDelta(alpha);
 
-        optimizer.update(deltaB, deltaW);
+        optimizer.update(backprop.deltaB, backprop.deltaW);
     }
 }
 
@@ -189,20 +265,20 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
         {
             sample_limit += mini_batch_size;
 
-            resetDelta();
+            backprop.resetDelta();
 
             while(sample < sample_limit)
             {
                 innerFeedForward(idata[sample]);
-                innerBackPropagation(idata[sample], odata[sample]);
-                updateDelta();
+                innerBackProp(idata[sample], odata[sample]);
+                backprop.updateDelta();
 
                 ++sample;
             }
 
-            normalizeDelta(alpha);
+            backprop.normalizeDelta(alpha);
 
-            optimizer.update(deltaB, deltaW);
+            optimizer.update(backprop.deltaB, backprop.deltaW);
         }
     }
 }
@@ -245,76 +321,66 @@ TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerFeedForward(
     const Tensor1D& sample) noexcept
 {
+    /*
+    Operations:
+    . - dot
+    Processing:
+    S = H' . W + B, H' - previous
+    H = activation(S)
+    */
     size_type i;
     size_type j;
 
-    net.linear.dot(buff[0], sample, net.inner.W[0]);
-    buff[0].add(net.inner.B[0]);
+    net.linear.dot(feedforward.S[0], sample, net.inner.W[0]);
+    feedforward.S[0].add(net.inner.B[0]);
 
     for(i = 0, j = 1; j < net.inner.N; ++i, ++j)
     {
-        net.function.activation[i]. f(H[i],        buff[i]);
-        net.function.activation[i].df(derivedH[i], buff[i]);
+        net.function.activation[i].f(feedforward.H[i], feedforward.S[i]);
 
-        net.linear.dot(buff[j], H[i], net.inner.W[j]);
-        buff[j].add(net.inner.B[j]);
+        net.linear.dot(feedforward.S[j], feedforward.H[i], net.inner.W[j]);
+        feedforward.S[j].add(net.inner.B[j]);
     }
 
-    net.function.activation[i]. f(H[i],        buff[i]);
-    net.function.activation[i].df(derivedH[i], buff[i]);
+    net.function.activation[i].f(feedforward.H[i], feedforward.S[i]);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackPropagation(
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackProp(
     const Tensor1D& sample,
     const Tensor1D& target) noexcept
 {
+    /*
+    Operations:
+    * - mul
+    x - tensordot
+    . - dot
+    Processing:
+    Z* = DE,        Z* - initial value of Z, DE - cost function derived
+    DB = DH * Z,    DH - such as DH = activation_derived(S)
+    DW = H x DB,    since DW = H x (Z * DH)
+    Z' = W . DB^T,  Z' - previous Z in container
+    */
     size_type i;
     size_type j;
 
     i = net.inner.N - 1;
-    net.function.loss.df(buff[i], target, H[i]);
+    net.function.loss.df(buff[i], target, feedforward.H[i]);
 
     for(j = i - 1; i > 0; --i, --j)
     {
-        derivedB[i].multiply(buff[i], derivedH[i]);
-        net.linear.tensordot(derivedW[i], H[j], derivedB[i]);
-        net.linear.dot(buff[j], net.inner.W[i], derivedB[i]);
+        net.function.activation[i].df(backprop.derivedB[i], feedforward.S[i]);
+        backprop.derivedB[i].multiply(buff[i]);
+
+        net.linear.tensordot(backprop.derivedW[i], feedforward.H[j], backprop.derivedB[i]);
+
+        net.linear.dot(buff[j], net.inner.W[i], backprop.derivedB[i]);
     }
 
-    derivedB[0].multiply(buff[0], derivedH[0]);
-    net.linear.tensordot(derivedW[0], sample, derivedB[0]);
-}
+    net.function.activation[0].df(backprop.derivedB[0], feedforward.S[0]);
+    backprop.derivedB[i].multiply(buff[0]);
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::resetDelta() noexcept
-{
-    for(size_type i = 0; i < net.inner.N; ++i)
-    {
-        deltaB[i].fill(0.0);
-        deltaW[i].fill(0.0);
-    }
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateDelta() noexcept
-{
-    for(size_type i = 0; i < net.inner.N; ++i)
-    {
-        deltaB[i].add(derivedB[i]);
-        deltaW[i].add(derivedW[i]);
-    }
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::normalizeDelta(
-    precision_type alpha) noexcept
-{
-    for(size_type i = 0; i < net.inner.N; ++i)
-    {
-        deltaB[i].join(alpha);
-        deltaW[i].join(alpha);
-    }
+    net.linear.tensordot(backprop.derivedW[0], sample, backprop.derivedB[0]);
 }
 
 } // namespace train
