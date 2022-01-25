@@ -310,29 +310,29 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
 }
 
 TRIXY_NET_TPL_DECLARATION
-inline const Container<Vector<Precision, Args...>>&
+inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D>&
     TRIXY_FEED_FORWARD_NET_TPL::getInnerBias() const noexcept
 {
     return inner.B;
 }
 
 TRIXY_NET_TPL_DECLARATION
-inline const Container<Matrix<Precision, Args...>>&
+inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::Tensor2D>&
     TRIXY_FEED_FORWARD_NET_TPL::getInnerWeight() const noexcept
 {
     return inner.W;
 }
 
 TRIXY_NET_TPL_DECLARATION
-inline const Container<std::size_t>&
+inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::size_type>&
     TRIXY_FEED_FORWARD_NET_TPL::getTopology() const noexcept
 {
     return inner.topology;
 }
 
 TRIXY_NET_TPL_DECLARATION
-const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
-    const Vector<Precision, Args...>& sample) const noexcept
+const typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
+    const Tensor1D& sample) const noexcept
 {
     linear.dot(buff[0], sample, inner.W[0]);
     function.activation[0].f(buff[0], buff[0].add(inner.B[0]));
@@ -348,8 +348,8 @@ const Vector<Precision, Args...>& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
-    const Container<Vector<Precision, Args...>>& idata,
-    const Container<Vector<Precision, Args...>>& odata) const noexcept
+    const Container<Tensor1D>& idata,
+    const Container<Tensor1D>& odata) const noexcept
 {
     size_type count = 0;
 
@@ -362,8 +362,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
-    const Container<Vector<Precision, Args...>>& idata,
-    const Container<Vector<Precision, Args...>>& odata,
+    const Container<Tensor1D>& idata,
+    const Container<Tensor1D>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -377,8 +377,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
-    const Container<Vector<Precision, Args...>>& idata,
-    const Container<Vector<Precision, Args...>>& odata,
+    const Container<Tensor1D>& idata,
+    const Container<Tensor1D>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -391,8 +391,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::loss(
-    const Container<Vector<Precision, Args...>>& idata,
-    const Container<Vector<Precision, Args...>>& odata) const noexcept
+    const Container<Tensor1D>& idata,
+    const Container<Tensor1D>& odata) const noexcept
 {
     Precision result = 0.;
     Precision error  = 0.;
@@ -408,8 +408,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::loss(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::check(
-    const Vector<Precision, Args...>& target,
-    const Vector<Precision, Args...>& prediction) const noexcept
+    const Tensor1D& target,
+    const Tensor1D& prediction) const noexcept
 {
     size_type max_true_out;
     size_type max_pred_out;
@@ -430,8 +430,8 @@ bool TRIXY_FEED_FORWARD_NET_TPL::check(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
-    const Vector<Precision, Args...>& target,
-    const Vector<Precision, Args...>& prediction,
+    const Tensor1D& target,
+    const Tensor1D& prediction,
     Precision range_rate) const noexcept
 {
     for(size_type j = 0; j < target.size(); ++j)
@@ -443,10 +443,10 @@ bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::checkg(
-    const Vector<Precision, Args...>& target,
-    const Vector<Precision, Args...>& prediction,
+    const Tensor1D& target,
+    const Tensor1D& prediction,
     Precision range_rate,
-    std::size_t& count) const noexcept
+    size_type& count) const noexcept
 {
     for(size_type i = 0; i < target.size(); ++i)
         if(std::fabs(target(i) - prediction(i)) < range_rate)

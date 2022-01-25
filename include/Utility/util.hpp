@@ -119,10 +119,10 @@ void check_neuro(
     const Collection<lique::Vector<Precision>>& idata,
     const Collection<lique::Vector<Precision>>& odata)
 {
-    std::cout << "NNetwork train normal accuracy: "   << network.accuracy(idata, odata)
-              << "\nNNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
-              << "\nNNetwork train full accuracy: "   << network.accuracyf(idata, odata, 0.05)
-              << "\nNNetwork train Loss: "            << network.loss(idata, odata) << '\n';
+    std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
+              << "\nNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
+              << "\nNetwork train full accuracy: "   << network.accuracyf(idata, odata, 0.05)
+              << "\nNetwork train Loss: "            << network.loss(idata, odata) << '\n';
 }
 
 template <typename Neuro>
