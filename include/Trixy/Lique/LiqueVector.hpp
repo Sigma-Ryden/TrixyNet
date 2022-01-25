@@ -19,22 +19,25 @@ LIQUE_TENSOR_TPL_DECLARATION
 class LIQUE_TENSOR_TPL(TensorType::vector)
 {
 public:
-    using size_type = std::size_t;
+    using size_type      = std::size_t;
 
-    using Generator = Precision (*)();
-    using Function  = Precision (*)(Precision);
+    using pointer        = Precision*;
+    using const_pointer  = Precision* const;
+
+    using Generator      = Precision (*)();
+    using Function       = Precision (*)(Precision);
 
 protected:
-    Precision* data_;
-    size_type  size_;
+    pointer   data_;
+    size_type size_;
 
 public:
     Tensor() noexcept;
     ~Tensor();
 
     explicit Tensor(size_type size);
-    explicit Tensor(size_type size, Precision fill_value);
-    explicit Tensor(size_type size, const Precision* ptr);
+    Tensor(size_type size, Precision fill_value);
+    Tensor(size_type size, const Precision* ptr);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
@@ -43,6 +46,7 @@ public:
     Tensor& operator= (const Tensor&);
     Tensor& operator= (Tensor&&) noexcept;
 
+    Tensor& copy(size_type at, const Precision* ptr, size_type size) noexcept;
     Tensor& copy(const Precision* ptr) noexcept;
     Tensor& copy(const Tensor&) noexcept;
     Tensor& copy(std::initializer_list<Precision>) noexcept;
@@ -82,6 +86,11 @@ public:
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
+
+private:
+    static void copy(Precision* out,
+                     const Precision* src_beg,
+                     const Precision* src_end);
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -114,16 +123,14 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(std::size_t size, const Precision* ptr)
     : data_(new Precision[size]), size_(size)
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = ptr[i];
+    copy(data_, ptr, ptr + size_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(const Tensor& vector)
     : data_(new Precision[vector.size_]), size_(vector.size_)
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = vector.data_[i];
+    copy(data_, vector.data_, vector.data_ + size_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -155,8 +162,7 @@ Vector<Precision>& Vector<Precision>::operator= (const Tensor& vector)
         size_ = vector.size_;
         data_ = new Precision[size_];
 
-        for(size_type i = 0; i < size_; ++i)
-            data_[i] = vector.data_[i];
+        copy(data_, vector.data_, vector.data_ + size_);
     }
 
     return *this;
@@ -179,10 +185,20 @@ Vector<Precision>& Vector<Precision>::operator= (Tensor&& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>& Vector<Precision>::copy(
+    size_type at,
+    const Precision* ptr,
+    size_type size) noexcept
+{
+    copy(data_ + at, ptr, ptr + size);
+
+    return *this;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(const Precision* ptr) noexcept
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = ptr[i];
+    copy(data_, ptr, ptr + size_);
 
     return *this;
 }
@@ -191,22 +207,21 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(const Tensor& vector) noexcept
 {
     if(this != &vector)
-    {
-        for(size_type i = 0; i < size_; ++i)
-            data_[i] = vector.data_[i];
-    }
+        copy(data_, vector.data_, vector.data_ + size_);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(
-    std::initializer_list<Precision> data) noexcept
+    std::initializer_list<Precision> init) noexcept
 {
-    auto it = data.begin();
-
-    for(size_type i = 0; i < size_; ++i, ++it)
-        data_[i] = *it;
+    size_type i = 0;
+    for(const auto& arg: init)
+    {
+        data_[i] = arg;
+        ++i;
+    }
 
     return *this;
 }
@@ -430,6 +445,14 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline const Precision* Vector<Precision>::data() const noexcept
 {
     return data_;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void Vector<Precision>::copy(
+    Precision* out, const Precision* src_beg, const Precision* src_end)
+{
+    while(src_beg != src_end)
+        *out++ = *src_beg++;
 }
 
 } // namespace lique

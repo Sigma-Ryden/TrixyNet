@@ -405,55 +405,56 @@ namespace detail
 {
 
 template <class T, typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0>
-void concate_tensor(T& out, std::size_t& pos, const T& tensor_1)
+void concat_tensor(T& out, std::size_t& at, const T& tensor)
 {
-    for(std::size_t n = 0; n < tensor_1.size(); ++n, ++pos)
-        out(pos) = tensor_1(n);
+    out.copy(at, tensor.data(), tensor.size());
 }
 
 template <class T, class... Tn,
           typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
-void concate_tensor(T& out, std::size_t& pos, const T& tensor_1, const Tn&... tensor_n)
+void concat_tensor(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
-    for(std::size_t n = 0; n < tensor_1.size(); ++n, ++pos)
-        out(pos) = tensor_1(n);
+    out.copy(at, tensor.data(), tensor.size());
+    at += tensor.size();
 
-    concate_tensor(out, pos, tensor_n...);
+    concat_tensor(out, at, tensor_n...);
 }
 
 } // namespace detail
 
+template <class Tensor, template <typename...> class Container,
+          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
+Tensor concat(const Container<Tensor>& list)
+{
+    std::size_t accumulate_size = 0;
+
+    for(const auto& it : list)
+        accumulate_size += it.size();
+
+    Tensor tensor(accumulate_size);
+
+    std::size_t position = 0;
+    for(const auto& it : list)
+    {
+        tensor.copy(position, it.data(), it.size());
+        position += it.size();
+    }
+
+    return tensor;
+}
+
 template <class T, class... Tn,
           typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
-T concate(const T& tensor_1, const Tn&... tensor_n)
+T concat(const T& tensor, const Tn&... tensor_n)
 {
-    T out(sum(tensor_1.size(), tensor_n.size()...));
+    T out(sum(tensor.size(), tensor_n.size()...));
 
-    std::size_t pos = 0;
-    detail::concate_tensor(out, pos, tensor_1, tensor_n...);
+    std::size_t position = 0;
+    detail::concat_tensor(out, position, tensor, tensor_n...);
 
     return out;
-}
-
-template <class Tensor, template <typename...> class Container,
-          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
-Tensor concate(const Container<Tensor>& list)
-{
-    std::size_t n = 0;
-
-    for(const auto& it : list)
-        n += it.size();
-
-    Tensor tensor(n);
-
-    std::size_t i = 0;
-    for(const auto& it : list)
-        for(n = 0; n < it.size(); ++n, ++i)
-            tensor(i) = it(n);
-
-    return tensor;
 }
 
 } // namespace lique
