@@ -20,7 +20,7 @@ namespace ilique
 
 template <template <typename P> class Tensor2D, typename Precision>
 class Matrix<Tensor2D, Precision,
-             meta::use_for_arithmetic_t<Precision>>
+             meta::enable_for_arithmetic_t<Precision>>
 {
 protected:
     class Shape;

@@ -6,6 +6,8 @@
 #include <initializer_list> // initializer_list
 
 #include "LiqueBaseTensor.hpp"
+
+#include "Detail/FunctionDetail.hpp"
 #include "Detail/LiqueMeta.hpp"
 
 #include "Detail/MacroScope.hpp"
@@ -24,14 +26,15 @@ protected:
 
 public:
     using size_type       = std::size_t;
-    using reference       = Precision&;
-    using const_reference = const Precision&;
+
+    using pointer        = Precision*;
+    using const_pointer  = Precision* const;
 
     using Generator       = Precision (*)();
     using Function        = Precision (*)(Precision);
 
 protected:
-    Precision* data_;
+    pointer data_;
     Shape shape_;
 
 public:
@@ -40,13 +43,14 @@ public:
 
     explicit Tensor(size_type size);
     explicit Tensor(size_type m, size_type n);
-    explicit Tensor(size_type m, size_type n, Precision fill_value);
-    explicit Tensor(size_type size, const Precision* ptr);
-    explicit Tensor(size_type m, size_type n, const Precision* ptr);
+
+    Tensor(size_type size, const Precision* ptr);
+    Tensor(size_type m, size_type n, const Precision* ptr);
+    Tensor(size_type m, size_type n, Precision fill_value);
 
     explicit Tensor(const Shape& shape);
-    explicit Tensor(const Shape& shape, Precision fill_value);
-    explicit Tensor(const Shape& shape, const Precision* ptr);
+    Tensor(const Shape& shape, const Precision* ptr);
+    Tensor(const Shape& shape, Precision fill_value);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
@@ -78,11 +82,11 @@ public:
     Tensor& apply(Function func) noexcept;
     Tensor& apply(Function func, const Tensor&) noexcept;
 
-    reference operator() (size_type i, size_type j) noexcept;
-    const_reference operator() (size_type i, size_type j) const noexcept;
+    Precision& operator() (size_type i, size_type j) noexcept;
+    const Precision& operator() (size_type i, size_type j) const noexcept;
 
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
+    Precision& operator() (size_type i) noexcept;
+    const Precision& operator() (size_type i) const noexcept;
 
     Tensor dot(const Tensor&) const;
 
@@ -161,14 +165,6 @@ inline Matrix<Precision>::Tensor(std::size_t m, std::size_t n)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(std::size_t m, std::size_t n, Precision fill_value)
-    : data_(new Precision [m * n]), shape_(m, n)
-{
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = fill_value;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>::Tensor(std::size_t size, const Precision* ptr)
     : Tensor(1, size, ptr)
 {
@@ -178,14 +174,28 @@ LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>::Tensor(std::size_t m, std::size_t n, const Precision* ptr)
     : data_(new Precision [m * n]), shape_(m, n)
 {
+     detail::copy(data_, data_ + shape_.size_, ptr);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(std::size_t m, std::size_t n, Precision fill_value)
+    : data_(new Precision [m * n]), shape_(m, n)
+{
     for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = ptr[i];
+        data_[i] = fill_value;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 inline Matrix<Precision>::Tensor(const Tensor::Shape& shape)
     : data_(new Precision [shape.size_]), shape_(shape)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const Tensor::Shape& shape, const Precision* ptr)
+    : data_(new Precision [shape.size_]), shape_(shape)
+{
+     detail::copy(data_, data_ + shape_.size_, ptr);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -197,19 +207,10 @@ Matrix<Precision>::Tensor(const Tensor::Shape& shape, Precision fill_value)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Tensor::Shape& shape, const Precision* ptr)
-    : data_(new Precision [shape.size_]), shape_(shape)
-{
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = ptr[i];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>::Tensor(const Tensor& matrix)
     : data_(new Precision [matrix.shape_.size_]), shape_(matrix.shape_)
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = matrix.data_[i];
+     detail::copy(data_, data_ + shape_.size_, matrix.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -227,11 +228,9 @@ Matrix<Precision>& Matrix<Precision>::operator= (const Tensor& matrix)
         delete[] data_;
 
         shape_ = matrix.shape_;
+        data_  = new Precision [shape_.size_];
 
-        data_ = new Precision [shape_.size_];
-
-        for(size_type i = 0; i < shape_.size_; ++i)
-            data_[i] = matrix.data_[i];
+         detail::copy(data_, data_ + shape_.size_, matrix.data_);
     }
 
     return *this;
@@ -256,8 +255,7 @@ Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& matrix) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::copy( const Precision* ptr) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = ptr[i];
+    copy(data_, data_ + shape_.size_, ptr);
 
     return *this;
 }
@@ -266,10 +264,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::copy(const Tensor& matrix) noexcept
 {
     if(this != &matrix)
-    {
-        for(size_type i = 0; i < shape_.size_; ++i)
-            data_[i] = matrix.data_[i];
-    }
+         detail::copy(data_, data_ + shape_.size_, matrix.data_);
 
     return *this;
 }
@@ -278,10 +273,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::copy(
     std::initializer_list<Precision> data) noexcept
 {
-    auto it = data.begin();
-
-    for(size_type i = 0; i < shape_.size_; ++i, ++it)
-        data_[i] = *it;
+     detail::copy(data_, data_ + shape_.size_, data.begin());
 
     return *this;
 }

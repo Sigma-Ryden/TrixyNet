@@ -24,7 +24,7 @@ template <template <typename P, typename...> class Tensor1D,
           typename Precision,
           typename... Args>
 class ILinear<Tensor1D, Tensor2D, Precision,
-              meta::use_for_arithmetic_t<Precision>, Args...>
+              meta::enable_for_arithmetic_t<Precision>, Args...>
 {
 protected:
     virtual ~ILinear() = default;

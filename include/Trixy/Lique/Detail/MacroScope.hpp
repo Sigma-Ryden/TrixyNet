@@ -6,7 +6,7 @@
 
 #define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
     Tensor<Precision, tensor_type,                                                                      \
-           ::lique::meta::use_for_arithmetic_t<Precision>>
+           ::lique::meta::enable_for_arithmetic_t<Precision>>
 
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
     template <template <typename, typename...> class Vector,                                            \
@@ -16,8 +16,8 @@
 
 #define LIQUE_LINEAR_TPL                                                                                \
     Linear<Vector, Matrix, Precision,                                                                   \
-           ::lique::meta::use_for_arithmetic_t<Precision>, Args...>
+           ::lique::meta::enable_for_arithmetic_t<Precision>, Args...>
 
 #define LIQUE_FUNCTION_TPL                                                                              \
     template <typename Precision,                                                                       \
-              ::lique::meta::select_if_arithmetic_t<Precision> = 0>
+              ::lique::meta::use_for_arithmetic_t<Precision> = 0>

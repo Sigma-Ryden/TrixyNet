@@ -1,7 +1,9 @@
-#ifndef FUNCTION_DETAIL_HPP
-#define FUNCTION_DETAIL_HPP
+#ifndef TRIXY_FUNCTION_DETAIL_HPP
+#define TRIXY_FUNCTION_DETAIL_HPP
 
 #include <cmath> // sqrt
+
+#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 namespace trixy
 {
@@ -9,7 +11,7 @@ namespace trixy
 namespace detail
 {
 
-template <typename Precision>
+template <typename Precision, meta::use_for_arithmetic_t<Precision> = 0>
 Precision invertSqrt(Precision x) noexcept
 {
     return 1.0 / std::sqrt(1e-9 + x);
@@ -19,4 +21,4 @@ Precision invertSqrt(Precision x) noexcept
 
 } // namespace trixy
 
-#endif // FUNCTION_DETAIL_HPP
+#endif // TRIXY_FUNCTION_DETAIL_HPP

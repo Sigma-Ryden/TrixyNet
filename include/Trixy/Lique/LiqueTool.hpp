@@ -8,6 +8,7 @@
 #include "LiqueVector.hpp"
 #include "LiqueMatrix.hpp"
 
+#include "Detail/FunctionDetail.hpp"
 #include "Detail/LiqueMeta.hpp"
 
 #include "Detail/MacroScope.hpp"
@@ -57,7 +58,7 @@ inline T sum(T&& t1, Tn&&... tn)
 
 template <typename Precision,
           Binary<Precision> compare,
-          meta::select_if_arithmetic_t<Precision> = 0>
+          meta::use_for_arithmetic_t<Precision> = 0>
 std::size_t find(const Vector<Precision>& vector)
 {
     std::size_t arg = 0;
@@ -70,7 +71,7 @@ std::size_t find(const Vector<Precision>& vector)
 
 template <typename Precision,
           Binary<Precision> compare,
-          meta::select_if_arithmetic_t<Precision> = 0>
+          meta::use_for_arithmetic_t<Precision> = 0>
 Vector<std::size_t> find(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None)
@@ -405,20 +406,20 @@ namespace detail
 {
 
 template <class T, typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0>
-void concat_tensor(T& out, std::size_t& at, const T& tensor)
+void concat(T& out, std::size_t& at, const T& tensor)
 {
-    out.copy(at, tensor.data(), tensor.size());
+    detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
 }
 
 template <class T, class... Tn,
           typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
-void concat_tensor(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
+void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
-    out.copy(at, tensor.data(), tensor.size());
+    detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
     at += tensor.size();
 
-    concat_tensor(out, at, tensor_n...);
+    concat(out, at, tensor_n...);
 }
 
 } // namespace detail
@@ -434,11 +435,11 @@ Tensor concat(const Container<Tensor>& list)
 
     Tensor tensor(accumulate_size);
 
-    std::size_t position = 0;
+    std::size_t at = 0;
     for(const auto& it : list)
     {
-        tensor.copy(position, it.data(), it.size());
-        position += it.size();
+        detail::copy(tensor.data() + at, tensor.data() + at + it.size(), it.data());
+        at += it.size();
     }
 
     return tensor;
@@ -452,7 +453,7 @@ T concat(const T& tensor, const Tn&... tensor_n)
     T out(sum(tensor.size(), tensor_n.size()...));
 
     std::size_t position = 0;
-    detail::concat_tensor(out, position, tensor, tensor_n...);
+    detail::concat(out, position, tensor, tensor_n...);
 
     return out;
 }

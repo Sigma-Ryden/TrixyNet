@@ -20,7 +20,7 @@ namespace ilique
 
 template <template <typename P> class Tensor1D, typename Precision>
 class Vector<Tensor1D, Precision,
-             meta::use_for_arithmetic_t<Precision>>
+             meta::enable_for_arithmetic_t<Precision>>
 {
 public:
     using TensorType      = Tensor1D<Precision>;

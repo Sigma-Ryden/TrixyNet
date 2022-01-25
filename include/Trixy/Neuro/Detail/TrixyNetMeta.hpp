@@ -32,7 +32,13 @@ template <class Class, template <class T> class... Bn>
 struct has_true : disjunction<Bn<Class>...> {};
 
 template <typename T>
-struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
+struct enable_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
+
+template <typename T>
+using enable_for_arithmetic_t = typename enable_for_arithmetic<T>::type;
+
+template <typename T>
+struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
 
 template <typename T>
 using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;

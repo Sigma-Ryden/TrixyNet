@@ -5,6 +5,8 @@
 #include <initializer_list> // initializer_list
 
 #include "LiqueBaseTensor.hpp"
+
+#include "Detail/FunctionDetail.hpp"
 #include "Detail/LiqueMeta.hpp"
 
 #include "Detail/MacroScope.hpp"
@@ -46,8 +48,7 @@ public:
     Tensor& operator= (const Tensor&);
     Tensor& operator= (Tensor&&) noexcept;
 
-    Tensor& copy(size_type at, const Precision* ptr, size_type size) noexcept;
-    Tensor& copy(const Precision* ptr) noexcept;
+    Tensor& copy(const Precision* src) noexcept;
     Tensor& copy(const Tensor&) noexcept;
     Tensor& copy(std::initializer_list<Precision>) noexcept;
 
@@ -86,11 +87,6 @@ public:
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
-
-private:
-    static void copy(Precision* out,
-                     const Precision* src_beg,
-                     const Precision* src_end);
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -123,14 +119,14 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(std::size_t size, const Precision* ptr)
     : data_(new Precision[size]), size_(size)
 {
-    copy(data_, ptr, ptr + size_);
+     detail::copy(data_, data_ + size_, ptr);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(const Tensor& vector)
     : data_(new Precision[vector.size_]), size_(vector.size_)
 {
-    copy(data_, vector.data_, vector.data_ + size_);
+     detail::copy(data_, data_ + size_, vector.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -144,12 +140,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(std::initializer_list<Precision> init)
     : data_(new Precision[init.size()]), size_(init.size())
 {
-    size_type i = 0;
-    for(const auto& arg: init)
-    {
-        data_[i] = arg;
-        ++i;
-    }
+     detail::copy(data_, data_ + size_, init.begin());
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -162,7 +153,7 @@ Vector<Precision>& Vector<Precision>::operator= (const Tensor& vector)
         size_ = vector.size_;
         data_ = new Precision[size_];
 
-        copy(data_, vector.data_, vector.data_ + size_);
+         detail::copy(data_, data_ + size_, vector.data_);
     }
 
     return *this;
@@ -185,20 +176,9 @@ Vector<Precision>& Vector<Precision>::operator= (Tensor&& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>& Vector<Precision>::copy(
-    size_type at,
-    const Precision* ptr,
-    size_type size) noexcept
-{
-    copy(data_ + at, ptr, ptr + size);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(const Precision* ptr) noexcept
 {
-    copy(data_, ptr, ptr + size_);
+     detail::copy(data_, data_ + size_, ptr);
 
     return *this;
 }
@@ -207,7 +187,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(const Tensor& vector) noexcept
 {
     if(this != &vector)
-        copy(data_, vector.data_, vector.data_ + size_);
+         detail::copy(data_, data_ + size_, vector.data_);
 
     return *this;
 }
@@ -216,12 +196,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::copy(
     std::initializer_list<Precision> init) noexcept
 {
-    size_type i = 0;
-    for(const auto& arg: init)
-    {
-        data_[i] = arg;
-        ++i;
-    }
+    detail::copy(data_, data_ + size_, init.begin());
 
     return *this;
 }
@@ -445,14 +420,6 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline const Precision* Vector<Precision>::data() const noexcept
 {
     return data_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-void Vector<Precision>::copy(
-    Precision* out, const Precision* src_beg, const Precision* src_end)
-{
-    while(src_beg != src_end)
-        *out++ = *src_beg++;
 }
 
 } // namespace lique
