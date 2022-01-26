@@ -46,6 +46,9 @@ private:
 public:
     Training(Trainable& network);
 
+    Training& operator= (const Training&) = delete;
+    Training& operator= (Training&&) = delete;
+
     void innerFeedForward(const Tensor1D& sample) noexcept;
 
     void innerBackProp(const Tensor1D& sample,
@@ -95,6 +98,9 @@ public:
 
 public:
     FeedForwardData(const Container<size_type>& topology);
+
+    FeedForwardData& operator= (const FeedForwardData&) = delete;
+    FeedForwardData& operator= (FeedForwardData&&) = delete;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -111,6 +117,9 @@ public:
 
 public:
     BackPropData(const Container<size_type>& topology);
+
+    BackPropData& operator= (const BackPropData&) = delete;
+    BackPropData& operator= (BackPropData&&) = delete;
 
     void resetDelta() noexcept;
     void updateDelta() noexcept;

@@ -188,7 +188,6 @@ private:
 
 public:
     explicit InnerFunctional(size_type N) : activation(N), loss() {}
-    InnerFunctional& operator= (const InnerFunctional&) = delete;
 
     void setActivation(const ActivationFunction&);
     void setAllActivation(const Container<ActivationFunction>&);
