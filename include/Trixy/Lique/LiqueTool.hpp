@@ -396,7 +396,7 @@ Matrix<Precision> tensordot(
 
 template <class Tensor, class Function,
           typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
-void for_each(const Tensor& tensor, Function func)
+void for_each(Tensor& tensor, Function func)
 {
     for(std::size_t i = 0; i < tensor.size(); ++i)
         func(tensor(i));
