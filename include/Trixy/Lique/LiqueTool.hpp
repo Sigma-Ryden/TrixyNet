@@ -13,6 +13,9 @@
 
 #include "Detail/MacroScope.hpp"
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -497,6 +500,8 @@ T concat(const T& tensor, const Tn&... tensor_n)
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #include "Detail/MacroUnscope.hpp"
 

@@ -7,6 +7,9 @@
 
 #include "Detail/MacroScope.hpp"
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -131,6 +134,8 @@ Matrix<Precision, Args...> LIQUE_LINEAR_TPL::tensordot(
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #include "Detail/MacroUnscope.hpp"
 

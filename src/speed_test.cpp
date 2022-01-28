@@ -2,6 +2,7 @@
 #include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
+#include "Trixy/Locker/LockerCore.hpp" // Locker
 #include "Utility/util.hpp" // Timer, test_neuro, check_neuro
 
 #include <cstdlib> // rand, srand, size_t
@@ -9,10 +10,9 @@
 #include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
-#include <vector> // vector
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 float random_real() noexcept
 {
@@ -94,7 +94,7 @@ void speed_test()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, std::vector, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;

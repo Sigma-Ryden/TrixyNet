@@ -1,6 +1,9 @@
 #ifndef LIQUE_BASE_TENSOR_HPP
 #define LIQUE_BASE_TENSOR_HPP
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -14,5 +17,7 @@ template <typename Precision, typename tensor_type, typename enable = void>
 class Tensor;
 
 } // namespace lique
+
+} // namespace trixy
 
 #endif // LIQUE_BASE_TENSOR_HPP

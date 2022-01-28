@@ -22,10 +22,7 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueMatrix.hpp
     include/Trixy/Lique/LiqueVector.hpp
     include/Trixy/Lique/LiqueBaseTensor.hpp
-    include/Trixy/Lique/LiqueBaseLocker.hpp
     include/Trixy/Lique/LiqueTool.hpp
-    include/Trixy/Lique/LiqueVectorLocker.hpp
-    include/Trixy/Lique/LiqueMatrixLocker.hpp
     include/Trixy/Lique/Detail/MacroScope.hpp
     include/Trixy/Lique/Detail/MacroUnscope.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp
@@ -50,6 +47,13 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetCore.hpp
+    include/Trixy/Locker/BaseLocker.hpp
+    include/Trixy/Locker/VectorLocker.hpp
+    include/Trixy/Locker/MatrixLocker.hpp
+    include/Trixy/Locker/LockerCore.hpp
+    include/Trixy/Locker/Detail/LockerMeta.hpp
+    include/Trixy/Locker/Detail/MacroScope.hpp
+    include/Trixy/Locker/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp
     include/Trixy/Neuro/Functional/Function/LossFunction.hpp

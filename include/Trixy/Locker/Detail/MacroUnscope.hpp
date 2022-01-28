@@ -1,0 +1,3 @@
+// clean up
+#undef TRIXY_LOCKER_TPL_DECLARATION
+#undef TRIXY_LOCKER_TPL

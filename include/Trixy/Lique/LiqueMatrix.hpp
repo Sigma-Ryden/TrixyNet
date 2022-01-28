@@ -12,6 +12,9 @@
 
 #include "Detail/MacroScope.hpp"
 
+namespace trixy
+{
+
 namespace lique
 {
 
@@ -701,6 +704,8 @@ inline const Precision* Matrix<Precision>::data() const noexcept
 }
 
 } // namespace lique
+
+} // namespace trixy
 
 #include "Detail/MacroUnscope.hpp"
 

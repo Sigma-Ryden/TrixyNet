@@ -10,7 +10,7 @@
 #include <random> // mt19937
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 int generator()
 {

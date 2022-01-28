@@ -13,7 +13,7 @@
 #include <fstream> // ifstream, ofstream
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 using util::operator<<;
 

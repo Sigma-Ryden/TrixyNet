@@ -7,7 +7,7 @@
 #include <iomanip> // setprecision, fixed
 
 namespace tr = trixy;
-namespace li = lique;
+namespace li = trixy::lique;
 
 li::Vector<double> get_sin_idata()
 {

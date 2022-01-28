@@ -38,7 +38,7 @@ public:
 };
 
 template <typename Precision>
-std::size_t max(const lique::Vector<Precision>& vector) noexcept
+std::size_t max(const trixy::lique::Vector<Precision>& vector) noexcept
 {
     static std::size_t max;
 
@@ -68,7 +68,7 @@ void network_size(const Collection<std::size_t>& topology)
 
 template <typename Precision>
 std::ostream& operator<< (
-    std::ostream& out, const lique::Vector<Precision>& vector)
+    std::ostream& out, const trixy::lique::Vector<Precision>& vector)
 {
     out << '[';
     for(std::size_t i = 0; i < vector.size() - 1; ++i)
@@ -81,7 +81,7 @@ std::ostream& operator<< (
 
 template <typename Precision>
 std::ostream& operator<< (
-    std::ostream& out, const lique::Matrix<Precision>& matrix)
+    std::ostream& out, const trixy::lique::Matrix<Precision>& matrix)
 {
     out << '[';
     for(std::size_t i = 0; i < matrix.shape().row() - 1; ++i)
@@ -105,8 +105,8 @@ std::ostream& operator<< (
 template <typename Neuro, template <typename...> class Collection, typename Precision>
 void test_neuro(
     const Neuro& network,
-    const Collection<lique::Vector<Precision>>& idata,
-    const Collection<lique::Vector<Precision>>& odata)
+    const Collection<trixy::lique::Vector<Precision>>& idata,
+    const Collection<trixy::lique::Vector<Precision>>& odata)
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
@@ -116,8 +116,8 @@ void test_neuro(
 template <typename Neuro, template <typename...> class Collection, typename Precision>
 void check_neuro(
     const Neuro& network,
-    const Collection<lique::Vector<Precision>>& idata,
-    const Collection<lique::Vector<Precision>>& odata)
+    const Collection<trixy::lique::Vector<Precision>>& idata,
+    const Collection<trixy::lique::Vector<Precision>>& odata)
 {
     std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
               << "\nNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
