@@ -17,7 +17,7 @@ struct LockerType
 };
 
 template <typename Precision, typename tensor_type,
-          typename locker_type = LockerType::free,
+          typename locker_type = LockerType::lock,
           typename enable = void>
 class Tensor;
 
