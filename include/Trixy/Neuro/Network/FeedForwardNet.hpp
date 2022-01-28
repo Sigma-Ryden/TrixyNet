@@ -334,12 +334,14 @@ const typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D& TRIXY_FEED_FORWARD_NET_TPL:
     const Tensor1D& sample) const noexcept
 {
     linear.dot(buff[0], sample, inner.W[0]);
-    function.activation[0].f(buff[0], buff[0].add(inner.B[0]));
+    buff[0].add(inner.B[0]);
+    function.activation[0].f(buff[0], buff[0]);
 
     for(size_type i = 1; i < inner.N; ++i)
     {
         linear.dot(buff[i], buff[i - 1], inner.W[i]);
-        function.activation[i].f(buff[i], buff[i].add(inner.B[i]));
+        buff[i].add(inner.B[i]);
+        function.activation[i].f(buff[i], buff[i]);
     }
 
     return buff.back();

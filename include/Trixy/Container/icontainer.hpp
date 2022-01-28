@@ -14,6 +14,7 @@ protected:
 
 public:
     class iterator;
+    class const_iterator;
 
     using size_type       = std::size_t;
     using reference       = Type&;
@@ -23,8 +24,17 @@ public:
     virtual size_type size() const noexcept = 0;
     virtual void resize(size_type new_size) = 0;
 
-    virtual iterator begin() const noexcept = 0;
-    virtual iterator end() const noexcept = 0;
+    virtual iterator begin() noexcept = 0;
+    virtual iterator end() noexcept = 0;
+
+    virtual const_iterator begin() const noexcept = 0;
+    virtual const_iterator end() const noexcept = 0;
+
+    virtual reference front() noexcept = 0;
+    virtual const_reference front() const noexcept = 0;
+
+    virtual reference back() noexcept = 0;
+    virtual const_reference back() const noexcept = 0;
 
     virtual Type* data() noexcept = 0;
     virtual const Type* data() const noexcept = 0;
@@ -49,6 +59,24 @@ public:
 
     iterator operator++ () noexcept { ++ptr_; return *this; }
     iterator operator-- () noexcept { --ptr_; return *this; }
+};
+
+template <typename Type>
+class Container<Type>::const_iterator
+{
+private:
+    Type* ptr_;
+
+public:
+    explicit const_iterator(Type* ptr) noexcept : ptr_(ptr) {}
+
+    const Type& operator* () noexcept { return *ptr_; }
+    const Type* operator-> () noexcept { return ptr_; }
+
+    bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
+
+    const_iterator operator++ () noexcept { ++ptr_; return *this; }
+    const_iterator operator-- () noexcept { --ptr_; return *this; }
 };
 
 } // namespace trixy

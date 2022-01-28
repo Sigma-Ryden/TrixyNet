@@ -4,8 +4,8 @@
 #define LIQUE_TENSOR_TPL_DECLARATION                                                                    \
     template <typename Precision>
 
-#define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
-    Tensor<Precision, tensor_type,                                                                      \
+#define LIQUE_TENSOR_TPL(tensor_type, locker_type)                                                      \
+    Tensor<Precision, tensor_type, locker_type,                                                         \
            ::lique::meta::enable_for_arithmetic_t<Precision>>
 
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \

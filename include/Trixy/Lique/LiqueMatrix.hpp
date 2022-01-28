@@ -16,10 +16,13 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
+using LockMatrix = LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::lock);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::matrix)
+using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::free);
+
+LIQUE_TENSOR_TPL_DECLARATION
+class LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::free)
 {
 protected:
     class Shape;
@@ -35,22 +38,22 @@ public:
 
 protected:
     pointer data_;
-    Shape shape_;
+    Shape  shape_;
 
 public:
     Tensor() noexcept;
     ~Tensor();
 
     explicit Tensor(size_type size);
-    explicit Tensor(size_type m, size_type n);
-
     Tensor(size_type size, const Precision* ptr);
+
+    explicit Tensor(size_type m, size_type n);
+    explicit Tensor(size_type m, size_type n, Precision value);
     Tensor(size_type m, size_type n, const Precision* ptr);
-    Tensor(size_type m, size_type n, Precision fill_value);
 
     explicit Tensor(const Shape& shape);
+    Tensor(const Shape& shape, Precision value);
     Tensor(const Shape& shape, const Precision* ptr);
-    Tensor(const Shape& shape, Precision fill_value);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
@@ -69,9 +72,9 @@ public:
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
 
-    void resize(size_type new_size, Precision fill_value);
-    void resize(size_type m, size_type n, Precision fill_value);
-    void resize(const Shape& new_shape, Precision fill_value);
+    void resize(size_type new_size, Precision value);
+    void resize(size_type m, size_type n, Precision value);
+    void resize(const Shape& new_shape, Precision value);
 
     void reshape(size_type m, size_type n) noexcept;
 
@@ -117,6 +120,53 @@ public:
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
+class LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::lock) : Matrix<Precision>
+{
+private:
+    using FreeTensor = Matrix<Precision>;
+
+public:
+    using size_type  = typename FreeTensor::size_type;
+    using Shape      = typename FreeTensor::Shape;
+
+public:
+    Tensor() = default;
+    ~Tensor() = default;
+
+    explicit Tensor(size_type size) : FreeTensor(size) {}
+    Tensor(size_type size, const Precision* ptr) : FreeTensor(size, ptr) {}
+
+    explicit Tensor(size_type m, size_type n) : FreeTensor(m, n) {}
+    Tensor(size_type m, size_type n, Precision value) : FreeTensor(m, n, value) {}
+    Tensor(size_type m, size_type n, const Precision* ptr) : FreeTensor(m, n, ptr) {}
+
+    explicit Tensor(const Shape& shape) : FreeTensor(shape) {}
+    Tensor(const Shape& shape, Precision value) : FreeTensor(shape, value) {}
+    Tensor(const Shape& shape, const Precision* ptr) : FreeTensor(shape, ptr) {}
+
+    Tensor(const Tensor& tensor) : FreeTensor(tensor) {}
+    Tensor(Tensor&& tensor) noexcept : FreeTensor(tensor) {}
+
+    Tensor& operator= (const Tensor& vector) = delete;
+    Tensor& operator= (Tensor&& vector) = delete;
+
+    using FreeTensor::operator();
+
+    using FreeTensor::copy;
+    using FreeTensor::size;
+    using FreeTensor::shape;
+
+    using FreeTensor::fill;
+    using FreeTensor::apply;
+
+    using FreeTensor::add;
+    using FreeTensor::sub;
+    using FreeTensor::join;
+
+    using FreeTensor::data;
+};
+
+LIQUE_TENSOR_TPL_DECLARATION
 class Matrix<Precision>::Shape
 {
 friend Matrix<Precision>;
@@ -154,8 +204,15 @@ inline Matrix<Precision>::~Tensor()
 
 LIQUE_TENSOR_TPL_DECLARATION
 inline Matrix<Precision>::Tensor(std::size_t size)
-    : Tensor(1, size)
+    : data_(new Precision [size]), shape_(1, size)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(std::size_t size, const Precision* ptr)
+    : data_(new Precision[size]), shape_(1, size)
+{
+     detail::copy(data_, data_ + shape_.size_, ptr);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -165,9 +222,10 @@ inline Matrix<Precision>::Tensor(std::size_t m, std::size_t n)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(std::size_t size, const Precision* ptr)
-    : Tensor(1, size, ptr)
+Matrix<Precision>::Tensor(std::size_t m, std::size_t n, Precision value)
+    : data_(new Precision [m * n]), shape_(m, n)
 {
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -178,17 +236,16 @@ Matrix<Precision>::Tensor(std::size_t m, std::size_t n, const Precision* ptr)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(std::size_t m, std::size_t n, Precision fill_value)
-    : data_(new Precision [m * n]), shape_(m, n)
-{
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = fill_value;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
 inline Matrix<Precision>::Tensor(const Tensor::Shape& shape)
     : data_(new Precision [shape.size_]), shape_(shape)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const Tensor::Shape& shape, Precision value)
+    : data_(new Precision [shape.size_]), shape_(shape)
+{
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -196,14 +253,6 @@ Matrix<Precision>::Tensor(const Tensor::Shape& shape, const Precision* ptr)
     : data_(new Precision [shape.size_]), shape_(shape)
 {
      detail::copy(data_, data_ + shape_.size_, ptr);
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Tensor::Shape& shape, Precision fill_value)
-    : data_(new Precision [shape.size_]), shape_(shape)
-{
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = fill_value;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -324,24 +373,24 @@ void Matrix<Precision>::resize(const Tensor::Shape& shape)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type size, Precision fill_value)
+void Matrix<Precision>::resize(size_type size, Precision value)
 {
     resize(1, size);
-    fill(fill_value);
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type m, size_type n, Precision fill_value)
+void Matrix<Precision>::resize(size_type m, size_type n, Precision value)
 {
     resize(m, n);
-    fill(fill_value);
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(const Tensor::Shape& shape, Precision fill_value)
+void Matrix<Precision>::resize(const Tensor::Shape& shape, Precision value)
 {
     resize(shape);
-    fill(fill_value);
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

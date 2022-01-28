@@ -153,7 +153,7 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(
     for(size_type i = 0; i < size; ++i)
     {
         derivedB[i].resize(topology[i + 1]);
-        derivedW[i].resize(topology[i],topology[i + 1]);
+        derivedW[i].resize(topology[i], topology[i + 1]);
 
         deltaB[i].resize(topology[i + 1]);
         deltaW[i].resize(topology[i], topology[i + 1]);

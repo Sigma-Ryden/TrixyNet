@@ -19,16 +19,16 @@ template <class B1, class... Bn>
 struct conjunction<B1, Bn...> : std::conditional<bool(B1::value), conjunction<Bn...>, B1>::type {};
 
 template <typename> struct is_tensor : std::false_type {};
-template <typename Precision, class tensor_type>
-struct is_tensor<Tensor<Precision, tensor_type>> : std::true_type {};
+template <typename Precision, class tensor_type, class locker_type>
+struct is_tensor<Tensor<Precision, tensor_type, locker_type>> : std::true_type {};
 
 template <typename> struct is_vector : std::false_type {};
-template <typename Precision>
-struct is_vector<Tensor<Precision, TensorType::vector>> : std::true_type {};
+template <typename Precision, class locker_type>
+struct is_vector<Tensor<Precision, TensorType::vector, locker_type>> : std::true_type {};
 
 template <typename> struct is_matrix : std::false_type {};
-template <typename Precision>
-struct is_matrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
+template <typename Precision, class locker_type>
+struct is_matrix<Tensor<Precision, TensorType::matrix, locker_type>> : std::true_type {};
 
 template <class T, class... Tn>
 struct is_same_types: meta::conjunction<std::is_same<T, Tn>...> {};
