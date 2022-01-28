@@ -72,7 +72,6 @@ public:
     void resize(size_type m, size_type n);
     void resize(const Shape& new_shape);
 
-    void resize(size_type new_size, Precision value);
     void resize(size_type m, size_type n, Precision value);
     void resize(const Shape& new_shape, Precision value);
 
@@ -120,6 +119,31 @@ public:
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
+class Matrix<Precision>::Shape
+{
+friend Matrix<Precision>;
+
+public:
+    using size_type = std::size_t;
+
+protected:
+    size_type row_;
+    size_type col_;
+
+    size_type size_;
+
+public:
+    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n), size_(m * n) {}
+    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_), size_(shape.size_) {}
+
+    size_type row() const noexcept { return row_; }
+    size_type col() const noexcept { return col_; }
+
+protected:
+    Shape& operator= (const Shape& shape) = default;
+};
+
+LIQUE_TENSOR_TPL_DECLARATION
 class LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::lock) : Matrix<Precision>
 {
 private:
@@ -164,31 +188,6 @@ public:
     using FreeTensor::join;
 
     using FreeTensor::data;
-};
-
-LIQUE_TENSOR_TPL_DECLARATION
-class Matrix<Precision>::Shape
-{
-friend Matrix<Precision>;
-
-public:
-    using size_type = std::size_t;
-
-protected:
-    size_type row_;
-    size_type col_;
-
-    size_type size_;
-
-public:
-    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n), size_(m * n) {}
-    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_), size_(shape.size_) {}
-
-    size_type row() const noexcept { return row_; }
-    size_type col() const noexcept { return col_; }
-
-protected:
-    Shape& operator= (const Shape& shape) = default;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -370,13 +369,6 @@ void Matrix<Precision>::resize(const Tensor::Shape& shape)
 
     shape_ = shape;
     data_  = new Precision [shape_.size_];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type size, Precision value)
-{
-    resize(1, size);
-    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
