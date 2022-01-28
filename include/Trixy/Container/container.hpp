@@ -26,6 +26,8 @@ private:
 
 public:
     Container() noexcept;
+    ~Container();
+
     explicit Container(size_type size);
     Container(const Container&);
     Container(Container&&) noexcept;
@@ -95,6 +97,12 @@ public:
 template <typename Type>
 inline Container<Type>::Container() noexcept : data_(nullptr), size_(0)
 {
+}
+
+template <typename Type>
+inline Container<Type>::~Container()
+{
+    delete[] data_;
 }
 
 template <typename Type>

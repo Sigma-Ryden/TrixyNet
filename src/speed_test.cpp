@@ -147,11 +147,12 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
+    //speed_test();
     //speed_test_deserialization();
 
     return 0;
 }
+//
 /*
 enum class Accuracy
 {
