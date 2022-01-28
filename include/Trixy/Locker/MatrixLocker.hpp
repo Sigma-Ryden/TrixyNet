@@ -5,15 +5,14 @@
 
 #include "BaseLocker.hpp"
 
-#include "Trixy/Lique/Detail/LiqueMeta.hpp"
-
-#include "Detail/MacroScope.hpp"
-
 namespace trixy
 {
 
-TRIXY_LOCKER_TPL_DECLARATION
-class TRIXY_LOCKER_TPL(lique::meta::is_matrix) : protected Lockable
+template <class Lockable>
+using MatrixLocker = Locker<Lockable, LockerType::matrix, void>;
+
+template <class Lockable>
+class Locker<Lockable, LockerType::matrix, void> : protected Lockable
 {
 public:
     using size_type      = typename Lockable::size_type;
@@ -76,7 +75,5 @@ public:
 };
 
 } // namespace trixy
-
-#include "Detail/MacroUnscope.hpp"
 
 #endif // MATRIX_LOCKER_HPP

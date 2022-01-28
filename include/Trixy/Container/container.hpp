@@ -15,6 +15,8 @@ public:
     class const_iterator;
 
     using size_type       = std::size_t;
+    using value_type      = Type;
+
     using reference       = Type&;
     using const_reference = const Type&;
 

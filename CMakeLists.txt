@@ -48,6 +48,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetCore.hpp
     include/Trixy/Locker/BaseLocker.hpp
+    include/Trixy/Locker/ContainerLocker.hpp
     include/Trixy/Locker/VectorLocker.hpp
     include/Trixy/Locker/MatrixLocker.hpp
     include/Trixy/Locker/LockerCore.hpp

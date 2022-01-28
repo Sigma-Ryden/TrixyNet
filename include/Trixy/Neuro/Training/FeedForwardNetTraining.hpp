@@ -4,6 +4,8 @@
 #include "BaseTraining.hpp"
 
 #include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Locker/ContainerLocker.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -24,14 +26,18 @@ public:
 private:
     using IOptimizer                = typename train::IOptimizer<Trainable>;
 
-    template <class T>
-    using Container                 = typename Trainable::template ContainerType<T>;
+    template <class... T>
+    using Container                 = typename Trainable::template ContainerType<T...>;
 
     using Tensor1D                  = typename Trainable::Tensor1D;
     using Tensor2D                  = typename Trainable::Tensor2D;
 
     using precision_type            = typename Trainable::precision_type;
     using size_type                 = typename Trainable::size_type;
+
+private:
+    template <class... T>
+    using ContainerLock             = ContainerLocker<Container<T...>>;
 
 private:
     Trainable& net;                 ///< reference to network prevent her copying
@@ -91,10 +97,10 @@ TRIXY_TRAINING_TPL_DECLARATION
 struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData
 {
 public:
-    const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
+    const size_type size;               ///< Number of functional layer (same as net_topology_size - 1)
 
-    Container<Tensor1D> S;          ///< non-activated value for hidden layer
-    Container<Tensor1D> H;          ///< hidden layer storage
+    ContainerLock<Tensor1D> S;          ///< non-activated value for hidden layer
+    ContainerLock<Tensor1D> H;          ///< hidden layer storage
 
 public:
     FeedForwardData(const Container<size_type>& topology);
@@ -107,13 +113,13 @@ TRIXY_TRAINING_TPL_DECLARATION
 struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData
 {
 public:
-    const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
+    const size_type size;               ///< Number of functional layer (same as net_topology_size - 1)
 
-    Container<Tensor1D> derivedB;   ///< derived bias storage (using for inner updates)
-    Container<Tensor2D> derivedW;   ///< derived weight storage (using for inner updates)
+    ContainerLock<Tensor1D> derivedB;   ///< derived bias storage (using for inner updates)
+    ContainerLock<Tensor2D> derivedW;   ///< derived weight storage (using for inner updates)
 
-    Container<Tensor1D> deltaB;     ///< delta bias is accumulator of derived bias
-    Container<Tensor2D> deltaW;     ///< delta weight is accumulator of derived weight
+    ContainerLock<Tensor1D> deltaB;     ///< delta bias is accumulator of derived bias
+    ContainerLock<Tensor2D> deltaW;     ///< delta weight is accumulator of derived weight
 
 public:
     BackPropData(const Container<size_type>& topology);
@@ -198,8 +204,6 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     , backprop(network.inner.topology)
     , buff(network.inner.N)
 {
-    buff.resize(net.inner.N);
-
     for(size_type i = 0; i < net.inner.N; ++i)
         buff[i].resize(net.inner.topology[i + 1]);
 }
@@ -220,7 +224,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         innerFeedForward(idata[sample]);
         innerBackProp(idata[sample], odata[sample]);
 
-        optimizer.update(backprop.derivedB, backprop.derivedW);
+        optimizer.update(backprop.derivedB.base(), backprop.derivedW.base());
     }
 }
 
@@ -246,7 +250,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 
         backprop.normalizeDelta(alpha);
 
-        optimizer.update(backprop.deltaB, backprop.deltaW);
+        optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
     }
 }
 
@@ -287,7 +291,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
 
             backprop.normalizeDelta(alpha);
 
-            optimizer.update(backprop.deltaB, backprop.deltaW);
+            optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
         }
     }
 }

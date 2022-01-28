@@ -6,6 +6,8 @@
 #include <cmath> // fabs
 
 #include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
+#include "Trixy/Locker/LockerCore.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -25,6 +27,13 @@ public:
 private:
     class InnerFunctional;
 
+private:
+    template <typename... T>
+    using ContainerLock             = ContainerLocker<Container<T...>>;
+
+    using Tensor1DLock              = VectorLocker<Vector<Precision, Args...>>;
+    using Tensor2DLock              = MatrixLocker<Matrix<Precision, Args...>>;
+
 public:
     using Tensor1D                  = Vector<Precision, Args...>;
     using Tensor2D                  = Matrix<Precision, Args...>;
@@ -32,6 +41,7 @@ public:
 
     using InnerBuffer               = Container<Vector<Precision, Args...>>;
     using InnerTopology             = Container<std::size_t>;
+
     template <typename... T>
     using ContainerType             = Container<T...>;
 
@@ -91,9 +101,9 @@ public:
     void initializeInnerStruct(const Container<Tensor1D>& bias,
                                const Container<Tensor2D>& weight) noexcept;
 
-    const Container<Tensor1D>& getInnerBias() const noexcept;
-    const Container<Tensor2D>& getInnerWeight() const noexcept;
-    const Container<size_type>& getTopology() const noexcept;
+    const Container<Tensor1D>& getInnerBias() const noexcept { return inner.B.base(); }
+    const Container<Tensor2D>& getInnerWeight() const noexcept { return inner.W.base(); }
+    const Container<size_type>& getTopology() const noexcept { return inner.topology; }
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -103,8 +113,8 @@ public:
     const InnerTopology topology;   ///< Network topology
     const size_type N;              ///< Number of functional layer (same as topology_size - 1)
 
-    Container<Tensor1D> B;          ///< Container of network bias
-    Container<Tensor2D> W;          ///< Container of network weight
+    ContainerLock<Tensor1D> B;      ///< Container of network bias
+    ContainerLock<Tensor2D> W;      ///< Container of network weight
 
 public:
     InnerStruct(const Container<size_type>& topology);
@@ -195,11 +205,11 @@ public:
 
     void setLoss(const LossFunction&);
 
-    const ActivationFunction& getActivation() const noexcept;
-    const Container<ActivationFunction>& getAllActivation() const noexcept;
-    const ActivationFunction& getNormalization() const noexcept;
+    const ActivationFunction& getActivation() const noexcept { return activation.front(); }
+    const Container<ActivationFunction>& getAllActivation() const noexcept { return activation; }
+    const ActivationFunction& getNormalization() const noexcept { return activation.back(); }
 
-    const LossFunction& getLoss() const noexcept;
+    const LossFunction& getLoss() const noexcept { return loss; }
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -230,34 +240,6 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setLoss(
     const TRIXY_FEED_FORWARD_NET_TPL::LossFunction& f)
 {
     loss = f;
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
-    TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getActivation() const noexcept
-{
-    return activation.front();
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction>&
-    TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getAllActivation() const noexcept
-{
-    return activation;
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const typename TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction&
-    TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getNormalization() const noexcept
-{
-    return activation.back();
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const typename TRIXY_FEED_FORWARD_NET_TPL::LossFunction&
-    TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::getLoss() const noexcept
-{
-    return loss;
 }
 
 TRIXY_NET_TPL_DECLARATION
@@ -306,27 +288,6 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
         inner.B[i].copy(bias[i]);
         inner.W[i].copy(weight[i]);
     }
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D>&
-    TRIXY_FEED_FORWARD_NET_TPL::getInnerBias() const noexcept
-{
-    return inner.B;
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::Tensor2D>&
-    TRIXY_FEED_FORWARD_NET_TPL::getInnerWeight() const noexcept
-{
-    return inner.W;
-}
-
-TRIXY_NET_TPL_DECLARATION
-inline const Container<typename TRIXY_FEED_FORWARD_NET_TPL::size_type>&
-    TRIXY_FEED_FORWARD_NET_TPL::getTopology() const noexcept
-{
-    return inner.topology;
 }
 
 TRIXY_NET_TPL_DECLARATION

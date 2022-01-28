@@ -42,13 +42,14 @@ template <typename Precision>
 struct is_matrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
 
 template <typename> struct is_lock_tensor : std::false_type {};
-template <class Tensor> struct is_lock_tensor<Locker<Tensor>> : is_tensor<Tensor> {};
+template <class Tensor, class locker_type>
+struct is_lock_tensor<Locker<Tensor, locker_type>> : is_tensor<Tensor> {};
 
 template <typename> struct is_lock_vector : std::false_type {};
-template <class Tensor> struct is_lock_vector<Locker<Tensor>> : is_vector<Tensor> {};
+template <class Tensor> struct is_lock_vector<Locker<Tensor, LockerType::vector>> : is_vector<Tensor> {};
 
 template <typename> struct is_lock_matrix : std::false_type {};
-template <class Tensor> struct is_lock_matrix<Locker<Tensor>> : is_matrix<Tensor> {};
+template <class Tensor> struct is_lock_matrix<Locker<Tensor, LockerType::matrix>> : is_matrix<Tensor> {};
 
 template <class Tensor> struct is_ltensor : disjunction<is_tensor<Tensor>, is_lock_tensor<Tensor>> {};
 

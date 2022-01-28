@@ -3,6 +3,7 @@
 
 #include "BaseLocker.hpp"
 
+#include "ContainerLocker.hpp"
 #include "VectorLocker.hpp"
 #include "MatrixLocker.hpp"
 

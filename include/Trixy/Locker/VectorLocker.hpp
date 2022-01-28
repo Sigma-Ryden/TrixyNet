@@ -2,19 +2,17 @@
 #define VECTOR_LOCKER_HPP
 
 #include <utility> // move
-#include <initializer_list> // initializer_list
 
 #include "BaseLocker.hpp"
-
-#include "Trixy/Lique/Detail/LiqueMeta.hpp"
-
-#include "Detail/MacroScope.hpp"
 
 namespace trixy
 {
 
-TRIXY_LOCKER_TPL_DECLARATION
-class TRIXY_LOCKER_TPL(lique::meta::is_vector) : protected Lockable
+template <class Lockable>
+using VectorLocker = Locker<Lockable, LockerType::vector, void>;
+
+template <class Lockable>
+class Locker<Lockable, LockerType::vector, void> : protected Lockable
 {
 public:
     using size_type      = typename Lockable::size_type;
@@ -65,7 +63,5 @@ public:
 };
 
 } // namespace trixy
-
-#include "Detail/MacroUnscope.hpp"
 
 #endif // VECTOR_LOCKER_HPP
