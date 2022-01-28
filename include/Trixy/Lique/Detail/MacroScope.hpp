@@ -4,9 +4,16 @@
 #define LIQUE_TENSOR_TPL_DECLARATION                                                                    \
     template <typename Precision>
 
-#define LIQUE_TENSOR_TPL(tensor_type, locker_type)                                                      \
-    Tensor<Precision, tensor_type, locker_type,                                                         \
+#define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
+    Tensor<Precision, tensor_type,                                                                      \
            ::lique::meta::enable_for_arithmetic_t<Precision>>
+
+#define LIQUE_LOCKER_TPL_DECLARATION                                                                    \
+    template <class Lockable>
+
+#define LIQUE_LOCKER_TPL(is_type)                                                                       \
+    Locker<Lockable,                                                                                    \
+           typename std::enable_if<is_type<Lockable>::value>::type>
 
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
     template <template <typename, typename...> class Vector,                                            \

@@ -15,16 +15,14 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using Vector = LIQUE_TENSOR_TPL(TensorType::vector, LockerType::free);
+using Vector = LIQUE_TENSOR_TPL(TensorType::vector);
 
 LIQUE_TENSOR_TPL_DECLARATION
-using LockVector = LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock);
-
-LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::free)
+class LIQUE_TENSOR_TPL(TensorType::vector)
 {
 public:
     using size_type      = std::size_t;
+    using precision_type = Precision;
 
     using pointer        = Precision*;
     using const_pointer  = Precision* const;
@@ -90,47 +88,6 @@ public:
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
-};
-
-LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock) : Vector<Precision>
-{
-private:
-    using FreeTensor = Vector<Precision>;
-
-public:
-    using size_type  = typename FreeTensor::size_type;
-
-public:
-    Tensor() = default;
-    ~Tensor() = default;
-
-    explicit Tensor(size_type size) : FreeTensor(size) {}
-    Tensor(size_type size, Precision fill_value) : FreeTensor(size, fill_value) {}
-    Tensor(size_type size, const Precision* ptr) : FreeTensor(size, ptr) {}
-
-    Tensor(const Tensor& tensor) : FreeTensor(tensor) {}
-    Tensor(Tensor&& tensor) noexcept : FreeTensor(tensor) {}
-
-    Tensor(std::initializer_list<Precision> list) : FreeTensor(list) {}
-
-    Tensor& operator= (const Tensor& vector) = delete;
-    Tensor& operator= (Tensor&& vector) = delete;
-
-    using FreeTensor::operator();
-
-    using FreeTensor::copy;
-    using FreeTensor::size;
-
-    using FreeTensor::fill;
-    using FreeTensor::apply;
-
-    using FreeTensor::dot;
-    using FreeTensor::add;
-    using FreeTensor::sub;
-    using FreeTensor::join;
-
-    using FreeTensor::data;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION

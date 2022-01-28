@@ -10,15 +10,7 @@ struct TensorType
     struct matrix;
 };
 
-struct LockerType
-{
-    struct lock;
-    struct free;
-};
-
-template <typename Precision, typename tensor_type,
-          typename locker_type = LockerType::free,
-          typename enable = void>
+template <typename Precision, typename tensor_type, typename enable = void>
 class Tensor;
 
 } // namespace lique

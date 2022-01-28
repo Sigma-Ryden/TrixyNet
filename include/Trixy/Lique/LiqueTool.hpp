@@ -56,13 +56,14 @@ inline T sum(T&& t1, Tn&&... tn)
     return t1 + sum(std::forward<T>(tn)...);
 }
 
-template <typename Precision,
-          Binary<Precision> compare,
-          meta::use_for_arithmetic_t<Precision> = 0>
-std::size_t find(const Vector<Precision>& vector)
+template <class Tensor1D,
+          typename size_type = typename Tensor1D::size_type,
+          Binary<typename Tensor1D::precision_type> compare,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+size_type find(const Tensor1D& vector)
 {
-    std::size_t arg = 0;
-    for(std::size_t i = 1; i < vector.size(); ++i)
+    size_type arg = 0;
+    for(size_type i = 1; i < vector.size(); ++i)
         if(compare(vector(arg), vector(i)))
             arg = i;
 
@@ -119,16 +120,20 @@ Vector<std::size_t> find(
     return vector;
 }
 
-LIQUE_FUNCTION_TPL
-std::size_t argmin(const Vector<Precision>& vector)
+template <class Tensor1D,
+          typename size_type = typename Tensor1D::size_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+size_type argmin(const Tensor1D& vector)
 {
-    return find<Precision, comp::is_bigger>(vector);
+    return find<typename Tensor1D::precision_type, comp::is_bigger>(vector);
 }
 
-LIQUE_FUNCTION_TPL
-std::size_t argmax(const Vector<Precision>& vector)
+template <class Tensor1D,
+          typename size_type = typename Tensor1D::size_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+size_type argmax(const Tensor1D& vector)
 {
-    return find<Precision, comp::is_less>(vector);
+    return find<typename Tensor1D::precision_type, comp::is_less>(vector);
 }
 
 LIQUE_FUNCTION_TPL
@@ -147,45 +152,53 @@ Vector<std::size_t> argmax(
     return find<Precision, comp::is_less>(matrix, axis);
 }
 
-LIQUE_FUNCTION_TPL
-Precision min(const Vector<Precision>& vector)
+template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+precision_type min(const Tensor1D& vector)
 {
-    return vector(find<Precision, comp::is_bigger>(vector));
+    return vector(find<precision_type, comp::is_bigger>(vector));
 }
 
-LIQUE_FUNCTION_TPL
-Precision max(const Vector<Precision>& vector)
+template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+precision_type max(const Tensor1D& vector)
 {
-    return vector(find<Precision, comp::is_less>(vector));
+    return vector(find<precision_type, comp::is_less>(vector));
 }
 
-LIQUE_FUNCTION_TPL
-Precision mean(const Vector<Precision>& vector)
+template <class Tensor1D,
+          typename size_type = typename Tensor1D::size_type,
+          typename precision_type = typename Tensor1D::precision_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+precision_type mean(const Tensor1D& vector)
 {
-    Precision mean_value = 0.;
+    size_type mean_value = 0.;
 
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
         mean_value += vector(i);
 
-    return mean_value / static_cast<Precision>(vector.size());
+    return mean_value / static_cast<precision_type>(vector.size());
 }
 
-LIQUE_FUNCTION_TPL
-Precision std(
-    const Vector<Precision>& vector,
+template <class Tensor1D,
+          typename size_type = typename Tensor1D::size_type,
+          typename precision_type = typename Tensor1D::precision_type,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+precision_type std(
+    const Tensor1D& vector,
     bool unbiased = false)
 {
-    Precision mean_value = mean(vector);
-    Precision std_value;
-    Precision buff;
+    precision_type mean_value = mean(vector);
+    precision_type std_value;
+    precision_type buff;
 
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
     {
         buff = vector(i) - mean_value;
         std_value += buff * buff;
     }
 
-    std_value /= static_cast<Precision>(vector.size() - unbiased);
+    std_value /= static_cast<precision_type>(vector.size() - unbiased);
 
     return std::sqrt(std_value);
 }
@@ -316,78 +329,97 @@ Vector<Precision> std(
     return vector;
 }
 
-LIQUE_FUNCTION_TPL
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
 void dot(
-    Vector<Precision>& buff,
-    const Vector<Precision>& row_vector,
-    const Matrix<Precision>& matrix)
+    Tensor1D& buff,
+    const Tensor1D& row_vector,
+    const Tensor2D& matrix)
 {
-    Precision temp;
+    using size_type      = typename Tensor1D::size_type;
+    using precision_type = typename Tensor1D::precision_type;
+
+    precision_type temp;
 
     buff.fill(0.);
 
-    for(std::size_t j = 0; j < row_vector.size(); ++j)
+    for(size_type j = 0; j < row_vector.size(); ++j)
     {
         temp = row_vector(j);
-        for(std::size_t i = 0; i < buff.size(); ++i)
+        for(size_type i = 0; i < buff.size(); ++i)
            buff(i) += temp * matrix(j, i);
     }
 }
 
-LIQUE_FUNCTION_TPL
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
 void dot(
-    Vector<Precision>& buff,
-    const Matrix<Precision>& matrix,
-    const Vector<Precision>& col_vector)
+    Tensor1D& buff,
+    const Tensor2D& matrix,
+    const Tensor1D& col_vector)
 {
+    using size_type = typename Tensor1D::size_type;
+
     buff.fill(0.);
 
-    for(std::size_t i = 0; i < buff.size(); ++i)
-        for(std::size_t j = 0; j < col_vector.size(); ++j)
+    for(size_type i = 0; i < buff.size(); ++i)
+        for(size_type j = 0; j < col_vector.size(); ++j)
             buff(i) += matrix(i, j) * col_vector(j);
 }
 
-LIQUE_FUNCTION_TPL
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
 void tensordot(
-    Matrix<Precision>& buff2,
-    const Vector<Precision>& col_vector,
-    const Vector<Precision>& row_vector)
+    Tensor2D& buff2,
+    const Tensor1D& col_vector,
+    const Tensor1D& row_vector)
 {
-    for(std::size_t i = 0; i < col_vector.size(); ++i)
-        for(std::size_t j = 0; j < row_vector.size(); ++j)
+    using size_type = typename Tensor1D::size_type;
+
+    for(size_type i = 0; i < col_vector.size(); ++i)
+        for(size_type j = 0; j < row_vector.size(); ++j)
             buff2(i, j) = row_vector(j) * col_vector(i);
 }
 
-LIQUE_FUNCTION_TPL
-Vector<Precision> dot(
-    const Vector<Precision>& row_vector,
-    const Matrix<Precision>& matrix)
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+Tensor1D dot(
+    const Tensor1D& row_vector,
+    const Tensor2D& matrix)
 {
-    Vector<Precision> buff(matrix.shape().col());
+    Tensor1D buff(matrix.shape().col());
 
     dot(buff, row_vector, matrix);
 
     return buff;
 }
 
-LIQUE_FUNCTION_TPL
-Vector<Precision> dot(
-    const Matrix<Precision>& matrix,
-    const Vector<Precision>& col_vector)
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+Tensor1D dot(
+    const Tensor2D& matrix,
+    const Tensor1D& col_vector)
 {
-    Vector<Precision> buff(matrix.shape().row());
+    Tensor1D buff(matrix.shape().row());
 
     dot(buff, matrix, col_vector);
 
     return buff;
 }
 
-LIQUE_FUNCTION_TPL
-Matrix<Precision> tensordot(
-    const Vector<Precision>& col_vector,
-    const Vector<Precision>& row_vector)
+template <class Tensor1D, class Tensor2D,
+          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
+          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+Tensor2D tensordot(
+    const Tensor1D& col_vector,
+    const Tensor1D& row_vector)
 {
-    Matrix<Precision> buff2(col_vector.size(), row_vector.size());
+    Tensor2D buff2(col_vector.size(), row_vector.size());
 
     tensordot(buff2, col_vector, row_vector);
 
@@ -395,24 +427,26 @@ Matrix<Precision> tensordot(
 }
 
 template <class Tensor, class Function,
-          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
+          typename std::enable_if<meta::is_ltensor<Tensor>::value, int>::type = 0>
 void for_each(Tensor& tensor, Function func)
 {
-    for(std::size_t i = 0; i < tensor.size(); ++i)
+    using size_type = typename Tensor::size_type;
+
+    for(size_type i = 0; i < tensor.size(); ++i)
         func(tensor(i));
 }
 
 namespace detail
 {
 
-template <class T, typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0>
+template <class T, typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0>
 void concat(T& out, std::size_t& at, const T& tensor)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
+          typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
@@ -425,17 +459,19 @@ void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 } // namespace detail
 
 template <class Tensor, template <typename...> class Container,
-          typename std::enable_if<meta::is_tensor<Tensor>::value, int>::type = 0>
+          typename std::enable_if<meta::is_ltensor<Tensor>::value, int>::type = 0>
 Tensor concat(const Container<Tensor>& list)
 {
-    std::size_t accumulate_size = 0;
+    using size_type = typename Tensor::size_type;
+
+    size_type accumulate_size = 0;
 
     for(const auto& it : list)
         accumulate_size += it.size();
 
     Tensor tensor(accumulate_size);
 
-    std::size_t at = 0;
+    size_type at = 0;
     for(const auto& it : list)
     {
         detail::copy(tensor.data() + at, tensor.data() + at + it.size(), it.data());
@@ -446,13 +482,15 @@ Tensor concat(const Container<Tensor>& list)
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<meta::is_tensor<T>::value, int>::type = 0,
+          typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
+    using size_type = typename T::size_type;
+
     T out(sum(tensor.size(), tensor_n.size()...));
 
-    std::size_t position = 0;
+    size_type position = 0;
     detail::concat(out, position, tensor, tensor_n...);
 
     return out;

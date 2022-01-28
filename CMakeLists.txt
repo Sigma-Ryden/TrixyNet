@@ -22,7 +22,10 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueMatrix.hpp
     include/Trixy/Lique/LiqueVector.hpp
     include/Trixy/Lique/LiqueBaseTensor.hpp
+    include/Trixy/Lique/LiqueBaseLocker.hpp
     include/Trixy/Lique/LiqueTool.hpp
+    include/Trixy/Lique/LiqueVectorLocker.hpp
+    include/Trixy/Lique/LiqueMatrixLocker.hpp
     include/Trixy/Lique/Detail/MacroScope.hpp
     include/Trixy/Lique/Detail/MacroUnscope.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp

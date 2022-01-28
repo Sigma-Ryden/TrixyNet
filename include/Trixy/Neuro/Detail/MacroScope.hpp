@@ -19,7 +19,7 @@
                         template <typename, typename...> class T2,                                      \
                         typename P, typename...>                                                        \
               class Linear,                                                                             \
-              template <typename Type> class Container,                                                 \
+              template <typename...> class Container,                                                   \
               typename Precision,                                                                       \
               typename... Args>
 

@@ -8,6 +8,9 @@
 
 #include "LiqueLinear.hpp"
 
+#include "LiqueVectorLocker.hpp"
+#include "LiqueMatrixLocker.hpp"
+
 #include "LiqueTool.hpp"
 
 #endif // LIQUE_CORE_HPP

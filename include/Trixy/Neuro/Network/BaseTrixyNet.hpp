@@ -10,7 +10,7 @@ template <template <typename, typename...> class Vector,
                     template <typename, typename...> class M,
                     typename P, typename...>
           class Linear,
-          template <typename Type> class Container,
+          template <typename...> class Container,
           typename Precision,
           typename... Args>
 class FeedForwardNet;

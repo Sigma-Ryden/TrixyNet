@@ -16,19 +16,17 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using LockMatrix = LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::lock);
+using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
 
 LIQUE_TENSOR_TPL_DECLARATION
-using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::free);
-
-LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::free)
+class LIQUE_TENSOR_TPL(TensorType::matrix)
 {
 protected:
     class Shape;
 
 public:
     using size_type       = std::size_t;
+    using precision_type  = Precision;
 
     using pointer        = Precision*;
     using const_pointer  = Precision* const;
@@ -109,7 +107,6 @@ public:
     Tensor& join(Precision value, const Tensor&) noexcept;
 
     Tensor transpose() const;
-    Tensor& transpose();
 
     Tensor inverse() const;
     Tensor& inverse();
@@ -141,53 +138,6 @@ public:
 
 protected:
     Shape& operator= (const Shape& shape) = default;
-};
-
-LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::matrix, LockerType::lock) : Matrix<Precision>
-{
-private:
-    using FreeTensor = Matrix<Precision>;
-
-public:
-    using size_type  = typename FreeTensor::size_type;
-    using Shape      = typename FreeTensor::Shape;
-
-public:
-    Tensor() = default;
-    ~Tensor() = default;
-
-    explicit Tensor(size_type size) : FreeTensor(size) {}
-    Tensor(size_type size, const Precision* ptr) : FreeTensor(size, ptr) {}
-
-    explicit Tensor(size_type m, size_type n) : FreeTensor(m, n) {}
-    Tensor(size_type m, size_type n, Precision value) : FreeTensor(m, n, value) {}
-    Tensor(size_type m, size_type n, const Precision* ptr) : FreeTensor(m, n, ptr) {}
-
-    explicit Tensor(const Shape& shape) : FreeTensor(shape) {}
-    Tensor(const Shape& shape, Precision value) : FreeTensor(shape, value) {}
-    Tensor(const Shape& shape, const Precision* ptr) : FreeTensor(shape, ptr) {}
-
-    Tensor(const Tensor& tensor) : FreeTensor(tensor) {}
-    Tensor(Tensor&& tensor) noexcept : FreeTensor(tensor) {}
-
-    Tensor& operator= (const Tensor& vector) = delete;
-    Tensor& operator= (Tensor&& vector) = delete;
-
-    using FreeTensor::operator();
-
-    using FreeTensor::copy;
-    using FreeTensor::size;
-    using FreeTensor::shape;
-
-    using FreeTensor::fill;
-    using FreeTensor::apply;
-
-    using FreeTensor::add;
-    using FreeTensor::sub;
-    using FreeTensor::join;
-
-    using FreeTensor::data;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -612,26 +562,6 @@ Matrix<Precision> Matrix<Precision>::transpose() const
             new_matrix.data_[i * shape_.row_ + j] = data_[j * shape_.col_ + i];
 
     return new_matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::transpose() // repair
-{
-    Tensor buff_(shape_.col_, shape_.row_);
-
-    for(int n = 0; n < shape_.size_; ++n)
-    {
-        int i = n / shape_.row_;
-        int j = n % shape_.row_;
-        buff_.data_[n] = data_[shape_.col_ * j + i];
-    }
-
-    for(int i = 0; i < shape_.size_; ++i)
-       data_[i] = buff_.data_[i];
-
-    std::swap(shape_.col_, shape_.row_);
-
-    return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
