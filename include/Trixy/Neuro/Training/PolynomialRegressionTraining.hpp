@@ -59,7 +59,7 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
         }
     }
 
-    Tensor2D X_T = X.transpose();
+    Tensor2D X_T = const_cast<const Tensor2D&>(X).transpose();
 
     // W = (X^T . X)^(-1) . X^T . Y
 

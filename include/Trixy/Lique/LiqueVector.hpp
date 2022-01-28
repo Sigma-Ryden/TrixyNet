@@ -15,13 +15,13 @@ namespace lique
 {
 
 LIQUE_TENSOR_TPL_DECLARATION
-using LockVector = LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock);
-
-LIQUE_TENSOR_TPL_DECLARATION
 using Vector = LIQUE_TENSOR_TPL(TensorType::vector, LockerType::free);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock)
+using LockVector = LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock);
+
+LIQUE_TENSOR_TPL_DECLARATION
+class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::free)
 {
 public:
     using size_type      = std::size_t;
@@ -41,18 +41,24 @@ public:
     ~Tensor();
 
     explicit Tensor(size_type size);
-    Tensor(size_type size, Precision value);
+    Tensor(size_type size, Precision fill_value);
     Tensor(size_type size, const Precision* ptr);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;
     Tensor(std::initializer_list<Precision>);
 
+    Tensor& operator= (const Tensor&);
+    Tensor& operator= (Tensor&&) noexcept;
+
     Tensor& copy(const Precision* src) noexcept;
     Tensor& copy(const Tensor&) noexcept;
     Tensor& copy(std::initializer_list<Precision>) noexcept;
 
     size_type size() const noexcept;
+
+    void resize(size_type new_size);
+    void resize(size_type new_size, Precision fill_value);
 
     Precision& operator() (size_type i) noexcept;
     const Precision& operator() (size_type i) const noexcept;
@@ -84,121 +90,105 @@ public:
 
     Precision* data() noexcept;
     const Precision* data() const noexcept;
-
-protected:
-    Tensor& operator= (const Tensor&);
-    Tensor& operator= (Tensor&&) noexcept;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::free) : public LockVector<Precision>
+class LIQUE_TENSOR_TPL(TensorType::vector, LockerType::lock) : Vector<Precision>
 {
 private:
-    using LockTensor = LockVector<Precision>;
+    using FreeTensor = Vector<Precision>;
 
 public:
-    using size_type  = typename LockTensor::size_type;
+    using size_type  = typename FreeTensor::size_type;
 
 public:
-    using LockTensor::operator=;
-
-public:
-    Tensor() noexcept = default;
+    Tensor() = default;
     ~Tensor() = default;
 
-    Tensor& operator= (const Tensor& vector) = default;
-    Tensor& operator= (Tensor&& vector) noexcept = default;
+    explicit Tensor(size_type size) : FreeTensor(size) {}
+    Tensor(size_type size, Precision fill_value) : FreeTensor(size, fill_value) {}
+    Tensor(size_type size, const Precision* ptr) : FreeTensor(size, ptr) {}
 
-    explicit Tensor(size_type size) : LockTensor(size) {}
-    Tensor(size_type size, Precision value) : LockTensor(size, value) {}
-    Tensor(size_type size, const Precision* ptr) : LockTensor(size, ptr) {}
+    Tensor(const Tensor& tensor) : FreeTensor(tensor) {}
+    Tensor(Tensor&& tensor) noexcept : FreeTensor(tensor) {}
 
-    Tensor(const Tensor& tensor) = default;
-    Tensor(Tensor&& tensor) noexcept = default;
+    Tensor(std::initializer_list<Precision> list) : FreeTensor(list) {}
 
-    Tensor(const LockTensor& tensor) : LockTensor(tensor) {}
-    Tensor(LockTensor&& tensor) noexcept : LockTensor(tensor) {}
+    Tensor& operator= (const Tensor& vector) = delete;
+    Tensor& operator= (Tensor&& vector) = delete;
 
-    Tensor(std::initializer_list<Precision> list) : LockTensor(list) {}
+    using FreeTensor::operator();
 
-    void resize(size_type new_size);
-    void resize(size_type new_size, Precision value);
+    using FreeTensor::copy;
+    using FreeTensor::size;
+
+    using FreeTensor::fill;
+    using FreeTensor::apply;
+
+    using FreeTensor::dot;
+    using FreeTensor::add;
+    using FreeTensor::sub;
+    using FreeTensor::join;
+
+    using FreeTensor::data;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Vector<Precision>::resize(size_type new_size)
-{
-    delete[] this->data_;
-
-    this->size_ = new_size;
-    this->data_ = new Precision[this->size_];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-void Vector<Precision>::resize(size_type new_size, Precision value)
-{
-    resize(new_size);
-
-    for(size_type i = 0; i < this->size_; ++i)
-        this->data_[i] = value;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline LockVector<Precision>::Tensor() noexcept
+inline Vector<Precision>::Tensor() noexcept
     : data_(nullptr), size_(0)
 {
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline LockVector<Precision>::~Tensor()
+inline Vector<Precision>::~Tensor()
 {
     delete[] data_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline LockVector<Precision>::Tensor(std::size_t size)
+inline Vector<Precision>::Tensor(std::size_t size)
     : data_(new Precision[size]), size_(size)
 {
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>::Tensor(std::size_t size, Precision value)
+Vector<Precision>::Tensor(std::size_t size, Precision fill_value)
     : data_(new Precision[size]), size_(size)
 {
     for(size_type i = 0; i < size_; ++i)
-        data_[i] = value;
+        data_[i] = fill_value;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>::Tensor(std::size_t size, const Precision* ptr)
+Vector<Precision>::Tensor(std::size_t size, const Precision* ptr)
     : data_(new Precision[size]), size_(size)
 {
      detail::copy(data_, data_ + size_, ptr);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>::Tensor(const Tensor& vector)
+Vector<Precision>::Tensor(const Tensor& vector)
     : data_(new Precision[vector.size_]), size_(vector.size_)
 {
      detail::copy(data_, data_ + size_, vector.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline LockVector<Precision>::Tensor(Tensor&& vector) noexcept
+inline Vector<Precision>::Tensor(Tensor&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>::Tensor(std::initializer_list<Precision> init)
+Vector<Precision>::Tensor(std::initializer_list<Precision> init)
     : data_(new Precision[init.size()]), size_(init.size())
 {
      detail::copy(data_, data_ + size_, init.begin());
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::operator= (const Tensor& vector)
+Vector<Precision>& Vector<Precision>::operator= (const Tensor& vector)
 {
     if(this != &vector)
     {
@@ -214,7 +204,7 @@ LockVector<Precision>& LockVector<Precision>::operator= (const Tensor& vector)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::operator= (Tensor&& vector) noexcept
+Vector<Precision>& Vector<Precision>::operator= (Tensor&& vector) noexcept
 {
     if(this != &vector)
     {
@@ -230,7 +220,7 @@ LockVector<Precision>& LockVector<Precision>::operator= (Tensor&& vector) noexce
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::copy(const Precision* ptr) noexcept
+Vector<Precision>& Vector<Precision>::copy(const Precision* ptr) noexcept
 {
      detail::copy(data_, data_ + size_, ptr);
 
@@ -238,7 +228,7 @@ LockVector<Precision>& LockVector<Precision>::copy(const Precision* ptr) noexcep
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::copy(const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::copy(const Tensor& vector) noexcept
 {
     if(this != &vector)
          detail::copy(data_, data_ + size_, vector.data_);
@@ -247,7 +237,7 @@ LockVector<Precision>& LockVector<Precision>::copy(const Tensor& vector) noexcep
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::copy(
+Vector<Precision>& Vector<Precision>::copy(
     std::initializer_list<Precision> init) noexcept
 {
     detail::copy(data_, data_ + size_, init.begin());
@@ -256,25 +246,41 @@ LockVector<Precision>& LockVector<Precision>::copy(
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline std::size_t LockVector<Precision>::size() const noexcept
+inline std::size_t Vector<Precision>::size() const noexcept
 {
     return size_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline Precision& LockVector<Precision>::operator() (std::size_t i) noexcept
+void Vector<Precision>::resize(std::size_t new_size)
+{
+    delete[] data_;
+
+    size_ = new_size;
+    data_ = new Precision[size_];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void Vector<Precision>::resize(std::size_t new_size, Precision fill_value)
+{
+    resize(new_size);
+    fill(fill_value);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline Precision& Vector<Precision>::operator() (std::size_t i) noexcept
 {
     return data_[i];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline const Precision& LockVector<Precision>::operator() (std::size_t i) const noexcept
+inline const Precision& Vector<Precision>::operator() (std::size_t i) const noexcept
 {
     return data_[i];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::fill(Precision (*gen)()) noexcept
+Vector<Precision>& Vector<Precision>::fill(Precision (*gen)()) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = gen();
@@ -283,7 +289,7 @@ LockVector<Precision>& LockVector<Precision>::fill(Precision (*gen)()) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::fill(Precision value) noexcept
+Vector<Precision>& Vector<Precision>::fill(Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value;
@@ -292,7 +298,7 @@ LockVector<Precision>& LockVector<Precision>::fill(Precision value) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision> LockVector<Precision>::apply(Precision (*func)(Precision)) const
+Vector<Precision> Vector<Precision>::apply(Precision (*func)(Precision)) const
 {
     Tensor new_vector(size_);
 
@@ -303,7 +309,7 @@ LockVector<Precision> LockVector<Precision>::apply(Precision (*func)(Precision))
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::apply(Precision (*func)(Precision)) noexcept
+Vector<Precision>& Vector<Precision>::apply(Precision (*func)(Precision)) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = func(data_[i]);
@@ -312,7 +318,7 @@ LockVector<Precision>& LockVector<Precision>::apply(Precision (*func)(Precision)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::apply(
+Vector<Precision>& Vector<Precision>::apply(
     Precision (*func)(Precision), const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
@@ -322,7 +328,7 @@ LockVector<Precision>& LockVector<Precision>::apply(
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Precision LockVector<Precision>::dot(const Tensor& vector) const
+Precision Vector<Precision>::dot(const Tensor& vector) const
 {
     double result = 0.0;
 
@@ -333,7 +339,7 @@ Precision LockVector<Precision>::dot(const Tensor& vector) const
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision> LockVector<Precision>::add(const Tensor& vector) const
+Vector<Precision> Vector<Precision>::add(const Tensor& vector) const
 {
     Tensor new_vector(size_);
 
@@ -344,7 +350,7 @@ LockVector<Precision> LockVector<Precision>::add(const Tensor& vector) const
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::add(const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::add(const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] += vector.data_[i];
@@ -353,7 +359,7 @@ LockVector<Precision>& LockVector<Precision>::add(const Tensor& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
+Vector<Precision>& Vector<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = lhs.data_[i] + rhs.data_[i];
@@ -362,7 +368,7 @@ LockVector<Precision>& LockVector<Precision>::add(const Tensor& lhs, const Tenso
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision> LockVector<Precision>::sub(const Tensor& vector) const
+Vector<Precision> Vector<Precision>::sub(const Tensor& vector) const
 {
     Tensor new_vector(size_);
 
@@ -373,7 +379,7 @@ LockVector<Precision> LockVector<Precision>::sub(const Tensor& vector) const
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::sub(const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::sub(const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] -= vector.data_[i];
@@ -382,7 +388,7 @@ LockVector<Precision>& LockVector<Precision>::sub(const Tensor& vector) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
+Vector<Precision>& Vector<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = lhs.data_[i] - rhs.data_[i];
@@ -391,7 +397,7 @@ LockVector<Precision>& LockVector<Precision>::sub(const Tensor& lhs, const Tenso
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision> LockVector<Precision>::multiply(const Tensor& vector) const
+Vector<Precision> Vector<Precision>::multiply(const Tensor& vector) const
 {
     Tensor new_vector(size_);
 
@@ -402,7 +408,7 @@ LockVector<Precision> LockVector<Precision>::multiply(const Tensor& vector) cons
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::multiply(const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::multiply(const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= vector.data_[i];
@@ -411,7 +417,7 @@ LockVector<Precision>& LockVector<Precision>::multiply(const Tensor& vector) noe
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::multiply(const Tensor& lsh, const Tensor& rsh) noexcept
+Vector<Precision>& Vector<Precision>::multiply(const Tensor& lsh, const Tensor& rsh) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = lsh.data_[i] * rsh.data_[i];
@@ -420,7 +426,7 @@ LockVector<Precision>& LockVector<Precision>::multiply(const Tensor& lsh, const 
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision> LockVector<Precision>::join(Precision value) const
+Vector<Precision> Vector<Precision>::join(Precision value) const
 {
     Tensor new_vector(size_);
 
@@ -431,7 +437,7 @@ LockVector<Precision> LockVector<Precision>::join(Precision value) const
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::join(Precision value) noexcept
+Vector<Precision>& Vector<Precision>::join(Precision value) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] *= value;
@@ -440,7 +446,7 @@ LockVector<Precision>& LockVector<Precision>::join(Precision value) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-LockVector<Precision>& LockVector<Precision>::join(Precision value, const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::join(Precision value, const Tensor& vector) noexcept
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = value * vector.data_[i];
@@ -449,13 +455,13 @@ LockVector<Precision>& LockVector<Precision>::join(Precision value, const Tensor
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline Precision* LockVector<Precision>::data() noexcept
+inline Precision* Vector<Precision>::data() noexcept
 {
     return data_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline const Precision* LockVector<Precision>::data() const noexcept
+inline const Precision* Vector<Precision>::data() const noexcept
 {
     return data_;
 }
