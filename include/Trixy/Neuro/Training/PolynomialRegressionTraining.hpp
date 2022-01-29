@@ -16,8 +16,8 @@ TRIXY_TRAINING_TPL_DECLARATION
 class TRIXY_TRAINING_TPL(meta::is_polynomial_regression)
 {
 public:
-    using Tensor1D        = typename Trainable::Tensor1D;
-    using Tensor2D        = typename Trainable::Tensor2D;
+    using Vector          = typename Trainable::Vector;
+    using Matrix          = typename Trainable::Matrix;
 
     using TensorOperation = typename Trainable::TensorOperation;
 
@@ -30,19 +30,19 @@ private:
 public:
     explicit Training(Trainable& regression) : reg(regression) {}
 
-    void train(const Tensor1D& idata,
-               const Tensor1D& odata);
+    void train(const Vector& idata,
+               const Vector& odata);
 
-    long double loss(const Tensor1D& idata,
-                     const Tensor1D& odata) const;
+    long double loss(const Vector& idata,
+                     const Vector& odata) const;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
-    const Tensor1D& idata,
-    const Tensor1D& odata)
+    const Vector& idata,
+    const Vector& odata)
 {
-    Tensor2D X(idata.size(), reg.N);
+    Matrix X(idata.size(), reg.N);
 
     precision_type sample;
     precision_type power;
@@ -59,7 +59,7 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
         }
     }
 
-    Tensor2D X_T = const_cast<const Tensor2D&>(X).transpose();
+    Matrix X_T = const_cast<const Matrix&>(X).transpose();
 
     // W = (X^T . X)^(-1) . X^T . Y
 
@@ -68,8 +68,8 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::loss(
-    const Tensor1D& idata,
-    const Tensor1D& odata) const
+    const Vector& idata,
+    const Vector& odata) const
 {
     return reg.loss(idata, odata);
 }

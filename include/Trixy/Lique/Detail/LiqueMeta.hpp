@@ -3,7 +3,7 @@
 #ifndef LIQUE_META_HPP
 #define LIQUE_META_HPP
 
-#include <type_traits> // enable_if, is_arithmetic, condition, true_type, false_type
+#include <type_traits> // enable_if, is_same, is_arithmetic, condition, true_type, false_type
 
 #include "Trixy/Lique/LiqueBaseTensor.hpp"
 #include "Trixy/Locker/BaseLocker.hpp"
@@ -33,6 +33,17 @@ template <typename> struct is_tensor : std::false_type {};
 template <typename Precision, class tensor_type>
 struct is_tensor<Tensor<Precision, tensor_type>> : std::true_type {};
 
+template <class Tensor>
+struct is_tensor_1d : std::is_same<typename Tensor::type, TensorType::vector> {};
+
+template <class Tensor>
+struct is_tensor_2d : std::is_same<typename Tensor::type, TensorType::matrix> {};
+
+template <class Tensor>
+struct is_tensor_nd :
+    disjunction<std::is_same<typename Tensor::type, TensorType::vector>,
+                std::is_same<typename Tensor::type, TensorType::matrix>> {};
+
 template <typename> struct is_vector : std::false_type {};
 template <typename Precision>
 struct is_vector<Tensor<Precision, TensorType::vector>> : std::true_type {};
@@ -61,6 +72,15 @@ template <typename T> using enable_for_arithmetic_t = typename enable_for_arithm
 
 template <typename T> struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
 template <typename T> using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
+
+template <typename T> struct use_for_tensor_1d : std::enable_if<is_tensor_1d<T>::value, int> {};
+template <typename T> using use_for_tensor_1d_t = typename use_for_tensor_1d<T>::type;
+
+template <typename T> struct use_for_tensor_2d : std::enable_if<is_tensor_2d<T>::value, int> {};
+template <typename T> using use_for_tensor_2d_t = typename use_for_tensor_2d<T>::type;
+
+template <typename T> struct use_for_tensor_nd : std::enable_if<is_tensor_nd<T>::value, int> {};
+template <typename T> using use_for_tensor_nd_t = typename use_for_tensor_nd<T>::type;
 
 template <class T, class... Tn>
 struct is_same_types: meta::conjunction<std::is_same<T, Tn>...> {};

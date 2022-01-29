@@ -28,11 +28,13 @@ protected:
     class Shape;
 
 public:
+    using type            = TensorType::matrix;
+
     using size_type       = std::size_t;
     using precision_type  = Precision;
 
-    using pointer        = Precision*;
-    using const_pointer  = Precision* const;
+    using pointer         = Precision*;
+    using const_pointer   = Precision* const;
 
     using Generator       = Precision (*)();
     using Function        = Precision (*)(Precision);

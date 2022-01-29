@@ -24,28 +24,31 @@ class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType
     : public IOptimizer<Optimizeriable>
 {
 private:
-    template <class T>
-    using Container      = typename Optimizeriable::template ContainerType<T>;
+    template <class... T>
+    using Container         = typename Optimizeriable::template ContainerType<T...>;
 
-    using Tensor1D       = typename Optimizeriable::Tensor1D;
-    using Tensor2D       = typename Optimizeriable::Tensor2D;
+    template <class... T>
+    using LContainer        = typename Optimizeriable::template LContainer<T...>;
 
-    using precision_type = typename Optimizeriable::precision_type;
-    using size_type      = typename Optimizeriable::size_type;
+    using LVector           = typename Optimizeriable::LVector;
+    using LMatrix           = typename Optimizeriable::LMatrix;
+
+    using precision_type    = typename Optimizeriable::precision_type;
+    using size_type         = typename Optimizeriable::size_type;
 
 private:
     Optimizeriable& net;
+
+    LContainer<LVector> buff1;
+    LContainer<LMatrix> buff2;
+
+    LContainer<LVector> optimizedB;
+    LContainer<LMatrix> optimizedW;
 
     precision_type learning_rate;
 
     precision_type beta;
     precision_type rbeta;
-
-    Container<Tensor1D> buff1;
-    Container<Tensor2D> buff2;
-
-    Container<Tensor1D> optimizedB;
-    Container<Tensor2D> optimizedW;
 
 public:
     Optimizer(const Optimizeriable& network,
@@ -54,14 +57,12 @@ public:
 
     void set_learning_rate(precision_type new_learning_rate) noexcept;
 
-    void update(const Container<Tensor1D>& grad_bias,
-                const Container<Tensor2D>& grad_weight) noexcept;
+    void update(const Container<LVector>& grad_bias,
+                const Container<LMatrix>& grad_weight) noexcept;
 
     Optimizer& reset() noexcept;
 
 private:
-    void initialize_inner_struct();
-
     template <class Tensor>
     void update(Tensor& buff,
                 Tensor& optimized,
@@ -75,12 +76,16 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
     precision_type learning_rate,
     precision_type beta)
     : net(network)
+    , buff1(Optimizeriable::init1D(net.inner.topology))
+    , buff2(Optimizeriable::init2D(net.inner.topology))
+    , optimizedB(Optimizeriable::init1D(net.inner.topology, 0.))
+    , optimizedW(Optimizeriable::init2D(net.inner.topology, 0.))
     , learning_rate(learning_rate)
     , beta(beta)
 {
-    this->template initialize<Optimizer>();
+    rbeta = 1. - beta;
 
-    initialize_inner_struct();
+    this->template initialize<Optimizer>();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -92,8 +97,8 @@ void RMSPropOptimizer<Optimizeriable>::set_learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void RMSPropOptimizer<Optimizeriable>::update(
-    const Container<Tensor1D>& gradB,
-    const Container<Tensor2D>& gradW) noexcept
+    const Container<LVector>& gradB,
+    const Container<LMatrix>& gradW) noexcept
 {
     for(size_type i = 0; i < net.inner.N; ++i)
     {
@@ -113,37 +118,16 @@ void RMSPropOptimizer<Optimizeriable>::update(
     // velocity = beta * velocity + (1 - beta) * g * g
     // w = w - learning_rate * g / sqrt(velocity)
 
-    optimized.join(beta).add(
-        buff.multiply(grad, grad)
-            .join(rbeta)
-    );
+    net.linear.join(optimized, beta);
+    net.linear.mul(buff, grad, grad);
+    net.linear.join(buff, rbeta);
+    net.linear.add(optimized, buff);
 
-    parameter.sub(
-        buff.apply(detail::invertSqrt, optimized)
-            .multiply(grad)
-            .join(learning_rate)
-    );
-}
+    net.linear.apply(buff, detail::invertSqrt, optimized);
+    net.linear.mul(buff, grad);
+    net.linear.join(buff, learning_rate);
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::initialize_inner_struct()
-{
-    rbeta = 1. - beta;
-
-    buff1.resize(net.inner.N);
-    buff2.resize(net.inner.N);
-
-    optimizedB.resize(net.inner.N);
-    optimizedW.resize(net.inner.N);
-
-    for(size_type i = 0; i < net.inner.N; ++i)
-    {
-        buff1[i].resize(net.inner.B[i]. size());
-        buff2[i].resize(net.inner.W[i].shape());
-
-        optimizedB[i].resize(net.inner.B[i]. size(), 0.);
-        optimizedW[i].resize(net.inner.W[i].shape(), 0.);
-    }
+    net.linear.sub(parameter, buff);
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION

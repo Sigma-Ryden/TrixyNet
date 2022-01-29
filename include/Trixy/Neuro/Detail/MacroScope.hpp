@@ -13,18 +13,15 @@
     }
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
-    template <template <typename, typename...> class Vector,                                            \
-              template <typename, typename...> class Matrix,                                            \
-              template <template <typename, typename...> class T1,                                      \
-                        template <typename, typename...> class T2,                                      \
-                        typename P, typename...>                                                        \
-              class Linear,                                                                             \
+    template <template <typename, typename...> class Tensor1D,                                          \
+              template <typename, typename...> class Tensor2D,                                          \
+              template <typename P> class Linear,                                                       \
               template <typename...> class Container,                                                   \
               typename Precision,                                                                       \
               typename... Args>
 
 #define TRIXY_FEED_FORWARD_NET_TPL                                                                      \
-    FeedForwardNet<Vector, Matrix, Linear, Container,                                                   \
+    FeedForwardNet<Tensor1D, Tensor2D, Linear, Container,                                               \
                    Precision, Args...>
 
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
@@ -57,7 +54,9 @@
         typename std::enable_if<is_type<Trainable>::value>::type>
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
+    template <class Tensor,                                                                             \
+              typename precision_type = typename Tensor::precision_type,                                \
+              typename size_type = typename Tensor::size_type>
 
 #define TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION                                                         \
     template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>  \
@@ -67,33 +66,28 @@
         typename std::enable_if<std::is_floating_point<Precision>::value, int>::type = 0>
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
-    void name(                                                                                          \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(::trixy::set::activation::detail::name, tensor);                                     \
+    template <class Tensor>                                                                             \
+    void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
+        buff.apply(::trixy::set::activation::detail::name, tensor.get());                               \
     }                                                                                                   \
-    template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>    \
-    void name##_derived(                                                                                \
-        Tensor<Precision, Args...>& buff, const Tensor<Precision, Args...>& tensor) noexcept {          \
-        buff.apply(::trixy::set::activation::detail::name##_derived, tensor);                           \
+    template <class Tensor>                                                                             \
+    void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
+        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.get());                     \
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
-    template <template <typename P, typename...> class Vector,                                          \
-              template <typename P, typename...> class Matrix,                                          \
-              template <template <typename, typename...> class V,                                       \
-                        template <typename, typename...> class M,                                       \
-                        typename P, typename...>                                                        \
-              class Linear,                                                                             \
+    template <template <typename P, typename...> class Tensor1D,                                        \
+              template <typename P, typename...> class Tensor2D,                                        \
+              template <typename p> class Linear,                                                       \
               typename Precision,                                                                       \
               typename... Args>
 
 #define TRIXY_LINEAR_REGRESSION_TPL                                                                     \
-    LinearRegression<Vector, Matrix, Linear, Precision,                                                 \
+    LinearRegression<Tensor1D, Tensor2D, Linear, Precision,                                             \
            typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 
 #define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                                 \
-    PolynomialRegression<Vector, Matrix, Linear, Precision,                                             \
+    PolynomialRegression<Tensor1D, Tensor2D, Linear, Precision,                                         \
            typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
 
 #define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \

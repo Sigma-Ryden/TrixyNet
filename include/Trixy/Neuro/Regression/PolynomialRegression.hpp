@@ -19,16 +19,16 @@ class TRIXY_POLYNOMIAL_REGRESSION_TPL
 friend train::Training<TRIXY_POLYNOMIAL_REGRESSION_TPL>;
 
 public:
-    using Tensor1D        = Vector<Precision, Args...>;
-    using Tensor2D        = Matrix<Precision, Args...>;
-
-    using TensorOperation = Linear<Vector, Matrix, Precision, Args...>;
+    using Vector          = Tensor1D<Precision, Args...>;
+    using Matrix          = Tensor2D<Precision, Args...>;
 
     using precision_type  = Precision;
     using size_type       = std::size_t;
 
+    using TensorOperation = Linear<Precision>;
+
 private:
-    Tensor1D  W;          ///< Inner weight
+    Vector  W;            ///< Inner weight
     size_type N;          ///< Size of weight vector (same as power size + 1)
 
     TensorOperation linear;
@@ -36,18 +36,18 @@ private:
 public:
     explicit PolynomialRegression(size_type power);
 
-    void initializeInnerStruct(Tensor1D weight) noexcept;
+    void initializeInnerStruct(Vector weight) noexcept;
 
     void reset(size_type new_power);
 
     Precision feedforward(Precision sample) const noexcept;
-    Tensor1D feedforward(const Tensor1D& idata) const;
+    Vector feedforward(const Vector& idata) const;
 
-    long double loss(const Tensor1D& idata,
-                     const Tensor1D& odata) const;
+    long double loss(const Vector& idata,
+                     const Vector& odata) const;
 
-    const Tensor1D& getInnerWeight() const noexcept;
-    Precision getInnerPower() const noexcept;
+    const Vector& getInnerWeight() const noexcept { return W; }
+    Precision getInnerPower() const noexcept { return N; }
 };
 
 TRIXY_REGRESSION_TPL_DECLARATION
@@ -57,7 +57,7 @@ TRIXY_POLYNOMIAL_REGRESSION_TPL::PolynomialRegression(size_type power)
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_POLYNOMIAL_REGRESSION_TPL::initializeInnerStruct(Tensor1D weight) noexcept
+void TRIXY_POLYNOMIAL_REGRESSION_TPL::initializeInnerStruct(Vector weight) noexcept
 {
     W.copy(weight);
 }
@@ -85,10 +85,10 @@ Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(Precision sample) const n
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-Vector<Precision, Args...> TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(
-    const Vector<Precision, Args...>& idata) const
+typename TRIXY_POLYNOMIAL_REGRESSION_TPL::Vector TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(
+    const Vector& idata) const
 {
-    Tensor2D X(idata.size(), N);
+    Matrix X(idata.size(), N);
 
     Precision sample;
     Precision power;
@@ -111,25 +111,13 @@ Vector<Precision, Args...> TRIXY_POLYNOMIAL_REGRESSION_TPL::feedforward(
 
 TRIXY_REGRESSION_TPL_DECLARATION
 long double TRIXY_POLYNOMIAL_REGRESSION_TPL::loss(
-    const Vector<Precision, Args...>& idata,
-    const Vector<Precision, Args...>& odata) const
+    const Vector& idata,
+    const Vector& odata) const
 {
-    Tensor1D r = feedforward(idata);
+    Vector r = feedforward(idata);
     r.sub(odata);
 
     return r.dot(r) / static_cast<long double>(r.size());
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-inline const Vector<Precision, Args...>& TRIXY_POLYNOMIAL_REGRESSION_TPL::getInnerWeight() const noexcept
-{
-    return W;
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-inline Precision TRIXY_POLYNOMIAL_REGRESSION_TPL::getInnerPower() const noexcept
-{
-    return N - 1;
 }
 
 } // namespace trixy

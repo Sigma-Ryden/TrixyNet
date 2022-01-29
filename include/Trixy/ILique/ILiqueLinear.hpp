@@ -1,3 +1,4 @@
+/*__DEPRECATED__*/
 #ifndef ILIQUE_LINEAR_HPP
 #define ILIQUE_LINEAR_HPP
 

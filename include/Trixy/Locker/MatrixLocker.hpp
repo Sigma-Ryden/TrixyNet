@@ -15,6 +15,8 @@ template <class Lockable>
 class Locker<Lockable, LockerType::matrix, void> : protected Lockable
 {
 public:
+    using type           = typename Lockable::type;
+
     using size_type      = typename Lockable::size_type;
     using precision_type = typename Lockable::precision_type;
 
@@ -50,7 +52,7 @@ public:
     Locker& operator= (const Locker& vector) = delete;
     Locker& operator= (Locker&& vector) = delete;
 
-    const Lockable& base() const { return static_cast<const Lockable&>(*this); }
+    const Lockable& get() const { return static_cast<const Lockable&>(*this); }
 
 public:
     using Lockable::operator();

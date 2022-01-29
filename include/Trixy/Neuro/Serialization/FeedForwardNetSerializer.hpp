@@ -19,8 +19,8 @@ private:
     template <class T>
     using Container      = typename Serializable::template ContainerType<T>;
 
-    using Tensor1D       = typename Serializable::Tensor1D;
-    using Tensor2D       = typename Serializable::Tensor2D;
+    using Vector         = typename Serializable::Vector;
+    using Matrix         = typename Serializable::Matrix;
 
     using precision_type = typename Serializable::precision_type;
     using size_type      = typename Serializable::size_type;
@@ -28,8 +28,8 @@ private:
 private:
     Container<size_type> topology;  ///< Network topology
 
-    Container<Tensor1D> B;          ///< Container of network bias
-    Container<Tensor2D> W;          ///< Container of network weight
+    Container<Vector> B;            ///< Container of network bias
+    Container<Matrix> W;            ///< Container of network weight
 
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
@@ -45,8 +45,8 @@ public:
     void deserialize(std::ifstream& in);
 
     const Container<size_type>& getTopology() const noexcept { return topology; }
-    const Container<Tensor1D>& getBias() const noexcept { return B; }
-    const Container<Tensor2D>& getWeight() const noexcept { return W; }
+    const Container<Vector>& getBias() const noexcept { return B; }
+    const Container<Matrix>& getWeight() const noexcept { return W; }
 
     functional::ActivationId getActivationId() const noexcept { return activation.front(); }
     functional::ActivationId getNormalizationId() const noexcept { return activation.back(); }
@@ -66,12 +66,18 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 {
     topology = net.getTopology();
 
-    B = net.getInnerBias();
-    W = net.getInnerWeight();
-
     N = topology.size() - 1;
 
+    B.resize(N);
+    W.resize(N);
     activation.resize(N);
+
+    for(size_type i = 0; i < N; ++i)
+    {
+        B[i] = net.getInnerBias()[i].get();
+        W[i] = net.getInnerWeight()[i].get();
+    }
+
     for(size_type i = 0; i < N; ++i)
         activation[i] = static_cast<functional::ActivationId>(net.function.getAllActivation()[i].id);
 

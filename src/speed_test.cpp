@@ -10,6 +10,7 @@
 #include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
+#include <vector> // vector
 
 namespace tr = trixy;
 namespace li = trixy::lique;
@@ -33,7 +34,7 @@ float random_normal() noexcept
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::Tensor1D> get_speed_test_idata()
+typename Net::template ContainerType<typename Net::LVector> get_speed_test_idata()
 {
     return
     {
@@ -47,7 +48,7 @@ typename Net::template ContainerType<typename Net::Tensor1D> get_speed_test_idat
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::Tensor1D> get_speed_test_odata()
+typename Net::template ContainerType<typename Net::LVector> get_speed_test_odata()
 {
     return
     {
@@ -64,14 +65,14 @@ void speed_test_deserialization()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
     std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
-    auto train_in = get_speed_test_idata<TrixyNet>();
+    auto train_in  = get_speed_test_idata<TrixyNet>();
     auto train_out = get_speed_test_odata<TrixyNet>();
 
     TrixyNetSerializer sr;
@@ -94,12 +95,12 @@ void speed_test()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
-    auto train_in = get_speed_test_idata<TrixyNet>();
+    auto train_in  = get_speed_test_idata<TrixyNet>();
     auto train_out = get_speed_test_odata<TrixyNet>();
 
     TrixyNet net({4, 4, 5, 4, 3});
@@ -148,17 +149,8 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
 
     //speed_test();
-    //speed_test_deserialization();
+    speed_test_deserialization();
 
     return 0;
 }
 //
-/*
-enum class Accuracy
-{
-    undefined,
-    normal,
-    global,
-    full
-};
-*/

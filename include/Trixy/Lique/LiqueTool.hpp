@@ -62,7 +62,7 @@ inline T sum(T&& t1, Tn&&... tn)
 template <class Tensor1D,
           typename size_type = typename Tensor1D::size_type,
           Binary<typename Tensor1D::precision_type> compare,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 size_type find(const Tensor1D& vector)
 {
     size_type arg = 0;
@@ -125,7 +125,7 @@ Vector<std::size_t> find(
 
 template <class Tensor1D,
           typename size_type = typename Tensor1D::size_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 size_type argmin(const Tensor1D& vector)
 {
     return find<typename Tensor1D::precision_type, comp::is_bigger>(vector);
@@ -133,7 +133,7 @@ size_type argmin(const Tensor1D& vector)
 
 template <class Tensor1D,
           typename size_type = typename Tensor1D::size_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 size_type argmax(const Tensor1D& vector)
 {
     return find<typename Tensor1D::precision_type, comp::is_less>(vector);
@@ -156,14 +156,14 @@ Vector<std::size_t> argmax(
 }
 
 template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 precision_type min(const Tensor1D& vector)
 {
     return vector(find<precision_type, comp::is_bigger>(vector));
 }
 
 template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 precision_type max(const Tensor1D& vector)
 {
     return vector(find<precision_type, comp::is_less>(vector));
@@ -172,7 +172,7 @@ precision_type max(const Tensor1D& vector)
 template <class Tensor1D,
           typename size_type = typename Tensor1D::size_type,
           typename precision_type = typename Tensor1D::precision_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 precision_type mean(const Tensor1D& vector)
 {
     size_type mean_value = 0.;
@@ -186,7 +186,7 @@ precision_type mean(const Tensor1D& vector)
 template <class Tensor1D,
           typename size_type = typename Tensor1D::size_type,
           typename precision_type = typename Tensor1D::precision_type,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0>
 precision_type std(
     const Tensor1D& vector,
     bool unbiased = false)
@@ -333,12 +333,12 @@ Vector<Precision> std(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 void dot(
     Tensor1D& buff,
     const Tensor1D& row_vector,
-    const Tensor2D& matrix)
+    const Tensor2D& matrix) noexcept
 {
     using size_type      = typename Tensor1D::size_type;
     using precision_type = typename Tensor1D::precision_type;
@@ -356,12 +356,12 @@ void dot(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 void dot(
     Tensor1D& buff,
     const Tensor2D& matrix,
-    const Tensor1D& col_vector)
+    const Tensor1D& col_vector) noexcept
 {
     using size_type = typename Tensor1D::size_type;
 
@@ -373,12 +373,12 @@ void dot(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 void tensordot(
     Tensor2D& buff2,
     const Tensor1D& col_vector,
-    const Tensor1D& row_vector)
+    const Tensor1D& row_vector) noexcept
 {
     using size_type = typename Tensor1D::size_type;
 
@@ -388,8 +388,8 @@ void tensordot(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 Tensor1D dot(
     const Tensor1D& row_vector,
     const Tensor2D& matrix)
@@ -402,8 +402,8 @@ Tensor1D dot(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 Tensor1D dot(
     const Tensor2D& matrix,
     const Tensor1D& col_vector)
@@ -416,8 +416,8 @@ Tensor1D dot(
 }
 
 template <class Tensor1D, class Tensor2D,
-          typename std::enable_if<meta::is_lvector<Tensor1D>::value, int>::type = 0,
-          typename std::enable_if<meta::is_lmatrix<Tensor2D>::value, int>::type = 0>
+          meta::use_for_tensor_1d_t<Tensor1D> = 0,
+          meta::use_for_tensor_2d_t<Tensor2D> = 0>
 Tensor2D tensordot(
     const Tensor1D& col_vector,
     const Tensor1D& row_vector)
@@ -430,7 +430,7 @@ Tensor2D tensordot(
 }
 
 template <class Tensor, class Function,
-          typename std::enable_if<meta::is_ltensor<Tensor>::value, int>::type = 0>
+          meta::use_for_tensor_nd_t<Tensor> = 0>
 void for_each(Tensor& tensor, Function func)
 {
     using size_type = typename Tensor::size_type;
@@ -442,14 +442,14 @@ void for_each(Tensor& tensor, Function func)
 namespace detail
 {
 
-template <class T, typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0>
+template <class T, meta::use_for_tensor_nd_t<T> = 0>
 void concat(T& out, std::size_t& at, const T& tensor)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0,
+          meta::use_for_tensor_nd_t<T> = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
@@ -462,7 +462,7 @@ void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 } // namespace detail
 
 template <class Tensor, template <typename...> class Container,
-          typename std::enable_if<meta::is_ltensor<Tensor>::value, int>::type = 0>
+          meta::use_for_tensor_nd_t<Tensor> = 0>
 Tensor concat(const Container<Tensor>& list)
 {
     using size_type = typename Tensor::size_type;
@@ -485,7 +485,7 @@ Tensor concat(const Container<Tensor>& list)
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<meta::is_ltensor<T>::value, int>::type = 0,
+          meta::use_for_tensor_nd_t<T> = 0,
           typename std::enable_if<meta::is_same_types<T, Tn...>::value, int>::type = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {

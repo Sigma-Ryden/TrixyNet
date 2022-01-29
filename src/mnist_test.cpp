@@ -11,19 +11,22 @@
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 #include <fstream> // ifstream, ofstream
+#include <vector> // vector
 
 namespace tr = trixy;
 namespace li = trixy::lique;
 
 using util::operator<<;
 
-tr::Container<li::Vector<float>> initialize_i(
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+ImageDataType initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
-    tr::Container<li::Vector<float>> input_batch(batch_size);
+    ImageDataType input_batch;
+    input_batch.reserve(batch_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
-        input_batch[i].resize(input_size);
+        input_batch.emplace_back(input_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < input_size; ++j)
@@ -32,13 +35,15 @@ tr::Container<li::Vector<float>> initialize_i(
     return input_batch;
 }
 
-tr::Container<li::Vector<float>> initialize_o(
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+ImageDataType initialize_o(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
-    tr::Container<li::Vector<float>> output_batch(batch_size);
+    ImageDataType output_batch;
+    output_batch.reserve(batch_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
-        output_batch[i].resize(output_size);
+        output_batch.emplace_back(output_size);
 
     for(std::size_t i = 0; i < batch_size; ++i)
         for(std::size_t j = 0; j < output_size; ++j)
@@ -47,16 +52,18 @@ tr::Container<li::Vector<float>> initialize_o(
     return output_batch;
 }
 
-void show_image(const li::Vector<float>& vector) noexcept
+template <class Net, class ImageType = typename Net::LVector>
+void show_image(const ImageType& image) noexcept
 {
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(std::size_t i = 0; i < image.size(); ++i)
     {
         if(i % 28 == 0) std::cout << '\n';
-        std::cout << (vector(i) > 0.5 ? '#' : vector(i) > 0.05 ? '*' : '.') << ' ';
+        std::cout << (image(i) > 0.5 ? '#' : image(i) > 0.05 ? '*' : '.') << ' ';
     }
 }
 
-void show_image_batch(const tr::Container<li::Vector<float>>& data) noexcept
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+void show_image_batch(const ImageDataType& data) noexcept
 {
     for(std::size_t i = 0; i < data.size(); ++i)
     {
@@ -69,7 +76,7 @@ void mnist_test_deserialization()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
@@ -83,12 +90,12 @@ void mnist_test_deserialization()
     //tr::function::Loss<li::Vector, double> a;
 
     // Train batch initialize:
-    auto train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
-    auto train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
+    auto train_in  = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_out = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
-    auto test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
+    auto test_in  = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_out = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     // NeuralNetwork preparing:
 
@@ -119,9 +126,9 @@ void mnist_test_deserialization()
     std::cout << "TESTING TRAIN_SET\n";
     for(std::size_t i = 0; i < train_in.size(); ++i)
     {
-        show_image(train_in[i]);
-        std::cout << "\nTRUE: " << util::max(train_out[i])
-                  << "\nPRED: " << util::max(net.feedforward(train_in[i])) << '\n';
+        show_image<TrixyNet>(train_in[i]);
+        std::cout << "\nTRUE: " << util::max(train_out[i].get())
+                  << "\nPRED: " << util::max(net.feedforward(train_in[i]).get()) << '\n';
         std::cin.get();
     }
     //
@@ -129,9 +136,9 @@ void mnist_test_deserialization()
     std::cout << "TESTING TEST_SET\n";
     for(std::size_t i = 0; i < test_in.size(); ++i)
     {
-        show_image(test_in[i]);
-        std::cout << "\nTRUE: " << util::max(test_out[i])
-                  << "\nPRED: " << util::max(net.feedforward(test_in[i])) << '\n';
+        show_image<TrixyNet>(test_in[i]);
+        std::cout << "\nTRUE: " << util::max(test_out[i].get())
+                  << "\nPRED: " << util::max(net.feedforward(test_in[i]).get()) << '\n';
         std::cin.get();
     }
     //
@@ -141,7 +148,7 @@ void mnist_test()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
@@ -155,12 +162,12 @@ void mnist_test()
     std::size_t out_size   = 10;
 
     // Train batch initialize:
-    auto train_in  = initialize_i(dataset.training_images, train_batch_size, input_size);
-    auto train_out = initialize_o(dataset.training_labels, train_batch_size, out_size);
+    auto train_in  = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_out = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_in  = initialize_i(dataset.test_images, test_batch_size, input_size);
-    auto test_out = initialize_o(dataset.test_labels, test_batch_size, out_size);
+    auto test_in  = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_out = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);
@@ -219,6 +226,7 @@ void mnist_test()
 
     std::cout << "End of serialization\n";
 }
+//
 /*
 int main()
 {

@@ -16,8 +16,8 @@ TRIXY_TRAINING_TPL_DECLARATION
 class TRIXY_TRAINING_TPL(meta::is_linear_regression)
 {
 public:
-    using Tensor1D        = typename Trainable::Tensor1D;
-    using Tensor2D        = typename Trainable::Tensor2D;
+    using Vector          = typename Trainable::Vector;
+    using Matrix          = typename Trainable::Matrix;
 
     using TensorOperation = typename Trainable::TensorOperation;
 
@@ -30,20 +30,20 @@ private:
 public:
     explicit Training(Trainable& regression) : reg(regression) {}
 
-    void train(const Tensor2D& idata,
-               const Tensor1D& odata);
+    void train(const Matrix& idata,
+               const Vector& odata);
 
-    long double loss(const Tensor2D& idata,
-                     const Tensor1D& odata) const;
+    long double loss(const Matrix& idata,
+                     const Vector& odata) const;
 };
 
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
-    const Tensor2D& idata,
-    const Tensor1D& odata)
+    const Matrix& idata,
+    const Vector& odata)
 {
-    Tensor2D X(idata.shape().row(), reg.N);
+    Matrix X(idata.shape().row(), reg.N);
 
     for(size_type i = 0; i < X.shape().row(); ++i)
     {
@@ -52,7 +52,7 @@ void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
             X(i, j) = idata(i, j - 1);
     }
 
-    Tensor2D X_T = const_cast<const Tensor2D&>(X).transpose();
+    Matrix X_T = const_cast<const Matrix&>(X).transpose();
 
     // W = (X^T . X)^(-1) . X^T . Y
 
@@ -61,8 +61,8 @@ void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_linear_regression)::loss(
-    const Tensor2D& idata,
-    const Tensor1D& odata) const
+    const Matrix& idata,
+    const Vector& odata) const
 {
     return reg.loss(idata, odata);
 }

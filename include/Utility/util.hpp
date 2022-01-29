@@ -102,22 +102,22 @@ std::ostream& operator<< (
     return out;
 }
 
-template <typename Neuro, template <typename...> class Collection, typename Precision>
+template <class TrixyNet>
 void test_neuro(
-    const Neuro& network,
-    const Collection<trixy::lique::Vector<Precision>>& idata,
-    const Collection<trixy::lique::Vector<Precision>>& odata)
+    const TrixyNet& network,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& idata,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& odata)
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
-            << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
+            << network.feedforward(idata[i]).get() << " : " << odata[i].get() << '\n';
 }
 
-template <typename Neuro, template <typename...> class Collection, typename Precision>
+template <class TrixyNet>
 void check_neuro(
-    const Neuro& network,
-    const Collection<trixy::lique::Vector<Precision>>& idata,
-    const Collection<trixy::lique::Vector<Precision>>& odata)
+    const TrixyNet& network,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& idata,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& odata)
 {
     std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
               << "\nNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
@@ -125,14 +125,14 @@ void check_neuro(
               << "\nNetwork train Loss: "            << network.loss(idata, odata) << '\n';
 }
 
-template <typename Neuro>
-void show_inner_struct(const Neuro& neuro)
+template <class Net>
+void show_inner_struct(const Net& net)
 {
-    for(std::size_t i = 0; i < neuro.getInnerWeight().size(); ++i)
-        std::cout << "W[" << i << "]: " << neuro.getInnerWeight()[i] << '\n';
+    for(std::size_t i = 0; i < net.getInnerWeight().size(); ++i)
+        std::cout << "W[" << i << "]: " << net.getInnerWeight()[i] << '\n';
 
-    for(std::size_t i = 0; i < neuro.getInnerBias().size(); ++i)
-        std::cout << "B[" << i << "]: " << neuro.getInnerBias()[i] << '\n';
+    for(std::size_t i = 0; i < net.getInnerBias().size(); ++i)
+        std::cout << "B[" << i << "]: " << net.getInnerBias()[i] << '\n';
 }
 
 } // namespace util

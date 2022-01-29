@@ -4,6 +4,7 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cmath> // fabs
+#include <utility> // move
 
 #include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
 #include "Trixy/Locker/LockerCore.hpp"
@@ -27,27 +28,27 @@ public:
 private:
     class InnerFunctional;
 
-private:
-    template <typename... T>
-    using ContainerLock             = ContainerLocker<Container<T...>>;
-
-    using Tensor1DLock              = VectorLocker<Vector<Precision, Args...>>;
-    using Tensor2DLock              = MatrixLocker<Matrix<Precision, Args...>>;
-
 public:
-    using Tensor1D                  = Vector<Precision, Args...>;
-    using Tensor2D                  = Matrix<Precision, Args...>;
-    using TensorOperation           = Linear<Vector, Matrix, Precision, Args...>;
-
-    using InnerBuffer               = Container<Vector<Precision, Args...>>;
-    using InnerTopology             = Container<std::size_t>;
-
     template <typename... T>
     using ContainerType             = Container<T...>;
+
+    template <typename... T>
+    using LContainer                = ContainerLocker<Container<T...>>;
+
+    using Vector                    = Tensor1D<Precision, Args...>;
+    using Matrix                    = Tensor2D<Precision, Args...>;
+
+    using LVector                   = VectorLocker<Vector>;
+    using LMatrix                   = MatrixLocker<Matrix>;
 
     using precision_type            = Precision;
     using size_type                 = std::size_t;
     using byte_type                 = std::uint8_t;
+
+    using TensorOperation           = Linear<precision_type>;
+
+    using InnerBuffer               = LContainer<LVector>;
+    using InnerTopology             = Container<size_type>;
 
 private:
     mutable InnerBuffer buff;       ///< 1D buffer for handle
@@ -61,32 +62,32 @@ public:
 public:
     FeedForwardNet(const Container<size_type>& topology);
 
-    const Tensor1D& feedforward(const Tensor1D& sample) const noexcept;
+    const LVector& feedforward(const LVector& sample) const noexcept;
 
-    long double accuracy(const Container<Tensor1D>& idata,
-                         const Container<Tensor1D>& odata) const noexcept;
+    long double accuracy(const Container<LVector>& idata,
+                         const Container<LVector>& odata) const noexcept;
 
-    long double accuracyf(const Container<Tensor1D>& idata,
-                          const Container<Tensor1D>& odata,
+    long double accuracyf(const Container<LVector>& idata,
+                          const Container<LVector>& odata,
                           Precision range_rate) const noexcept;
 
-    long double accuracyg(const Container<Tensor1D>& idata,
-                          const Container<Tensor1D>& odata,
+    long double accuracyg(const Container<LVector>& idata,
+                          const Container<LVector>& odata,
                           Precision range_rate) const noexcept;
 
-    long double loss(const Container<Tensor1D>& idata,
-                     const Container<Tensor1D>& odata) const noexcept;
+    long double loss(const Container<LVector>& idata,
+                     const Container<LVector>& odata) const noexcept;
 
 private:
-    bool check(const Tensor1D& target,
-               const Tensor1D& prediction) const noexcept;
+    bool check(const LVector& target,
+               const LVector& prediction) const noexcept;
 
-    bool checkf(const Tensor1D& target,
-                const Tensor1D& prediction,
+    bool checkf(const LVector& target,
+                const LVector& prediction,
                 Precision range_rate) const noexcept;
 
-    void checkg(const Tensor1D& target,
-                const Tensor1D& prediction,
+    void checkg(const LVector& target,
+                const LVector& prediction,
                 Precision range_rate,
                 size_type& count) const noexcept;
 
@@ -98,23 +99,29 @@ public:
     void initializeInnerStruct(GeneratorPrecision generator_bias,
                                GeneratorPrecision generator_weight) noexcept;
 
-    void initializeInnerStruct(const Container<Tensor1D>& bias,
-                               const Container<Tensor2D>& weight) noexcept;
+    void initializeInnerStruct(const Container<Vector>& bias,
+                               const Container<Matrix>& weight) noexcept;
 
-    const Container<Tensor1D>& getInnerBias() const noexcept { return inner.B.base(); }
-    const Container<Tensor2D>& getInnerWeight() const noexcept { return inner.W.base(); }
+    const Container<LVector>& getInnerBias() const noexcept { return inner.B.get(); }
+    const Container<LMatrix>& getInnerWeight() const noexcept { return inner.W.get(); }
     const Container<size_type>& getTopology() const noexcept { return inner.topology; }
+
+public:
+    template <typename... T>
+    static LContainer<LVector> init1D(const Container<size_type>& topology, T&&... args);
+    template <typename... T>
+    static LContainer<LMatrix> init2D(const Container<size_type>& topology, T&&... args);
 };
 
 TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_TPL::InnerStruct
 {
 public:
+    LContainer<LVector> B;          ///< Container of network bias
+    LContainer<LMatrix> W;          ///< Container of network weight
+
     const InnerTopology topology;   ///< Network topology
     const size_type N;              ///< Number of functional layer (same as topology_size - 1)
-
-    ContainerLock<Tensor1D> B;      ///< Container of network bias
-    ContainerLock<Tensor2D> W;      ///< Container of network weight
 
 public:
     InnerStruct(const Container<size_type>& topology);
@@ -123,28 +130,23 @@ public:
 TRIXY_NET_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NET_TPL::InnerStruct::InnerStruct(
     const Container<size_type>& topology)
-    : topology(topology)
+    : B(FeedForwardNet::init1D(topology))
+    , W(FeedForwardNet::init2D(topology))
+    , topology(topology)
     , N(topology.size() - 1)
-    , B(topology.size() - 1)
-    , W(topology.size() - 1)
 {
-    for(size_type i = 0; i < N; ++i)
-    {
-        B[i].resize(topology[i + 1]);
-        W[i].resize(topology[i], topology[i + 1]);
-    }
 }
 
 TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_TPL::ActivationFunction
 {
 public:
-    using Function        = void (*)(Tensor1D&, const Tensor1D&);
-    using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&);
+    using Function        = void (*)(LVector&, const LVector&);
+    using FunctionDerived = void (*)(LVector&, const LVector&);
 
 public:
-    Function f;           ///< void (*f)(Tensor1D& buff, const Tensor1D& tensor)
-    FunctionDerived df;   ///< void (*df)(Tensor1D& buff, const Tensor1D& tensor)
+    Function f;           ///< void (*f)(LVector& buff, const LVector& tensor)
+    FunctionDerived df;   ///< void (*df)(LVector& buff, const LVector& tensor)
 
     byte_type id;
 
@@ -163,12 +165,12 @@ TRIXY_NET_TPL_DECLARATION
 struct TRIXY_FEED_FORWARD_NET_TPL::LossFunction
 {
 public:
-    using Function        = void (*)(Precision&, const Tensor1D&, const Tensor1D&);
-    using FunctionDerived = void (*)(Tensor1D&, const Tensor1D&, const Tensor1D&);
+    using Function        = void (*)(Precision&, const LVector&, const LVector&);
+    using FunctionDerived = void (*)(LVector&, const LVector&, const LVector&);
 
 public:
-    Function f;           ///< void (*)(Precision& result, const Tensor1D& target, const Tensor1D& prediction)
-    FunctionDerived df;   ///< void (*)(Tensor1D& buff, const Tensor1D& target, const Tensor1D& prediction)
+    Function f;           ///< void (*)(Precision& result, const LVector& target, const LVector& prediction)
+    FunctionDerived df;   ///< void (*)(LVector& buff, const LVector& target, const LVector& prediction)
 
     byte_type id;
 
@@ -245,12 +247,10 @@ void TRIXY_FEED_FORWARD_NET_TPL::InnerFunctional::setLoss(
 TRIXY_NET_TPL_DECLARATION
 TRIXY_FEED_FORWARD_NET_TPL::FeedForwardNet(
     const Container<size_type>& topology)
-    : buff(topology.size() - 1)
+    : buff(FeedForwardNet::init1D(topology))
     , inner(topology)
     , function(topology.size() - 1)
 {
-    for(size_type i = 0; i < inner.N; ++i)
-        buff[i].resize(topology[i + 1]);
 }
 
 TRIXY_NET_TPL_DECLARATION
@@ -280,8 +280,8 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
-    const Container<Tensor1D>& bias,
-    const Container<Tensor2D>& weight) noexcept
+    const Container<Vector>& bias,
+    const Container<Matrix>& weight) noexcept
 {
     for(size_type i = 0; i < inner.N; ++i)
     {
@@ -291,17 +291,17 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
 }
 
 TRIXY_NET_TPL_DECLARATION
-const typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
-    const Tensor1D& sample) const noexcept
+const typename TRIXY_FEED_FORWARD_NET_TPL::LVector& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
+    const LVector& sample) const noexcept
 {
     linear.dot(buff[0], sample, inner.W[0]);
-    buff[0].add(inner.B[0]);
+    linear.add(buff[0], inner.B[0]);
     function.activation[0].f(buff[0], buff[0]);
 
     for(size_type i = 1; i < inner.N; ++i)
     {
         linear.dot(buff[i], buff[i - 1], inner.W[i]);
-        buff[i].add(inner.B[i]);
+        linear.add(buff[i], inner.B[i]);
         function.activation[i].f(buff[i], buff[i]);
     }
 
@@ -309,9 +309,37 @@ const typename TRIXY_FEED_FORWARD_NET_TPL::Tensor1D& TRIXY_FEED_FORWARD_NET_TPL:
 }
 
 TRIXY_NET_TPL_DECLARATION
+template <typename... T>
+typename TRIXY_FEED_FORWARD_NET_TPL::template LContainer<typename TRIXY_FEED_FORWARD_NET_TPL::LVector>
+TRIXY_FEED_FORWARD_NET_TPL::init1D(const Container<size_type>& topology, T&&... args)
+{
+    Container<LVector> data;
+
+    data.reserve(topology.size() - 1);
+    for(size_type i = 1; i < topology.size(); ++i)
+        data.emplace_back(topology[i], std::forward<T>(args)...);
+
+    return { std::move(data) };
+}
+
+TRIXY_NET_TPL_DECLARATION
+template <typename... T>
+typename TRIXY_FEED_FORWARD_NET_TPL::template LContainer<typename TRIXY_FEED_FORWARD_NET_TPL::LMatrix>
+TRIXY_FEED_FORWARD_NET_TPL::init2D(const Container<size_type>& topology, T&&... args)
+{
+    Container<LMatrix> data;
+
+    data.reserve(topology.size() - 1);
+    for(size_type i = 1; i < topology.size(); ++i)
+        data.emplace_back(topology[i - 1], topology[i], std::forward<T>(args)...);
+
+    return { std::move(data) };
+}
+
+TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
-    const Container<Tensor1D>& idata,
-    const Container<Tensor1D>& odata) const noexcept
+    const Container<LVector>& idata,
+    const Container<LVector>& odata) const noexcept
 {
     size_type count = 0;
 
@@ -324,8 +352,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
-    const Container<Tensor1D>& idata,
-    const Container<Tensor1D>& odata,
+    const Container<LVector>& idata,
+    const Container<LVector>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -339,8 +367,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
-    const Container<Tensor1D>& idata,
-    const Container<Tensor1D>& odata,
+    const Container<LVector>& idata,
+    const Container<LVector>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -353,8 +381,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::loss(
-    const Container<Tensor1D>& idata,
-    const Container<Tensor1D>& odata) const noexcept
+    const Container<LVector>& idata,
+    const Container<LVector>& odata) const noexcept
 {
     Precision result = 0.;
     Precision error  = 0.;
@@ -370,8 +398,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::loss(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::check(
-    const Tensor1D& target,
-    const Tensor1D& prediction) const noexcept
+    const LVector& target,
+    const LVector& prediction) const noexcept
 {
     size_type max_true_out;
     size_type max_pred_out;
@@ -392,8 +420,8 @@ bool TRIXY_FEED_FORWARD_NET_TPL::check(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
-    const Tensor1D& target,
-    const Tensor1D& prediction,
+    const LVector& target,
+    const LVector& prediction,
     Precision range_rate) const noexcept
 {
     for(size_type j = 0; j < target.size(); ++j)
@@ -405,8 +433,8 @@ bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::checkg(
-    const Tensor1D& target,
-    const Tensor1D& prediction,
+    const LVector& target,
+    const LVector& prediction,
     Precision range_rate,
     size_type& count) const noexcept
 {

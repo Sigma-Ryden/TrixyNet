@@ -15,13 +15,13 @@ TRIXY_SERIALIZER_TPL_DECLARATION
 class TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)
 {
 public:
-    using Tensor1D       = typename Serializable::Tensor1D;
+    using Vector         = typename Serializable::Vector;
 
     using precision_type = typename Serializable::precision_type;
     using size_type      = typename Serializable::size_type;
 
 private:
-    Tensor1D  W;         ///< Inner weight
+    Vector W;            ///< Inner weight
     size_type N;         ///< Size of weight vector (same as power size + 1)
 
 public:
@@ -32,7 +32,7 @@ public:
     void serialize(std::ofstream& out) const;
     void deserialize(std::ifstream& in);
 
-    const Tensor1D& getWeight() const noexcept { return W; };
+    const Vector& getWeight() const noexcept { return W; };
     size_type getPower() const noexcept { return N; };
 };
 

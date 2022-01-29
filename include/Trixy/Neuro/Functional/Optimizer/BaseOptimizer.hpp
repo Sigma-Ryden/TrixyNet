@@ -14,13 +14,17 @@ template <class Optimizeriable>
 class IOptimizer
 {
 private:
-    template <class T>
-    using Container        = typename Optimizeriable::template ContainerType<T>;
+    template <class... T>
+    using Container         = typename Optimizeriable::template ContainerType<T...>;
 
-    using Tensor1D         = typename Optimizeriable::Tensor1D;
-    using Tensor2D         = typename Optimizeriable::Tensor2D;
+    template <class... T>
+    using LContainer        = typename Optimizeriable::template LContainer<T...>;
 
-    using precision_type   = typename Optimizeriable::precision_type; 
+    using LVector           = typename Optimizeriable::LVector;
+    using LMatrix           = typename Optimizeriable::LMatrix;
+
+    using precision_type    = typename Optimizeriable::precision_type;
+    using size_type         = typename Optimizeriable::size_type;
 
 private:
     void (*ptr_derived_set_learning_rate)(
@@ -30,8 +34,8 @@ private:
 
     void (*ptr_derived_update)(
         void *const,
-        const Container<Tensor1D>&,
-        const Container<Tensor2D>&
+        const Container<LVector>&,
+        const Container<LMatrix>&
     );
 
 protected:
@@ -48,8 +52,8 @@ private:
     template <class Derived>
     static void derived_update(
         void *const self,
-        const Container<Tensor1D>& gradB,
-        const Container<Tensor2D>& gradW) noexcept
+        const Container<LVector>& gradB,
+        const Container<LMatrix>& gradW) noexcept
     {
         static_cast<Derived*>(self)->update(gradB, gradW);
     }
@@ -74,8 +78,8 @@ public:
         ptr_derived_set_learning_rate(this, new_learning_rate);
     }
 
-    void update(const Container<Tensor1D>& gradB,
-                const Container<Tensor2D>& gradW) noexcept
+    void update(const Container<LVector>& gradB,
+                const Container<LMatrix>& gradW) noexcept
     {
         ptr_derived_update(this, gradB, gradW);
     }

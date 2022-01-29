@@ -17,16 +17,16 @@ class TRIXY_LINEAR_REGRESSION_TPL
 friend train::Training<TRIXY_LINEAR_REGRESSION_TPL>;
 
 public:
-    using Tensor1D        = Vector<Precision, Args...>;
-    using Tensor2D        = Matrix<Precision, Args...>;
-
-    using TensorOperation = Linear<Vector, Matrix, Precision, Args...>;
+    using Vector          = Tensor1D<Precision, Args...>;
+    using Matrix          = Tensor2D<Precision, Args...>;
 
     using precision_type  = Precision;
     using size_type       = std::size_t;
 
+    using TensorOperation = Linear<Precision>;
+
 private:
-    Tensor1D  W;          ///< Inner weight
+    Vector W;             ///< Inner weight
     size_type N;          ///< Size of weight vector (same as sample size + 1)
 
     TensorOperation linear;
@@ -34,18 +34,18 @@ private:
 public:
     explicit LinearRegression(size_type sample_size);
 
-    void initializeInnerStruct(Tensor1D weight) noexcept;
+    void initializeInnerStruct(Vector weight) noexcept;
 
     void reset(size_type new_sample_size);
 
-    Precision feedforwardSample(const Tensor1D& sample) const;
-    Tensor1D feedforwardBatch(const Tensor2D& idata) const;
+    Precision feedforwardSample(const Vector& sample) const;
+    Vector feedforwardBatch(const Matrix& idata) const;
 
-    long double loss(const Tensor2D& idata,
-                     const Tensor1D& odata) const;
+    long double loss(const Matrix& idata,
+                     const Vector& odata) const;
 
-    const Tensor1D& getInnerWeight() const noexcept;
-    size_type getInnerSize() const noexcept;
+    const Vector& getInnerWeight() const noexcept { return W; }
+    size_type getInnerSize() const noexcept { return N - 1; }
 };
 
 TRIXY_REGRESSION_TPL_DECLARATION
@@ -55,7 +55,7 @@ TRIXY_LINEAR_REGRESSION_TPL::LinearRegression(size_type sample_size)
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_LINEAR_REGRESSION_TPL::initializeInnerStruct(Tensor1D weight) noexcept
+void TRIXY_LINEAR_REGRESSION_TPL::initializeInnerStruct(Vector weight) noexcept
 {
     W.copy(weight);
 }
@@ -69,7 +69,7 @@ void TRIXY_LINEAR_REGRESSION_TPL::reset(size_type new_sample_size)
 
 TRIXY_REGRESSION_TPL_DECLARATION
 Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
-    const Vector<Precision, Args...>& sample) const
+    const Vector& sample) const
 {
     Precision result = W(0);
 
@@ -82,10 +82,10 @@ Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-Vector<Precision, Args...> TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
-    const Matrix<Precision, Args...>& idata) const
+typename TRIXY_LINEAR_REGRESSION_TPL::Vector TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
+    const Matrix& idata) const
 {
-    Tensor2D X(idata.shape().row(), N);
+    Matrix X(idata.shape().row(), N);
 
     for(size_type i = 0; i < X.shape().row(); ++i)
     {
@@ -99,25 +99,13 @@ Vector<Precision, Args...> TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
 
 TRIXY_REGRESSION_TPL_DECLARATION
 long double TRIXY_LINEAR_REGRESSION_TPL::loss(
-    const Matrix<Precision, Args...>& idata,
-    const Vector<Precision, Args...>& odata) const
+    const Matrix& idata,
+    const Vector& odata) const
 {
-    Tensor1D r = feedforwardBatch(idata);
+    Vector r = feedforwardBatch(idata);
     r.sub(odata);
 
     return r.dot(r) / static_cast<long double>(r.size());
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-inline const Vector<Precision, Args...>& TRIXY_LINEAR_REGRESSION_TPL::getInnerWeight() const noexcept
-{
-    return W;
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-inline std::size_t TRIXY_LINEAR_REGRESSION_TPL::getInnerSize() const noexcept
-{
-    return N - 1;
 }
 
 } // namespace trixy

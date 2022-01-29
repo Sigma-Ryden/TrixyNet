@@ -36,53 +36,53 @@ TRIXY_FUNCTION_GENERIC_HELPER(swish)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void unstable_softmax(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& vector) noexcept
+template <class Tensor>
+void unstable_softmax(Tensor& buff, const Tensor& vector) noexcept
 {
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    using size_type      = typename Tensor::size_type;
+    using precision_type = typename Tensor::precision_type;
+
+    for(size_type i = 0; i < vector.size(); ++i)
         buff(i) = std::exp(vector(i));
 
-    Precision denominator = 0.;
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    precision_type denominator = 0.;
+    for(size_type i = 0; i < vector.size(); ++i)
         denominator += buff(i);
 
     denominator = 1. / denominator;
 
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
         buff(i) *= denominator;
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void softmax(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& vector) noexcept
+template <class Tensor>
+void softmax(Tensor& buff, const Tensor& vector) noexcept
 {
-    Precision max;
-    Precision denominator;
+    using size_type      = typename Tensor::size_type;
+    using precision_type = typename Tensor::precision_type;
+
+    precision_type max;
+    precision_type denominator;
 
     max = vector(0);
-    for(std::size_t i = 1; i < vector.size(); ++i)
+    for(size_type i = 1; i < vector.size(); ++i)
         if(max < vector(i)) max = vector(i);
 
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
         buff(i) = std::exp(vector(i) - max);
 
     denominator = 0.;
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
         denominator += buff(i);
 
     denominator = 1. / denominator;
 
-    for(std::size_t i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < vector.size(); ++i)
         buff(i) *= denominator;
 }
 
-TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
-void tensor_of_units(
-    Tensor<Precision, Args...>& buff,
-    const Tensor<Precision, Args...>& /*unused*/) noexcept
+template <class Tensor>
+void tensor_of_units(Tensor& buff, const Tensor& /*unused*/) noexcept
 {
     buff.fill(1.);
 }

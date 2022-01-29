@@ -4,12 +4,9 @@
 namespace trixy
 {
 
-template <template <typename, typename...> class Vector,
-          template <typename, typename...> class Matrix,
-          template <template <typename, typename...> class V,
-                    template <typename, typename...> class M,
-                    typename P, typename...>
-          class Linear,
+template <template <typename P, typename...> class Tensor1D,
+          template <typename P, typename...> class Tensor2D,
+          template <typename P> class Linear,
           template <typename...> class Container,
           typename Precision,
           typename... Args>

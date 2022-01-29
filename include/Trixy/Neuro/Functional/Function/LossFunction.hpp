@@ -1,7 +1,6 @@
 #ifndef LOSS_FUNCTION_HPP
 #define LOSS_FUNCTION_HPP
 
-#include <cstddef> // size_t
 #include <cmath> // log, fabs, tanh, cosh
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
@@ -17,51 +16,39 @@ namespace set
 namespace loss
 {
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void categorical_cross_entropy(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void categorical_cross_entropy(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static constexpr Precision epsilon = 1e-9;
+    static constexpr precision_type epsilon = 1e-9;
 
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         result -= y_true(i) * std::log(y_pred(i) + epsilon);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void categorical_cross_entropy_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void categorical_cross_entropy_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static constexpr Precision epsilon = 1e-9;
+    static constexpr precision_type epsilon = 1e-9;
 
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void categorical_cross_entropy_derived_softmax(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void categorical_cross_entropy_derived_softmax(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_squared_error(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_squared_error(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static Precision f;
+    static precision_type f;
 
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
     {
         f = y_true(i) - y_pred(i);
         result += f * f;
@@ -70,36 +57,27 @@ void mean_squared_error(
    result *= 0.5;
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_squared_error_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_squared_error_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_absolute_error(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_absolute_error(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         result += std::fabs(y_true(i) - y_pred(i));
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_absolute_error_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_absolute_error_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static Precision diff;
+    static precision_type diff;
 
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
     {
         diff = y_true(i) - y_pred(i);
         buff(i) = diff < 0.
@@ -108,16 +86,13 @@ void mean_absolute_error_derived(
     }
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_squared_log_error(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_squared_log_error(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static Precision f;
+    static precision_type f;
 
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
     {
         f = (y_pred(i) + 1.) / (y_true(i) + 1.);
         f = std::log(f);
@@ -127,98 +102,74 @@ void mean_squared_log_error(
     result *= 0.5;
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void mean_squared_log_error_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void mean_squared_log_error_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
     {
         buff(i) = y_pred(i) + 1.;
         buff(i) = std::log(buff(i) / (y_true(i) + 1.)) / buff(i);
     }
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void binary_cross_entropy(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void binary_cross_entropy(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static constexpr Precision epsilon = 1e-9;
+    static constexpr precision_type epsilon = 1e-9;
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         result -= y_true(i) * std::log(y_pred(i) + epsilon)
                   + (1. - y_true(i)) * std::log1p(epsilon - y_pred(i));
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void binary_cross_entropy_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void binary_cross_entropy_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    static constexpr Precision epsilon = 1e-9;
-    static constexpr Precision alpha   = epsilon - 1.0;
+    static constexpr precision_type epsilon = 1e-9;
+    static constexpr precision_type alpha   = epsilon - 1.0;
 
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) =
             (y_true(i) - 1.) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void binary_cross_entropy_derived_sigmoid(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void binary_cross_entropy_derived_sigmoid(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
     for(std::size_t i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) * (y_pred(i) - 1.) + (1. - y_true(i)) * y_pred(i);
 }
 
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void negative_log_likelihood(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void negative_log_likelihood(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         result += y_true(i) * y_pred(i);
 
     result = -std::log(result);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void negative_log_likelihood_derived_softmax(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void negative_log_likelihood_derived_softmax(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void logcosh(
-    Precision& result,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void logcosh(precision_type& result, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
     result = 0.;
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         result += std::log( std::cosh(y_pred(i) - y_true(i)) );
 }
 
-TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION
-void logcosh_derived(
-    Tensor1D<Precision, Args...>& buff,
-    const Tensor1D<Precision, Args...>& y_true,
-    const Tensor1D<Precision, Args...>& y_pred) noexcept
+TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
+void logcosh_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = std::tanh(y_pred(i) - y_true(i));
 }
 
