@@ -42,9 +42,13 @@ public:
 
 public:
     using Lockable::size;
+    using Lockable::empty;
 
     using Lockable::begin;
     using Lockable::end;
+    using Lockable::cbegin;
+    using Lockable::cend;
+
     using Lockable::front;
     using Lockable::back;
 

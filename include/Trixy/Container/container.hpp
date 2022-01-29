@@ -16,6 +16,7 @@ public:
 
     using size_type       = std::size_t;
     using value_type      = Type;
+    using difference_type = std::ptrdiff_t;
 
     using reference       = Type&;
     using const_reference = const Type&;
@@ -39,23 +40,28 @@ public:
     size_type size() const noexcept;
     void resize(size_type new_size);
 
-    iterator begin() noexcept;
-    iterator end() noexcept;
+    bool empty() const noexcept { return size_ == 0; }
 
-    const_iterator begin() const noexcept;
-    const_iterator end() const noexcept;
+    iterator begin() noexcept { return iterator(data_); }
+    iterator end() noexcept { return iterator(data_ + size_); }
 
-    reference front() noexcept;
-    const_reference front() const noexcept;
+    const_iterator begin() const noexcept { return const_iterator(data_); }
+    const_iterator end() const noexcept { return const_iterator(data_ + size_); }
 
-    reference back() noexcept;
-    const_reference back() const noexcept;
+    const_iterator cbegin() const noexcept { return const_iterator(data_); }
+    const_iterator cend() const noexcept { return const_iterator(data_ + size_); }
 
-    Type* data() noexcept;
-    const Type* data() const noexcept;
+    reference front() noexcept { return data_[0]; }
+    const_reference front() const noexcept { return data_[0]; }
 
-    reference operator[] (size_type i) noexcept;
-    const_reference operator[] (size_type i) const noexcept;
+    reference back() noexcept { return data_[size_ - 1]; }
+    const_reference back() const noexcept { return data_[size_ - 1]; }
+
+    Type* data() noexcept { return data_; }
+    const Type* data() const noexcept { return data_; }
+
+    reference operator[] (size_type i) noexcept { return data_[i]; }
+    const_reference operator[] (size_type i) const noexcept { return data_[i]; }
 };
 
 template <typename Type>
@@ -67,13 +73,20 @@ private:
 public:
     explicit iterator(Type* ptr) noexcept : ptr_(ptr) {}
 
-    Type& operator* () noexcept { return *ptr_; }
-    Type* operator-> () noexcept { return ptr_; }
+    Type* const& base() const noexcept { return ptr_; }
+
+    Type& operator* () const noexcept { return *ptr_; }
+    Type* operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
     iterator operator++ () noexcept { ++ptr_; return *this; }
     iterator operator-- () noexcept { --ptr_; return *this; }
+
+    iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
+    iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }
+
+    Type& operator[] (size_type i) noexcept { return ptr_[i]; }
 };
 
 template <typename Type>
@@ -85,13 +98,20 @@ private:
 public:
     explicit const_iterator(Type* ptr) noexcept : ptr_(ptr) {}
 
-    const Type& operator* () noexcept { return *ptr_; }
-    const Type* operator-> () noexcept { return ptr_; }
+    const Type* const& base() const noexcept { return ptr_; }
+
+    const Type& operator* () const noexcept { return *ptr_; }
+    const Type* operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
     const_iterator operator++ () noexcept { ++ptr_; return *this; }
     const_iterator operator-- () noexcept { --ptr_; return *this; }
+
+    const_iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
+    const_iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }
+
+    const Type& operator[] (size_type i) const noexcept { return ptr_[i]; }
 };
 
 template <typename Type>
@@ -185,78 +205,6 @@ void Container<Type>::resize(std::size_t new_size)
 
     size_ = new_size;
     data_ = new Type[size_];
-}
-
-template <typename Type>
-inline typename Container<Type>::iterator Container<Type>::begin() noexcept
-{
-    return iterator(data_);
-}
-
-template <typename Type>
-inline typename Container<Type>::iterator Container<Type>::end() noexcept
-{
-    return iterator(data_ + size_);
-}
-
-template <typename Type>
-inline typename Container<Type>::const_iterator Container<Type>::begin() const noexcept
-{
-    return const_iterator(data_);
-}
-
-template <typename Type>
-inline typename Container<Type>::const_iterator Container<Type>::end() const noexcept
-{
-    return const_iterator(data_ + size_);
-}
-
-template <typename Type>
-inline Type& Container<Type>::front() noexcept
-{
-    return data_[0];
-}
-
-template <typename Type>
-inline const Type& Container<Type>::front() const noexcept
-{
-    return data_[0];
-}
-
-template <typename Type>
-inline Type& Container<Type>::back() noexcept
-{
-    return data_[size_ - 1];
-}
-
-template <typename Type>
-inline const Type& Container<Type>::back() const noexcept
-{
-    return data_[size_ - 1];
-}
-
-template <typename Type>
-inline Type* Container<Type>::data() noexcept
-{
-    return data_;
-}
-
-template <typename Type>
-inline const Type* Container<Type>::data() const noexcept
-{
-    return data_;
-}
-
-template <typename Type>
-inline Type& Container<Type>::operator[] (std::size_t i) noexcept
-{
-    return data_[i];
-}
-
-template <typename Type>
-inline const Type& Container<Type>::operator[] (std::size_t i) const noexcept
-{
-    return data_[i];
 }
 
 } // namespace trixy
