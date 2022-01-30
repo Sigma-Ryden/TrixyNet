@@ -14,7 +14,7 @@ namespace tr = trixy;
 namespace li = trixy::lique;
 
 template <class Net>
-typename Net::template ContainerType<typename Net::LVector> get_simple_test_idata()
+typename Net::template ContainerType<typename Net::Vector> get_simple_test_idata()
 {
     return
     {
@@ -26,7 +26,7 @@ typename Net::template ContainerType<typename Net::LVector> get_simple_test_idat
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::LVector> get_simple_test_odata()
+typename Net::template ContainerType<typename Net::Vector> get_simple_test_odata()
 {
     return
     {

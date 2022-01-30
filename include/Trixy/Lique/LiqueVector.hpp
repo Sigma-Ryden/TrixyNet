@@ -21,11 +21,9 @@ LIQUE_TENSOR_TPL_DECLARATION
 using Vector = LIQUE_TENSOR_TPL(TensorType::vector);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::vector)
+class LIQUE_TENSOR_TPL(TensorType::vector) : public TensorType::vector
 {
 public:
-    using type            = TensorType::vector;
-
     using size_type      = std::size_t;
     using precision_type = Precision;
 

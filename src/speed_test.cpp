@@ -34,7 +34,7 @@ float random_normal() noexcept
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::LVector> get_speed_test_idata()
+typename Net::template ContainerType<typename Net::Vector> get_speed_test_idata()
 {
     return
     {
@@ -48,7 +48,7 @@ typename Net::template ContainerType<typename Net::LVector> get_speed_test_idata
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::LVector> get_speed_test_odata()
+typename Net::template ContainerType<typename Net::Vector> get_speed_test_odata()
 {
     return
     {
@@ -148,8 +148,8 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
+    speed_test();
+    //speed_test_deserialization();
 
     return 0;
 }

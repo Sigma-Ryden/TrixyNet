@@ -55,45 +55,45 @@ private:
 public:
     Training(Trainable& network);
 
-    Training& operator= (const Training&) = delete;
-    Training& operator= (Training&&) = delete;
+    Training(const Training&) = default;
+    Training(Training&&) noexcept = default;
 
-    void innerFeedForward(const LVector& sample) noexcept;
+    void innerFeedForward(const Vector& sample) noexcept;
 
-    void innerBackProp(const LVector& sample,
-                       const LVector& target) noexcept;
+    void innerBackProp(const Vector& sample,
+                       const Vector& target) noexcept;
 
     template <class GeneratorInteger>
-    void trainStochastic(const Container<LVector>& idata,
-                         const Container<LVector>& odata,
+    void trainStochastic(const Container<Vector>& idata,
+                         const Container<Vector>& odata,
                          size_type iteration_scale,
                          GeneratorInteger generator,
                          IOptimizer& optimizer) noexcept;
 
-    void trainBatch(const Container<LVector>& idata,
-                    const Container<LVector>& odata,
+    void trainBatch(const Container<Vector>& idata,
+                    const Container<Vector>& odata,
                     size_type epoch_scale,
                     IOptimizer& optimizer) noexcept;
 
-    void trainMiniBatch(const Container<LVector>& idata,
-                        const Container<LVector>& odata,
+    void trainMiniBatch(const Container<Vector>& idata,
+                        const Container<Vector>& odata,
                         size_type epoch_scale,
                         size_type mini_batch_size,
                         IOptimizer& optimizer) noexcept;
 
-    long double accuracy(const Container<LVector>& idata,
-                         const Container<LVector>& odata) const noexcept;
+    long double accuracy(const Container<Vector>& idata,
+                         const Container<Vector>& odata) const noexcept;
 
-    long double accuracyf(const Container<LVector>& idata,
-                          const Container<LVector>& odata,
+    long double accuracyf(const Container<Vector>& idata,
+                          const Container<Vector>& odata,
                           precision_type range_rate) const noexcept;
 
-    long double accuracyg(const Container<LVector>& idata,
-                          const Container<LVector>& odata,
+    long double accuracyg(const Container<Vector>& idata,
+                          const Container<Vector>& odata,
                           precision_type range_rate) const noexcept;
 
-    long double loss(const Container<LVector>& idata,
-                     const Container<LVector>& odata) const noexcept;
+    long double loss(const Container<Vector>& idata,
+                     const Container<Vector>& odata) const noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -108,8 +108,8 @@ public:
 public:
     FeedForwardData(const Container<size_type>& topology);
 
-    FeedForwardData& operator= (const FeedForwardData&) = delete;
-    FeedForwardData& operator= (FeedForwardData&&) = delete;
+    FeedForwardData(const FeedForwardData&) = default;
+    FeedForwardData(FeedForwardData&&) noexcept = default;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -127,8 +127,8 @@ public:
 public:
     BackPropData(const Container<size_type>& topology);
 
-    BackPropData& operator= (const BackPropData&) = delete;
-    BackPropData& operator= (BackPropData&&) = delete;
+    BackPropData(const BackPropData&) = default;
+    BackPropData(BackPropData&&) noexcept = default;
 
     void resetDelta() noexcept;
     void updateDelta() noexcept;
@@ -171,8 +171,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::updateDelta() n
 {
     for(size_type i = 0; i < size; ++i)
     {
-        deltaB[i].add(derivedB[i].get());
-        deltaW[i].add(derivedW[i].get());
+        deltaB[i].add(derivedB[i].base());
+        deltaW[i].add(derivedW[i].base());
     }
 }
 
@@ -199,8 +199,8 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
 TRIXY_TRAINING_TPL_DECLARATION
 template <class GeneratorInteger>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     size_type iteration_scale,
     GeneratorInteger generator,
     IOptimizer& optimizer) noexcept
@@ -212,14 +212,14 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         innerFeedForward(idata[sample]);
         innerBackProp(idata[sample], odata[sample]);
 
-        optimizer.update(backprop.derivedB.get(), backprop.derivedW.get());
+        optimizer.update(backprop.derivedB.base(), backprop.derivedW.base());
     }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     size_type epoch_scale,
     IOptimizer& optimizer) noexcept
 {
@@ -238,14 +238,14 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 
         backprop.normalizeDelta(alpha);
 
-        optimizer.update(backprop.deltaB.get(), backprop.deltaW.get());
+        optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
     }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     size_type epoch_scale,
     size_type mini_batch_size,
     IOptimizer& optimizer) noexcept
@@ -279,23 +279,23 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
 
             backprop.normalizeDelta(alpha);
 
-            optimizer.update(backprop.deltaB.get(), backprop.deltaW.get());
+            optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
         }
     }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracy(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata) const noexcept
+    const Container<Vector>& idata,
+    const Container<Vector>& odata) const noexcept
 {
     return net.accuracy(idata, odata);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyf(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     precision_type range_rate) const noexcept
 {
     return net.accuracyf(idata, odata, range_rate);
@@ -303,8 +303,8 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyf(
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyg(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     precision_type range_rate) const noexcept
 {
     return net.accuracyg(idata, odata, range_rate);
@@ -312,15 +312,15 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyg(
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata) const noexcept
+    const Container<Vector>& idata,
+    const Container<Vector>& odata) const noexcept
 {
     return net.loss(idata, odata);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerFeedForward(
-    const LVector& sample) noexcept
+    const Vector& sample) noexcept
 {
     /*
     Operations:
@@ -348,8 +348,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerFeedForward(
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackProp(
-    const LVector& sample,
-    const LVector& target) noexcept
+    const Vector& sample,
+    const Vector& target) noexcept
 {
     /*
     Operations:

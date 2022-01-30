@@ -164,7 +164,7 @@ void AdamOptimizer<Optimizeriable>::update(
     net.linear.add(optimized2, buff);
 
     net.linear.join(buff, alpha2, optimized2);
-    net.linear.apply(buff, detail::invertSqrt);
+    net.linear.apply(buff, &detail::invert_sqrt<precision_type>);
     net.linear.mul(buff, optimized1);
     net.linear.join(buff, alpha1);
 

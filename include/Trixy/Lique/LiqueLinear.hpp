@@ -18,16 +18,17 @@ public:
     using size_type      = std::size_t;
     using precision_type = Precision;
 
-    using Function       = Precision (*)(Precision);
+    //using Function       = Precision (*)(Precision);
 
 public:
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
+    template <class Vector1, class Vector2, class Matrix,
+              meta::use_for_tensor_1d_t<Vector1> = 0,
+              meta::use_for_tensor_1d_t<Vector2> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
     void dot(
-        Tensor1D& buff,
-        const Tensor1D& row_vector,
-        const Tensor2D& matrix) const noexcept
+        Vector1& buff,
+        const Vector2& row_vector,
+        const Matrix& matrix) const noexcept
     {
         precision_type temp;
 
@@ -41,13 +42,14 @@ public:
         }
     }
 
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
+    template <class Vector1, class Vector2, class Matrix,
+              meta::use_for_tensor_1d_t<Vector1> = 0,
+              meta::use_for_tensor_1d_t<Vector2> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
     void dot(
-        Tensor1D& buff,
-        const Tensor2D& matrix,
-        const Tensor1D& col_vector) const noexcept
+        Vector1& buff,
+        const Matrix& matrix,
+        const Vector2& col_vector) const noexcept
     {
         buff.fill(0.);
 
@@ -56,55 +58,56 @@ public:
                 buff(i) += matrix(i, j) * col_vector(j);
     }
 
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
+    template <class Vector1, class Vector2, class Matrix,
+              meta::use_for_tensor_1d_t<Vector1> = 0,
+              meta::use_for_tensor_1d_t<Vector2> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
     void tensordot(
-        Tensor2D& buff2,
-        const Tensor1D& col_vector,
-        const Tensor1D& row_vector) const noexcept
+        Matrix& buff2,
+        const Vector1& col_vector,
+        const Vector2& row_vector) const noexcept
     {
         for(size_type i = 0; i < col_vector.size(); ++i)
             for(size_type j = 0; j < row_vector.size(); ++j)
                 buff2(i, j) = row_vector(j) * col_vector(i);
     }
 
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
-    Tensor1D dot(
-        const Tensor1D& row_vector,
-        const Tensor2D& matrix) const
+    template <class Vector, class Matrix,
+              meta::use_for_tensor_1d_t<Vector> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
+    Vector dot(
+        const Vector& row_vector,
+        const Matrix& matrix) const
     {
-        Tensor1D buff(matrix.shape().col());
+        Vector buff(matrix.shape().col());
 
         dot(buff, row_vector, matrix);
 
         return buff;
     }
 
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
-    Tensor1D dot(
-        const Tensor2D& matrix,
-        const Tensor1D& col_vector) const
+    template <class Vector, class Matrix,
+              meta::use_for_tensor_1d_t<Vector> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
+    Vector dot(
+        const Matrix& matrix,
+        const Vector& col_vector) const
     {
-        Tensor1D buff(matrix.shape().row());
+        Vector buff(matrix.shape().row());
 
         dot(buff, matrix, col_vector);
 
         return buff;
     }
 
-    template <class Tensor1D, class Tensor2D,
-              meta::use_for_tensor_1d_t<Tensor1D> = 0,
-              meta::use_for_tensor_2d_t<Tensor2D> = 0>
-    Tensor2D tensordot(
-        const Tensor1D& col_vector,
-        const Tensor1D& row_vector) const
+    template <class Vector, class Matrix,
+              meta::use_for_tensor_1d_t<Vector> = 0,
+              meta::use_for_tensor_2d_t<Matrix> = 0>
+    Matrix tensordot(
+        const Vector& col_vector,
+        const Vector& row_vector) const
     {
-        Tensor2D buff2(col_vector.size(), row_vector.size());
+        Matrix buff2(col_vector.size(), row_vector.size());
 
         tensordot(buff2, col_vector, row_vector);
 
@@ -205,7 +208,7 @@ public:
             buff(i) = value * tensor(i);
     }
 
-    template <class Tensor,// class Function,
+    template <class Tensor, class Function,
               meta::use_for_tensor_nd_t<Tensor> = 0>
     void apply(
         Tensor& buff,
@@ -215,7 +218,7 @@ public:
             buff(i) = func(buff(i));
     }
 
-    template <class Tensor1, class Tensor2,// class Function,
+    template <class Tensor1, class Tensor2, class Function,
               meta::use_for_tensor_nd_t<Tensor1> = 0,
               meta::use_for_tensor_nd_t<Tensor2> = 0>
     void apply(

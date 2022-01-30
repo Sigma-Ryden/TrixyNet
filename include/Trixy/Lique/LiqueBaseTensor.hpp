@@ -9,8 +9,8 @@ namespace lique
 
 struct TensorType
 {
-    struct vector;
-    struct matrix;
+    struct vector { using type = vector; };
+    struct matrix { using type = matrix; };
 };
 
 template <typename Precision, typename tensor_type, typename enable = void>

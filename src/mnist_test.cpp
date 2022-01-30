@@ -18,7 +18,7 @@ namespace li = trixy::lique;
 
 using util::operator<<;
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
 ImageDataType initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
@@ -35,7 +35,7 @@ ImageDataType initialize_i(
     return input_batch;
 }
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
 ImageDataType initialize_o(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
@@ -52,7 +52,7 @@ ImageDataType initialize_o(
     return output_batch;
 }
 
-template <class Net, class ImageType = typename Net::LVector>
+template <class Net, class ImageType = typename Net::Vector>
 void show_image(const ImageType& image) noexcept
 {
     for(std::size_t i = 0; i < image.size(); ++i)
@@ -62,7 +62,7 @@ void show_image(const ImageType& image) noexcept
     }
 }
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::LVector>>
+template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
 void show_image_batch(const ImageDataType& data) noexcept
 {
     for(std::size_t i = 0; i < data.size(); ++i)
@@ -127,8 +127,8 @@ void mnist_test_deserialization()
     for(std::size_t i = 0; i < train_in.size(); ++i)
     {
         show_image<TrixyNet>(train_in[i]);
-        std::cout << "\nTRUE: " << util::max(train_out[i].get())
-                  << "\nPRED: " << util::max(net.feedforward(train_in[i]).get()) << '\n';
+        std::cout << "\nTRUE: " << util::max(train_out[i])
+                  << "\nPRED: " << util::max(net.feedforward(train_in[i])) << '\n';
         std::cin.get();
     }
     //
@@ -137,8 +137,8 @@ void mnist_test_deserialization()
     for(std::size_t i = 0; i < test_in.size(); ++i)
     {
         show_image<TrixyNet>(test_in[i]);
-        std::cout << "\nTRUE: " << util::max(test_out[i].get())
-                  << "\nPRED: " << util::max(net.feedforward(test_in[i]).get()) << '\n';
+        std::cout << "\nTRUE: " << util::max(test_out[i])
+                  << "\nPRED: " << util::max(net.feedforward(test_in[i])) << '\n';
         std::cin.get();
     }
     //

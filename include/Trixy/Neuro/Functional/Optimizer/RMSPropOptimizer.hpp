@@ -123,7 +123,7 @@ void RMSPropOptimizer<Optimizeriable>::update(
     net.linear.join(buff, rbeta);
     net.linear.add(optimized, buff);
 
-    net.linear.apply(buff, detail::invertSqrt, optimized);
+    net.linear.apply(buff, &detail::invert_sqrt<precision_type>, optimized);
     net.linear.mul(buff, grad);
     net.linear.join(buff, learning_rate);
 

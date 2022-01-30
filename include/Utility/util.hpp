@@ -105,19 +105,19 @@ std::ostream& operator<< (
 template <class TrixyNet>
 void test_neuro(
     const TrixyNet& network,
-    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& idata,
-    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& odata)
+    const typename TrixyNet::template ContainerType<typename TrixyNet::Vector>& idata,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::Vector>& odata)
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
-            << network.feedforward(idata[i]).get() << " : " << odata[i].get() << '\n';
+            << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
 }
 
 template <class TrixyNet>
 void check_neuro(
     const TrixyNet& network,
-    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& idata,
-    const typename TrixyNet::template ContainerType<typename TrixyNet::LVector>& odata)
+    const typename TrixyNet::template ContainerType<typename TrixyNet::Vector>& idata,
+    const typename TrixyNet::template ContainerType<typename TrixyNet::Vector>& odata)
 {
     std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
               << "\nNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)

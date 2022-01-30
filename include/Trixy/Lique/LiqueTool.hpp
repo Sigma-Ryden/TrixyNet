@@ -33,13 +33,13 @@ namespace comp
 {
 
 LIQUE_FUNCTION_TPL
-inline bool is_bigger(Precision previous, Precision next)
+inline bool is_bigger(Precision previous, Precision next) noexcept
 {
     return previous > next;
 }
 
 LIQUE_FUNCTION_TPL
-inline bool is_less(Precision previous, Precision next)
+inline bool is_less(Precision previous, Precision next) noexcept
 {
     return previous < next;
 }
@@ -47,7 +47,7 @@ inline bool is_less(Precision previous, Precision next)
 } // namespace comp
 
 template <class T>
-inline T sum(T&& t1)
+inline T sum(T&& t1) noexcept
 {
     return t1;
 }
@@ -59,11 +59,11 @@ inline T sum(T&& t1, Tn&&... tn)
     return t1 + sum(std::forward<T>(tn)...);
 }
 
-template <class Tensor1D,
-          typename size_type = typename Tensor1D::size_type,
-          Binary<typename Tensor1D::precision_type> compare,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-size_type find(const Tensor1D& vector)
+template <class Vector,
+          typename size_type = typename Vector::size_type,
+          Binary<typename Vector::precision_type> compare,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+size_type find(const Vector& vector) noexcept
 {
     size_type arg = 0;
     for(size_type i = 1; i < vector.size(); ++i)
@@ -123,20 +123,20 @@ Vector<std::size_t> find(
     return vector;
 }
 
-template <class Tensor1D,
-          typename size_type = typename Tensor1D::size_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-size_type argmin(const Tensor1D& vector)
+template <class Vector,
+          typename size_type = typename Vector::size_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+size_type argmin(const Vector& vector) noexcept
 {
-    return find<typename Tensor1D::precision_type, comp::is_bigger>(vector);
+    return find<typename Vector::precision_type, comp::is_bigger>(vector);
 }
 
-template <class Tensor1D,
-          typename size_type = typename Tensor1D::size_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-size_type argmax(const Tensor1D& vector)
+template <class Vector,
+          typename size_type = typename Vector::size_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+size_type argmax(const Vector& vector) noexcept
 {
-    return find<typename Tensor1D::precision_type, comp::is_less>(vector);
+    return find<typename Vector::precision_type, comp::is_less>(vector);
 }
 
 LIQUE_FUNCTION_TPL
@@ -155,25 +155,25 @@ Vector<std::size_t> argmax(
     return find<Precision, comp::is_less>(matrix, axis);
 }
 
-template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-precision_type min(const Tensor1D& vector)
+template <class Vector, typename precision_type = typename Vector::precision_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+precision_type min(const Vector& vector) noexcept
 {
     return vector(find<precision_type, comp::is_bigger>(vector));
 }
 
-template <class Tensor1D, typename precision_type = typename Tensor1D::precision_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-precision_type max(const Tensor1D& vector)
+template <class Vector, typename precision_type = typename Vector::precision_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+precision_type max(const Vector& vector) noexcept
 {
     return vector(find<precision_type, comp::is_less>(vector));
 }
 
-template <class Tensor1D,
-          typename size_type = typename Tensor1D::size_type,
-          typename precision_type = typename Tensor1D::precision_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
-precision_type mean(const Tensor1D& vector)
+template <class Vector,
+          typename size_type = typename Vector::size_type,
+          typename precision_type = typename Vector::precision_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
+precision_type mean(const Vector& vector) noexcept
 {
     size_type mean_value = 0.;
 
@@ -183,12 +183,12 @@ precision_type mean(const Tensor1D& vector)
     return mean_value / static_cast<precision_type>(vector.size());
 }
 
-template <class Tensor1D,
-          typename size_type = typename Tensor1D::size_type,
-          typename precision_type = typename Tensor1D::precision_type,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0>
+template <class Vector,
+          typename size_type = typename Vector::size_type,
+          typename precision_type = typename Vector::precision_type,
+          meta::use_for_tensor_1d_t<Vector> = 0>
 precision_type std(
-    const Tensor1D& vector,
+    const Vector& vector,
     bool unbiased = false)
 {
     precision_type mean_value = mean(vector);
@@ -332,106 +332,11 @@ Vector<Precision> std(
     return vector;
 }
 
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-void dot(
-    Tensor1D& buff,
-    const Tensor1D& row_vector,
-    const Tensor2D& matrix) noexcept
-{
-    using size_type      = typename Tensor1D::size_type;
-    using precision_type = typename Tensor1D::precision_type;
-
-    precision_type temp;
-
-    buff.fill(0.);
-
-    for(size_type j = 0; j < row_vector.size(); ++j)
-    {
-        temp = row_vector(j);
-        for(size_type i = 0; i < buff.size(); ++i)
-           buff(i) += temp * matrix(j, i);
-    }
-}
-
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-void dot(
-    Tensor1D& buff,
-    const Tensor2D& matrix,
-    const Tensor1D& col_vector) noexcept
-{
-    using size_type = typename Tensor1D::size_type;
-
-    buff.fill(0.);
-
-    for(size_type i = 0; i < buff.size(); ++i)
-        for(size_type j = 0; j < col_vector.size(); ++j)
-            buff(i) += matrix(i, j) * col_vector(j);
-}
-
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-void tensordot(
-    Tensor2D& buff2,
-    const Tensor1D& col_vector,
-    const Tensor1D& row_vector) noexcept
-{
-    using size_type = typename Tensor1D::size_type;
-
-    for(size_type i = 0; i < col_vector.size(); ++i)
-        for(size_type j = 0; j < row_vector.size(); ++j)
-            buff2(i, j) = row_vector(j) * col_vector(i);
-}
-
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-Tensor1D dot(
-    const Tensor1D& row_vector,
-    const Tensor2D& matrix)
-{
-    Tensor1D buff(matrix.shape().col());
-
-    dot(buff, row_vector, matrix);
-
-    return buff;
-}
-
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-Tensor1D dot(
-    const Tensor2D& matrix,
-    const Tensor1D& col_vector)
-{
-    Tensor1D buff(matrix.shape().row());
-
-    dot(buff, matrix, col_vector);
-
-    return buff;
-}
-
-template <class Tensor1D, class Tensor2D,
-          meta::use_for_tensor_1d_t<Tensor1D> = 0,
-          meta::use_for_tensor_2d_t<Tensor2D> = 0>
-Tensor2D tensordot(
-    const Tensor1D& col_vector,
-    const Tensor1D& row_vector)
-{
-    Tensor2D buff2(col_vector.size(), row_vector.size());
-
-    tensordot(buff2, col_vector, row_vector);
-
-    return buff2;
-}
-
 template <class Tensor, class Function,
           meta::use_for_tensor_nd_t<Tensor> = 0>
-void for_each(Tensor& tensor, Function func)
+void for_each(
+    Tensor& tensor,
+    Function func) noexcept
 {
     using size_type = typename Tensor::size_type;
 

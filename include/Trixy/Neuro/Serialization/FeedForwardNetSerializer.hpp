@@ -74,8 +74,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     for(size_type i = 0; i < N; ++i)
     {
-        B[i] = net.getInnerBias()[i].get();
-        W[i] = net.getInnerWeight()[i].get();
+        B[i] = net.getInnerBias()[i].base();
+        W[i] = net.getInnerWeight()[i].base();
     }
 
     for(size_type i = 0; i < N; ++i)

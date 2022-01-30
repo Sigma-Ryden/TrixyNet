@@ -22,14 +22,12 @@ LIQUE_TENSOR_TPL_DECLARATION
 using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
 
 LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::matrix)
+class LIQUE_TENSOR_TPL(TensorType::matrix) : public TensorType::matrix
 {
 protected:
     class Shape;
 
 public:
-    using type            = TensorType::matrix;
-
     using size_type       = std::size_t;
     using precision_type  = Precision;
 

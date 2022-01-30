@@ -62,32 +62,35 @@ public:
 public:
     FeedForwardNet(const Container<size_type>& topology);
 
-    const LVector& feedforward(const LVector& sample) const noexcept;
+    FeedForwardNet(const FeedForwardNet&) = default;
+    FeedForwardNet(FeedForwardNet&&) noexcept = default;
 
-    long double accuracy(const Container<LVector>& idata,
-                         const Container<LVector>& odata) const noexcept;
+    const Vector& feedforward(const Vector& sample) const noexcept;
 
-    long double accuracyf(const Container<LVector>& idata,
-                          const Container<LVector>& odata,
+    long double accuracy(const Container<Vector>& idata,
+                         const Container<Vector>& odata) const noexcept;
+
+    long double accuracyf(const Container<Vector>& idata,
+                          const Container<Vector>& odata,
                           Precision range_rate) const noexcept;
 
-    long double accuracyg(const Container<LVector>& idata,
-                          const Container<LVector>& odata,
+    long double accuracyg(const Container<Vector>& idata,
+                          const Container<Vector>& odata,
                           Precision range_rate) const noexcept;
 
-    long double loss(const Container<LVector>& idata,
-                     const Container<LVector>& odata) const noexcept;
+    long double loss(const Container<Vector>& idata,
+                     const Container<Vector>& odata) const noexcept;
 
 private:
-    bool check(const LVector& target,
-               const LVector& prediction) const noexcept;
+    bool check(const Vector& target,
+               const Vector& prediction) const noexcept;
 
-    bool checkf(const LVector& target,
-                const LVector& prediction,
+    bool checkf(const Vector& target,
+                const Vector& prediction,
                 Precision range_rate) const noexcept;
 
-    void checkg(const LVector& target,
-                const LVector& prediction,
+    void checkg(const Vector& target,
+                const Vector& prediction,
                 Precision range_rate,
                 size_type& count) const noexcept;
 
@@ -102,8 +105,8 @@ public:
     void initializeInnerStruct(const Container<Vector>& bias,
                                const Container<Matrix>& weight) noexcept;
 
-    const Container<LVector>& getInnerBias() const noexcept { return inner.B.get(); }
-    const Container<LMatrix>& getInnerWeight() const noexcept { return inner.W.get(); }
+    const Container<LVector>& getInnerBias() const noexcept { return inner.B.base(); }
+    const Container<LMatrix>& getInnerWeight() const noexcept { return inner.W.base(); }
     const Container<size_type>& getTopology() const noexcept { return inner.topology; }
 
 public:
@@ -125,6 +128,9 @@ public:
 
 public:
     InnerStruct(const Container<size_type>& topology);
+
+    InnerStruct(const InnerStruct&) = default;
+    InnerStruct(InnerStruct&&) noexcept = default;
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -200,6 +206,9 @@ private:
 
 public:
     explicit InnerFunctional(size_type N) : activation(N), loss() {}
+
+    InnerFunctional(const InnerFunctional&) = default;
+    InnerFunctional(InnerFunctional&&) noexcept = default;
 
     void setActivation(const ActivationFunction&);
     void setAllActivation(const Container<ActivationFunction>&);
@@ -291,8 +300,8 @@ void TRIXY_FEED_FORWARD_NET_TPL::initializeInnerStruct(
 }
 
 TRIXY_NET_TPL_DECLARATION
-const typename TRIXY_FEED_FORWARD_NET_TPL::LVector& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
-    const LVector& sample) const noexcept
+const typename TRIXY_FEED_FORWARD_NET_TPL::Vector& TRIXY_FEED_FORWARD_NET_TPL::feedforward(
+    const Vector& sample) const noexcept
 {
     linear.dot(buff[0], sample, inner.W[0]);
     linear.add(buff[0], inner.B[0]);
@@ -305,7 +314,7 @@ const typename TRIXY_FEED_FORWARD_NET_TPL::LVector& TRIXY_FEED_FORWARD_NET_TPL::
         function.activation[i].f(buff[i], buff[i]);
     }
 
-    return buff.back();
+    return buff.back().base();
 }
 
 TRIXY_NET_TPL_DECLARATION
@@ -338,8 +347,8 @@ TRIXY_FEED_FORWARD_NET_TPL::init2D(const Container<size_type>& topology, T&&... 
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata) const noexcept
+    const Container<Vector>& idata,
+    const Container<Vector>& odata) const noexcept
 {
     size_type count = 0;
 
@@ -352,8 +361,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracy(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -367,8 +376,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyf(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata,
+    const Container<Vector>& idata,
+    const Container<Vector>& odata,
     Precision range_rate) const noexcept
 {
     size_type count = 0;
@@ -381,8 +390,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::accuracyg(
 
 TRIXY_NET_TPL_DECLARATION
 long double TRIXY_FEED_FORWARD_NET_TPL::loss(
-    const Container<LVector>& idata,
-    const Container<LVector>& odata) const noexcept
+    const Container<Vector>& idata,
+    const Container<Vector>& odata) const noexcept
 {
     Precision result = 0.;
     Precision error  = 0.;
@@ -398,8 +407,8 @@ long double TRIXY_FEED_FORWARD_NET_TPL::loss(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::check(
-    const LVector& target,
-    const LVector& prediction) const noexcept
+    const Vector& target,
+    const Vector& prediction) const noexcept
 {
     size_type max_true_out;
     size_type max_pred_out;
@@ -420,8 +429,8 @@ bool TRIXY_FEED_FORWARD_NET_TPL::check(
 
 TRIXY_NET_TPL_DECLARATION
 bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
-    const LVector& target,
-    const LVector& prediction,
+    const Vector& target,
+    const Vector& prediction,
     Precision range_rate) const noexcept
 {
     for(size_type j = 0; j < target.size(); ++j)
@@ -433,8 +442,8 @@ bool TRIXY_FEED_FORWARD_NET_TPL::checkf(
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_FEED_FORWARD_NET_TPL::checkg(
-    const LVector& target,
-    const LVector& prediction,
+    const Vector& target,
+    const Vector& prediction,
     Precision range_rate,
     size_type& count) const noexcept
 {

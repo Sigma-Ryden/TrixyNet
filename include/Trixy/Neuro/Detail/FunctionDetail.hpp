@@ -12,9 +12,9 @@ namespace detail
 {
 
 template <typename Precision, meta::use_for_arithmetic_t<Precision> = 0>
-Precision invertSqrt(Precision x) noexcept
+Precision invert_sqrt(Precision x) noexcept
 {
-    return 1.0 / std::sqrt(1e-9 + x);
+    return 1. / std::sqrt(1e-9 + x);
 }
 
 } // namespace detail

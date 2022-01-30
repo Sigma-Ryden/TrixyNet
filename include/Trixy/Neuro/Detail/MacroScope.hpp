@@ -68,11 +68,11 @@
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
     template <class Tensor>                                                                             \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        buff.apply(::trixy::set::activation::detail::name, tensor.get());                               \
+        buff.apply(::trixy::set::activation::detail::name, tensor.base());                              \
     }                                                                                                   \
     template <class Tensor>                                                                             \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.get());                     \
+        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.base());                    \
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
