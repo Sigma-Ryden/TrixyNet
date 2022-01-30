@@ -8,7 +8,6 @@ template <template <typename P, typename...> class Tensor1D,
           template <typename P, typename...> class Tensor2D,
           template <typename P> class Linear,
           typename Precision,
-          typename enable = void,
           typename... Args>
 class LinearRegression;
 
@@ -16,7 +15,6 @@ template <template <typename P, typename...> class Tensor1D,
           template <typename P, typename...> class Tensor2D,
           template <typename P> class Linear,
           typename Precision,
-          typename enable = void,
           typename... Args>
 class PolynomialRegression;
 

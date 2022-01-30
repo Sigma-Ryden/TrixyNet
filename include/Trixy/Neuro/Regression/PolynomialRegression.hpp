@@ -14,9 +14,9 @@ namespace trixy
 {
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_POLYNOMIAL_REGRESSION_TPL
+class PolynomialRegression
 {
-friend train::Training<TRIXY_POLYNOMIAL_REGRESSION_TPL>;
+friend train::Training<PolynomialRegression>;
 
 public:
     using Vector          = Tensor1D<Precision, Args...>;

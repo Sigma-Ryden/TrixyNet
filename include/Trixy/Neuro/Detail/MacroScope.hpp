@@ -58,21 +58,20 @@
               typename precision_type = typename Tensor::precision_type,                                \
               typename size_type = typename Tensor::size_type>
 
-#define TRIXY_FUNCTION_TENSOR1D_TPL_DECLARATION                                                         \
-    template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>  \
-
 #define TRIXY_FUNCTION_TPL_DECLARATION                                                                  \
     template <typename Precision,                                                                       \
         typename std::enable_if<std::is_floating_point<Precision>::value, int>::type = 0>
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
-    template <class Tensor>                                                                             \
+    template <class Tensor, typename size_type = typename Tensor::size_type>                            \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        buff.apply(::trixy::set::activation::detail::name, tensor.base());                              \
+        for(size_type i = 0; i < buff.size(); ++i)                                                      \
+            buff(i) = ::trixy::set::activation::detail::name(tensor(i));                                \
     }                                                                                                   \
-    template <class Tensor>                                                                             \
+    template <class Tensor, typename size_type = typename Tensor::size_type>                            \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.base());                    \
+        for(size_type i = 0; i < buff.size(); ++i)                                                      \
+            buff(i) = ::trixy::set::activation::detail::name##_derived(tensor(i));                      \
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
@@ -83,12 +82,10 @@
               typename... Args>
 
 #define TRIXY_LINEAR_REGRESSION_TPL                                                                     \
-    LinearRegression<Tensor1D, Tensor2D, Linear, Precision,                                             \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+    LinearRegression<Tensor1D, Tensor2D, Linear, Precision, Args...>
 
 #define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                                 \
-    PolynomialRegression<Tensor1D, Tensor2D, Linear, Precision,                                         \
-           typename std::enable_if<std::is_arithmetic<Precision>::value>::type, Args...>
+    PolynomialRegression<Tensor1D, Tensor2D, Linear, Precision, Args...>
 
 #define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \
     template <typename Class, typename enable = void>                                                   \
@@ -108,5 +105,5 @@
 #define TRIXY_CHECK_TYPE_HELPER(check_for, type)                                                        \
     struct type {                                                                                       \
         template <check_for id>                                                                         \
-        using check = meta::select_for<id == check_for::type, type>;                                    \
+        using check = ::trixy::meta::select_for<id == check_for::type, type>;                           \
     }

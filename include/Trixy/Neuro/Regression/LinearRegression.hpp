@@ -12,9 +12,9 @@ namespace trixy
 {
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_LINEAR_REGRESSION_TPL
+class LinearRegression
 {
-friend train::Training<TRIXY_LINEAR_REGRESSION_TPL>;
+friend train::Training<LinearRegression>;
 
 public:
     using Vector          = Tensor1D<Precision, Args...>;
