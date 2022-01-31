@@ -11,7 +11,6 @@
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
 
-
 namespace tr = trixy;
 namespace li = trixy::lique;
 
