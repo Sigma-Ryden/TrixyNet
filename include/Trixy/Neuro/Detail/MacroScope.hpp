@@ -13,16 +13,16 @@
     }
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
-    template <template <typename, typename...> class Tensor1D,                                          \
-              template <typename, typename...> class Tensor2D,                                          \
-              template <typename P> class Linear,                                                       \
-              template <typename...> class Container,                                                   \
-              typename Precision,                                                                       \
+    template <template <typename P, typename...> class VectorType,                                      \
+              template <typename P, typename...> class MatrixType,                                      \
+              template <typename P> class LinearType,                                                   \
+              template <typename...> class ContainerType,                                               \
+              typename PrecisionType,                                                                   \
               typename... Args>
 
-#define TRIXY_FEED_FORWARD_NET_TPL                                                                      \
-    FeedForwardNet<Tensor1D, Tensor2D, Linear, Container,                                               \
-                   Precision, Args...>
+#define TRIXY_NET_TPL(network_type)                                                                     \
+    TrixyNet<network_type,                                                                              \
+             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, void, Args...>
 
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
     template <typename Serializable>
@@ -75,17 +75,15 @@
     }
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
-    template <template <typename P, typename...> class Tensor1D,                                        \
-              template <typename P, typename...> class Tensor2D,                                        \
-              template <typename p> class Linear,                                                       \
-              typename Precision,                                                                       \
+    template <template <typename P, typename...> class VectorType,                                      \
+              template <typename P, typename...> class MatrixType,                                      \
+              template <typename P> class LinearType,                                                   \
+              typename PrecisionType,                                                                   \
               typename... Args>
 
-#define TRIXY_LINEAR_REGRESSION_TPL                                                                     \
-    LinearRegression<Tensor1D, Tensor2D, Linear, Precision, Args...>
-
-#define TRIXY_POLYNOMIAL_REGRESSION_TPL                                                                 \
-    PolynomialRegression<Tensor1D, Tensor2D, Linear, Precision, Args...>
+#define TRIXY_REGRESSION_TPL(regression_type)                                                           \
+    Regression<regression_type,                                                                         \
+               VectorType, MatrixType, LinearType, PrecisionType, void, Args...>
 
 #define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \
     template <typename Class, typename enable = void>                                                   \

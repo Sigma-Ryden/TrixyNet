@@ -17,7 +17,7 @@ class TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)
 {
 private:
     template <class T>
-    using Container      = typename Serializable::template ContainerType<T>;
+    using Container      = typename Serializable::template Container<T>;
 
     using Vector         = typename Serializable::Vector;
     using Matrix         = typename Serializable::Matrix;

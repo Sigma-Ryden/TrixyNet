@@ -4,13 +4,20 @@
 namespace trixy
 {
 
-template <template <typename P, typename...> class Tensor1D,
-          template <typename P, typename...> class Tensor2D,
-          template <typename P> class Linear,
-          template <typename...> class Container,
-          typename Precision,
+struct TrixyNetType
+{
+    struct FeedForward { using type = FeedForward; };
+};
+
+template <class TrixyNetType,
+          template <typename P, typename...> class VectorType,
+          template <typename P, typename...> class MatrixType,
+          template <typename P> class LinearType,
+          template <typename...> class ContainerType,
+          typename PrecisionType,
+          typename enable = void,
           typename... Args>
-class FeedForwardNet;
+class TrixyNet;
 
 } // namespace trixy
 

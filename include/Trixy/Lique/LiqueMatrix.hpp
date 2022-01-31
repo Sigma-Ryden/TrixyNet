@@ -32,7 +32,7 @@ public:
     using precision_type  = Precision;
 
     using pointer         = Precision*;
-    using const_pointer   = Precision* const;
+    using const_pointer   = const Precision*;
 
     using Generator       = Precision (*)();
     using Function        = Precision (*)(Precision);

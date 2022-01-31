@@ -10,7 +10,7 @@
 #include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
-#include <vector> // vector
+
 
 namespace tr = trixy;
 namespace li = trixy::lique;
@@ -34,7 +34,7 @@ float random_normal() noexcept
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::Vector> get_speed_test_idata()
+typename Net::template Container<typename Net::Vector> get_speed_test_idata()
 {
     return
     {
@@ -48,7 +48,7 @@ typename Net::template ContainerType<typename Net::Vector> get_speed_test_idata(
 }
 
 template <class Net>
-typename Net::template ContainerType<typename Net::Vector> get_speed_test_odata()
+typename Net::template Container<typename Net::Vector> get_speed_test_odata()
 {
     return
     {
@@ -65,7 +65,7 @@ void speed_test_deserialization()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
@@ -95,7 +95,7 @@ void speed_test()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;

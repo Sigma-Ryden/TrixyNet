@@ -51,15 +51,15 @@ struct select_for : std::enable_if<condition, T>
 
 template <typename> struct is_feedforward_net : std::false_type {};
 TRIXY_NET_TPL_DECLARATION
-struct is_feedforward_net<TRIXY_FEED_FORWARD_NET_TPL> : std::true_type {};
+struct is_feedforward_net<TRIXY_NET_TPL(TrixyNetType::FeedForward)> : std::true_type {};
 
 template <typename> struct is_linear_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION
-struct is_linear_regression<TRIXY_LINEAR_REGRESSION_TPL> : std::true_type {};
+struct is_linear_regression<TRIXY_REGRESSION_TPL(RegressionType::Linear)> : std::true_type {};
 
 template <typename> struct is_polynomial_regression : std::false_type {};
 TRIXY_REGRESSION_TPL_DECLARATION
-struct is_polynomial_regression<TRIXY_POLYNOMIAL_REGRESSION_TPL> : std::true_type {};
+struct is_polynomial_regression<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)> : std::true_type {};
 
 template <typename> struct is_optimizer : std::false_type {};
 template <class Optimizeriable, class OptimizationType>

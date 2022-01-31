@@ -7,7 +7,7 @@ namespace trixy
 namespace train
 {
 
-template <class Optimizeriable, class OptimizationType, typename enable = void>
+template <class Optimizeriable, class OptimizerType, typename enable = void>
 class Optimizer;
 
 template <class Optimizeriable>
@@ -15,7 +15,7 @@ class IOptimizer
 {
 private:
     template <class... T>
-    using Container         = typename Optimizeriable::template ContainerType<T...>;
+    using Container         = typename Optimizeriable::template Container<T...>;
 
     template <class... T>
     using LContainer        = typename Optimizeriable::template LContainer<T...>;

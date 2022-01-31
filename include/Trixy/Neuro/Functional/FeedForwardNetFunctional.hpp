@@ -21,7 +21,7 @@ class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)
 {
 private:
     template <typename T>
-    using Container            = typename Functionable::template ContainerType<T>;
+    using Container            = typename Functionable::template Container<T>;
 
     using size_type            = typename Functionable::size_type;
     using byte_type            = typename Functionable::byte_type;
@@ -33,7 +33,7 @@ private:
     using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_type>;
 
     template <functional::OptimizationId id>
-    using optimizer_type_from  = functional::OptimizationType::type_from<id>;
+    using optimizer_type_from  = functional::OptimizerType::type_from<id>;
 
 public:
     ActivationFunction get(functional::ActivationId id) const noexcept

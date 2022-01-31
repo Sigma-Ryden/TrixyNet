@@ -17,15 +17,15 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using RMSPropOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::rms_prop);
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::rms_prop);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizationType::rms_prop)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::rms_prop)
     : public IOptimizer<Optimizeriable>
 {
 private:
     template <class... T>
-    using Container         = typename Optimizeriable::template ContainerType<T...>;
+    using Container         = typename Optimizeriable::template Container<T...>;
 
     template <class... T>
     using LContainer        = typename Optimizeriable::template LContainer<T...>;

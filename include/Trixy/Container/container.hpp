@@ -3,6 +3,8 @@
 
 #include <cstddef> // size_t
 #include <initializer_list> // initializer_list
+#include <new> // operator new[], operator delete[]
+#include <utility> // forward
 
 namespace trixy
 {
@@ -18,11 +20,15 @@ public:
     using value_type      = Type;
     using difference_type = std::ptrdiff_t;
 
+    using pointer         = Type*;
+    using const_pointer   = const Type*;
+
     using reference       = Type&;
     using const_reference = const Type&;
 
 private:
-    Type* data_;
+    pointer data_;
+    size_type capacity_;
     size_type size_;
 
 public:
@@ -32,13 +38,24 @@ public:
     explicit Container(size_type size);
     Container(const Container&);
     Container(Container&&) noexcept;
-    Container(std::initializer_list<Type>);
+    Container(std::initializer_list<value_type>);
 
     Container<Type>& operator= (const Container&);
     Container<Type>& operator= (Container&&) noexcept;
 
-    size_type size() const noexcept;
-    void resize(size_type new_size);
+    size_type capacity() const noexcept { return capacity_; }
+    size_type size() const noexcept { return size_; }
+    size_type max_size() const noexcept { return size_type(-1) / sizeof(value_type); }
+
+    void reserve(size_type n);
+
+    void resize(size_type n);
+    void resize(size_type n, value_type&& fill);
+
+    template <typename... Args>
+    void emplace_back(Args&&... args);
+
+    void pop_back();
 
     bool empty() const noexcept { return size_ == 0; }
 
@@ -57,11 +74,17 @@ public:
     reference back() noexcept { return data_[size_ - 1]; }
     const_reference back() const noexcept { return data_[size_ - 1]; }
 
-    Type* data() noexcept { return data_; }
-    const Type* data() const noexcept { return data_; }
+    pointer data() noexcept { return data_; }
+    const_pointer data() const noexcept { return data_; }
 
     reference operator[] (size_type i) noexcept { return data_[i]; }
     const_reference operator[] (size_type i) const noexcept { return data_[i]; }
+
+private:
+    static pointer allocate(size_type n);
+    static void deallocate(pointer ptr);
+
+    static void destroy(pointer beg, pointer end);
 };
 
 template <typename Type>
@@ -115,32 +138,43 @@ public:
 };
 
 template <typename Type>
-inline Container<Type>::Container() noexcept : data_(nullptr), size_(0)
+inline Container<Type>::Container() noexcept
+    : data_(nullptr), capacity_(0), size_(0)
 {
 }
 
 template <typename Type>
-inline Container<Type>::~Container()
+Container<Type>::~Container()
 {
-    delete[] data_;
+    Container::destroy(data_, data_ + size_);
+    Container::deallocate(data_);
 }
 
 template <typename Type>
-inline Container<Type>::Container(std::size_t size) : data_(new Type[size]), size_(size)
+Container<Type>::Container(size_type size)
+    : data_(Container::allocate(size))
+    , capacity_(size)
+    , size_(size)
 {
+    for(size_type i = 0; i < size_; ++i)
+        new (data_ + i) value_type();
 }
 
 template <typename Type>
 Container<Type>::Container(const Container& container)
-    : data_(new Type[container.size_]), size_(container.size_)
+    : data_(Container::allocate(container.size_))
+    , capacity_(container.capacity_)
+    , size_(container.size_)
 {
     for(std::size_t i = 0; i < size_; ++i)
-        data_[i] = container.data_[i];
+        new (data_ + i) value_type(container.data_[i]);
 }
 
 template <typename Type>
 Container<Type>::Container(Container&& container) noexcept
 {
+    capacity_ = container.capacity_;
+
     size_ = container.size_;
     data_ = container.data_;
 
@@ -149,12 +183,14 @@ Container<Type>::Container(Container&& container) noexcept
 
 template <typename Type>
 Container<Type>::Container(std::initializer_list<Type> list)
-    : data_(new Type[list.size()]), size_(list.size())
+    : data_(Container::allocate(list.size()))
+    , capacity_(list.size())
+    , size_(list.size())
 {
-    std::size_t i = 0;
+    size_type i = 0;
     for(const auto& arg: list)
     {
-        data_[i] = arg;
+        new (data_ + i) value_type(arg);
         ++i;
     }
 }
@@ -165,13 +201,16 @@ Container<Type>& Container<Type>::operator= (const Container& container)
     if(this == &container)
         return *this;
 
-    delete[] data_;
+    Container::destroy(data_, data_ + size_);
+    Container::deallocate(data_);
+
+    capacity_ = container.capacity_;
 
     size_ = container.size_;
-    data_ = new Type[size_];
+    data_ = Container::allocate(size_);
 
-    for(std::size_t i = 0; i < size_; ++i)
-        data_[i] = container.data_[i];
+    for(size_type i = 0; i < size_; ++i)
+        new (data_ + i) value_type(container.data_[i]);
 
     return *this;
 }
@@ -182,7 +221,10 @@ Container<Type>& Container<Type>::operator= (Container&& container) noexcept
     if(this == &container)
         return *this;
 
-    delete[] data_;
+    Container::destroy(data_, data_ + size_);
+    Container::deallocate(data_);
+
+    capacity_ = container.capacity_;
 
     size_ = container.size_;
     data_ = container.data_;
@@ -193,18 +235,122 @@ Container<Type>& Container<Type>::operator= (Container&& container) noexcept
 }
 
 template <typename Type>
-inline std::size_t Container<Type>::size() const noexcept
+void Container<Type>::resize(size_type n)
 {
-    return size_;
+    // capacity is always more than or equal to size
+    if(n > capacity_)
+    {
+        reserve(n);
+
+        for(; size_ < n; ++size_)
+            new (data_ + size_) value_type();
+
+        capacity_ = size_;
+
+        return;
+    }
+
+    if(n < size_)
+    {
+        Container::destroy(data_ + n, data_ + size_);
+        size_ = n;
+    }
+    else
+    {
+        for(; size_ < n; ++size_)
+            new (data_ + size_) value_type();
+    }
 }
 
 template <typename Type>
-void Container<Type>::resize(std::size_t new_size)
+void Container<Type>::resize(size_type n, value_type&& fill)
 {
-    delete[] data_;
+    // capacity is always more than or equal to size
+    if(n > capacity_)
+    {
+        reserve(n);
 
-    size_ = new_size;
-    data_ = new Type[size_];
+        for(; size_ < n; ++size_)
+            new (data_ + size_) value_type(std::forward<value_type>(fill));
+
+        capacity_ = size_;
+
+        return;
+    }
+
+    if(n < size_)
+    {
+        Container::destroy(data_ + n, data_ + size_);
+        size_ = n;
+    }
+    else
+    {
+        for(; size_ < n; ++size_)
+            new (data_ + size_) value_type(std::forward<value_type>(fill));
+    }
+}
+
+template <typename Type>
+void Container<Type>::reserve(size_type n)
+{
+    if(n > capacity_)
+    {
+        pointer buff = Container::allocate(n);
+
+        for(size_type i = 0; i < size_; ++i)
+            new (buff + i) value_type(std::move(data_[i]));
+
+        std::swap(buff, data_);
+
+        Container::destroy(buff, buff + size_);
+        Container::deallocate(buff);
+
+        capacity_ = n;
+    }
+}
+
+template <typename Type>
+template <typename... Args>
+void Container<Type>::emplace_back(Args&&... args)
+{
+    if(size_ >= capacity_)
+        reserve(size_ * 2);
+
+    new (data_ + size_) Type(std::forward<Args>(args)...);
+
+    ++size_;
+}
+
+template <typename Type>
+void Container<Type>::pop_back()
+{
+    data_[size_ - 1].~value_type();
+
+    --size_;
+}
+
+template <typename Type>
+inline typename Container<Type>::pointer Container<Type>::allocate(size_type n)
+{
+    return static_cast<pointer>(::operator new[] (sizeof(value_type) * n));
+}
+
+template <typename Type>
+inline void Container<Type>::deallocate(pointer ptr)
+{
+    ::operator delete[] (ptr);
+}
+
+template <typename Type>
+void Container<Type>::destroy(pointer beg, pointer end)
+{
+    if(beg == nullptr) return;
+
+    while(beg != end)
+    {
+        beg->~Type();
+        ++beg;
+    }
 }
 
 } // namespace trixy

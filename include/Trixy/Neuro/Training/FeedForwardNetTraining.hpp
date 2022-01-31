@@ -26,7 +26,7 @@ private:
     using IOptimizer                = typename train::IOptimizer<Trainable>;
 
     template <class... T>
-    using Container                 = typename Trainable::template ContainerType<T...>;
+    using Container                 = typename Trainable::template Container<T...>;
 
     using LVector                   = typename Trainable::LVector;
     using LMatrix                   = typename Trainable::LMatrix;

@@ -12,18 +12,21 @@ namespace trixy
 {
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class LinearRegression
+using LinearRegression = TRIXY_REGRESSION_TPL(RegressionType::Linear);
+
+TRIXY_REGRESSION_TPL_DECLARATION
+class TRIXY_REGRESSION_TPL(RegressionType::Linear) : public RegressionType::Linear
 {
-friend train::Training<LinearRegression>;
+friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
 
 public:
-    using Vector          = Tensor1D<Precision, Args...>;
-    using Matrix          = Tensor2D<Precision, Args...>;
+    using Vector          = VectorType<PrecisionType, Args...>;
+    using Matrix          = MatrixType<PrecisionType, Args...>;
 
-    using precision_type  = Precision;
+    using precision_type  = PrecisionType;
     using size_type       = std::size_t;
 
-    using TensorOperation = Linear<Precision>;
+    using TensorOperation = LinearType<PrecisionType>;
 
 private:
     Vector W;             ///< Inner weight
@@ -32,13 +35,13 @@ private:
     TensorOperation linear;
 
 public:
-    explicit LinearRegression(size_type sample_size);
+    explicit Regression(size_type sample_size);
 
     void initializeInnerStruct(Vector weight) noexcept;
 
     void reset(size_type new_sample_size);
 
-    Precision feedforwardSample(const Vector& sample) const;
+    precision_type feedforwardSample(const Vector& sample) const;
     Vector feedforwardBatch(const Matrix& idata) const;
 
     long double loss(const Matrix& idata,
@@ -49,29 +52,30 @@ public:
 };
 
 TRIXY_REGRESSION_TPL_DECLARATION
-TRIXY_LINEAR_REGRESSION_TPL::LinearRegression(size_type sample_size)
+TRIXY_REGRESSION_TPL(RegressionType::Linear)::Regression(size_type sample_size)
     : W(sample_size + 1), N(sample_size + 1)
 {
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_LINEAR_REGRESSION_TPL::initializeInnerStruct(Vector weight) noexcept
+void TRIXY_REGRESSION_TPL(RegressionType::Linear)::initializeInnerStruct(Vector weight) noexcept
 {
     W.copy(weight);
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_LINEAR_REGRESSION_TPL::reset(size_type new_sample_size)
+void TRIXY_REGRESSION_TPL(RegressionType::Linear)::reset(size_type new_sample_size)
 {
     W.resize(new_sample_size + 1);
     N = new_sample_size + 1;
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
+typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::precision_type
+    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforwardSample(
     const Vector& sample) const
 {
-    Precision result = W(0);
+    precision_type result = W(0);
 
     for(size_type i = 1; i < N; ++i)
     {
@@ -82,7 +86,8 @@ Precision TRIXY_LINEAR_REGRESSION_TPL::feedforwardSample(
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-typename TRIXY_LINEAR_REGRESSION_TPL::Vector TRIXY_LINEAR_REGRESSION_TPL::feedforwardBatch(
+typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
+    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforwardBatch(
     const Matrix& idata) const
 {
     Matrix X(idata.shape().row(), N);
@@ -98,7 +103,7 @@ typename TRIXY_LINEAR_REGRESSION_TPL::Vector TRIXY_LINEAR_REGRESSION_TPL::feedfo
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION
-long double TRIXY_LINEAR_REGRESSION_TPL::loss(
+long double TRIXY_REGRESSION_TPL(RegressionType::Linear)::loss(
     const Matrix& idata,
     const Vector& odata) const
 {

@@ -18,7 +18,7 @@ namespace li = trixy::lique;
 
 using util::operator<<;
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
+template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
 ImageDataType initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
@@ -35,7 +35,7 @@ ImageDataType initialize_i(
     return input_batch;
 }
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
+template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
 ImageDataType initialize_o(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
@@ -62,7 +62,7 @@ void show_image(const ImageType& image) noexcept
     }
 }
 
-template <class Net, class ImageDataType = typename Net::template ContainerType<typename Net::Vector>>
+template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
 void show_image_batch(const ImageDataType& data) noexcept
 {
     for(std::size_t i = 0; i < data.size(); ++i)
@@ -76,7 +76,7 @@ void mnist_test_deserialization()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
@@ -148,7 +148,7 @@ void mnist_test()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, /*tr::Container*/std::vector, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetTraining   = tr::train::Training<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;

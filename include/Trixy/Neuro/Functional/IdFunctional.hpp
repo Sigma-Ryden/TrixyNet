@@ -59,7 +59,7 @@ enum class OptimizationId : std::uint8_t
     adam,               ///< Adaptive moment estimation (quick)
 };
 
-struct OptimizationType
+struct OptimizerType
 {
 public:
     TRIXY_CHECK_TYPE_HELPER(OptimizationId, undefined);

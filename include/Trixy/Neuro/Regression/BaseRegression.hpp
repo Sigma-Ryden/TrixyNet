@@ -4,19 +4,20 @@
 namespace trixy
 {
 
-template <template <typename P, typename...> class Tensor1D,
-          template <typename P, typename...> class Tensor2D,
-          template <typename P> class Linear,
-          typename Precision,
-          typename... Args>
-class LinearRegression;
+struct RegressionType
+{
+    struct Linear { using type = Linear; };
+    struct Polynomial { using type = Polynomial; };
+};
 
-template <template <typename P, typename...> class Tensor1D,
+template <class RegressionType,
+          template <typename P, typename...> class Tensor1D,
           template <typename P, typename...> class Tensor2D,
           template <typename P> class Linear,
           typename Precision,
+          typename enable = void,
           typename... Args>
-class PolynomialRegression;
+class Regression;
 
 } // namespace trixy
 
