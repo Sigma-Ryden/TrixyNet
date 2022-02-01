@@ -46,21 +46,21 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::prepare(const Seriali
 TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::serialize(std::ofstream& out) const
 {
-    out.write(reinterpret_cast<const char*>(&N), sizeof(size_type));
+    out.write(CONST_BYTE_CAST(&N), sizeof(size_type));
 
     for(size_type i = 0; i < W.size(); ++i)
-        out.write(reinterpret_cast<const char*>(&W(i)), sizeof(precision_type));
+        out.write(CONST_BYTE_CAST(&W(i)), sizeof(precision_type));
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserialize(std::ifstream& in)
 {
-    in.read(reinterpret_cast<char*>(&N), sizeof(size_type));
+    in.read(BYTE_CAST(&N), sizeof(size_type));
 
     W.resize(N + 1);
 
     for(size_type i = 0; i < W.size(); ++i)
-        in.read(reinterpret_cast<char*>(&W(i)), sizeof(precision_type));
+        in.read(BYTE_CAST(&W(i)), sizeof(precision_type));
 }
 
 } // namespace trixy

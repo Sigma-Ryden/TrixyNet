@@ -40,8 +40,8 @@ public:
     Container(Container&&) noexcept;
     Container(std::initializer_list<value_type>);
 
-    Container<Type>& operator= (const Container&);
-    Container<Type>& operator= (Container&&) noexcept;
+    Container& operator= (const Container&);
+    Container& operator= (Container&&) noexcept;
 
     size_type capacity() const noexcept { return capacity_; }
     size_type size() const noexcept { return size_; }
@@ -91,15 +91,15 @@ template <typename Type>
 class Container<Type>::iterator
 {
 private:
-    Type* ptr_;
+    pointer ptr_;
 
 public:
-    explicit iterator(Type* ptr) noexcept : ptr_(ptr) {}
+    explicit iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
     Type* const& base() const noexcept { return ptr_; }
 
-    Type& operator* () const noexcept { return *ptr_; }
-    Type* operator-> () const noexcept { return ptr_; }
+    reference operator* () const noexcept { return *ptr_; }
+    pointer operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
@@ -109,22 +109,22 @@ public:
     iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
     iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }
 
-    Type& operator[] (size_type i) noexcept { return ptr_[i]; }
+    reference operator[] (size_type i) noexcept { return ptr_[i]; }
 };
 
 template <typename Type>
 class Container<Type>::const_iterator
 {
 private:
-    Type* ptr_;
+    pointer ptr_;
 
 public:
-    explicit const_iterator(Type* ptr) noexcept : ptr_(ptr) {}
+    explicit const_iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
     const Type* const& base() const noexcept { return ptr_; }
 
-    const Type& operator* () const noexcept { return *ptr_; }
-    const Type* operator-> () const noexcept { return ptr_; }
+    const_reference operator* () const noexcept { return *ptr_; }
+    const_pointer operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
 
@@ -134,7 +134,7 @@ public:
     const_iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
     const_iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }
 
-    const Type& operator[] (size_type i) const noexcept { return ptr_[i]; }
+    const_reference operator[] (size_type i) const noexcept { return ptr_[i]; }
 };
 
 template <typename Type>
@@ -182,7 +182,7 @@ Container<Type>::Container(Container&& container) noexcept
 }
 
 template <typename Type>
-Container<Type>::Container(std::initializer_list<Type> list)
+Container<Type>::Container(std::initializer_list<value_type> list)
     : data_(Container::allocate(list.size()))
     , capacity_(list.size())
     , size_(list.size())

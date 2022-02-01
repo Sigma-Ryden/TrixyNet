@@ -105,3 +105,9 @@
         template <check_for id>                                                                         \
         using check = ::trixy::meta::select_for<id == check_for::type, type>;                           \
     }
+
+#define CONST_BYTE_CAST(pointer)                                                                        \
+    reinterpret_cast<const char*>(pointer)
+
+#define BYTE_CAST(pointer)                                                                              \
+    reinterpret_cast<char*>(pointer)

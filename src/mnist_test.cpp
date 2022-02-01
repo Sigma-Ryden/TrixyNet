@@ -114,7 +114,6 @@ void mnist_test_deserialization()
 
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
-
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
               << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n';
@@ -178,7 +177,7 @@ void mnist_test()
     TrixyNetTraining teach(net);
 
     net.initializeInnerStruct([] {
-        static constexpr int range = 1000;
+        constexpr int range = 1000;
         return static_cast<float>(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
@@ -226,7 +225,6 @@ void mnist_test()
 
     std::cout << "End of serialization\n";
 }
-//
 /*
 int main()
 {

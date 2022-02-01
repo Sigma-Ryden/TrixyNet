@@ -18,8 +18,6 @@ public:
     using size_type      = std::size_t;
     using precision_type = Precision;
 
-    //using Function       = Precision (*)(Precision);
-
 public:
     template <class Vector1, class Vector2, class Matrix,
               meta::use_for_tensor_1d_t<Vector1> = 0,

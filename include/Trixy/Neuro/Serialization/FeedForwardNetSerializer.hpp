@@ -9,6 +9,7 @@
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 
+
 namespace trixy
 {
 
@@ -17,27 +18,35 @@ class TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)
 {
 private:
     template <class T>
-    using Container      = typename Serializable::template Container<T>;
+    using Container                 = typename Serializable::template Container<T>;
 
-    using Vector         = typename Serializable::Vector;
-    using Matrix         = typename Serializable::Matrix;
+    using Vector                    = typename Serializable::Vector;
+    using Matrix                    = typename Serializable::Matrix;
 
-    using precision_type = typename Serializable::precision_type;
-    using size_type      = typename Serializable::size_type;
+    using InnerTopology             = typename Serializable::InnerTopology;
+
+    using precision_type            = typename Serializable::precision_type;
+    using size_type                 = typename Serializable::size_type;
+    using byte_type                 = typename Serializable::byte_type;
+
+    using ActivationId              = functional::ActivationId;
+    using LossId                    = functional::LossId;
+
+    using AllActivationId           = Container<ActivationId>;
 
 private:
-    Container<size_type> topology;  ///< Network topology
+    InnerTopology topology;         ///< Network topology
 
     Container<Vector> B;            ///< Container of network bias
     Container<Matrix> W;            ///< Container of network weight
 
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
-    Container<functional::ActivationId> activation;
-    functional::LossId loss;
+    AllActivationId activation;     ///< Network activation functions id
+    LossId loss;                    ///< Network loss function id
 
 public:
-    Serializer();
+    Serializer() : N(0) {}
 
     void prepare(const Serializable& net);
 
@@ -48,23 +57,18 @@ public:
     const Container<Vector>& getBias() const noexcept { return B; }
     const Container<Matrix>& getWeight() const noexcept { return W; }
 
-    functional::ActivationId getActivationId() const noexcept { return activation.front(); }
-    functional::ActivationId getNormalizationId() const noexcept { return activation.back(); }
+    ActivationId getActivationId() const noexcept { return activation.front(); }
+    ActivationId getNormalizationId() const noexcept { return activation.back(); }
 
-    const Container<functional::ActivationId>& getAllActivationId() const noexcept { return activation; }
+    const Container<ActivationId>& getAllActivationId() const noexcept { return activation; }
 
-    functional::LossId getLossId() const noexcept { return loss; }
+    LossId getLossId() const noexcept { return loss; }
 };
-
-TRIXY_SERIALIZER_TPL_DECLARATION
-TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::Serializer() : N(0)
-{
-}
 
 TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable& net)
 {
-    topology = net.getTopology();
+    topology = net.inner.topology;
 
     N = topology.size() - 1;
 
@@ -74,8 +78,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     for(size_type i = 0; i < N; ++i)
     {
-        B[i] = net.getInnerBias()[i].base();
-        W[i] = net.getInnerWeight()[i].base();
+        B[i].resize(topology[i + 1], net.inner.B[i].data());
+        W[i].resize(topology[i], topology[i + 1], net.inner.W[i].data());
     }
 
     for(size_type i = 0; i < N; ++i)
@@ -91,23 +95,23 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& ou
     size_type n;
 
     topology_size = topology.size();
-    out.write(reinterpret_cast<const char*>(&topology_size), sizeof(size_type));
+    out.write(CONST_BYTE_CAST(&topology_size), sizeof(size_type));
 
     for(n = 0; n < topology_size; ++n)
-        out.write(reinterpret_cast<const char*>(&topology[n]), sizeof(size_type));
+        out.write(CONST_BYTE_CAST(&topology[n]), sizeof(size_type));
 
     for(n = 0; n < N; ++n)
-        out.write(reinterpret_cast<const char*>(&activation[n]), sizeof(functional::ActivationId));
+        out.write(CONST_BYTE_CAST(&activation[n]), sizeof(byte_type));
 
-    out.write(reinterpret_cast<const char*>(&loss), sizeof(functional::LossId));
+    out.write(CONST_BYTE_CAST(&loss), sizeof(byte_type));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
-            out.write(reinterpret_cast<const char*>(&B[n](i)), sizeof(precision_type));
+            out.write(CONST_BYTE_CAST(&B[n](i)), sizeof(precision_type));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < W[n].size(); ++i)
-            out.write(reinterpret_cast<const char*>(&W[n](i)), sizeof(precision_type));
+            out.write(CONST_BYTE_CAST(&W[n](i)), sizeof(precision_type));
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -116,11 +120,11 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
     size_type topology_size;
     size_type n;
 
-    in.read(reinterpret_cast<char*>(&topology_size), sizeof(size_type));
+    in.read(BYTE_CAST(&topology_size), sizeof(size_type));
 
     topology.resize(topology_size);
     for(n = 0; n < topology_size; ++n)
-        in.read(reinterpret_cast<char*>(&topology[n]), sizeof(size_type));
+        in.read(BYTE_CAST(&topology[n]), sizeof(size_type));
 
     N = topology_size - 1;
 
@@ -135,17 +139,17 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
     }
 
     for(n = 0; n < N; ++n)
-        in.read(reinterpret_cast<char*>(&activation[n]), sizeof(functional::ActivationId));
+        in.read(BYTE_CAST(&activation[n]), sizeof(byte_type));
 
-    in.read(reinterpret_cast<char*>(&loss), sizeof(functional::LossId));
+    in.read(BYTE_CAST(&loss), sizeof(functional::LossId));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)
-            in.read(reinterpret_cast<char*>(&B[n](i)), sizeof(precision_type));
+            in.read(BYTE_CAST(&B[n](i)), sizeof(precision_type));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < W[n].size(); ++i)
-            in.read(reinterpret_cast<char*>(&W[n](i)), sizeof(precision_type));
+            in.read(BYTE_CAST(&W[n](i)), sizeof(precision_type));
 }
 
 } // namespace trixy

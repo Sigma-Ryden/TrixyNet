@@ -63,7 +63,7 @@ public:
     TensorOperation linear;         ///< Linear class for tensor calculate
 
 public:
-    TrixyNet(const Container<size_type>& topology);
+    TrixyNet(const InnerTopology& topology);
 
     TrixyNet(const TrixyNet&) = default;
     TrixyNet(TrixyNet&&) noexcept = default;
@@ -98,10 +98,10 @@ private:
                 size_type& count) const noexcept;
 
 public:
-    template <typename GeneratorPrecision>
+    template <class GeneratorPrecision>
     void initializeInnerStruct(GeneratorPrecision generator_all) noexcept;
 
-    template <typename GeneratorPrecision>
+    template <class GeneratorPrecision>
     void initializeInnerStruct(GeneratorPrecision generator_bias,
                                GeneratorPrecision generator_weight) noexcept;
 
@@ -110,13 +110,13 @@ public:
 
     const Container<LVector>& getInnerBias() const noexcept { return inner.B.base(); }
     const Container<LMatrix>& getInnerWeight() const noexcept { return inner.W.base(); }
-    const Container<size_type>& getTopology() const noexcept { return inner.topology; }
+    const InnerTopology& getTopology() const noexcept { return inner.topology; }
 
 public:
     template <typename... T>
-    static LContainer<LVector> init1D(const Container<size_type>& topology, T&&... args);
+    static LContainer<LVector> init1D(const InnerTopology& topology, T&&... args);
     template <typename... T>
-    static LContainer<LMatrix> init2D(const Container<size_type>& topology, T&&... args);
+    static LContainer<LMatrix> init2D(const InnerTopology& topology, T&&... args);
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -130,7 +130,7 @@ public:
     const size_type N;              ///< Number of functional layer (same as topology_size - 1)
 
 public:
-    InnerStruct(const Container<size_type>& topology);
+    InnerStruct(const InnerTopology& topology);
 
     InnerStruct(const InnerStruct&) = default;
     InnerStruct(InnerStruct&&) noexcept = default;
@@ -203,9 +203,12 @@ friend train::Training<TrixyNet>;
 private:
     ~InnerFunctional() = default;
 
+public:
+    using AllActivationFunction = Container<ActivationFunction>;
+
 private:
-    Container<ActivationFunction> activation;
-    LossFunction loss;
+    AllActivationFunction activation;   ///< Network activation functions
+    LossFunction loss;                  ///< Network loss function
 
 public:
     explicit InnerFunctional(size_type N) : activation(N), loss() {}
@@ -214,13 +217,13 @@ public:
     InnerFunctional(InnerFunctional&&) noexcept = default;
 
     void setActivation(const ActivationFunction&);
-    void setAllActivation(const Container<ActivationFunction>&);
+    void setAllActivation(const AllActivationFunction&);
     void setNormalization(const ActivationFunction&);
 
     void setLoss(const LossFunction&);
 
     const ActivationFunction& getActivation() const noexcept { return activation.front(); }
-    const Container<ActivationFunction>& getAllActivation() const noexcept { return activation; }
+    const AllActivationFunction& getAllActivation() const noexcept { return activation; }
     const ActivationFunction& getNormalization() const noexcept { return activation.back(); }
 
     const LossFunction& getLoss() const noexcept { return loss; }
@@ -266,7 +269,7 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <typename GeneratorPrecision>
+template <class GeneratorPrecision>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::initializeInnerStruct(
     GeneratorPrecision generator_all) noexcept
 {
@@ -278,7 +281,7 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::initializeInnerStruct(
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <typename GeneratorPrecision>
+template <class GeneratorPrecision>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::initializeInnerStruct(
     GeneratorPrecision generator_bias,
     GeneratorPrecision generator_weight) noexcept
@@ -334,7 +337,7 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::init1D(
     for(size_type i = 1; i < topology.size(); ++i)
         data.emplace_back(topology[i], std::forward<T>(args)...);
 
-    return { std::move(data) };
+    return data;
 }
 
 TRIXY_NET_TPL_DECLARATION
@@ -350,7 +353,7 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::init2D(
     for(size_type i = 1; i < topology.size(); ++i)
         data.emplace_back(topology[i - 1], topology[i], std::forward<T>(args)...);
 
-    return { std::move(data) };
+    return data;
 }
 
 TRIXY_NET_TPL_DECLARATION
