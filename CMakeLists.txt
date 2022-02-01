@@ -87,12 +87,10 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Training/TrainingCore.hpp
     include/Trixy/Neuro/NeuroCore.hpp
 )
-set(MNIST_MASTER
-    include/MnistMaster/mnist_reader.hpp
-    include/MnistMaster/mnist_reader_common.hpp
-)
 set(UTILS
     include/Utility/util.hpp
+    include/Utility/mnist_reader.hpp
+    include/Utility/mnist_reader_common.hpp
 )
 
 add_executable(${PROJECT_NAME}
@@ -100,7 +98,6 @@ add_executable(${PROJECT_NAME}
     ${TRIXY_LIQUE}
     ${TRIXY_ILIQUE}
     ${TRIXY_NEURO}
-    ${MNIST_MASTER}
     ${TIMER}
     ${UTILS}
     ${TESTING}

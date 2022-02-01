@@ -2,9 +2,9 @@
 #include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
-#include "Utility/util.hpp" // Timer, max, operator<<
 
-#include "MnistMaster/mnist_reader.hpp" // read_dataset
+#include "Utility/util.hpp" // Timer, max, operator<<
+#include "Utility/mnist_reader.hpp" // read_dataset
 
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time
