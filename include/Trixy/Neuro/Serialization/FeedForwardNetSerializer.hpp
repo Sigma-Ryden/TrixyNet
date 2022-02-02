@@ -17,8 +17,8 @@ TRIXY_SERIALIZER_TPL_DECLARATION
 class TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)
 {
 private:
-    template <class T>
-    using Container                 = typename Serializable::template Container<T>;
+    template <class... T>
+    using Container                 = typename Serializable::template Container<T...>;
 
     using Vector                    = typename Serializable::Vector;
     using Matrix                    = typename Serializable::Matrix;
@@ -83,9 +83,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
     }
 
     for(size_type i = 0; i < N; ++i)
-        activation[i] = static_cast<functional::ActivationId>(net.function.getAllActivation()[i].id);
+        activation[i] = static_cast<ActivationId>(net.function.getAllActivation()[i].id);
 
-    loss = static_cast<functional::LossId>(net.function.getLoss().id);
+    loss = static_cast<LossId>(net.function.getLoss().id);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -141,7 +141,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
     for(n = 0; n < N; ++n)
         in.read(BYTE_CAST(&activation[n]), sizeof(byte_type));
 
-    in.read(BYTE_CAST(&loss), sizeof(functional::LossId));
+    in.read(BYTE_CAST(&loss), sizeof(byte_type));
 
     for(n = 0; n < N; ++n)
         for(size_type i = 0; i < B[n].size(); ++i)

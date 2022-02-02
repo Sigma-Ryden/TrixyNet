@@ -71,7 +71,8 @@ public:
     TRIXY_CHECK_TYPE_HELPER(OptimizationId, adam);
 
 private:
-    template <OptimizationId id> struct from : meta::disjunction<
+    template <OptimizationId id> struct from
+    : meta::disjunction<
         undefined::check<id>,
         grad_descent::check<id>,
         momentum::check<id>,
