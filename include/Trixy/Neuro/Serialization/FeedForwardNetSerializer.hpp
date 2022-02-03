@@ -41,10 +41,10 @@ private:
     Container<Vector> B;            ///< Container of network bias
     Container<Matrix> W;            ///< Container of network weight
 
-    size_type N;                    ///< Number of functional layer (same as topology_size - 1)
-
     AllActivationId activation;     ///< Network activation functions id
     LossId loss;                    ///< Network loss function id
+
+    size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
 public:
     Serializer() : N(0) {}

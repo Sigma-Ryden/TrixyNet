@@ -125,11 +125,12 @@ TRIXY_NET_TPL_DECLARATION
 struct TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct
 {
 public:
+    const size_type N;              ///< Number of functional layer (same as topology_size - 1)
+
     LContainer<LVector> B;          ///< Container of network bias
     LContainer<LMatrix> W;          ///< Container of network weight
 
     const InnerTopology topology;   ///< Network topology
-    const size_type N;              ///< Number of functional layer (same as topology_size - 1)
 
 public:
     InnerStruct(const InnerTopology& topology);
@@ -141,10 +142,10 @@ public:
 TRIXY_NET_TPL_DECLARATION
 TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::InnerStruct(
     const Container<size_type>& topology)
-    : B(TrixyNet::init1D(topology))
+    : N(topology.size() - 1)
+    , B(TrixyNet::init1D(topology))
     , W(TrixyNet::init2D(topology))
     , topology(topology)
-    , N(topology.size() - 1)
 {
 }
 
@@ -211,12 +212,12 @@ public:
 
 private:
     AllActivationFunction activation;       ///< Network activation functions
-    AllActivationId activationId;           ///< Network activation function ids
-
     LossFunction loss;                      ///< Network loss function
 
+    AllActivationId activationId;           ///< Network activation function ids
+
 public:
-    explicit InnerFunctional(size_type N) : activation(N), activationId(N), loss() {}
+    explicit InnerFunctional(size_type N) : activation(N), loss(), activationId(N) {}
 
     InnerFunctional(const InnerFunctional&) = default;
     InnerFunctional(InnerFunctional&&) noexcept = default;

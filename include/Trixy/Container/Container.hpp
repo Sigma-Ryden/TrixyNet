@@ -28,8 +28,8 @@ public:
 
 private:
     pointer data_;
-    size_type capacity_;
     size_type size_;
+    size_type capacity_;
 
 public:
     Container() noexcept;
@@ -139,7 +139,7 @@ public:
 
 template <typename Type>
 inline Container<Type>::Container() noexcept
-    : data_(nullptr), capacity_(0), size_(0)
+    : data_(nullptr), size_(0), capacity_(0)
 {
 }
 
@@ -153,8 +153,8 @@ Container<Type>::~Container()
 template <typename Type>
 Container<Type>::Container(size_type size)
     : data_(Container::allocate(size))
-    , capacity_(size)
     , size_(size)
+    , capacity_(size)
 {
     for(size_type i = 0; i < size_; ++i)
         new (data_ + i) value_type();
@@ -163,8 +163,8 @@ Container<Type>::Container(size_type size)
 template <typename Type>
 Container<Type>::Container(const Container& container)
     : data_(Container::allocate(container.size_))
-    , capacity_(container.capacity_)
     , size_(container.size_)
+    , capacity_(container.capacity_)
 {
     for(std::size_t i = 0; i < size_; ++i)
         new (data_ + i) value_type(container.data_[i]);
@@ -184,8 +184,8 @@ Container<Type>::Container(Container&& container) noexcept
 template <typename Type>
 Container<Type>::Container(std::initializer_list<value_type> list)
     : data_(Container::allocate(list.size()))
-    , capacity_(list.size())
     , size_(list.size())
+    , capacity_(list.size())
 {
     size_type i = 0;
     for(const auto& arg: list)
