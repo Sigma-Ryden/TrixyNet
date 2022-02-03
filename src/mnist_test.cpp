@@ -219,8 +219,7 @@ void mnist_test()
     if(!out.is_open()) return;
 
     TrixyNetSerializer sr;
-    sr.prepare(net);
-    sr.serialize(out);
+    sr.serialize(out, net);
     out.close();
 
     std::cout << "End of serialization\n";

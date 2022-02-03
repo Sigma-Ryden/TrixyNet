@@ -9,6 +9,7 @@
 #include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
 #include "Trixy/Locker/LockerCore.hpp"
 
+#include "Trixy/Neuro/Functional/IdFunctional.hpp"
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
@@ -46,12 +47,14 @@ public:
 
     using precision_type            = PrecisionType;
     using size_type                 = std::size_t;
-    using byte_type                 = std::uint8_t;
 
     using TensorOperation           = LinearType<precision_type>;
 
     using InnerBuffer               = LContainer<LVector>;
     using InnerTopology             = ContainerType<size_type>;
+
+    using ActivationId              = functional::ActivationId;
+    using LossId                    = functional::LossId;
 
 private:
     mutable InnerBuffer buff;       ///< 1D buffer for handle
@@ -157,14 +160,14 @@ public:
     Function f;           ///< void (*f)(LVector& buff, const LVector& tensor)
     FunctionDerived df;   ///< void (*df)(LVector& buff, const LVector& tensor)
 
-    byte_type id;
+    ActivationId id;
 
 public:
-    ActivationFunction() noexcept : id(0), f(nullptr), df(nullptr) {}
+    ActivationFunction() noexcept : id(ActivationId::undefined), f(nullptr), df(nullptr) {}
 
     ActivationFunction(Function function,
                        FunctionDerived function_derived,
-                       byte_type function_id = 0) noexcept
+                       ActivationId function_id = ActivationId::undefined) noexcept
     : f(function)
     , df(function_derived)
     , id(function_id) {}
@@ -181,14 +184,14 @@ public:
     Function f;           ///< void (*)(Precision& result, const LVector& target, const LVector& prediction)
     FunctionDerived df;   ///< void (*)(LVector& buff, const LVector& target, const LVector& prediction)
 
-    byte_type id;
+    LossId id;
 
 public:
-    LossFunction() noexcept : id(0), f(nullptr), df(nullptr) {}
+    LossFunction() noexcept : id(LossId::undefined), f(nullptr), df(nullptr) {}
 
     LossFunction(Function function,
                  FunctionDerived function_derived,
-                 byte_type function_id = 0) noexcept
+                 LossId function_id = LossId::undefined) noexcept
     : id(function_id)
     , f(function)
     , df(function_derived) {}
@@ -197,21 +200,24 @@ public:
 TRIXY_NET_TPL_DECLARATION
 class TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional
 {
-friend TRIXY_NET_TPL(TrixyNetType::FeedForward);
+friend TrixyNet;
 friend train::Training<TrixyNet>;
 
 private:
     ~InnerFunctional() = default;
 
 public:
-    using AllActivationFunction = Container<ActivationFunction>;
+    using AllActivationFunction             = Container<ActivationFunction>;
+    using AllActivationId                   = Container<ActivationId>;
 
 private:
-    AllActivationFunction activation;   ///< Network activation functions
-    LossFunction loss;                  ///< Network loss function
+    AllActivationFunction activation;       ///< Network activation functions
+    AllActivationId activationId;           ///< Network activation function ids
+
+    LossFunction loss;                      ///< Network loss function
 
 public:
-    explicit InnerFunctional(size_type N) : activation(N), loss() {}
+    explicit InnerFunctional(size_type N) : activation(N), activationId(N), loss() {}
 
     InnerFunctional(const InnerFunctional&) = default;
     InnerFunctional(InnerFunctional&&) noexcept = default;
@@ -223,10 +229,17 @@ public:
     void setLoss(const LossFunction&);
 
     const ActivationFunction& getActivation() const noexcept { return activation.front(); }
+    const ActivationId& getActivationId() const noexcept { return activationId.front(); }
+
     const AllActivationFunction& getAllActivation() const noexcept { return activation; }
+    const Container<ActivationId>& getAllActivationId() const noexcept { return activationId; }
+
     const ActivationFunction& getNormalization() const noexcept { return activation.back(); }
+    const ActivationId& getNormalizationId() const noexcept { return activationId.back(); }
 
     const LossFunction& getLoss() const noexcept { return loss; }
+    const LossId& getLossId() const noexcept { return loss.id; }
+
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -234,27 +247,34 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setActivation(
     const TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction& f)
 {
     for(size_type i = 0; i < activation.size() - 1; ++i)
-        activation[i] = f;
+    {
+        activation  [i] = f;
+        activationId[i] = f.id;
+    }
 }
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setAllActivation(
-    const Container<TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction>& fs)
+    const Container<ActivationFunction>& fs)
 {
     for(size_type i = 0; i < activation.size(); ++i)
-        activation[i] = fs[i];
+    {
+        activation  [i] = fs[i];
+        activationId[i] = fs[i].id;
+    }
 }
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setNormalization(
-    const TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction& f)
+    const ActivationFunction& f)
 {
-    activation.back() = f;
+    activation.  back() = f;
+    activationId.back() = f.id;
 }
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setLoss(
-    const TRIXY_NET_TPL(TrixyNetType::FeedForward)::LossFunction& f)
+    const LossFunction& f)
 {
     loss = f;
 }

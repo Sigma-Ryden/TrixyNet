@@ -135,8 +135,8 @@ void speed_test()
     if(!out.is_open()) return;
 
     TrixyNetSerializer sr;
-    sr.prepare(net);
-    sr.serialize(out);
+
+    sr.serialize(out, net);
     out.close();
 
     std::cout << "End of serialization\n";
@@ -147,8 +147,10 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
+
+    std::cin.get();
 
     return 0;
 }
