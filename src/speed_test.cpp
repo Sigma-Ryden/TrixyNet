@@ -135,10 +135,10 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
+    speed_test();
+    //speed_test_deserialization();
 
-    //std::cin.get();
+    std::cin.get();
 
     return 0;
 }

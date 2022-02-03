@@ -18,13 +18,13 @@ Precision invert_sqrt(Precision x) noexcept
 }
 
 template <typename Pointer>
-inline const char* const_byte_cast(Pointer* ptr)
+inline const char* const_byte_cast(Pointer* ptr) noexcept
 {
     return reinterpret_cast<const char*>(ptr);
 }
 
 template <typename Pointer>
-inline char* byte_cast(Pointer* ptr)
+inline char* byte_cast(Pointer* ptr) noexcept
 {
     return reinterpret_cast<char*>(ptr);
 }
