@@ -4,11 +4,13 @@
 #include <fstream> // ifstream, ofstream
 
 #include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
+
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include "Trixy/Neuro/Detail/FunctionDetail.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
-
 
 namespace trixy
 {
@@ -82,7 +84,6 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     B.resize(N);
     W.resize(N);
-    activation.resize(N);
 
     for(size_type i = 0; i < N; ++i)
     {
@@ -98,13 +99,13 @@ TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& out) const
 {
     size_type n = topology.size();
-    out.write(CONST_BYTE_CAST(&n), sizeof(size_type));
+    out.write(detail::const_byte_cast(&n), sizeof(size_type));
 
     serializeTensor(topology, out, sizeof(size_type));
 
     serializeTensor(activation, out, sizeof(ActivationId));
 
-    out.write(CONST_BYTE_CAST(&loss), sizeof(LossId));
+    out.write(detail::const_byte_cast(&loss), sizeof(LossId));
 
     for(auto& tensor : B)
         serializeTensor(tensor, out, sizeof(precision_type));
@@ -118,13 +119,13 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(
     std::ofstream& out, const Serializable& net) const
 {
     size_type n = net.inner.topology.size();
-    out.write(CONST_BYTE_CAST(&n), sizeof(size_type));
+    out.write(detail::const_byte_cast(&n), sizeof(size_type));
 
     serializeTensor(net.inner.topology, out, sizeof(size_type));
 
     serializeTensor(net.function.getAllActivationId(), out, sizeof(ActivationId));
 
-    out.write(CONST_BYTE_CAST(&net.function.getLossId()), sizeof(LossId));
+    out.write(detail::const_byte_cast(&net.function.getLossId()), sizeof(LossId));
 
     for(auto& tensor : net.inner.B)
         serializeTensor(tensor, out, sizeof(precision_type));
@@ -138,7 +139,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
 {
     size_type n;
 
-    in.read(BYTE_CAST(&n), sizeof(size_type));
+    in.read(detail::byte_cast(&n), sizeof(size_type));
 
     topology.resize(n);
 
@@ -158,7 +159,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
 
     deserializeTensor(activation, in, sizeof(ActivationId));
 
-    in.read(BYTE_CAST(&loss), sizeof(LossId));
+    in.read(detail::byte_cast(&loss), sizeof(LossId));
 
     for(auto& tensor : B)
         deserializeTensor(tensor, in, sizeof(precision_type));
@@ -177,7 +178,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeTensor(
 
     while(beg != end)
     {
-        out.write(CONST_BYTE_CAST(beg), offset);
+        out.write(detail::const_byte_cast(beg), offset);
         ++beg;
     }
 }
@@ -192,7 +193,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeTensor(
 
     while(beg != end)
     {
-        in.read(BYTE_CAST(beg), offset);
+        in.read(detail::byte_cast(beg), offset);
         ++beg;
     }
 }

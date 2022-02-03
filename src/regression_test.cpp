@@ -9,13 +9,17 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-li::Vector<double> get_sin_idata()
+template <class Reg, class Vector = typename Reg::Vector>
+Vector get_sin_idata()
 {
-    li::Vector<double> x(61);
+    using size_type      = typename Reg::size_type;
+    using precision_type = typename Reg::precision_type;
 
-    double arg = -3.;
+    Vector x(61);
 
-    for(std::size_t i = 0; i < x.size(); ++i)
+    precision_type arg = -3.;
+
+    for(size_type i = 0; i < x.size(); ++i)
     {
         x(i) = arg;
         arg += .1;
@@ -24,13 +28,17 @@ li::Vector<double> get_sin_idata()
     return x;
 }
 
-li::Vector<double> get_sin_odata()
+template <class Reg, class Vector = typename Reg::Vector>
+Vector get_sin_odata()
 {
-    li::Vector<double> y(61);
+    using size_type      = typename Reg::size_type;
+    using precision_type = typename Reg::precision_type;
 
-    double arg = -3.;
+    Vector y(61);
 
-    for(std::size_t i = 0; i < y.size(); ++i)
+    precision_type arg = -3.;
+
+    for(size_type i = 0; i < y.size(); ++i)
     {
         y(i) = std::sin(arg);
         arg += .1;
@@ -39,11 +47,15 @@ li::Vector<double> get_sin_odata()
     return y;
 }
 
-li::Matrix<double> get_linear_idata()
+template <class Reg, class Matrix = typename Reg::Matrix>
+Matrix get_linear_idata()
 {
-    li::Matrix<double> x(101, 1);
+    using size_type      = typename Reg::size_type;
+    using precision_type = typename Reg::precision_type;
 
-    double arg = -1.;
+    Matrix x(101, 1);
+
+    precision_type arg = -1.;
 
     for(std::size_t i = 0; i < x.shape().row(); ++i)
     {
@@ -54,13 +66,17 @@ li::Matrix<double> get_linear_idata()
     return x;
 }
 
-li::Vector<double> get_linear_odata()
+template <class Reg, class Vector = typename Reg::Vector>
+Vector get_linear_odata()
 {
-    li::Vector<double> y(101);
+    using size_type      = typename Reg::size_type;
+    using precision_type = typename Reg::precision_type;
 
-    double arg = -1.;
+    Vector y(101);
 
-    for(std::size_t i = 0; i < y.size(); ++i)
+    precision_type arg = -1.;
+
+    for(size_type i = 0; i < y.size(); ++i)
     {
         y(i) = arg * 8. + 2.;
         arg += .02;
@@ -85,8 +101,8 @@ void polynomial_regression_test_deserialization()
     PolynomialReg reg(sr.getPower());
     reg.initializeInnerStruct(sr.getWeight());
 
-    auto X = get_sin_idata();
-    auto Y = get_sin_odata();
+    auto X = get_sin_idata<PolynomialReg>();
+    auto Y = get_sin_odata<PolynomialReg>();
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
@@ -103,8 +119,8 @@ void polynomial_regression_test()
     PolynomialReg reg(6);
     PolynomialRegTraining teach(reg);
 
-    auto X = get_sin_idata();
-    auto Y = get_sin_odata();
+    auto X = get_sin_idata<PolynomialReg>();
+    auto Y = get_sin_odata<PolynomialReg>();
 
     teach.train(X, Y);
 
@@ -140,8 +156,8 @@ void linear_regression_test_deserialization()
 
     reg.initializeInnerStruct(sr.getWeight());
 
-    auto X = get_linear_idata();
-    auto Y = get_linear_odata();
+    auto X = get_linear_idata<LinearReg>();
+    auto Y = get_linear_odata<LinearReg>();
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
     std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
@@ -158,8 +174,8 @@ void linear_regression_test()
     LinearReg reg(1);
     LinearRegTraining teach(reg);
 
-    auto X = get_linear_idata();
-    auto Y = get_linear_odata();
+    auto X = get_linear_idata<LinearReg>();
+    auto Y = get_linear_odata<LinearReg>();
 
     teach.train(X, Y);
 

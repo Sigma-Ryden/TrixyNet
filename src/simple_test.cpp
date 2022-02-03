@@ -84,9 +84,9 @@ void simple_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    net.initializeInnerStruct([]() -> Precision {
-        static constexpr int range = 1000;
-        return static_cast<Precision>(std::rand() % (2 * range + 1) - range) / range;
+    constexpr int range = 1000;
+    net.initializeInnerStruct([range]() noexcept {
+        return Precision(std::rand() % (2 * range + 1) - range) / range;
     });
 
     net.function.setActivation(manage.template get<ActivationId::relu>());

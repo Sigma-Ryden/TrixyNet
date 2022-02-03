@@ -1,7 +1,7 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
-#define TRIXY_HAS_HELPER(type)                                                                          \
+#define TRIXY_HAS_TYPE_HELPER(type)                                                                     \
     template <typename T> struct has_##type {                                                           \
     private:                                                                                            \
         template <typename U, typename = typename U::type>                                              \
@@ -10,6 +10,20 @@
     public:                                                                                             \
         static constexpr bool value =                                                                   \
             std::is_integral<decltype(detect(std::declval<T>()))>::value;                               \
+    }
+#define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
+    template <class T, typename Ret = void, typename... Args>                                           \
+    struct has_##name {                                                                                 \
+    private:                                                                                            \
+        template <class U>                                                                              \
+        static auto detect(U*) -> typename std::enable_if<                                              \
+            std::is_same<decltype(std::declval<U>().name(std::declval<Args>()...)), Ret>::value,        \
+            std::true_type>::type;                                                                      \
+        template <class>                                                                                \
+        static std::false_type detect(...);                                                             \
+                                                                                                        \
+    public:                                                                                             \
+        static constexpr bool value = decltype(detect<T>(nullptr))::value;                              \
     }
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
@@ -105,9 +119,3 @@
         template <check_for id>                                                                         \
         using check = ::trixy::meta::select_for<id == check_for::type, type>;                           \
     }
-
-#define CONST_BYTE_CAST(pointer)                                                                        \
-    reinterpret_cast<const char*>(pointer)
-
-#define BYTE_CAST(pointer)                                                                              \
-    reinterpret_cast<char*>(pointer)

@@ -17,6 +17,18 @@ Precision invert_sqrt(Precision x) noexcept
     return 1. / std::sqrt(1e-9 + x);
 }
 
+template <typename Pointer>
+inline const char* const_byte_cast(Pointer* ptr)
+{
+    return reinterpret_cast<const char*>(ptr);
+}
+
+template <typename Pointer>
+inline char* byte_cast(Pointer* ptr)
+{
+    return reinterpret_cast<char*>(ptr);
+}
+
 } // namespace detail
 
 } // namespace trixy

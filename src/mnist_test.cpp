@@ -18,6 +18,44 @@ namespace li = trixy::lique;
 
 using util::operator<<;
 
+template <class Net, class ImageType = typename Net::Vector>
+void show_image(const ImageType& image) noexcept
+{
+    for(std::size_t i = 0; i < image.size(); ++i)
+    {
+        if(i % 28 == 0) std::cout << '\n';
+        std::cout << (image(i) > 0.5 ? '#' : image(i) > 0.05 ? '*' : '.') << ' ';
+    }
+}
+
+template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
+void show_image_batch(const ImageDataType& data) noexcept
+{
+    for(const auto& image : data)
+    {
+        show_image(image);
+        std::cout << '\n';
+    }
+}
+
+template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
+void test_image_batch(const Net& net, const ImageDataType& data, const ImageDataType& target) noexcept
+{
+    typename Net::Vector prediction(net.inner.topology.back());
+
+    for(std::size_t i = 0; i < data.size(); ++i)
+    {
+        show_image<Net>(data[i]);
+
+        prediction.copy(net.feedforward(data[i]));
+
+        std::cout << "\nTRUE: " << util::max(target[i])
+                  << "\nPRED: " << util::max(prediction) << " : " << prediction << '\n';
+
+        std::cin.get();
+    }
+}
+
 template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
 ImageDataType initialize_i(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
@@ -52,26 +90,6 @@ ImageDataType initialize_o(
     return output_batch;
 }
 
-template <class Net, class ImageType = typename Net::Vector>
-void show_image(const ImageType& image) noexcept
-{
-    for(std::size_t i = 0; i < image.size(); ++i)
-    {
-        if(i % 28 == 0) std::cout << '\n';
-        std::cout << (image(i) > 0.5 ? '#' : image(i) > 0.05 ? '*' : '.') << ' ';
-    }
-}
-
-template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-void show_image_batch(const ImageDataType& data) noexcept
-{
-    for(std::size_t i = 0; i < data.size(); ++i)
-    {
-        show_image(data[i]);
-        std::cout << '\n';
-    }
-}
-
 void mnist_test_deserialization()
 {
     using namespace tr::functional;
@@ -87,7 +105,6 @@ void mnist_test_deserialization()
     std::size_t test_batch_size  = 10000;
     std::size_t input_size = 784;
     std::size_t out_size   = 10;
-    //tr::function::Loss<li::Vector, double> a;
 
     // Train batch initialize:
     auto train_in  = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
@@ -97,12 +114,10 @@ void mnist_test_deserialization()
     auto test_in  = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
     auto test_out = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
-    // NeuralNetwork preparing:
-
-    // NeuralNetwork topology:
     std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if(!in.is_open()) return;
 
+    // NeuralNetwork preparing:
     TrixyNetSerializer sr;
     sr.deserialize(in);
     in.close();
@@ -123,23 +138,11 @@ void mnist_test_deserialization()
     //
     //
     std::cout << "TESTING TRAIN_SET\n";
-    for(std::size_t i = 0; i < train_in.size(); ++i)
-    {
-        show_image<TrixyNet>(train_in[i]);
-        std::cout << "\nTRUE: " << util::max(train_out[i])
-                  << "\nPRED: " << util::max(net.feedforward(train_in[i])) << '\n';
-        std::cin.get();
-    }
+    test_image_batch(net, train_in, train_out);
     //
     //
     std::cout << "TESTING TEST_SET\n";
-    for(std::size_t i = 0; i < test_in.size(); ++i)
-    {
-        show_image<TrixyNet>(test_in[i]);
-        std::cout << "\nTRUE: " << util::max(test_out[i])
-                  << "\nPRED: " << util::max(net.feedforward(test_in[i])) << '\n';
-        std::cin.get();
-    }
+    test_image_batch(net, test_in, test_out);
     //
 }
 
@@ -176,9 +179,10 @@ void mnist_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    net.initializeInnerStruct([] {
-        constexpr int range = 1000;
-        return static_cast<float>(std::rand() % (2 * range + 1) - range) / (range * range);
+    constexpr int range = 1000;
+    net.initializeInnerStruct([range] () noexcept
+    {
+        return float(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
     net.function.setActivation(manage.get<ActivationId::relu>());
@@ -188,6 +192,7 @@ void mnist_test()
 
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
+    std::cout << std::fixed << std::setprecision(6);
     // Train network:
     util::Timer t;
     //

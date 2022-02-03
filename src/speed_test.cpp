@@ -14,22 +14,10 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-float random_real() noexcept
+float random() noexcept
 {
     static constexpr int range = 1000;
-    return static_cast<float>(std::rand() % (2 * range + 1) - range) / range;
-}
-
-float random_normal() noexcept
-{
-    static constexpr int range = 1000;
-    static constexpr float pi = 3.14159265;
-
-    static float x;
-
-    x = static_cast<float>(std::rand() % (2 * range + 1) - range) / range;
-
-    return std::exp(- x * x) / std::sqrt(2 * pi);
+    return float(std::rand() % (2 * range + 1) - range) / range;
 }
 
 template <class Net>
@@ -107,7 +95,7 @@ void speed_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    net.initializeInnerStruct(random_real);
+    net.initializeInnerStruct(random);
 
     net.function.setActivation(manage.get<ActivationId::relu>());
     net.function.setNormalization(manage.get<ActivationId::softmax>());
@@ -150,7 +138,7 @@ int main()
     //speed_test();
     speed_test_deserialization();
 
-    std::cin.get();
+    //std::cin.get();
 
     return 0;
 }

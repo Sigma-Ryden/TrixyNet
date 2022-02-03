@@ -23,7 +23,6 @@ public:
     using pointer        = typename Lockable::pointer;
     using const_pointer  = typename Lockable::const_pointer;
 
-    using Generator      = typename Lockable::Generator;
     using Function       = typename Lockable::Function;
 
 public:

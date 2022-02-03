@@ -25,7 +25,6 @@ public:
 
     using Shape          = typename Lockable::Shape;
 
-    using Generator      = typename Lockable::Generator;
     using Function       = typename Lockable::Function;
 
 public:

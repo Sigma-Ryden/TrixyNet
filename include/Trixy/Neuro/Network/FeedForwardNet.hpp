@@ -4,12 +4,11 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cmath> // fabs
-#include <utility> // move
 
-#include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
 #include "Trixy/Locker/LockerCore.hpp"
-
+#include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
+
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"

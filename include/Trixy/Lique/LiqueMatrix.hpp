@@ -37,7 +37,6 @@ public:
     using reference         = Precision&;
     using const_reference   = const Precision&;
 
-    using Generator         = Precision (*)();
     using Function          = Precision (*)(Precision);
 
 protected:
@@ -84,7 +83,10 @@ public:
 
     void reshape(size_type m, size_type n) noexcept;
 
+    template <class Generator,
+        meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int> = 0>
     Tensor& fill(Generator gen) noexcept;
+
     Tensor& fill(precision_type value) noexcept;
 
     Tensor apply(Function func) const;
@@ -368,6 +370,8 @@ void Matrix<Precision>::reshape(size_type m, size_type n) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Generator,
+          meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int>>
 Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 {
     for(size_type i = 0; i < shape_.size_; ++i)

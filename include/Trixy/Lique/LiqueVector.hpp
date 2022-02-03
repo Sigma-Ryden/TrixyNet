@@ -33,7 +33,6 @@ public:
     using reference         = Precision&;
     using const_reference   = const Precision&;
 
-    using Generator         = Precision (*)();
     using Function          = Precision (*)(Precision);
 
 protected:
@@ -68,8 +67,11 @@ public:
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
 
+    template <class Generator,
+        meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int> = 0>
     Tensor& fill(Generator gen) noexcept;
-    Tensor& fill(Precision value) noexcept;
+
+    Tensor& fill(precision_type value) noexcept;
 
     Tensor apply(Function func) const;
     Tensor& apply(Function func) noexcept;
@@ -254,6 +256,8 @@ inline typename Vector<Precision>::const_reference
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Generator,
+          meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int>>
 Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 {
     for(size_type i = 0; i < size_; ++i)

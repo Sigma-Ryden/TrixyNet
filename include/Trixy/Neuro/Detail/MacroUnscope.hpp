@@ -1,5 +1,6 @@
 // clean up
 #undef TRIXY_HAS_HELPER
+#undef TRIXY_HAS_FUNCTION_HELPER
 
 #undef TRIXY_NET_TPL_DECLARATION
 #undef TRIXY_NET_TPL
