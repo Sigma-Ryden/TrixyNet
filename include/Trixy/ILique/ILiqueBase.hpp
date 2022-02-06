@@ -3,7 +3,10 @@
 
 #include <cstddef> // size_t
 
-#include "Detail/ILiqueMeta.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
+
+namespace trixy
+{
 
 namespace ilique
 {
@@ -21,6 +24,11 @@ template <template <typename P, typename...> class Tensor2D, typename Precision,
 class IMatrix;
 
 } // namespace ilique
+
+} // namespacce trixy
+
+namespace trixy
+{
 
 namespace ilique
 {
@@ -148,5 +156,7 @@ public:
 };
 
 } // namespace ilique
+
+} // namespace trixy
 
 #endif // ILIQUE_BASE_HPP

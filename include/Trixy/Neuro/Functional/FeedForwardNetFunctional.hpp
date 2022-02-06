@@ -7,7 +7,7 @@
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
 #include "Trixy/Neuro/Functional/Function/FunctionCore.hpp"
-#include "Trixy/Neuro/Functional/Optimizer/OptimizerCore.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
@@ -25,17 +25,18 @@ public:
 
     using size_type            = typename Functionable::size_type;
 
-    using ActivationFunction   = typename Functionable::ActivationFunction;
-    using LossFunction         = typename Functionable::LossFunction;
-
     using ActivationId         = typename Functionable::ActivationId;
     using LossId               = typename Functionable::LossId;
+
+    using ActivationFunction   = typename Functionable::ActivationFunction;
+    using LossFunction         = typename Functionable::LossFunction;
 
     template <class optimizer_type>
     using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_type>;
 
+private:
     template <functional::OptimizationId id>
-    using optimizer_type_from  = functional::OptimizerType::type_from<id>;
+    using optimizer_type_from  = train::OptimizerType::type_from<id>;
 
 public:
     ActivationFunction get(ActivationId id) const noexcept

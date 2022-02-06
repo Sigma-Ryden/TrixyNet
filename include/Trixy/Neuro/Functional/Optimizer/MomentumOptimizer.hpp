@@ -16,12 +16,14 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using MomentumOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::momentum);
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::momentum);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::momentum)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::momentum)
     : public IOptimizer<Optimizeriable>
 {
+    TRIXY_IOPTIMIZER_BODY
+
 private:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;

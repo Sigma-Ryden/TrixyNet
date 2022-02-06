@@ -17,12 +17,14 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using AdamOptimizer =
-    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::adam);
+    TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::adam);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, functional::OptimizerType::adam)
+class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::adam)
     : public IOptimizer<Optimizeriable>
 {
+    TRIXY_IOPTIMIZER_BODY
+
 private:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
@@ -68,7 +70,7 @@ public:
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
-    void set_learning_rate(precision_type new_learning_rate) noexcept;
+    //void set_learning_rate(precision_type new_learning_rate) noexcept;
 
     void update(const Container<LVector>& gradB,
                 const Container<LMatrix>& gradW) noexcept;
@@ -109,14 +111,14 @@ AdamOptimizer<Optimizeriable>::Optimizer(
 
     this->template initialize<Optimizer>();
 }
-
+/*
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void AdamOptimizer<Optimizeriable>::set_learning_rate(
     precision_type new_learning_rate) noexcept
 {
     learning_rate = new_learning_rate;
 }
-
+*/
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void AdamOptimizer<Optimizeriable>::update(
     const Container<LVector>& gradB,

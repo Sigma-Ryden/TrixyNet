@@ -3,7 +3,7 @@
 
 #include <cmath> // sqrt
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
 
 namespace trixy
 {

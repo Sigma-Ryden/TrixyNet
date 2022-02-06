@@ -36,10 +36,10 @@ set(TRIXY_ILIQUE
     include/Trixy/ILique/ILiqueVector.hpp
     include/Trixy/ILique/Detail/MacroScope.hpp
     include/Trixy/ILique/Detail/MacroUnscope.hpp
-    include/Trixy/ILique/Detail/ILiqueMeta.hpp
     include/Trixy/ILique/ILiqueCore.hpp
 )
 set(TRIXY_NEURO
+    include/Trixy/Detail/TrixyMeta.hpp
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp

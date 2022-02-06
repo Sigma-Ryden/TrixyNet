@@ -5,12 +5,12 @@
 #include <cstdint> // uint8_t
 #include <cmath> // fabs
 
-#include "Trixy/Locker/LockerCore.hpp"
-#include "Trixy/Neuro/Training/FeedForwardNetTraining.hpp"
+#include "Trixy/Neuro/Network/BaseTrixyNet.hpp"
+#include "Trixy/Neuro/Training/BaseTraining.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
+#include "Trixy/Locker/LockerCore.hpp"
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
-
+#include "Trixy/Detail/TrixyMeta.hpp"
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 
 namespace trixy

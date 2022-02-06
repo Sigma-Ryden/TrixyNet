@@ -1,6 +1,11 @@
 #ifndef BASE_OPTIMIZER_HPP
 #define BASE_OPTIMIZER_HPP
 
+#include "Trixy/Detail/TrixyMeta.hpp"
+#include "Trixy/Neuro/Functional/IdFunctional.hpp"
+
+#include "Trixy/Neuro/Detail/MacroScope.hpp"
+
 namespace trixy
 {
 
@@ -31,6 +36,10 @@ public:
     using Func = Ret (*)(Args...);
 
 private:
+    TRIXY_HAS_FUNCTION_HELPER(set_learning_rate);
+    TRIXY_HAS_FUNCTION_HELPER(update);
+
+private:
     Func<void, void *const,
          precision_type> ptr_derived_set_learning_rate;
 
@@ -41,7 +50,11 @@ private:
 protected:
     virtual ~IOptimizer() {}
 
-    template <class Derived> void initialize() noexcept
+    template <class Derived>
+    typename std::enable_if<
+        has_set_learning_rate<Derived, void, precision_type>::value &&
+        has_update<Derived, void, const Container<LVector>&, const Container<LMatrix>&>::value>::type
+    initialize() noexcept
     {
         ptr_derived_set_learning_rate = [] (
             void *const self,
@@ -78,8 +91,39 @@ public:
     }
 };
 
+struct OptimizerType
+{
+private:
+    using id_type = trixy::functional::OptimizationId;
+
+public:
+    TRIXY_CHECK_TYPE_HELPER(id_type, undefined);
+    TRIXY_CHECK_TYPE_HELPER(id_type, grad_descent);
+    TRIXY_CHECK_TYPE_HELPER(id_type, momentum);
+    TRIXY_CHECK_TYPE_HELPER(id_type, nestorov);
+    TRIXY_CHECK_TYPE_HELPER(id_type, ada_grad);
+    TRIXY_CHECK_TYPE_HELPER(id_type, rms_prop);
+    TRIXY_CHECK_TYPE_HELPER(id_type, adam);
+
+private:
+    template <id_type id> struct from : meta::disjunction<
+        undefined::check<id>,
+        grad_descent::check<id>,
+        momentum::check<id>,
+        nestorov::check<id>,
+        ada_grad::check<id>,
+        rms_prop::check<id>,
+        adam::check<id>>
+    {};
+
+public:
+    template <id_type id> using type_from = typename from<id>::type;
+};
+
 } // namespace train
 
 } // namespace trixy
+
+#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
 #endif // BASE_OPTIMIZER_HPP

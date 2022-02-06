@@ -4,7 +4,7 @@
 
 #include <cstddef> // size_t
 
-#include "Detail/ILiqueMeta.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
 
 namespace ilique
 {

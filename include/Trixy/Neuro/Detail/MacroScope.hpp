@@ -11,6 +11,7 @@
         static constexpr bool value =                                                                   \
             std::is_integral<decltype(detect(std::declval<T>()))>::value;                               \
     }
+
 #define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
     template <class T, typename Ret = void, typename... Args>                                           \
     struct has_##name {                                                                                 \
@@ -25,6 +26,9 @@
     public:                                                                                             \
         static constexpr bool value = decltype(detect<T>(nullptr))::value;                              \
     }
+
+#define TRIXY_REQUIRE(T, condition...)                                                                  \
+    typename std::enable_if<meta::conjunction<condition>::value, T>::type
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
     template <template <typename P, typename...> class VectorType,                                      \
@@ -119,3 +123,13 @@
         template <check_for id>                                                                         \
         using check = ::trixy::meta::select_for<id == check_for::type, type>;                           \
     }
+
+#define TRIXY_IOPTIMIZER_BODY                                                                           \
+    public:                                                                                             \
+        using Base = IOptimizer<Optimizeriable>;                                                        \
+                                                                                                        \
+    private:                                                                                            \
+        friend Base;                                                                                    \
+                                                                                                        \
+        using Base::set_learning_rate;                                                                  \
+        using Base::update;

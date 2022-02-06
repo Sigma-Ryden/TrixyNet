@@ -6,8 +6,8 @@
 
 #include "LiqueBaseTensor.hpp"
 
+#include "Trixy/Detail/TrixyMeta.hpp"
 #include "Detail/FunctionDetail.hpp"
-#include "Detail/LiqueMeta.hpp"
 
 #include "Detail/MacroScope.hpp"
 
@@ -68,7 +68,7 @@ public:
     const_reference operator() (size_type i) const noexcept;
 
     template <class Generator,
-        meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int> = 0>
+        trixy::meta::enable_if_t<trixy::meta::is_callable<Generator, Precision>::value, int> = 0>
     Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
@@ -257,7 +257,7 @@ inline typename Vector<Precision>::const_reference
 
 LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator,
-          meta::enable_if_t<meta::is_callable<Generator, Precision>::value, int>>
+          trixy::meta::enable_if_t<trixy::meta::is_callable<Generator, Precision>::value, int>>
 Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 {
     for(size_type i = 0; i < size_; ++i)

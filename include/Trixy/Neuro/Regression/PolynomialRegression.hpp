@@ -4,9 +4,9 @@
 #include <cstddef> // size_t
 
 #include "Trixy/Neuro/Regression/BaseRegression.hpp"
-#include "Trixy/Neuro/Training/PolynomialRegressionTraining.hpp"
+#include "Trixy/Neuro/Training/BaseTraining.hpp"
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 
