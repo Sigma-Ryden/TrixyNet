@@ -1,5 +1,5 @@
-#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Training, Serializer
-#include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
+#include "Trixy/Neuro/NeuroCore.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
+#include "Trixy/Lique/LiqueCore.hpp" // Tensor, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
 #include "Utility/util.hpp" // Timer, test_neuro, check_neuro

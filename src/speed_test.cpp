@@ -1,5 +1,5 @@
-#include "Trixy/Neuro/NeuroCore.hpp" // FeedForwardNet, Functional, Training, Serializer
-#include "Trixy/Lique/LiqueCore.hpp" // Vector, Matrix, Linear
+#include "Trixy/Neuro/NeuroCore.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
+#include "Trixy/Lique/LiqueCore.hpp" // Tensor, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
 #include "Trixy/Locker/LockerCore.hpp" // Locker
@@ -110,7 +110,7 @@ void speed_test()
 
     util::Timer t;
     teach.trainBatch(train_in, train_out, 100000, grad_descent);
-    teach.trainStochastic(train_in, train_out, 100000, std::rand, grad_descent);
+    teach.trainStochastic(train_in, train_out, 100000, std::rand, adam);
     teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, grad_descent);
 
     std::cout << "Train time: " << t.elapsed() << '\n';
