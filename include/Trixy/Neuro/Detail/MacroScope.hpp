@@ -27,8 +27,11 @@
         static constexpr bool value = decltype(detect<T>(nullptr))::value;                              \
     }
 
-#define TRIXY_REQUIRE(T, condition...)                                                                  \
-    typename std::enable_if<meta::conjunction<condition>::value, T>::type
+#define TRIXY_REQUIRE(condition...)                                                                     \
+    ::trixy::meta::conjunction<condition>::value
+
+#define TRIXY_ENABLE(T, condition...)                                                                   \
+    typename std::enable_if<TRIXY_REQUIRE(condition), T>::type
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
     template <template <typename P, typename...> class VectorType,                                      \

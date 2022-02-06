@@ -51,9 +51,9 @@ protected:
     virtual ~IOptimizer() {}
 
     template <class Derived>
-    typename std::enable_if<
-        has_set_learning_rate<Derived, void, precision_type>::value &&
-        has_update<Derived, void, const Container<LVector>&, const Container<LMatrix>&>::value>::type
+    TRIXY_ENABLE(void,
+        has_set_learning_rate<Derived, void, precision_type>,
+        has_update<Derived, void, const Container<LVector>&, const Container<LMatrix>&>)
     initialize() noexcept
     {
         ptr_derived_set_learning_rate = [] (
