@@ -132,7 +132,5 @@
         using Base = IOptimizer<Optimizeriable>;                                                        \
                                                                                                         \
     private:                                                                                            \
-        friend Base;                                                                                    \
-                                                                                                        \
         using Base::set_learning_rate;                                                                  \
         using Base::update;
