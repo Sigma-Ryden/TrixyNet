@@ -1,3 +1,5 @@
+/*__DEPRECATED__*/
+/*
 #ifndef ILIQUE_VECTOR_HPP
 #define ILIQUE_VECTOR_HPP
 
@@ -162,3 +164,4 @@ inline std::size_t ILIQUE_VECTOR_TPL::size() const noexcept
 #include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_VECTOR_HPP
+*/

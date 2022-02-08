@@ -82,6 +82,7 @@ public:
     void resize(const Shape& shape, const_pointer src);
 
     void reshape(size_type m, size_type n) noexcept;
+    void reshape(const Shape& shape) noexcept;
 
     template <class Generator,
         trixy::meta::enable_if_t<trixy::meta::is_callable<Generator, Precision>::value, int> = 0>
@@ -367,6 +368,13 @@ void Matrix<Precision>::reshape(size_type m, size_type n) noexcept
 {
     shape_.row_ = m;
     shape_.col_ = n;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void Matrix<Precision>::reshape(const Shape& shape) noexcept
+{
+    shape_.row_ = shape.row_;
+    shape_.col_ = shape.col_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

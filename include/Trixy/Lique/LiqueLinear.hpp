@@ -98,9 +98,9 @@ public:
         return buff;
     }
 
-    template <class Vector, class Matrix,
-              meta::use_for_vector_t<Vector> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+    template <class Matrix, class Vector,
+              meta::use_for_matrix_t<Matrix> = 0,
+              meta::use_for_vector_t<Vector> = 0>
     Matrix tensordot(
         const Vector& col_vector,
         const Vector& row_vector) const

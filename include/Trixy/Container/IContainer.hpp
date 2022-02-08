@@ -2,11 +2,13 @@
 #define ICONTAINER_HPP
 
 #include <cstddef> // size_t
+#include <utility> // forward
+#include <initializer_list> // initializer_list
 
 namespace trixy
 {
 
-template <typename Type, typename... Args>
+template <template <typename...> class Derived, typename Type, typename... Pack>
 class IContainer
 {
 protected:
@@ -26,40 +28,55 @@ public:
     using reference       = Type&;
     using const_reference = const Type&;
 
+protected:
+    using DerivedType     = Derived<Type, Pack...>;
+
+private:
+    DerivedType& self() { return *static_cast<DerivedType*>(this); }
+    const DerivedType& self() const { return *static_cast<const DerivedType*>(this); }
+
 public:
-    virtual size_type capacity() const noexcept = 0;
-    virtual size_type size() const noexcept = 0;
-    virtual size_type max_size() const noexcept = 0;
+    size_type capacity() const noexcept { return self().capacity(); }
+    size_type size() const noexcept { return self().size(); }
+    size_type max_size() const noexcept { return self().max_size(); }
 
-    virtual void resize(size_type new_size) = 0;
-    virtual void resize(size_type n, value_type&& fill) = 0;
+    void reserve(size_type n) { self().reserve(); }
 
-    virtual void empty() const noexcept = 0;
+    void resize(size_type new_size) { self().resize(new_size); }
+    void resize(size_type n, value_type&& fill) { self().resize(n, fill); }
 
-    virtual iterator begin() noexcept = 0;
-    virtual iterator end() noexcept = 0;
+    template <typename... Args>
+    void emplace_back(Args&&... args)
+    { self().emplace_back(std::forward<Args>(args)...); }
 
-    virtual const_iterator begin() const noexcept = 0;
-    virtual const_iterator end() const noexcept = 0;
+    void pop_back() { self().pop_back(); }
 
-    virtual const_iterator cbegin() const noexcept = 0;
-    virtual const_iterator cend() const noexcept = 0;
+    void empty() const noexcept { self().empty(); }
 
-    virtual reference front() noexcept = 0;
-    virtual const_reference front() const noexcept = 0;
+    iterator begin() noexcept { return self().begin(); }
+    iterator end() noexcept { return self().end(); }
 
-    virtual reference back() noexcept = 0;
-    virtual const_reference back() const noexcept = 0;
+    const_iterator begin() const noexcept { return self().begin(); }
+    const_iterator end() const noexcept { return self().end(); }
 
-    virtual pointer data() noexcept = 0;
-    virtual const_pointer data() const noexcept = 0;
+    const_iterator cbegin() const noexcept { return self().cbegin(); }
+    const_iterator cend() const noexcept { return self().cend(); }
 
-    virtual reference operator[] (size_type i) noexcept = 0;
-    virtual const_reference operator[] (size_type i) const noexcept = 0;
+    reference front() noexcept { return self().front(); }
+    const_reference front() const noexcept { return self().front(); }
+
+    reference back() noexcept { return self().back(); }
+    const_reference back() const noexcept { return self().back(); }
+
+    pointer data() noexcept { return self().data(); }
+    const_pointer data() const noexcept { return self().data(); }
+
+    reference operator[] (size_type i) noexcept { return self().operator[](i); }
+    const_reference operator[] (size_type i) const noexcept { return self().operator[](i); }
 };
 
-template <typename Type, typename... Args>
-class IContainer<Type, Args...>::iterator
+template <template <typename...> class Derived, typename Type, typename... Pack>
+class IContainer<Derived, Type, Pack...>::iterator
 {
 private:
     pointer ptr_;
@@ -67,7 +84,7 @@ private:
 public:
     explicit iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
-    Type* const& base() const noexcept { return ptr_; }
+    const pointer& base() const noexcept { return ptr_; }
 
     reference operator* () const noexcept { return *ptr_; }
     pointer operator-> () const noexcept { return ptr_; }
@@ -83,8 +100,8 @@ public:
     reference operator[] (size_type i) noexcept { return ptr_[i]; }
 };
 
-template <typename Type, typename... Args>
-class IContainer<Type, Args...>::const_iterator
+template <template <typename...> class Derived, typename Type, typename... Pack>
+class IContainer<Derived, Type, Pack...>::const_iterator
 {
 private:
     pointer ptr_;
@@ -92,7 +109,7 @@ private:
 public:
     explicit const_iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
-    const Type* const& base() const noexcept { return ptr_; }
+    const const_pointer& base() const noexcept { return ptr_; }
 
     const_reference operator* () const noexcept { return *ptr_; }
     const_pointer operator-> () const noexcept { return ptr_; }

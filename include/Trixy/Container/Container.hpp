@@ -16,6 +16,7 @@ public:
     class iterator;
     class const_iterator;
 
+public:
     using size_type       = std::size_t;
     using value_type      = Type;
     using difference_type = std::ptrdiff_t;
@@ -50,7 +51,7 @@ public:
     void reserve(size_type n);
 
     void resize(size_type n);
-    void resize(size_type n, value_type&& fill);
+    void resize(size_type n, value_type&& value);
 
     template <typename... Args>
     void emplace_back(Args&&... args);
@@ -96,7 +97,7 @@ private:
 public:
     explicit iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
-    Type* const& base() const noexcept { return ptr_; }
+    const pointer& base() const noexcept { return ptr_; }
 
     reference operator* () const noexcept { return *ptr_; }
     pointer operator-> () const noexcept { return ptr_; }
@@ -121,7 +122,7 @@ private:
 public:
     explicit const_iterator(pointer ptr) noexcept : ptr_(ptr) {}
 
-    const Type* const& base() const noexcept { return ptr_; }
+    const const_pointer& base() const noexcept { return ptr_; }
 
     const_reference operator* () const noexcept { return *ptr_; }
     const_pointer operator-> () const noexcept { return ptr_; }
@@ -263,7 +264,7 @@ void Container<Type>::resize(size_type n)
 }
 
 template <typename Type>
-void Container<Type>::resize(size_type n, value_type&& fill)
+void Container<Type>::resize(size_type n, value_type&& value)
 {
     // capacity is always more than or equal to size
     if(n > capacity_)
@@ -271,7 +272,7 @@ void Container<Type>::resize(size_type n, value_type&& fill)
         reserve(n);
 
         for(; size_ < n; ++size_)
-            new (data_ + size_) value_type(std::forward<value_type>(fill));
+            new (data_ + size_) value_type(std::forward<value_type>(value));
 
         capacity_ = size_;
 
@@ -286,7 +287,7 @@ void Container<Type>::resize(size_type n, value_type&& fill)
     else
     {
         for(; size_ < n; ++size_)
-            new (data_ + size_) value_type(std::forward<value_type>(fill));
+            new (data_ + size_) value_type(std::forward<value_type>(value));
     }
 }
 
@@ -314,10 +315,9 @@ template <typename... Args>
 void Container<Type>::emplace_back(Args&&... args)
 {
     if(size_ >= capacity_)
-        reserve(size_ * 2);
+        reserve(capacity_ * 2 + 1);
 
     new (data_ + size_) Type(std::forward<Args>(args)...);
-
     ++size_;
 }
 

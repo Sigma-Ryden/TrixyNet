@@ -1,3 +1,5 @@
+/*__DEPRECATED__*/
+/*
 #ifndef ILIQUE_MATRIX_HPP
 #define ILIQUE_MATRIX_HPP
 
@@ -228,3 +230,4 @@ inline std::size_t ILIQUE_MATRIX_TPL::size() const noexcept
 #include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_MATRIX_HPP
+*/

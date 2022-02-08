@@ -129,6 +129,7 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
+
 //
 int main()
 {

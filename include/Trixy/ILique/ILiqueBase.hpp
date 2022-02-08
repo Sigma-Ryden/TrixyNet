@@ -3,7 +3,7 @@
 
 #include <cstddef> // size_t
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include "Trixy/Lique/LiqueBaseTensor.hpp"
 
 namespace trixy
 {
@@ -11,145 +11,170 @@ namespace trixy
 namespace ilique
 {
 
-template <template <typename P, typename...> class Tensor, typename Precision,
-          typename enable = void, typename... Args>
-class ILiqueBase;
-
-template <template <typename P, typename...> class Tensor1D, typename Precision,
-          typename enable = void, typename... Args>
-class IVector;
-
-template <template <typename P, typename...> class Tensor2D, typename Precision,
-          typename enable = void, typename... Args>
-class IMatrix;
-
-} // namespace ilique
-
-} // namespacce trixy
-
-namespace trixy
-{
-
-namespace ilique
-{
-
-template <template <typename P, typename...> class Tensor, typename Precision, typename... Args>
-class ILiqueBase<Tensor, Precision, meta::enable_for_arithmetic_t<Precision>, Args...>
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class ILiqueBase
 {
 protected:
     virtual ~ILiqueBase() = default;
 
 public:
-    using TensorType = Tensor<Precision, Args...>;
-    using Generator  = Precision (*)();
-    using Function   = Precision (*)(Precision);
-    using size_type  = std::size_t;
+    using Tensor            = Derived<Precision, Args...>;
 
 public:
-    virtual TensorType& copy(const TensorType&) noexcept = 0;
+    using size_type         = std::size_t;
+    using precision_type    = Precision;
 
-    virtual TensorType& fill(Precision value) noexcept = 0;
-    virtual TensorType& fill(Generator) noexcept = 0;
+    using pointer           = Precision*;
+    using const_pointer     = const Precision*;
 
-    virtual size_type size() const noexcept = 0;
+    using reference         = Precision&;
+    using const_reference   = const Precision&;
 
-    virtual TensorType  apply(Function) const = 0;
-    virtual TensorType& apply(Function) noexcept = 0;
-    virtual TensorType& apply(Function, const TensorType&) noexcept = 0;
+    using Function          = Precision (*)(Precision);
 
-    virtual TensorType  multiply(const TensorType&) const = 0;
-    virtual TensorType& multiply(const TensorType&) noexcept = 0;
-    virtual TensorType& multiply(const TensorType&, const TensorType&) noexcept = 0;
+private:
+    Tensor& self() { return *static_cast<Tensor*>(this); }
+    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
 
-    virtual TensorType  join(Precision value) const = 0;
-    virtual TensorType& join(Precision value) noexcept = 0;
-    virtual TensorType& join(Precision value, const TensorType&) noexcept = 0;
+public:
+    Tensor& copy(const Tensor& tensor) noexcept { return self().copy(tensor); }
 
-    virtual TensorType  add(const TensorType&) const = 0;
-    virtual TensorType& add(const TensorType&) noexcept = 0;
-    virtual TensorType& add(const TensorType&, const TensorType&) noexcept = 0;
+    Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    virtual TensorType  sub(const TensorType&) const = 0;
-    virtual TensorType& sub(const TensorType&) noexcept = 0;
-    virtual TensorType& sub(const TensorType&, const TensorType&) noexcept = 0;
+    template <class Generator>
+    Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
+
+    size_type size() const noexcept { return self().size(); }
+
+    Tensor  apply(Function func) const { return self().apply(func); }
+    Tensor& apply(Function func) noexcept { return self().apply(func); }
+
+    Tensor& apply(Function func, const Tensor& tensor) noexcept
+    { return self().apply(func, tensor); }
+
+    Tensor  multiply(const Tensor& tensor) const { return self().multiply(tensor); }
+    Tensor& multiply(const Tensor& tensor) noexcept { return self().multiply(tensor); }
+
+    Tensor& multiply(const Tensor& lhs, const Tensor& rhs) noexcept
+    { return self().multiply(lhs, rhs); }
+
+    Tensor  join(Precision value) const { return self().join(value); }
+    Tensor& join(Precision value) noexcept { return self().join(value); }
+
+    Tensor& join(Precision value, const Tensor& tensor) noexcept
+    { return self().join(value, tensor); }
+
+    Tensor  add(const Tensor& tensor) const { return self().add(tensor); }
+    Tensor& add(const Tensor& tensor) noexcept { return self().add(tensor); }
+
+    Tensor& add(const Tensor& lhs, const Tensor& rhs) noexcept
+    { return self().add(lhs, rhs); }
+
+    Tensor  sub(const Tensor& tensor) const { return self().sub(tensor); }
+    Tensor& sub(const Tensor& tensor) noexcept { return self().sub(tensor); }
+
+    Tensor& sub(const Tensor& lhs, const Tensor& rhs) noexcept
+    { return self().sub(lhs, rhs); }
 };
 
-template <template <typename P, typename...> class Tensor1D, typename Precision, typename... Args>
-class IVector<Tensor1D, Precision, meta::enable_for_arithmetic_t<Precision>, Args...>
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class IVector : public lique::TensorType::vector
 {
 public:
-    using TensorType      = Tensor1D<Precision, Args...>;
+    using Tensor          = Derived<Precision, Args...>;
+
+public:
     using size_type       = std::size_t;
+    using precision_type  = Precision;
+
     using reference       = Precision&;
     using const_reference = const Precision&;
 
 protected:
     virtual ~IVector() = default;
 
-public:
-    virtual reference operator() (size_type i) noexcept = 0;
-    virtual const_reference operator() (size_type i) const noexcept = 0;
+private:
+    Tensor& self() { return *static_cast<Tensor*>(this); }
+    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
 
-    virtual void resize(size_type new_size) = 0;
-    virtual Precision dot(const TensorType&) const = 0;
+public:
+    reference operator() (size_type i) noexcept { return self().operator()(i); }
+    const_reference operator() (size_type i) const noexcept { return self().operator()(i); }
+
+    void resize(size_type size) { self().resize(size); }
+    void resize(size_type size, precision_type value) { self().resize(size, value); }
+
+    precision_type dot(const Tensor& tensor) const { return self().dot(tensor); }
 };
 
-template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
-class IMatrix<Tensor2D, Precision, meta::enable_for_arithmetic_t<Precision>, Args...>
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class IMatrix : public lique::TensorType::matrix
 {
-protected:
+public:
     class Shape;
 
 public:
-    using TensorType      = Tensor2D<Precision, Args...>;
+    using Tensor          = Derived<Precision, Args...>;
+
+public:
     using size_type       = std::size_t;
+    using precision_type  = Precision;
+
     using reference       = Precision&;
     using const_reference = const Precision&;
 
 protected:
-    virtual ~IMatrix() = default;
+    virtual ~IMatrix()    = default;
+
+private:
+    Tensor& self() { return *static_cast<Tensor*>(this); }
+    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
 
 public:
-    virtual reference operator() (size_type i, size_type j) noexcept = 0;
-    virtual const_reference operator() (size_type i, size_type j) const noexcept = 0;
+    reference operator() (size_type i, size_type j) noexcept
+    { return self().operator()(i, j); }
 
-    virtual reference operator() (size_type i) noexcept = 0;
-    virtual const_reference operator() (size_type i) const noexcept = 0;
+    const_reference operator() (size_type i, size_type j) const noexcept
+    { return self().operator()(i, j); }
 
-    virtual const Shape& shape() const noexcept = 0;
+    reference operator() (size_type i) noexcept { return self().operator()(i); }
+    const_reference operator() (size_type i) const noexcept { return self().operator()(i); }
 
-    virtual void resize(size_type m, size_type n) = 0;
-    virtual void resize(const Shape& new_shape) = 0;
+    const Shape& shape() const noexcept { return self().shape(); }
 
-    virtual void resize(size_type m, size_type n, Precision fill_value) = 0;
-    virtual void resize(const Shape& new_shape, Precision fill_value) = 0;
+    void resize(size_type m, size_type n) { self().resize(m, n); }
+    void resize(const Shape& shape) { self().resize(shape); }
 
-    virtual void reshape(size_type m, size_type n) noexcept = 0;
+    void resize(size_type m, size_type n, Precision value) { self().resize(m, n, value); }
+    void resize(const Shape& shape, Precision value) { self().resize(shape, value); }
 
-    virtual TensorType dot(const TensorType&) const = 0;
-    virtual TensorType transpose() const = 0;
+    void reshape(size_type m, size_type n) noexcept { self().reshape(m, n); }
 
-    virtual TensorType  inverse() const = 0;
-    virtual TensorType& inverse() = 0;
+    Tensor dot(const Tensor& tensor) const { return self().dot(tensor); }
+    Tensor transpose() const { return self().transpose(); }
+
+    Tensor  inverse() const { return self().inverse(); }
+    Tensor& inverse() { return self().inverse(); }
 };
 
-template <template <typename P, typename...> class Tensor2D, typename Precision, typename... Args>
-class IMatrix<Tensor2D, Precision, meta::enable_for_arithmetic_t<Precision>, Args...>::Shape
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class IMatrix<Derived, Precision, Args...>::Shape
 {
-friend IMatrix<Tensor2D, Precision, meta::enable_for_arithmetic_t<Precision>, Args...>;
-friend Tensor2D<Precision, Args...>;
+friend IMatrix<Derived, Precision, Args...>;
+friend Derived<Precision, Args...>;
 
 public:
     using size_type = std::size_t;
 
 protected:
+    size_type size_;
     size_type row_;
     size_type col_;
-    size_type size_;
+
 
 public:
-    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n), size_(m * n) {}
-    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_), size_(shape.size_) {}
+    explicit Shape(size_type m, size_type n) noexcept : size_(m * n), row_(m), col_(n) {}
+    Shape(const Shape& shape) noexcept : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }
