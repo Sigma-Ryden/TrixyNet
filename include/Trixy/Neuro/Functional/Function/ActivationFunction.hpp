@@ -5,9 +5,9 @@
 #include <cmath> // exp
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
-#include "Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp"
+#include "ActivationFunctionLess.hpp"
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -130,6 +130,6 @@ ActivationFunction get_activation_function(ActivationId id)
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // ACTIVATION_FUNCTION_HPP

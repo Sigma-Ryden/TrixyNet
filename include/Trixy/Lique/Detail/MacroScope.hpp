@@ -8,13 +8,6 @@
     Tensor<Precision, tensor_type,                                                                      \
            ::trixy::meta::enable_for_arithmetic_t<Precision>>
 
-#define LIQUE_LOCKER_TPL_DECLARATION                                                                    \
-    template <class Lockable>
-
-#define LIQUE_LOCKER_TPL(is_type)                                                                       \
-    Locker<Lockable,                                                                                    \
-           typename std::enable_if<is_type<Lockable>::value>::type>
-
 #define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
     template <template <typename, typename...> class Vector,                                            \
               template <typename, typename...> class Matrix,                                            \
@@ -24,7 +17,3 @@
 #define LIQUE_LINEAR_TPL                                                                                \
     Linear<Vector, Matrix, Precision,                                                                   \
            ::trixy::meta::enable_for_arithmetic_t<Precision>, Args...>
-
-#define LIQUE_FUNCTION_TPL                                                                              \
-    template <typename Precision,                                                                       \
-              ::trixy::meta::use_for_arithmetic_t<Precision> = 0>

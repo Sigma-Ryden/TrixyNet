@@ -5,8 +5,6 @@
 
 #include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
 
-#include "Trixy/Neuro/Functional/IdFunctional.hpp"
-
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 #include "Trixy/Neuro/Detail/FunctionDetail.hpp"
 

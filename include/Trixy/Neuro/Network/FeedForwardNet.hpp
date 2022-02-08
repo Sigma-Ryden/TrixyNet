@@ -40,8 +40,8 @@ public:
 
     using Vector                    = VectorType<PrecisionType, Args...>;
     using Matrix                    = MatrixType<PrecisionType, Args...>;
-    using LVector                   = VectorLocker<Vector>;
 
+    using LVector                   = VectorLocker<Vector>;
     using LMatrix                   = MatrixLocker<Matrix>;
 
     using precision_type            = PrecisionType;

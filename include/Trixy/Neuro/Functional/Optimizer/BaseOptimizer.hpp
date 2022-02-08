@@ -4,7 +4,7 @@
 #include "Trixy/Detail/TrixyMeta.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -97,33 +97,30 @@ private:
     using id_type = trixy::functional::OptimizationId;
 
 public:
-    TRIXY_CHECK_TYPE_HELPER(id_type, undefined);
-    TRIXY_CHECK_TYPE_HELPER(id_type, grad_descent);
-    TRIXY_CHECK_TYPE_HELPER(id_type, momentum);
-    TRIXY_CHECK_TYPE_HELPER(id_type, nestorov);
-    TRIXY_CHECK_TYPE_HELPER(id_type, ada_grad);
-    TRIXY_CHECK_TYPE_HELPER(id_type, rms_prop);
-    TRIXY_CHECK_TYPE_HELPER(id_type, adam);
+    TRIXY_CHECK_ID_HELPER(id_type, undefined);
+    TRIXY_CHECK_ID_HELPER(id_type, grad_descent);
+    TRIXY_CHECK_ID_HELPER(id_type, momentum);
+    TRIXY_CHECK_ID_HELPER(id_type, nestorov);
+    TRIXY_CHECK_ID_HELPER(id_type, ada_grad);
+    TRIXY_CHECK_ID_HELPER(id_type, rms_prop);
+    TRIXY_CHECK_ID_HELPER(id_type, adam);
 
-private:
-    template <id_type id> struct from : meta::disjunction<
+public:
+    template <id_type id> using type_from = typename meta::disjunction<
         undefined::check<id>,
         grad_descent::check<id>,
         momentum::check<id>,
         nestorov::check<id>,
         ada_grad::check<id>,
         rms_prop::check<id>,
-        adam::check<id>>
-    {};
-
-public:
-    template <id_type id> using type_from = typename from<id>::type;
+        adam::check<id>
+    >::type;
 };
 
 } // namespace train
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // BASE_OPTIMIZER_HPP

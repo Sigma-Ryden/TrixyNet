@@ -6,9 +6,9 @@ namespace trixy
 
 struct LockerType
 {
-    struct container;
-    struct vector;
-    struct matrix;
+    struct container { using type = container; };
+    struct vector { using type = vector; };
+    struct matrix { using type = matrix; };
 };
 
 template <class Lockable, typename locker_type, typename enable = void>

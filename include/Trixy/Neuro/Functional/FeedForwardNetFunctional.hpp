@@ -4,10 +4,10 @@
 #include <utility> // forward
 
 #include "Trixy/Neuro/Functional/BaseFunctional.hpp"
-#include "Trixy/Neuro/Functional/IdFunctional.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
 
 #include "Trixy/Neuro/Functional/Function/FunctionCore.hpp"
-#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
+#include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
@@ -47,6 +47,7 @@ public:
     Container<ActivationFunction> get(const Container<ActivationId>& all_id) const noexcept
     {
         Container<ActivationFunction> all_activation(all_id.size());
+
         for(size_type i = 0; i < all_id.size(); ++i)
             all_activation[i] = get(all_id[i]);
 
@@ -58,14 +59,12 @@ public:
         return set::loss::get_loss_function<LossFunction, LossId>(id);
     }
 
-    template <ActivationId id>
-    ActivationFunction get() const noexcept
+    template <ActivationId id> ActivationFunction get() const noexcept
     {
         return get(id);
     }
 
-    template <LossId id>
-    LossFunction get() const noexcept
+    template <LossId id> LossFunction get() const noexcept
     {
         return get(id);
     }

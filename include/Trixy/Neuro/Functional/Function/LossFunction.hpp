@@ -3,9 +3,9 @@
 
 #include <cmath> // log, fabs, tanh, cosh
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -206,6 +206,6 @@ LossFunction get_loss_function(LossId id)
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // LOSS_FUNCTION_HPP

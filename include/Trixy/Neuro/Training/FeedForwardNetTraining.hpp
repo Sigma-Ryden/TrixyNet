@@ -40,7 +40,7 @@ private:
     using precision_type            = typename Trainable::precision_type;
     using size_type                 = typename Trainable::size_type;
 
-    using InnerBuffer               = LContainer<LVector>;
+    using InnerBuffer               = typename Trainable::InnerBuffer;
 
 private:
     Trainable& net;                 ///< reference to network prevent her copying

@@ -11,7 +11,7 @@
 #include "Trixy/Detail/TrixyMeta.hpp"
 #include "Detail/FunctionDetail.hpp"
 
-#include "Detail/MacroScope.hpp"
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -32,13 +32,13 @@ using Binary = bool (*)(Type, Type);
 namespace comp
 {
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 inline bool is_bigger(Precision previous, Precision next) noexcept
 {
     return previous > next;
 }
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 inline bool is_less(Precision previous, Precision next) noexcept
 {
     return previous < next;
@@ -62,7 +62,7 @@ inline T sum(T&& t1, Tn&&... tn)
 template <class Vector,
           typename size_type = typename Vector::size_type,
           Binary<typename Vector::precision_type> compare,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 size_type find(const Vector& vector) noexcept
 {
     size_type arg = 0;
@@ -125,7 +125,7 @@ Vector<std::size_t> find(
 
 template <class Vector,
           typename size_type = typename Vector::size_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 size_type argmin(const Vector& vector) noexcept
 {
     return find<typename Vector::precision_type, comp::is_bigger>(vector);
@@ -133,13 +133,13 @@ size_type argmin(const Vector& vector) noexcept
 
 template <class Vector,
           typename size_type = typename Vector::size_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 size_type argmax(const Vector& vector) noexcept
 {
     return find<typename Vector::precision_type, comp::is_less>(vector);
 }
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 Vector<std::size_t> argmin(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None)
@@ -147,7 +147,7 @@ Vector<std::size_t> argmin(
     return find<Precision, comp::is_bigger>(matrix, axis);
 }
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 Vector<std::size_t> argmax(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None)
@@ -156,14 +156,14 @@ Vector<std::size_t> argmax(
 }
 
 template <class Vector, typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 precision_type min(const Vector& vector) noexcept
 {
     return vector(find<precision_type, comp::is_bigger>(vector));
 }
 
 template <class Vector, typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 precision_type max(const Vector& vector) noexcept
 {
     return vector(find<precision_type, comp::is_less>(vector));
@@ -172,7 +172,7 @@ precision_type max(const Vector& vector) noexcept
 template <class Vector,
           typename size_type = typename Vector::size_type,
           typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 precision_type mean(const Vector& vector) noexcept
 {
     size_type mean_value = 0.;
@@ -186,7 +186,7 @@ precision_type mean(const Vector& vector) noexcept
 template <class Vector,
           typename size_type = typename Vector::size_type,
           typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_tensor_1d_t<Vector> = 0>
+          lique::meta::use_for_vector_t<Vector> = 0>
 precision_type std(
     const Vector& vector,
     bool unbiased = false)
@@ -206,7 +206,7 @@ precision_type std(
     return std::sqrt(std_value);
 }
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 Vector<Precision> mean(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None)
@@ -256,7 +256,7 @@ Vector<Precision> mean(
     return vector;
 }
 
-LIQUE_FUNCTION_TPL
+TRIXY_FUNCTION_TPL_DECLARATION
 Vector<Precision> std(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None,
@@ -333,7 +333,7 @@ Vector<Precision> std(
 }
 
 template <class Tensor, class Function,
-          lique::meta::use_for_tensor_nd_t<Tensor> = 0>
+          lique::meta::use_for_tensor_t<Tensor> = 0>
 void for_each(
     Tensor& tensor,
     Function func) noexcept
@@ -347,14 +347,14 @@ void for_each(
 namespace detail
 {
 
-template <class T, lique::meta::use_for_tensor_nd_t<T> = 0>
+template <class T, lique::meta::use_for_tensor_t<T> = 0>
 void concat(T& out, std::size_t& at, const T& tensor)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
 }
 
 template <class T, class... Tn,
-          lique::meta::use_for_tensor_nd_t<T> = 0,
+          lique::meta::use_for_tensor_t<T> = 0,
           typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
@@ -367,7 +367,7 @@ void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 } // namespace detail
 
 template <class Tensor, template <typename...> class Container,
-          lique::meta::use_for_tensor_nd_t<Tensor> = 0>
+          lique::meta::use_for_tensor_t<Tensor> = 0>
 Tensor concat(const Container<Tensor>& list)
 {
     using size_type = typename Tensor::size_type;
@@ -390,7 +390,7 @@ Tensor concat(const Container<Tensor>& list)
 }
 
 template <class T, class... Tn,
-          lique::meta::use_for_tensor_nd_t<T> = 0,
+          lique::meta::use_for_tensor_t<T> = 0,
           typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
@@ -408,6 +408,6 @@ T concat(const T& tensor, const Tn&... tensor_n)
 
 } // namespace trixy
 
-#include "Detail/MacroUnscope.hpp"
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // LIQUE_TOOL_HPP

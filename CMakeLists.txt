@@ -40,6 +40,8 @@ set(TRIXY_ILIQUE
 )
 set(TRIXY_NEURO
     include/Trixy/Detail/TrixyMeta.hpp
+    include/Trixy/Detail/MacroScope.hpp
+    include/Trixy/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp

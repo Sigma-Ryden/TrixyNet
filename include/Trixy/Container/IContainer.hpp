@@ -20,8 +20,8 @@ public:
     using value_type      = Type;
     using difference_type = std::ptrdiff_t;
 
-    using pointer           = Type*;
-    using const_pointer     = const Type*;
+    using pointer         = Type*;
+    using const_pointer   = const Type*;
 
     using reference       = Type&;
     using const_reference = const Type&;
