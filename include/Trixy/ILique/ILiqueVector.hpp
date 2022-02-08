@@ -1,122 +1,124 @@
-/*__DEPRECATED__*/
-/*
 #ifndef ILIQUE_VECTOR_HPP
 #define ILIQUE_VECTOR_HPP
 
 #include <cstddef> // size_t
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include "Trixy/Lique/LiqueBaseTensor.hpp"
 
 #include "Detail/MacroScope.hpp"
 
-namespace ilique
+namespace trixy
 {
-
-template <template <typename P> class Tensor1D, typename Precision, typename enable = void>
-class Vector;
-
-} // namespace ilique
 
 namespace ilique
 {
 
-template <template <typename P> class Tensor1D, typename Precision>
-class Vector<Tensor1D, Precision,
-             meta::enable_for_arithmetic_t<Precision>>
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class ILVector : public lique::TensorType::vector
 {
 public:
-    using TensorType      = Tensor1D<Precision>;
-    using size_type       = std::size_t;
-    using reference       = Precision&;
-    using const_reference = const Precision&;
-
-protected:
-    Precision* data_;
-    size_type  size_;
-
-protected:
-    virtual ~Vector();
+    using Tensor            = Derived<Precision, Args...>;
 
 public:
-    Vector() noexcept;
-    explicit Vector(size_type size);
-    explicit Vector(size_type size, Precision fill_value);
-    explicit Vector(size_type size, const Precision* ptr);
+    using size_type         = std::size_t;
+    using precision_type    = Precision;
 
-    Vector(const Vector&);
-    Vector(Vector&&) noexcept;
+    using pointer           = Precision*;
+    using const_pointer     = const Precision*;
 
-    Vector& operator= (const Vector&);
-    Vector& operator= (Vector&&) noexcept;
+    using reference         = Precision&;
+    using const_reference   = const Precision&;
 
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
+protected:
+    pointer data_;
+    size_type size_;
 
-    size_type size() const noexcept;
+protected:
+    virtual ~ILVector();
 
-    virtual void resize(size_type new_size) = 0;
-    virtual void resize(size_type new_size, Precision fill_value) = 0;
+private:
+    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
 
-    virtual Precision dot(const TensorType&) const = 0;
+public:
+    ILVector() noexcept;
+    explicit ILVector(size_type size);
+    explicit ILVector(size_type size, precision_type value);
+    explicit ILVector(size_type size, const_pointer ptr);
+
+    ILVector(const ILVector&);
+    ILVector(ILVector&&) noexcept;
+
+    ILVector& operator= (const ILVector&);
+    ILVector& operator= (ILVector&&) noexcept;
+
+    reference operator() (size_type i) noexcept { return data_[i]; }
+    const_reference operator() (size_type i) const noexcept { return data_[i]; }
+
+    size_type size() const noexcept { return size_; }
+
+    void resize(size_type new_size);
+    void resize(size_type new_size, precision_type value);
+
+    precision_type dot(const Tensor& tensor) const { return self().dot(tensor); }
 };
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline ILIQUE_VECTOR_TPL::Vector() noexcept : data_(nullptr), size_(0)
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_VECTOR_TPL::ILVector() noexcept : data_(nullptr), size_(0)
 {
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline ILIQUE_VECTOR_TPL::~Vector()
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_VECTOR_TPL::~ILVector()
 {
     delete[] data_;
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline ILIQUE_VECTOR_TPL::Vector(std::size_t size)
-    : data_(new Precision[size]), size_(size)
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_VECTOR_TPL::ILVector(size_type size)
+    : data_(new precision_type [size]), size_(size)
 {
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-ILIQUE_VECTOR_TPL::Vector(std::size_t size, Precision fill_value)
-    : data_(new Precision[size]), size_(size)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_VECTOR_TPL::ILVector(size_type size, precision_type fill_value)
+    : data_(new precision_type [size]), size_(size)
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = fill_value;
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-ILIQUE_VECTOR_TPL::Vector(std::size_t size, const Precision* ptr)
-    : data_(new Precision[size]), size_(size)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_VECTOR_TPL::ILVector(size_type size, const precision_type* ptr)
+    : data_(new precision_type [size]), size_(size)
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = ptr[i];
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-ILIQUE_VECTOR_TPL::Vector(const Vector& vector)
-    : data_(new Precision[vector.size_]), size_(vector.size_)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_VECTOR_TPL::ILVector(const ILVector& vector)
+    : data_(new precision_type [vector.size_]), size_(vector.size_)
 {
     for(size_type i = 0; i < size_; ++i)
         data_[i] = vector.data_[i];
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline ILIQUE_VECTOR_TPL::Vector(Vector&& vector) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_VECTOR_TPL::ILVector(ILVector&& vector) noexcept
     : data_(vector.data_), size_(vector.size_)
 {
     vector.data_ = nullptr;
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (const Vector& vector)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (const ILVector& vector)
 {
     if(this != &vector)
     {
         delete[] data_;
 
         size_ = vector.size_;
-        data_ = new Precision[size_];
+        data_ = new precision_type [size_];
 
         for(size_type i = 0; i < size_; ++i)
             data_[i] = vector.data_[i];
@@ -125,8 +127,8 @@ ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (const Vector& vector)
     return *this;
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (Vector&& vector) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (ILVector&& vector) noexcept
 {
     if(this != &vector)
     {
@@ -141,27 +143,26 @@ ILIQUE_VECTOR_TPL& ILIQUE_VECTOR_TPL::operator= (Vector&& vector) noexcept
     return *this;
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline Precision& ILIQUE_VECTOR_TPL::operator() (std::size_t i) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_VECTOR_TPL::resize(size_type size)
 {
-    return data_[i];
+    delete[] data_;
+
+    size_ = size;
+    data_ = new precision_type [size_];
 }
 
-ILIQUE_VECTOR_TPL_DECLARATION
-inline const Precision& ILIQUE_VECTOR_TPL::operator() (std::size_t i) const noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_VECTOR_TPL::resize(size_type size, precision_type value)
 {
-    return data_[i];
-}
-
-ILIQUE_VECTOR_TPL_DECLARATION
-inline std::size_t ILIQUE_VECTOR_TPL::size() const noexcept
-{
-    return size_;
+    resize(size);
+    fill(value);
 }
 
 } // namespace ilique
 
+} // namespace trixy
+
 #include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_VECTOR_HPP
-*/

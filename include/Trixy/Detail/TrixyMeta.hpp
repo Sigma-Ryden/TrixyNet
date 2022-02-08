@@ -10,7 +10,7 @@ namespace trixy
 namespace meta
 {
 
-template <class T, typename Ret = void, typename... Args>
+template <class C, typename Ret = void, typename... Args>
 struct is_callable
 {
 private:
@@ -22,7 +22,7 @@ private:
     static std::false_type check(...);
 
 public:
-    static constexpr bool value = decltype(check<T>(nullptr))::value;
+    static constexpr bool value = decltype(check<C>(nullptr))::value;
 };
 
 template <class...> struct conjunction : std::true_type {};
@@ -43,6 +43,13 @@ template <typename T> using enable_for_arithmetic_t = typename enable_for_arithm
 
 template <typename T> struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
 template <typename T> using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
+
+template <class C, typename Ret = void, typename... Args>
+struct use_for_callable
+: std::enable_if<is_callable<C, Ret, Args...>::value, int> {};
+
+template <class C, typename Ret = void, typename... Args>
+using use_for_callable_t = typename use_for_callable<C, Ret, Args...>::type;
 
 template <bool condition, typename T>
 struct select_for : std::enable_if<condition, T>

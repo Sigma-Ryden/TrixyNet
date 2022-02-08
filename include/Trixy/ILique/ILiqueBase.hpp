@@ -5,6 +5,8 @@
 
 #include "Trixy/Lique/LiqueBaseTensor.hpp"
 
+#include "Trixy/Detail/TrixyMeta.hpp"
+
 namespace trixy
 {
 
@@ -14,9 +16,6 @@ namespace ilique
 template <template <typename...> class Derived, typename Precision, typename... Args>
 class ILiqueBase
 {
-protected:
-    virtual ~ILiqueBase() = default;
-
 public:
     using Tensor            = Derived<Precision, Args...>;
 
@@ -32,6 +31,9 @@ public:
 
     using Function          = Precision (*)(Precision);
 
+protected:
+    virtual ~ILiqueBase() = default;
+
 private:
     Tensor& self() { return *static_cast<Tensor*>(this); }
     const Tensor& self() const { return *static_cast<const Tensor*>(this); }
@@ -41,7 +43,8 @@ public:
 
     Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    template <class Generator>
+    template <class Generator,
+              trixy::meta::use_for_callable_t<Generator, precision_type> = 0>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
 
     size_type size() const noexcept { return self().size(); }
@@ -142,6 +145,7 @@ public:
 
     const Shape& shape() const noexcept { return self().shape(); }
 
+    void resize(size_type size) { self().resize(size); }
     void resize(size_type m, size_type n) { self().resize(m, n); }
     void resize(const Shape& shape) { self().resize(shape); }
 
@@ -171,10 +175,12 @@ protected:
     size_type row_;
     size_type col_;
 
-
 public:
-    explicit Shape(size_type m, size_type n) noexcept : size_(m * n), row_(m), col_(n) {}
-    Shape(const Shape& shape) noexcept : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
+    explicit Shape(size_type m, size_type n) noexcept
+    : size_(m * n), row_(m), col_(n) {}
+
+    Shape(const Shape& shape) noexcept
+    : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }

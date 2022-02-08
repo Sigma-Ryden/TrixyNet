@@ -1,98 +1,103 @@
 /*__DEPRECATED__*/
-/*
 #ifndef ILIQUE_MATRIX_HPP
 #define ILIQUE_MATRIX_HPP
 
 #include <cstddef> // size_t
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include "Trixy/Lique/LiqueBaseTensor.hpp"
 
 #include "Detail/MacroScope.hpp"
 
 namespace ilique
 {
 
-template <template <typename P> class Tensor2D, typename Precision, typename enable = void>
-class Matrix;
-
-} // namespace ilique
-
-namespace ilique
+template <template <typename...> class Derived, typename Precision, typename... Args>
+class ILMatrix : public lique::TensorType::matrix
 {
-
-template <template <typename P> class Tensor2D, typename Precision>
-class Matrix<Tensor2D, Precision,
-             meta::enable_for_arithmetic_t<Precision>>
-{
-protected:
+public:
     class Shape;
 
 public:
-    using TensorType      = Tensor2D<Precision>;
-    using size_type       = std::size_t;
-    using reference       = Precision&;
-    using const_reference = const Precision&;
-
-protected:
-    virtual ~Matrix();
-
-protected:
-    Precision* data_;
-    Shape      shape_;
+    using Tensor            = Derived<Precision, Args...>;
 
 public:
-    Matrix() noexcept;
+    using size_type         = std::size_t;
+    using precision_type    = Precision;
 
-    explicit Matrix(size_type m, size_type n);
-    explicit Matrix(size_type m, size_type n, Precision fill_value);
+    using pointer           = Precision*;
+    using const_pointer     = const Precision*;
 
-    explicit Matrix(const Shape& shape);
-    explicit Matrix(const Shape& shape, Precision fill_value);
+    using reference         = Precision&;
+    using const_reference   = const Precision&;
 
-    Matrix(const Matrix&);
-    Matrix(Matrix&&) noexcept;
+protected:
+    pointer data_;
+    Shape shape_;
 
-    Matrix& operator= (const Matrix&);
-    Matrix& operator= (Matrix&&) noexcept;
+protected:
+    virtual ~ILMatrix();
+
+private:
+    Tensor& self() { return *static_cast<Tensor*>(this); }
+    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
+
+public:
+    ILMatrix() noexcept;
+
+    explicit ILMatrix(size_type m, size_type n);
+    explicit ILMatrix(size_type m, size_type n, precision_type value);
+
+    explicit ILMatrix(const Shape& shape);
+    explicit ILMatrix(const Shape& shape, precision_type value);
+
+    ILMatrix(const ILMatrix&);
+    ILMatrix(ILMatrix&&) noexcept;
+
+    ILMatrix& operator= (const ILMatrix&);
+    ILMatrix& operator= (ILMatrix&&) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
+    reference operator() (size_type i) noexcept { return data_[i]; }
+    const_reference operator() (size_type i) const noexcept { return data_[i]; }
 
-    const Shape& shape() const noexcept;
-    size_type size() const noexcept;
+    const Shape& shape() const noexcept { return shape_; }
+    size_type size() const noexcept { return shape_.size_; }
 
-    virtual void resize(size_type m, size_type n) = 0;
-    virtual void resize(const Shape& new_shape) = 0;
-    virtual void reshape(const Shape& new_shape) = 0;
+    void resize(size_type m);
+    void resize(size_type m, size_type n);
+    void resize(const Shape& new_shape);
 
-    virtual TensorType dot(const TensorType&) const = 0;
-    virtual TensorType transpose() const = 0;
+    void resize(size_type m, size_type n, precision_type value);
+    void resize(const Shape& new_shape, precision_type value);
 
-    virtual TensorType inverse() const = 0;
-    virtual TensorType& inverse() = 0;
+    void reshape(size_type m, size_type n);
+
+    Tensor dot(const Tensor& tensor) const { return self().dot(tensor); }
+    Tensor transpose() const { return self().transpose(); }
+
+    Tensor inverse() const { return self().inverse(); }
+    Tensor& inverse() { return self().inverse(); }
 };
 
-ILIQUE_MATRIX_TPL_DECLARATION
+ILIQUE_TENSOR_TPL_DECLARATION
 class ILIQUE_MATRIX_TPL::Shape
 {
-friend ILIQUE_MATRIX_TPL;
-friend Tensor2D<Precision>;
-
-public:
-    using size_type = std::size_t;
+friend ILMatrix;
+friend Tensor;
 
 protected:
+    size_type size_;
     size_type row_;
     size_type col_;
 
-    size_type size_;
-
 public:
-    explicit Shape(size_type m, size_type n) noexcept : row_(m), col_(n), size_(m * n) {}
-    Shape(const Shape& shape) noexcept : row_(shape.row_), col_(shape.col_), size_(shape.size_) {}
+    explicit Shape(size_type m, size_type n) noexcept
+    : size_(m * n), row_(m), col_(n) {}
+
+    Shape(const Shape& shape) noexcept
+    : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }
@@ -101,62 +106,62 @@ protected:
     Shape& operator= (const Shape& shape) = default;
 };
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline ILIQUE_MATRIX_TPL::Matrix() noexcept : data_(nullptr), shape_(0, 0)
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_MATRIX_TPL::ILMatrix() noexcept : data_(nullptr), shape_(0, 0)
 {
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL::~Matrix()
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL::~ILMatrix()
 {
     delete[] data_;
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline ILIQUE_MATRIX_TPL::Matrix(std::size_t m, std::size_t n)
-    : data_(new Precision [m * n]), shape_(m, n)
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_MATRIX_TPL::ILMatrix(size_type m, size_type n)
+    : data_(new precision_type [m * n]), shape_(m, n)
 {
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL::Matrix(std::size_t m, std::size_t n, Precision fill_value)
-    : data_(new Precision [m * n]), shape_(m, n)
-{
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = fill_value;
-}
-
-ILIQUE_MATRIX_TPL_DECLARATION
-inline ILIQUE_MATRIX_TPL::Matrix(const Matrix::Shape& shape)
-    : data_(new Precision [shape.size_]), shape_(shape)
-{
-}
-
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL::Matrix(const Matrix::Shape& shape, Precision fill_value)
-    : data_(new Precision [shape.size_]), shape_(shape)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL::ILMatrix(size_type m, size_type n, precision_type fill_value)
+    : data_(new precision_type [m * n]), shape_(m, n)
 {
     for(size_type i = 0; i < shape_.size_; ++i)
         data_[i] = fill_value;
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL::Matrix(const Matrix& matrix)
-    : data_(new Precision [matrix.shape_.size_]), shape_(matrix.shape_)
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_MATRIX_TPL::ILMatrix(const ILMatrix::Shape& shape)
+    : data_(new precision_type [shape.size_]), shape_(shape)
+{
+}
+
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL::ILMatrix(const ILMatrix::Shape& shape, precision_type fill_value)
+    : data_(new precision_type [shape.size_]), shape_(shape)
+{
+    for(size_type i = 0; i < shape_.size_; ++i)
+        data_[i] = fill_value;
+}
+
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL::ILMatrix(const ILMatrix& matrix)
+    : data_(new precision_type [matrix.shape_.size_]), shape_(matrix.shape_)
 {
     for(size_type i = 0; i < shape_.size_; ++i)
         data_[i] = matrix.data_[i];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline ILIQUE_MATRIX_TPL::Matrix(Matrix&& matrix) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+inline ILIQUE_MATRIX_TPL::ILMatrix(ILMatrix&& matrix) noexcept
     : data_(matrix.data_), shape_(matrix.shape_)
 {
     matrix.data_ = nullptr;
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (const Matrix& matrix)
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (const ILMatrix& matrix)
 {
     if(this != &matrix)
     {
@@ -164,7 +169,7 @@ ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (const Matrix& matrix)
 
         shape_ = matrix.shape_;
 
-        data_ = new Precision [shape_.size_];
+        data_ = new precision_type [shape_.size_];
 
         for(size_type i = 0; i < shape_.size_; ++i)
             data_[i] = matrix.data_[i];
@@ -173,8 +178,8 @@ ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (const Matrix& matrix)
     return *this;
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (Matrix&& matrix) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (ILMatrix&& matrix) noexcept
 {
     if(this != &matrix)
     {
@@ -189,40 +194,72 @@ ILIQUE_MATRIX_TPL& ILIQUE_MATRIX_TPL::operator= (Matrix&& matrix) noexcept
     return *this;
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline Precision& ILIQUE_MATRIX_TPL::operator() (std::size_t i, std::size_t j) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+inline typename ILIQUE_MATRIX_TPL::reference ILIQUE_MATRIX_TPL::operator() (
+    size_type i, size_type j) noexcept
 {
     return data_[i * shape_.col_ + j];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline const Precision& ILIQUE_MATRIX_TPL::operator() (std::size_t i, std::size_t j) const noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+inline typename ILIQUE_MATRIX_TPL::const_reference ILIQUE_MATRIX_TPL::operator() (
+    size_type i, size_type j) const noexcept
 {
     return data_[i * shape_.col_ + j];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline Precision& ILIQUE_MATRIX_TPL::operator() (std::size_t i) noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::resize(size_type size)
 {
-    return data_[i];
+    delete[] data_;
+
+    shape_.row_  = 1;
+    shape_.col_  = size;
+    shape_.size_ = size;
+
+    data_ = new precision_type [shape_.size_];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline const Precision& ILIQUE_MATRIX_TPL::operator() (std::size_t i) const noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::resize(size_type m, size_type n)
 {
-    return data_[i];
+    delete[] data_;
+
+    shape_.row_  = m;
+    shape_.col_  = n;
+    shape_.size_ = m * n;
+
+    data_ = new precision_type [shape_.size_];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline const typename ILIQUE_MATRIX_TPL::Shape& ILIQUE_MATRIX_TPL::shape() const noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::resize(const Shape& shape)
 {
-    return shape_;
+    delete[] data_;
+
+    shape_ = shape;
+    data_  = new precision_type [shape_.size_];
 }
 
-ILIQUE_MATRIX_TPL_DECLARATION
-inline std::size_t ILIQUE_MATRIX_TPL::size() const noexcept
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::resize(size_type m, size_type n, precision_type value)
 {
-    return shape_.size_;
+    resize(m, n);
+    fill(value);
+}
+
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::resize(const Shape& shape, precision_type value)
+{
+    resize(shape);
+    fill(value);
+}
+
+ILIQUE_TENSOR_TPL_DECLARATION
+void ILIQUE_MATRIX_TPL::reshape(size_type m, size_type n) noexcept
+{
+    shape_.row_ = m;
+    shape_.col_ = n;
 }
 
 } // namespace ilique
@@ -230,4 +267,4 @@ inline std::size_t ILIQUE_MATRIX_TPL::size() const noexcept
 #include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_MATRIX_HPP
-*/
+
