@@ -8,6 +8,9 @@
 
 #include "Detail/MacroScope.hpp"
 
+namespace trixy
+{
+
 namespace ilique
 {
 
@@ -72,7 +75,7 @@ public:
     void resize(size_type m, size_type n, precision_type value);
     void resize(const Shape& new_shape, precision_type value);
 
-    void reshape(size_type m, size_type n);
+    void reshape(size_type m, size_type n) noexcept;
 
     Tensor dot(const Tensor& tensor) const { return self().dot(tensor); }
     Tensor transpose() const { return self().transpose(); }
@@ -263,6 +266,8 @@ void ILIQUE_MATRIX_TPL::reshape(size_type m, size_type n) noexcept
 }
 
 } // namespace ilique
+
+} // namespace trixy
 
 #include "Detail/MacroUnscope.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef CONTAINER_HPP
 #define CONTAINER_HPP
 
-#include <cstddef> // size_t
+#include <cstddef> // size_t, ptrdiff_t
 #include <initializer_list> // initializer_list
 #include <new> // operator new[], operator delete[]
 #include <utility> // forward

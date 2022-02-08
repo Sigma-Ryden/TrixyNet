@@ -1,9 +1,8 @@
 #ifndef ICONTAINER_HPP
 #define ICONTAINER_HPP
 
-#include <cstddef> // size_t
+#include <cstddef> // size_t, ptrdiff_t
 #include <utility> // forward
-#include <initializer_list> // initializer_list
 
 namespace trixy
 {
