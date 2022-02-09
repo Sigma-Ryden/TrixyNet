@@ -164,7 +164,7 @@ public:
     ActivationId id;
 
 public:
-    ActivationFunction() noexcept : id(ActivationId::undefined), f(nullptr), df(nullptr) {}
+    ActivationFunction() noexcept : f(nullptr), df(nullptr), id(ActivationId::undefined) {}
 
     ActivationFunction(Function function,
                        FunctionDerived function_derived,
@@ -188,14 +188,14 @@ public:
     LossId id;
 
 public:
-    LossFunction() noexcept : id(LossId::undefined), f(nullptr), df(nullptr) {}
+    LossFunction() noexcept : f(nullptr), df(nullptr), id(LossId::undefined) {}
 
     LossFunction(Function function,
                  FunctionDerived function_derived,
                  LossId function_id = LossId::undefined) noexcept
-    : id(function_id)
-    , f(function)
-    , df(function_derived) {}
+    : f(function)
+    , df(function_derived)
+    , id(function_id) {}
 };
 
 TRIXY_NET_TPL_DECLARATION

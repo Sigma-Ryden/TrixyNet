@@ -85,7 +85,7 @@ void simple_test()
     TrixyNetTraining teach(net);
 
     constexpr int range = 1000;
-    net.initializeInnerStruct([range]() noexcept {
+    net.initializeInnerStruct([]() noexcept {
         return Precision(std::rand() % (2 * range + 1) - range) / range;
     });
 

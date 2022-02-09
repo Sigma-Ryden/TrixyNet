@@ -57,7 +57,7 @@ Matrix get_linear_idata()
 
     precision_type arg = -1.;
 
-    for(std::size_t i = 0; i < x.shape().row(); ++i)
+    for(size_type i = 0; i < x.shape().row(); ++i)
     {
         x(i, 0) = arg;
         arg    += .02;

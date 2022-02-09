@@ -60,9 +60,9 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
     Optimizeriable& network,
     precision_type learning_rate)
     : net(network)
-    , learning_rate(learning_rate)
     , buff1(Optimizeriable::init1D(net.inner.topology))
     , buff2(Optimizeriable::init2D(net.inner.topology))
+    , learning_rate(learning_rate)
 {
     this->template initialize<Optimizer>();
 }

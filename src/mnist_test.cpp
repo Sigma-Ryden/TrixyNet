@@ -50,7 +50,7 @@ void test_image_batch(const Net& net, const ImageDataType& data, const ImageData
         prediction.copy(net.feedforward(data[i]));
 
         std::cout << "\nTRUE: " << util::max(target[i])
-                  << "\nPRED: " << util::max(prediction) << " : " << prediction << '\n';
+                  << "\nPRED: " << util::max(prediction) << '\n'; // << prediction << '\n';
 
         std::cin.get();
     }
@@ -180,7 +180,7 @@ void mnist_test()
     TrixyNetTraining teach(net);
 
     constexpr int range = 1000;
-    net.initializeInnerStruct([range] () noexcept
+    net.initializeInnerStruct([] () noexcept
     {
         return float(std::rand() % (2 * range + 1) - range) / (range * range);
     });
