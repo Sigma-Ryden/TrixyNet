@@ -4,8 +4,12 @@
 #include "Network/TrixyNetCore.hpp"
 #include "Regression/RegressionCore.hpp"
 
-#include "Functional/FunctionalCore.hpp"
 #include "Training/TrainingCore.hpp"
+
+#include "Functional/Function/FunctionCore.hpp"
+#include "Functional/Optimizer/OptimizerCore.hpp"
+
+#include "Functional/FunctionalCore.hpp"
 
 #include "Serialization/SerializerCore.hpp"
 

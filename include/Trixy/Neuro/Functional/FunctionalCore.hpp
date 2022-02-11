@@ -7,7 +7,4 @@
 
 #include "FeedForwardNetFunctional.hpp"
 
-#include "Function/FunctionCore.hpp"
-#include "Optimizer/OptimizerCore.hpp"
-
 #endif // FUNCTIONAL_CORE_HPP

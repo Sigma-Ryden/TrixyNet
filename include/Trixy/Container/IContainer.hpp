@@ -41,8 +41,8 @@ public:
 
     void reserve(size_type n) { self().reserve(); }
 
-    void resize(size_type new_size) { self().resize(new_size); }
-    void resize(size_type n, value_type&& fill) { self().resize(n, fill); }
+    template <typename... Args>
+    void resize(size_type n, Args&&... args) { self().resize(n, std::forward<Args>(args)...); }
 
     template <typename... Args>
     void emplace_back(Args&&... args)

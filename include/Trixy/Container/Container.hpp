@@ -48,10 +48,10 @@ public:
     size_type size() const noexcept { return size_; }
     size_type max_size() const noexcept { return size_type(-1) / sizeof(value_type); }
 
-    void reserve(size_type n);
+    template <typename... Args>
+    void resize(size_type n, Args&&... args);
 
-    void resize(size_type n);
-    void resize(size_type n, value_type&& value);
+    void reserve(size_type n);
 
     template <typename... Args>
     void emplace_back(Args&&... args);
@@ -236,7 +236,8 @@ Container<Type>& Container<Type>::operator= (Container&& container) noexcept
 }
 
 template <typename Type>
-void Container<Type>::resize(size_type n)
+template <typename... Args>
+void Container<Type>::resize(size_type n, Args&&... args)
 {
     // capacity is always more than or equal to size
     if(n > capacity_)
@@ -244,9 +245,9 @@ void Container<Type>::resize(size_type n)
         reserve(n);
 
         for(; size_ < n; ++size_)
-            new (data_ + size_) value_type();
+            new (data_ + size_) value_type(std::forward<Args>(args)...);
 
-        capacity_ = size_;
+        capacity_ = n;
 
         return;
     }
@@ -259,35 +260,7 @@ void Container<Type>::resize(size_type n)
     else
     {
         for(; size_ < n; ++size_)
-            new (data_ + size_) value_type();
-    }
-}
-
-template <typename Type>
-void Container<Type>::resize(size_type n, value_type&& value)
-{
-    // capacity is always more than or equal to size
-    if(n > capacity_)
-    {
-        reserve(n);
-
-        for(; size_ < n; ++size_)
-            new (data_ + size_) value_type(std::forward<value_type>(value));
-
-        capacity_ = size_;
-
-        return;
-    }
-
-    if(n < size_)
-    {
-        Container::destroy(data_ + n, data_ + size_);
-        size_ = n;
-    }
-    else
-    {
-        for(; size_ < n; ++size_)
-            new (data_ + size_) value_type(std::forward<value_type>(value));
+            new (data_ + size_) value_type(std::forward<Args>(args)...);
     }
 }
 
