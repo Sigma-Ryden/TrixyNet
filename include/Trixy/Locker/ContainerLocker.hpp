@@ -1,8 +1,8 @@
 #ifndef CONTAINER_LOCKER_HPP
 #define CONTAINER_LOCKER_HPP
 
-#include <utility> // move
-
+#include <utility> // forward
+#include <iostream>
 #include "BaseLocker.hpp"
 
 namespace trixy

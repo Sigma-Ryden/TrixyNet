@@ -47,16 +47,16 @@ inline bool is_less(Precision previous, Precision next) noexcept
 } // namespace comp
 
 template <class T>
-inline T sum(T&& t1) noexcept
+inline T sum(T&& t) noexcept
 {
-    return t1;
+    return t;
 }
 
 template <class T, class... Tn,
           typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
-inline T sum(T&& t1, Tn&&... tn)
+inline T sum(T&& t, Tn&&... tn)
 {
-    return t1 + sum(std::forward<T>(tn)...);
+    return t + sum(std::forward<T>(tn)...);
 }
 
 template <class Vector,
