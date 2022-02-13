@@ -25,7 +25,7 @@ class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::rms_prop)
 {
     TRIXY_IOPTIMIZER_BODY
 
-private:
+public:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 

@@ -24,7 +24,7 @@ class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::momentum)
 {
     TRIXY_IOPTIMIZER_BODY
 
-private:
+public:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 
