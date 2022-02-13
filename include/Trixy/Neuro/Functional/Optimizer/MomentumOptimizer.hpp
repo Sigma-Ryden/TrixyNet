@@ -63,8 +63,6 @@ public:
     Optimizer& reset() noexcept;
 
 private:
-    void initialize_inner_struct();
-
     template <class Tensor>
     void update(Tensor& buff,
                 Tensor& optimized,
