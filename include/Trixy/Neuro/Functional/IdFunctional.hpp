@@ -1,3 +1,5 @@
+// This file contains all enum functional, you MUST prevent rewriting him,
+// since changes can breake a TrixyNet deserialization proccess
 #ifndef ID_FUNCTIONAL_HPP
 #define ID_FUNCTIONAL_HPP
 

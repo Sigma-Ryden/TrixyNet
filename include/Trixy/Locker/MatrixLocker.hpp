@@ -32,15 +32,15 @@ public:
     ~Locker() {}
 
     explicit Locker(size_type size) : Lockable(size) {}
-    Locker(size_type size, const precision_type* ptr) : Lockable(size, ptr) {}
-
     explicit Locker(size_type m, size_type n) : Lockable(m, n) {}
-    Locker(size_type m, size_type n, precision_type value) : Lockable(m, n, value) {}
-    Locker(size_type m, size_type n, const precision_type* ptr) : Lockable(m, n, ptr) {}
-
     explicit Locker(const Shape& shape) : Lockable(shape) {}
+
+    Locker(size_type m, size_type n, precision_type value) : Lockable(m, n, value) {}
     Locker(const Shape& shape, precision_type value) : Lockable(shape, value) {}
-    Locker(const Shape& shape, const precision_type* ptr) : Lockable(shape, ptr) {}
+
+    Locker(size_type size, const_pointer ptr) : Lockable(size, ptr) {}
+    Locker(size_type m, size_type n, const_pointer ptr) : Lockable(m, n, ptr) {}
+    Locker(const Shape& shape, const_pointer ptr) : Lockable(shape, ptr) {}
 
     Locker(const Lockable& tensor) : Lockable(tensor) {}
     Locker(Lockable&& tensor) noexcept : Lockable(std::move(tensor)) {}
@@ -48,8 +48,8 @@ public:
     Locker(const Locker& tensor) : Lockable(tensor) {}
     Locker(Locker&& tensor) noexcept : Lockable(std::move(tensor)) {}
 
-    Locker& operator= (const Locker& vector) = delete;
-    Locker& operator= (Locker&& vector) = delete;
+    //Locker& operator= (const Locker& vector) = default;
+    Locker& operator= (Locker&& vector) = default;
 
     const Lockable& base() const { return *static_cast<const Lockable*>(this); }
 

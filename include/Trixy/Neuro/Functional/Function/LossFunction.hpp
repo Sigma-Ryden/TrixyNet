@@ -136,7 +136,7 @@ void binary_cross_entropy_derived(Tensor& buff, const Tensor& y_true, const Tens
 TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void binary_cross_entropy_derived_sigmoid(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(std::size_t i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < y_true.size(); ++i)
         buff(i) = y_true(i) * (y_pred(i) - 1.) + (1. - y_true(i)) * y_pred(i);
 }
 

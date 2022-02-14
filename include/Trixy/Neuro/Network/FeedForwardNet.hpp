@@ -161,7 +161,7 @@ public:
     Function f;           ///< void (*f)(LVector& buff, const LVector& tensor)
     FunctionDerived df;   ///< void (*df)(LVector& buff, const LVector& tensor)
 
-    ActivationId id;
+    ActivationId id;      ///< id of activation function, for user's def id = activationId::undefined
 
 public:
     ActivationFunction() noexcept : f(nullptr), df(nullptr), id(ActivationId::undefined) {}
@@ -185,7 +185,7 @@ public:
     Function f;           ///< void (*)(Precision& result, const LVector& target, const LVector& prediction)
     FunctionDerived df;   ///< void (*)(LVector& buff, const LVector& target, const LVector& prediction)
 
-    LossId id;
+    LossId id;            ///< id of loss function, for user's def id = LossId::undefined
 
 public:
     LossFunction() noexcept : f(nullptr), df(nullptr), id(LossId::undefined) {}
@@ -331,6 +331,13 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     TRIXY_NET_TPL(TrixyNetType::FeedForward)::feedforward(
     const Vector& sample) const noexcept
 {
+    /*
+    Operations:
+    . - dot
+    Processing:
+    buff = H' . W + B, H' - previous
+    H = activation(buff)
+    */
     linear.dot(buff[0], sample, inner.W[0]);
     linear.add(buff[0], inner.B[0]);
     function.activation[0].f(buff[0], buff[0]);

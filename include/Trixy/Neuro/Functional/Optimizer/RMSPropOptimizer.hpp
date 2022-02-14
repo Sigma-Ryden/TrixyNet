@@ -53,7 +53,7 @@ private:
     precision_type rbeta;
 
 public:
-    Optimizer(const Optimizeriable& network,
+    Optimizer(Optimizeriable& network,
               precision_type learning_rate,
               precision_type beta = 0.9);
 
@@ -74,7 +74,7 @@ private:
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 RMSPropOptimizer<Optimizeriable>::Optimizer(
-    const Optimizeriable& network,
+    Optimizeriable& network,
     precision_type learning_rate,
     precision_type beta)
     : net(network)

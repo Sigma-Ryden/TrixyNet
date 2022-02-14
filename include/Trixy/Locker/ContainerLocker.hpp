@@ -35,8 +35,8 @@ public:
 
     Locker(std::initializer_list<value_type> list) : Lockable(list) {}
 
-    Locker& operator= (const Locker& vector) = delete;
-    Locker& operator= (Locker&& vector) = delete;
+    //Locker& operator= (const Locker& vector) = delete;
+    Locker& operator= (Locker&& vector) = default;
 
     const Lockable& base() const { return static_cast<const Lockable&>(*this); }
 
