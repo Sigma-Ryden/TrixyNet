@@ -10,13 +10,11 @@ namespace trixy
 template <template <typename...> class Derived, typename Type, typename... Pack>
 class IContainer
 {
-protected:
-    virtual ~IContainer() = default;
-
 public:
     class iterator;
     class const_iterator;
 
+public:
     using size_type       = std::size_t;
     using value_type      = Type;
     using difference_type = std::ptrdiff_t;
@@ -29,6 +27,9 @@ public:
 
 protected:
     using DerivedType     = Derived<Type, Pack...>;
+
+protected:
+    virtual ~IContainer() = default;
 
 private:
     DerivedType& self() { return *static_cast<DerivedType*>(this); }
