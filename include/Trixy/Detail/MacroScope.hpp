@@ -71,5 +71,5 @@
 #define TRIXY_REQUIRE(conditions...)                                                                    \
     ::trixy::meta::conjunction<conditions>::value
 
-#define TRIXY_ENABLE(T, conditions...)                                                                  \
-    typename std::enable_if<TRIXY_REQUIRE(conditions), T>::type
+#define TRIXY_ENABLE(conditions...)                                                                     \
+    typename std::enable_if<TRIXY_REQUIRE(conditions)>::type

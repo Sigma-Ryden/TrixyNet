@@ -51,7 +51,7 @@ protected:
     virtual ~IOptimizer() {}
 
     template <class Derived>
-    TRIXY_ENABLE(void,
+    TRIXY_ENABLE(
         has_set_learning_rate<Derived, void, precision_type>,
         has_update<Derived, void, const Container<LVector>&, const Container<LMatrix>&>)
     initialize() noexcept

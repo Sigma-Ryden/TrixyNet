@@ -10,58 +10,74 @@ namespace trixy
 namespace meta
 {
 
-template <class C, typename Ret = void, typename... Args>
-struct is_callable
-{
-private:
-    template <class U>
-    static auto check(U* p) -> typename std::enable_if<
-        std::is_same<decltype((*p)(std::declval<Args>()...)), Ret>::value, std::true_type>::type;
+template <bool condition, typename T = void>
+using enable_if_t = typename std::enable_if<condition, T>::type;
 
-    template <class>
-    static std::false_type check(...);
+template <typename T>
+using decay_t = typename std::decay<T>::type;
 
-public:
-    static constexpr bool value = decltype(check<C>(nullptr))::value;
-};
+template <bool condition, typename if_true, typename if_false>
+using conditional_t = typename std::conditional<condition, if_true, if_false>::type;
+
+template <class B, class D>
+struct is_not_base_of :
+    std::integral_constant<bool, !std::is_base_of<B, D>::value> {};
 
 template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
 template <class B1, class... Bn>
-struct conjunction<B1, Bn...> : std::conditional<bool(B1::value), conjunction<Bn...>, B1>::type {};
+struct conjunction<B1, Bn...>
+    : conditional_t<bool(B1::value), conjunction<Bn...>, B1> {};
 
-template <class...> struct disjunction : std::true_type {};
+template <class...> struct disjunction : std::false_type {};
 template <class B1> struct disjunction<B1> : B1 {};
 template <class B1, class... Bn>
-struct disjunction<B1, Bn...> : std::conditional<bool(B1::value), B1, disjunction<Bn...>>::type {};
+struct disjunction<B1, Bn...>
+    : conditional_t<bool(B1::value), B1, disjunction<Bn...>> {};
 
-template <class Class, template <class T> class... Bn>
-struct has_true : disjunction<Bn<Class>...> {};
+template <class T, template <class> class... Bn>
+struct has_true : disjunction<Bn<T>...> {};
+
+template <bool condition, typename T = void>
+struct select_for : std::false_type
+{
+private:
+    using std::false_type::type;
+};
+
+template <typename T>
+struct select_for<true, T> : std::true_type
+{
+    using type = T;
+};
+
+template <class C, typename Ret = void, typename... Args>
+struct is_callable
+{
+private:
+    template <class U> static auto check(U* p) -> enable_if_t<
+        std::is_same<decltype((*p)(std::declval<Args>()...)), Ret>::value,
+        std::true_type>;
+
+    template <class> static std::false_type check(...);
+
+public:
+    static constexpr bool value = decltype(check<C>(nullptr))::value;
+};
+template <class C, typename Ret = void, typename... Args>
+struct use_for_callable : std::enable_if<is_callable<C, Ret, Args...>::value, int> {};
+
+template <class T, class... Tn>
+struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
 
 template <typename T> struct enable_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
 template <typename T> using enable_for_arithmetic_t = typename enable_for_arithmetic<T>::type;
 
-template <typename T> struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
-template <typename T> using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
-
-template <class C, typename Ret = void, typename... Args>
-struct use_for_callable
-: std::enable_if<is_callable<C, Ret, Args...>::value, int> {};
-
 template <class C, typename Ret = void, typename... Args>
 using use_for_callable_t = typename use_for_callable<C, Ret, Args...>::type;
 
-template <bool condition, typename T>
-struct select_for : std::enable_if<condition, T>
-{
-    static constexpr bool value = condition;
-};
-
-template <class T, class... Tn>
-struct is_same_types: meta::conjunction<std::is_same<T, Tn>...> {};
-
-template <bool condition, class T = void>
-using enable_if_t = typename std::enable_if<condition, T>::type;
+template <typename T> struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
+template <typename T> using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
 
 } // namespace meta
 

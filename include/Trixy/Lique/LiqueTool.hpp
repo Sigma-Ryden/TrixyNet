@@ -53,7 +53,7 @@ inline T sum(T&& t) noexcept
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
 inline T sum(T&& t, Tn&&... tn)
 {
     return t + sum(std::forward<T>(tn)...);
@@ -355,7 +355,7 @@ void concat(T& out, std::size_t& at, const T& tensor)
 
 template <class T, class... Tn,
           lique::meta::use_for_tensor_t<T> = 0,
-          typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
@@ -391,7 +391,7 @@ Tensor concat(const Container<Tensor>& list)
 
 template <class T, class... Tn,
           lique::meta::use_for_tensor_t<T> = 0,
-          typename std::enable_if<trixy::meta::is_same_types<T, Tn...>::value, int>::type = 0>
+          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
     using size_type = typename T::size_type;

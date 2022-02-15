@@ -14,7 +14,7 @@ namespace ilique
 {
 
 template <template <typename...> class Derived, typename Precision, typename... Args>
-class ILiqueBase
+class ITensor
 {
 public:
     using Tensor            = Derived<Precision, Args...>;
@@ -32,7 +32,7 @@ public:
     using Function          = Precision (*)(Precision);
 
 protected:
-    virtual ~ILiqueBase() = default;
+    virtual ~ITensor() = default;
 
 private:
     Tensor& self() { return *static_cast<Tensor*>(this); }

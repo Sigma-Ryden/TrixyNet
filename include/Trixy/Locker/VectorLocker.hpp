@@ -1,9 +1,12 @@
 #ifndef VECTOR_LOCKER_HPP
 #define VECTOR_LOCKER_HPP
 
-#include <utility> // move
+#include <utility> // move, forward
 
 #include "BaseLocker.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
+
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -26,25 +29,20 @@ public:
     using Function       = typename Lockable::Function;
 
 public:
-    Locker() : Lockable() {}
-    ~Locker() {}
+    template <typename... Args,
+        typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
+        typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
+    Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
 
-    explicit Locker(size_type size) : Lockable(size) {}
-    Locker(size_type size, precision_type fill_value) : Lockable(size, fill_value) {}
-    Locker(size_type size, const_pointer ptr) : Lockable(size, ptr) {}
+    ~Locker() = default;
 
-    Locker(const Locker& tensor) : Lockable(tensor) {}
-    Locker(Locker&& tensor) noexcept : Lockable(std::move(tensor)) {}
+    Locker(const Locker& container) : Lockable(container) {}
+    Locker(Locker&& container) noexcept : Lockable(std::move(container)) {}
 
-    Locker(const Lockable& tensor) : Lockable(tensor) {}
-    Locker(Lockable&& tensor) noexcept : Lockable(std::move(tensor)) {}
+    Locker(const Lockable& container) : Lockable(container) {}
+    Locker(Lockable&& container) noexcept : Lockable(std::move(container)) {}
 
-    Locker(std::initializer_list<precision_type> list) : Lockable(list) {}
-
-    //Locker& operator= (const Locker& vector) = delete;
-    Locker& operator= (Locker&& vector) = default;
-
-    const Lockable& base() const { return *static_cast<const Lockable*>(this); }
+    const Lockable& base() const { return static_cast<const Lockable&>(*this); }
 
 public:
     using Lockable::operator();
@@ -64,5 +62,7 @@ public:
 };
 
 } // namespace trixy
+
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // VECTOR_LOCKER_HPP

@@ -1,9 +1,13 @@
 #ifndef CONTAINER_LOCKER_HPP
 #define CONTAINER_LOCKER_HPP
 
-#include <utility> // forward
-#include <iostream>
+#include <utility> // move, forward
+#include <initializer_list> // initializer_list
+
 #include "BaseLocker.hpp"
+#include "Trixy/Detail/TrixyMeta.hpp"
+
+#include "Trixy/Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -22,10 +26,12 @@ public:
     using const_reference = typename Lockable::const_reference;
 
 public:
-    Locker() noexcept : Lockable() {}
-    ~Locker() {}
+    template <typename... Args,
+        typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
+        typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
+    Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
 
-    explicit Locker(size_type size) : Lockable(size) {}
+    ~Locker() = default;
 
     Locker(const Locker& container) : Lockable(container) {}
     Locker(Locker&& container) noexcept : Lockable(std::move(container)) {}
@@ -35,13 +41,12 @@ public:
 
     Locker(std::initializer_list<value_type> list) : Lockable(list) {}
 
-    //Locker& operator= (const Locker& vector) = delete;
-    Locker& operator= (Locker&& vector) = default;
-
     const Lockable& base() const { return static_cast<const Lockable&>(*this); }
 
 public:
     using Lockable::size;
+    using Lockable::max_size;
+
     using Lockable::empty;
 
     using Lockable::begin;
@@ -58,5 +63,7 @@ public:
 };
 
 } // namespace trixy
+
+#include "Trixy/Detail/MacroUnscope.hpp"
 
 #endif // CONTAINER_LOCKER_HPP
