@@ -15,7 +15,6 @@ template <class TrixyNetType,
           template <typename P> class LinearType,
           template <typename...> class ContainerType,
           typename PrecisionType,
-          typename enable = void,
           typename... Args>
 class TrixyNet;
 

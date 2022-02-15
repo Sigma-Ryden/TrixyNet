@@ -7,13 +7,3 @@
 #define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
     Tensor<Precision, tensor_type,                                                                      \
            ::trixy::meta::enable_for_arithmetic_t<Precision>>
-
-#define LIQUE_LINEAR_TPL_DECLARATION                                                                    \
-    template <template <typename, typename...> class Vector,                                            \
-              template <typename, typename...> class Matrix,                                            \
-              typename Precision,                                                                       \
-              typename... Args>
-
-#define LIQUE_LINEAR_TPL                                                                                \
-    Linear<Vector, Matrix, Precision,                                                                   \
-           ::trixy::meta::enable_for_arithmetic_t<Precision>, Args...>

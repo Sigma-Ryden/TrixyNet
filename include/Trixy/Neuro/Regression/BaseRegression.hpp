@@ -15,7 +15,6 @@ template <class RegressionType,
           template <typename P, typename...> class Tensor2D,
           template <typename P> class Linear,
           typename Precision,
-          typename enable = void,
           typename... Args>
 class Regression;
 

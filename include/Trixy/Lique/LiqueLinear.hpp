@@ -20,9 +20,9 @@ public:
 
 public:
     template <class Vector1, class Vector2, class Matrix,
-              meta::use_for_vector_t<Vector1> = 0,
-              meta::use_for_vector_t<Vector2> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+              typename = meta::enable_for_vector_t<Vector1>,
+              typename = meta::enable_for_vector_t<Vector2>,
+              typename = meta::enable_for_matrix_t<Matrix>>
     void dot(
         Vector1& buff,
         const Vector2& row_vector,
@@ -41,9 +41,9 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              meta::use_for_vector_t<Vector1> = 0,
-              meta::use_for_vector_t<Vector2> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+              typename = meta::enable_for_vector_t<Vector1>,
+              typename = meta::enable_for_vector_t<Vector2>,
+              typename = meta::enable_for_matrix_t<Matrix>>
     void dot(
         Vector1& buff,
         const Matrix& matrix,
@@ -57,9 +57,9 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              meta::use_for_vector_t<Vector1> = 0,
-              meta::use_for_vector_t<Vector2> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+              typename = meta::enable_for_vector_t<Vector1>,
+              typename = meta::enable_for_vector_t<Vector2>,
+              typename = meta::enable_for_matrix_t<Matrix>>
     void tensordot(
         Matrix& buff2,
         const Vector1& col_vector,
@@ -71,8 +71,8 @@ public:
     }
 
     template <class Vector, class Matrix,
-              meta::use_for_vector_t<Vector> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+              typename = meta::enable_for_vector_t<Vector> ,
+              typename = meta::enable_for_matrix_t<Matrix>>
     Vector dot(
         const Vector& row_vector,
         const Matrix& matrix) const
@@ -85,8 +85,8 @@ public:
     }
 
     template <class Vector, class Matrix,
-              meta::use_for_vector_t<Vector> = 0,
-              meta::use_for_matrix_t<Matrix> = 0>
+              typename = meta::enable_for_vector_t<Vector>,
+              typename = meta::enable_for_matrix_t<Matrix>>
     Vector dot(
         const Matrix& matrix,
         const Vector& col_vector) const
@@ -99,8 +99,8 @@ public:
     }
 
     template <class Matrix, class Vector,
-              meta::use_for_matrix_t<Matrix> = 0,
-              meta::use_for_vector_t<Vector> = 0>
+              typename = meta::enable_for_matrix_t<Matrix>,
+              typename = meta::enable_for_vector_t<Vector>>
     Matrix tensordot(
         const Vector& col_vector,
         const Vector& row_vector) const
@@ -113,8 +113,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>>
     void add(
         Tensor1& buff,
         const Tensor2& tensor) const noexcept
@@ -124,9 +124,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0,
-              meta::use_for_tensor_t<Tensor3> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>,
+              typename = meta::enable_for_tensor_t<Tensor3>>
     void add(
         Tensor1& buff,
         const Tensor2& lhs,
@@ -137,8 +137,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>>
     void sub(
         Tensor1& buff,
         const Tensor2& tensor) const noexcept
@@ -148,9 +148,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0,
-              meta::use_for_tensor_t<Tensor3> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>,
+              typename = meta::enable_for_tensor_t<Tensor3>>
     void sub(
         Tensor1& buff,
         const Tensor2& lhs,
@@ -161,8 +161,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>>
     void mul(
         Tensor1& buff,
         const Tensor2& tensor) const noexcept
@@ -172,9 +172,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0,
-              meta::use_for_tensor_t<Tensor3> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>,
+              typename = meta::enable_for_tensor_t<Tensor3>>
     void mul(
         Tensor1& buff,
         const Tensor2& lhs,
@@ -185,7 +185,7 @@ public:
     }
 
     template <class Tensor1,
-              meta::use_for_tensor_t<Tensor1> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>>
     void join(
         Tensor1& buff,
         precision_type value) const noexcept
@@ -195,8 +195,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>>
     void join(
         Tensor1& buff,
         precision_type value,
@@ -207,7 +207,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              meta::use_for_tensor_t<Tensor> = 0>
+              typename = meta::enable_for_tensor_t<Tensor>>
     void apply(
         Tensor& buff,
         Function func) const noexcept
@@ -217,8 +217,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Function,
-              meta::use_for_tensor_t<Tensor1> = 0,
-              meta::use_for_tensor_t<Tensor2> = 0>
+              typename = meta::enable_for_tensor_t<Tensor1>,
+              typename = meta::enable_for_tensor_t<Tensor2>>
     void apply(
         Tensor1& buff,
         Function func,
@@ -229,7 +229,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              meta::use_for_tensor_t<Tensor> = 0>
+              typename = meta::enable_for_tensor_t<Tensor>>
     void for_each(
         Tensor& tensor,
         Function func) const noexcept

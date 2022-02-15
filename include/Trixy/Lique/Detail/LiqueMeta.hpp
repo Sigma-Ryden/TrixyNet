@@ -68,6 +68,18 @@ template <typename T> struct use_for_tensor : std::enable_if<is_tensor<T>::value
 template <typename T>
 using use_for_tensor_t = typename use_for_tensor<T>::type;
 
+template <typename T> struct enable_for_vector : std::enable_if<is_vector<T>::value> {};
+template <typename T>
+using enable_for_vector_t = typename enable_for_vector<T>::type;
+
+template <typename T> struct enable_for_matrix : std::enable_if<is_matrix<T>::value> {};
+template <typename T>
+using enable_for_matrix_t = typename enable_for_matrix<T>::type;
+
+template <typename T> struct enable_for_tensor : std::enable_if<is_tensor<T>::value> {};
+template <typename T>
+using enable_for_tensor_t = typename enable_for_tensor<T>::type;
+
 } // namespace meta
 
 } // namespace lique
