@@ -287,25 +287,29 @@ template <typename Type>
 template <typename... Args>
 void Container<Type>::emplace_back(Args&&... args)
 {
-    if(size_ >= capacity_)
+    // size is always less than or equal to capacity
+    if(size_ == capacity_)
         reserve(capacity_ * 2 + 1);
 
-    new (data_ + size_) Type(std::forward<Args>(args)...);
+    new (data_ + size_) value_type(std::forward<Args>(args)...);
     ++size_;
 }
 
 template <typename Type>
 void Container<Type>::pop_back()
 {
-    data_[size_ - 1].~value_type();
-
+    // call destructor of last element in Container
     --size_;
+    (data_ + size_)->~value_type();
 }
 
 template <typename Type>
 inline typename Container<Type>::pointer Container<Type>::allocate(size_type n)
 {
-    return static_cast<pointer>(::operator new[] (sizeof(value_type) * n));
+    // return void pointer to sizeof(value_type) * n bytes in memory
+    return static_cast<pointer>(
+        ::operator new[] (sizeof(value_type) * n)
+    );
 }
 
 template <typename Type>
@@ -321,7 +325,7 @@ void Container<Type>::destroy(pointer beg, pointer end)
 
     while(beg != end)
     {
-        beg->~Type();
+        beg->~value_type();
         ++beg;
     }
 }
