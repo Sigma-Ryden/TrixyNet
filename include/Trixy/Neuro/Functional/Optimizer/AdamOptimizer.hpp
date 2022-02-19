@@ -92,7 +92,8 @@ AdamOptimizer<Optimizeriable>::Optimizer(
     precision_type learning_rate,
     precision_type beta1,
     precision_type beta2)
-    : net(network)
+    : Base()
+    , net(network)
     , buff1(Optimizeriable::init1D(net.inner.topology))
     , buff2(Optimizeriable::init2D(net.inner.topology))
     , optimizedB1(Optimizeriable::init1D(net.inner.topology, 0.))

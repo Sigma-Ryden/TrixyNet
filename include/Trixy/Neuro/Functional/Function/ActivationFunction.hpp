@@ -42,16 +42,16 @@ void unstable_softmax(Tensor& buff, const Tensor& vector) noexcept
     using size_type      = typename Tensor::size_type;
     using precision_type = typename Tensor::precision_type;
 
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = std::exp(vector(i));
 
     precision_type denominator = 0.;
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         denominator += buff(i);
 
     denominator = 1. / denominator;
 
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) *= denominator;
 }
 
@@ -65,19 +65,19 @@ void softmax(Tensor& buff, const Tensor& vector) noexcept
     precision_type denominator;
 
     max = vector(0);
-    for(size_type i = 1; i < vector.size(); ++i)
+    for(size_type i = 1; i < buff.size(); ++i)
         if(max < vector(i)) max = vector(i);
 
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = std::exp(vector(i) - max);
 
     denominator = 0.;
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         denominator += buff(i);
 
     denominator = 1. / denominator;
 
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) *= denominator;
 }
 
@@ -90,9 +90,7 @@ void tensor_of_units(Tensor& buff, const Tensor& /*unused*/) noexcept
 template <class ActivationFunction, typename CastType, typename ActivationId>
 ActivationFunction get_activation_function(ActivationId id)
 {
-    static CastType f_id;
-
-    f_id = static_cast<CastType>(id);
+    static CastType f_id = static_cast<CastType>(id);
 
     switch (id)
     {

@@ -63,9 +63,10 @@
     template <typename T = Class,                                                                       \
               typename std::enable_if<is_type<T>::value, int>::type = 0>
 
-#define TRIXY_CHECK_ID_HELPER(id_type, type)                                                            \
-    struct type {                                                                                       \
-        template <id_type id> using check = ::trixy::meta::select_for<id == id_type::type, type>;       \
+#define TRIXY_DEF_OPT_HELPER(id_type, T)                                                                \
+    struct T {                                                                                          \
+        template <id_type id>                                                                           \
+        using def = ::trixy::meta::select_for<id == id_type::T, T>;                                     \
     }
 
 #define TRIXY_REQUIRE(conditions...)                                                                    \

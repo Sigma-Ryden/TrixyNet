@@ -2,7 +2,7 @@
 #define LIQUE_TOOL_HPP
 
 #include <cstddef> // size_t
-#include <initializer_list> // initializer_list
+#include <random> // rand
 #include <utility> // forward
 
 #include "LiqueVector.hpp"
@@ -53,43 +53,43 @@ inline T sum(T&& t) noexcept
 }
 
 template <class T, class... Tn,
-          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
+          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
 inline T sum(T&& t, Tn&&... tn)
 {
     return t + sum(std::forward<T>(tn)...);
 }
 
-template <class Vector,
-          typename size_type = typename Vector::size_type,
-          Binary<typename Vector::precision_type> compare,
-          lique::meta::use_for_vector_t<Vector> = 0>
-size_type find(const Vector& vector) noexcept
+template <class Tensor,
+          Binary<typename Tensor::precision_type> compare,
+          typename size_type = typename Tensor::size_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+size_type find(const Tensor& tensor) noexcept
 {
-    size_type arg = 0;
-    for(size_type i = 1; i < vector.size(); ++i)
-        if(compare(vector(arg), vector(i)))
-            arg = i;
+    size_type idx = 0;
+    for(size_type n = 1; n < tensor.size(); ++n)
+        if(compare(tensor(idx), tensor(n)))
+            idx = n;
 
-    return arg;
+    return idx;
 }
 
 template <typename Precision,
           Binary<Precision> compare,
+          class Matrix = Matrix<Precision>,
+          typename size_type = typename Matrix::size_type,
           trixy::meta::use_for_arithmetic_t<Precision> = 0>
-Vector<std::size_t> find(
-    const Matrix<Precision>& matrix,
-    Axis axis = Axis::None)
+Vector<size_type> find(const Matrix& matrix, Axis axis)
 {
-    Vector<std::size_t> vector;
-    std::size_t arg;
+    Vector<size_type> vector;
+    size_type arg;
 
     switch(axis)
     {
     case Axis::X:
-        vector.resize(matrix.shape().col(), 0);
+        vector.resize(matrix.shape().col(), size_type());
 
-        for(std::size_t i = 1; i < matrix.shape().row(); ++i)
-            for(std::size_t n = 0; n < vector.size(); ++n)
+        for(size_type i = 1; i < matrix.shape().row(); ++i)
+            for(size_type n = 0; n < vector.size(); ++n)
                 if(compare(matrix(vector(n), n), matrix(i, n)))
                     vector(n) = i;
 
@@ -98,9 +98,9 @@ Vector<std::size_t> find(
     case Axis::Y:
         vector.resize(matrix.shape().row());
 
-        for(std::size_t n = 0; n < vector.size(); ++n)
+        for(size_type n = 0; n < vector.size(); ++n)
         {
-            for(std::size_t min = 0, i = 1; i < matrix.shape().col(); ++i)
+            for(size_type i = 1; i < matrix.shape().col(); ++i)
                 if(compare(matrix(n, arg), matrix(n, i)))
                     arg = i;
 
@@ -112,7 +112,7 @@ Vector<std::size_t> find(
         vector.resize(1);
 
         arg = 0;
-        for(std::size_t i = 1; i < matrix.size(); ++i)
+        for(size_type i = 1; i < matrix.size(); ++i)
             if(compare(matrix(arg), matrix(i)))
                 arg = i;
 
@@ -123,50 +123,46 @@ Vector<std::size_t> find(
     return vector;
 }
 
-template <class Vector,
-          typename size_type = typename Vector::size_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-size_type argmin(const Vector& vector) noexcept
+template <class Tensor,
+          typename size_type = typename Tensor::size_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+size_type argmin(const Tensor& tensor) noexcept
 {
-    return find<typename Vector::precision_type, comp::is_bigger>(vector);
+    return find<Tensor, comp::is_bigger>(tensor);
 }
 
-template <class Vector,
-          typename size_type = typename Vector::size_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-size_type argmax(const Vector& vector) noexcept
+template <class Tensor,
+          typename size_type = typename Tensor::size_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+size_type argmax(const Tensor& tensor) noexcept
 {
-    return find<typename Vector::precision_type, comp::is_less>(vector);
+    return find<Tensor, comp::is_less>(tensor);
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Vector<std::size_t> argmin(
-    const Matrix<Precision>& matrix,
-    Axis axis = Axis::None)
+Vector<std::size_t> argmin(const Matrix<Precision>& matrix, Axis axis)
 {
     return find<Precision, comp::is_bigger>(matrix, axis);
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Vector<std::size_t> argmax(
-    const Matrix<Precision>& matrix,
-    Axis axis = Axis::None)
+Vector<std::size_t> argmax(const Matrix<Precision>& matrix, Axis axis)
 {
     return find<Precision, comp::is_less>(matrix, axis);
 }
 
-template <class Vector, typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-precision_type min(const Vector& vector) noexcept
+template <class Tensor, typename precision_type = typename Tensor::precision_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+precision_type min(const Tensor& tensor) noexcept
 {
-    return vector(find<precision_type, comp::is_bigger>(vector));
+    return tensor(find<Tensor, comp::is_bigger>(tensor));
 }
 
-template <class Vector, typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-precision_type max(const Vector& vector) noexcept
+template <class Tensor, typename precision_type = typename Tensor::precision_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+precision_type max(const Tensor& tensor) noexcept
 {
-    return vector(find<precision_type, comp::is_less>(vector));
+    return tensor(find<Tensor, comp::is_less>(tensor));
 }
 
 template <class Vector,
@@ -211,42 +207,44 @@ Vector<Precision> mean(
     const Matrix<Precision>& matrix,
     Axis axis = Axis::None)
 {
+    using size_type = typename Vector<Precision>::size_type;
+
     Vector<Precision> vector;
     Precision alpha;
 
     switch(axis)
     {
     case Axis::X:
-        vector.resize(matrix.shape().col(), 0.);
+        vector.resize(matrix.shape().col(), Precision());
         alpha = 1. / static_cast<Precision>(matrix.shape().row());
 
-        for(std::size_t n = 0; n < matrix.shape().row(); ++n)
-            for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type n = 0; n < matrix.shape().row(); ++n)
+            for(size_type i = 0; i < vector.size(); ++i)
                 vector(i) += matrix(n, i);
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
             vector(i) *= alpha;
 
         break;
 
     case Axis::Y:
-        vector.resize(matrix.shape().row(), 0.);
+        vector.resize(matrix.shape().row(), Precision());
         alpha = 1. / static_cast<Precision>(matrix.shape().col());
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
-            for(std::size_t n = 0; n < matrix.shape().col(); ++n)
+        for(size_type i = 0; i < vector.size(); ++i)
+            for(size_type n = 0; n < matrix.shape().col(); ++n)
                 vector(i) += matrix(i, n);
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
             vector(i) *= alpha;
 
         break;
 
     default:
-        vector.resize(1, 0.);
+        vector.resize(1, Precision());
         alpha = 1. / static_cast<Precision>(matrix.size());
 
-        for(std::size_t i = 0; i < matrix.size(); ++i)
+        for(size_type i = 0; i < matrix.size(); ++i)
             vector(0) += matrix(i);
 
         vector(0) *= alpha;
@@ -262,6 +260,8 @@ Vector<Precision> std(
     Axis axis = Axis::None,
     bool unbiased = false)
 {
+    using size_type = typename Vector<Precision>::size_type;
+
     Vector<Precision> vector = mean(matrix, axis);
 
     Precision std_value;
@@ -273,10 +273,10 @@ Vector<Precision> std(
     case Axis::X:
         alpha = 1. / static_cast<Precision>(matrix.shape().row() - unbiased);
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
         {
             std_value = 0.;
-            for(std::size_t n = 0; n < matrix.shape().row(); ++n)
+            for(size_type n = 0; n < matrix.shape().row(); ++n)
             {
                 buff = matrix(n, i) - vector(i);
                 std_value += buff * buff;
@@ -285,7 +285,7 @@ Vector<Precision> std(
             vector(i) = std_value;
         }
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
         {
             vector(i) *= alpha;
             vector(i)  = std::sqrt(vector(i));
@@ -296,7 +296,7 @@ Vector<Precision> std(
     case Axis::Y:
         alpha = 1. / static_cast<Precision>(matrix.shape().col() - unbiased);
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
         {
             std_value = 0.;
             for(std::size_t n = 0; n < matrix.shape().col(); ++n)
@@ -308,7 +308,7 @@ Vector<Precision> std(
             vector(i) = std_value;
         }
 
-        for(std::size_t i = 0; i < vector.size(); ++i)
+        for(size_type i = 0; i < vector.size(); ++i)
         {
             vector(i) *= alpha;
             vector(i)  = std::sqrt(vector(i));
@@ -319,7 +319,7 @@ Vector<Precision> std(
     default:
         alpha = 1. / static_cast<Precision>(matrix.size() - unbiased);
         std_value = 0.;
-        for(std::size_t i = 0; i < matrix.size(); ++i)
+        for(size_type i = 0; i < matrix.size(); ++i)
         {
             buff = matrix(i) - vector(0);
             std_value += buff * buff;
@@ -333,10 +333,8 @@ Vector<Precision> std(
 }
 
 template <class Tensor, class Function,
-          lique::meta::use_for_tensor_t<Tensor> = 0>
-void for_each(
-    Tensor& tensor,
-    Function func) noexcept
+          typename = lique::meta::enable_for_tensor_t<Tensor>>
+void for_each(Tensor& tensor, Function func) noexcept
 {
     using size_type = typename Tensor::size_type;
 
@@ -355,7 +353,7 @@ void concat(T& out, std::size_t& at, const T& tensor)
 
 template <class T, class... Tn,
           lique::meta::use_for_tensor_t<T> = 0,
-          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
+          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
@@ -391,7 +389,7 @@ Tensor concat(const Container<Tensor>& list)
 
 template <class T, class... Tn,
           lique::meta::use_for_tensor_t<T> = 0,
-          typename std::enable_if<trixy::meta::is_same_all<T, Tn...>::value, int>::type = 0>
+          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
     using size_type = typename T::size_type;
@@ -402,6 +400,34 @@ T concat(const T& tensor, const Tn&... tensor_n)
     detail::concat(out, position, tensor, tensor_n...);
 
     return out;
+}
+
+template <class Tensor, class Generator,
+         typename size_type = typename Tensor::size_type,
+         lique::meta::use_for_tensor_t<Tensor> = 0>
+size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_max)
+{
+    using precision_type = typename Tensor::value_type;
+
+    precision_type r = precision_type(generator()) / precision_type(rand_max);
+    precision_type accumulate = 0.;
+
+    for(size_type i = 0; i < tensor.size(); ++i)
+    {
+        accumulate += tensor[i];
+        if(r < accumulate)
+            return i;
+    }
+
+    return argmin(tensor);
+}
+
+template <class Tensor,
+         typename size_type = typename Tensor::size_type,
+         lique::meta::use_for_tensor_t<Tensor> = 0>
+size_type multinomial(const Tensor& tensor)
+{
+    return multinomial(tensor, std::rand, RAND_MAX);
 }
 
 } // namespace lique

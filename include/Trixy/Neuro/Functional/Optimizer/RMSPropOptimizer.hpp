@@ -77,7 +77,8 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
     Optimizeriable& network,
     precision_type learning_rate,
     precision_type beta)
-    : net(network)
+    : Base()
+    , net(network)
     , buff1(Optimizeriable::init1D(net.inner.topology))
     , buff2(Optimizeriable::init2D(net.inner.topology))
     , optimizedB(Optimizeriable::init1D(net.inner.topology, 0.))

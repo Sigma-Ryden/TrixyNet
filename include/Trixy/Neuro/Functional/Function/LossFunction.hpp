@@ -77,7 +77,7 @@ void mean_absolute_error_derived(Tensor& buff, const Tensor& y_true, const Tenso
 {
     static precision_type diff;
 
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
     {
         diff = y_true(i) - y_pred(i);
         buff(i) = diff < 0.
@@ -105,7 +105,7 @@ void mean_squared_log_error(precision_type& result, const Tensor& y_true, const 
 TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void mean_squared_log_error_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
     {
         buff(i) = y_pred(i) + 1.;
         buff(i) = std::log(buff(i) / (y_true(i) + 1.)) / buff(i);
@@ -128,7 +128,7 @@ void binary_cross_entropy_derived(Tensor& buff, const Tensor& y_true, const Tens
     static constexpr precision_type epsilon = 1e-9;
     static constexpr precision_type alpha   = epsilon - 1.0;
 
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) =
             (y_true(i) - 1.) / (y_pred(i) + alpha) - y_true(i) / (y_pred(i) + epsilon);
 }
@@ -136,7 +136,7 @@ void binary_cross_entropy_derived(Tensor& buff, const Tensor& y_true, const Tens
 TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void binary_cross_entropy_derived_sigmoid(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = y_true(i) * (y_pred(i) - 1.) + (1. - y_true(i)) * y_pred(i);
 }
 
@@ -154,7 +154,7 @@ void negative_log_likelihood(precision_type& result, const Tensor& y_true, const
 TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void negative_log_likelihood_derived_softmax(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = y_pred(i) - y_true(i);
 }
 
@@ -169,16 +169,14 @@ void logcosh(precision_type& result, const Tensor& y_true, const Tensor& y_pred)
 TRIXY_FUNCTION_TENSOR_TPL_DECLARATION
 void logcosh_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) noexcept
 {
-    for(size_type i = 0; i < y_true.size(); ++i)
+    for(size_type i = 0; i < buff.size(); ++i)
         buff(i) = std::tanh(y_pred(i) - y_true(i));
 }
 
 template <class LossFunction, typename CastType, typename LossId>
 LossFunction get_loss_function(LossId id)
 {
-    static CastType f_id;
-
-    f_id = static_cast<CastType>(id);
+    CastType f_id = static_cast<CastType>(id);
 
     switch (id)
     {

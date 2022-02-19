@@ -59,7 +59,8 @@ TRIXY_OPTIMIZER_TPL_DECLARATION
 GradDescentOptimizer<Optimizeriable>::Optimizer(
     Optimizeriable& network,
     precision_type learning_rate)
-    : net(network)
+    : Base()
+    , net(network)
     , buff1(Optimizeriable::init1D(net.inner.topology))
     , buff2(Optimizeriable::init2D(net.inner.topology))
     , learning_rate(learning_rate)

@@ -122,7 +122,7 @@ void mnist_test_deserialization()
     sr.deserialize(in);
     in.close();
 
-    TrixyNet net = sr.getTopology();
+    TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
 
     net.initializeInnerStruct(sr.getBias(), sr.getWeight());
