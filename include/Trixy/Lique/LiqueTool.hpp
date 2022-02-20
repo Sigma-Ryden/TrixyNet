@@ -407,7 +407,7 @@ template <class Tensor, class Generator,
          lique::meta::use_for_tensor_t<Tensor> = 0>
 size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_max)
 {
-    using precision_type = typename Tensor::value_type;
+    using precision_type = typename Tensor::precision_type;
 
     precision_type r = precision_type(generator()) / precision_type(rand_max);
     precision_type accumulate = 0.;
