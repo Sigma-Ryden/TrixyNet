@@ -44,6 +44,8 @@ public:
     ~Tensor();
 
     explicit Tensor(size_type size);
+    explicit Tensor(const_pointer beg, const_pointer end);
+
     Tensor(size_type size, precision_type value);
     Tensor(size_type size, const_pointer src);
 
@@ -115,6 +117,13 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline Vector<Precision>::Tensor(size_type size)
     : data_(new precision_type [size]), size_(size)
 {
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>::Tensor(const_pointer beg, const_pointer end)
+    : data_(new precision_type [end - beg]), size_(1, end - beg)
+{
+     detail::copy(data_, data_ + size_, beg);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

@@ -48,10 +48,10 @@ public:
     ~Tensor();
 
     explicit Tensor(size_type size);
-    Tensor(size_type size, const_pointer ptr);
+    explicit Tensor(const_pointer beg, const_pointer end);
 
     explicit Tensor(size_type m, size_type n);
-    explicit Tensor(size_type m, size_type n, precision_type value);
+    Tensor(size_type m, size_type n, precision_type value);
     Tensor(size_type m, size_type n, const_pointer ptr);
 
     explicit Tensor(const Shape& shape);
@@ -170,10 +170,10 @@ inline Matrix<Precision>::Tensor(size_type size)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(size_type size, const_pointer src)
-    : data_(new precision_type [size]), shape_(1, size)
+Matrix<Precision>::Tensor(const_pointer beg, const_pointer end)
+    : data_(new precision_type [end - beg]), shape_(1, end - beg)
 {
-     detail::copy(data_, data_ + shape_.size_, src);
+     detail::copy(data_, data_ + shape_.size_, beg);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

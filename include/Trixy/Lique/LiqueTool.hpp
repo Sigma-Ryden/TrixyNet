@@ -73,12 +73,10 @@ size_type find(const Tensor& tensor) noexcept
     return idx;
 }
 
-template <typename Precision,
-          Binary<Precision> compare,
-          class Matrix = Matrix<Precision>,
-          typename size_type = typename Matrix::size_type,
+template <typename Precision, Binary<Precision> compare,
+          typename size_type = typename Matrix<Precision>::size_type,
           trixy::meta::use_for_arithmetic_t<Precision> = 0>
-Vector<size_type> find(const Matrix& matrix, Axis axis)
+Vector<size_type> find(const Matrix<Precision>& matrix, Axis axis)
 {
     Vector<size_type> vector;
     size_type arg;
@@ -123,16 +121,14 @@ Vector<size_type> find(const Matrix& matrix, Axis axis)
     return vector;
 }
 
-template <class Tensor,
-          typename size_type = typename Tensor::size_type,
+template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::use_for_tensor_t<Tensor> = 0>
 size_type argmin(const Tensor& tensor) noexcept
 {
     return find<Tensor, comp::is_bigger>(tensor);
 }
 
-template <class Tensor,
-          typename size_type = typename Tensor::size_type,
+template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::use_for_tensor_t<Tensor> = 0>
 size_type argmax(const Tensor& tensor) noexcept
 {
@@ -165,47 +161,43 @@ precision_type max(const Tensor& tensor) noexcept
     return tensor(find<Tensor, comp::is_less>(tensor));
 }
 
-template <class Vector,
-          typename size_type = typename Vector::size_type,
-          typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-precision_type mean(const Vector& vector) noexcept
+template <class Tensor, typename precision_type = typename Tensor::precision_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+precision_type mean(const Tensor& tensor) noexcept
 {
+    using size_type = typename Tensor::size_type;
+
     size_type mean_value = 0.;
 
-    for(size_type i = 0; i < vector.size(); ++i)
-        mean_value += vector(i);
+    for(size_type i = 0; i < tensor.size(); ++i)
+        mean_value += tensor(i);
 
-    return mean_value / static_cast<precision_type>(vector.size());
+    return mean_value / static_cast<precision_type>(tensor.size());
 }
 
-template <class Vector,
-          typename size_type = typename Vector::size_type,
-          typename precision_type = typename Vector::precision_type,
-          lique::meta::use_for_vector_t<Vector> = 0>
-precision_type std(
-    const Vector& vector,
-    bool unbiased = false)
+template <class Tensor, typename precision_type = typename Tensor::precision_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
+precision_type std(const Tensor& tensor, bool unbiased = false)
 {
-    precision_type mean_value = mean(vector);
+    using size_type = typename Tensor::size_type;
+
+    precision_type mean_value = mean(tensor);
     precision_type std_value;
     precision_type buff;
 
-    for(size_type i = 0; i < vector.size(); ++i)
+    for(size_type i = 0; i < tensor.size(); ++i)
     {
         buff = vector(i) - mean_value;
         std_value += buff * buff;
     }
 
-    std_value /= static_cast<precision_type>(vector.size() - unbiased);
+    std_value /= static_cast<precision_type>(tensor.size() - unbiased);
 
     return std::sqrt(std_value);
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Vector<Precision> mean(
-    const Matrix<Precision>& matrix,
-    Axis axis = Axis::None)
+Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
 {
     using size_type = typename Vector<Precision>::size_type;
 
@@ -255,10 +247,7 @@ Vector<Precision> mean(
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
-Vector<Precision> std(
-    const Matrix<Precision>& matrix,
-    Axis axis = Axis::None,
-    bool unbiased = false)
+Vector<Precision> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = false)
 {
     using size_type = typename Vector<Precision>::size_type;
 
@@ -403,8 +392,8 @@ T concat(const T& tensor, const Tn&... tensor_n)
 }
 
 template <class Tensor, class Generator,
-         typename size_type = typename Tensor::size_type,
-         lique::meta::use_for_tensor_t<Tensor> = 0>
+          typename size_type = typename Tensor::size_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
 size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_max)
 {
     using precision_type = typename Tensor::precision_type;
@@ -423,8 +412,8 @@ size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_
 }
 
 template <class Tensor,
-         typename size_type = typename Tensor::size_type,
-         lique::meta::use_for_tensor_t<Tensor> = 0>
+          typename size_type = typename Tensor::size_type,
+          lique::meta::use_for_tensor_t<Tensor> = 0>
 size_type multinomial(const Tensor& tensor)
 {
     return multinomial(tensor, std::rand, RAND_MAX);
