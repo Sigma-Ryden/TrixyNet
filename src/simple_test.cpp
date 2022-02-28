@@ -36,7 +36,7 @@ typename Net::template Container<typename Net::Vector> get_simple_test_odata()
     };
 }
 
-template <typename Precision>
+template <typename Precision = double>
 void simple_test_deserialization()
 {
     using namespace tr::functional;
@@ -65,9 +65,10 @@ void simple_test_deserialization()
 
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
+    //util::show_inner_struct(net);
 }
 
-template <typename Precision>
+template <typename Precision = double>
 void simple_test()
 {
     using namespace tr::functional;
@@ -97,16 +98,18 @@ void simple_test()
     auto optimizer = manage.template get<OptimizationId::adam>(net, 0.01);
 
     util::Timer t;
-    teach.trainStochastic(train_in, train_out, 1000, std::rand, optimizer);
+    teach.trainStochastic(train_in, train_out, 2000, std::rand, optimizer);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
+    //util::show_inner_struct(net);
 
     std::ofstream out("D:\\Serialized\\simple_test.bin");
     if(!out.is_open()) return;
 
     TrixyNetSerializer sr;
+
     sr.prepare(net);
     sr.serialize(out);
     out.close();
@@ -119,8 +122,8 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    simple_test<double>();
-    simple_test_deserialization<double>();
+    simple_test<>();
+    simple_test_deserialization<>();
 
     return 0;
 }

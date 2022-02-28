@@ -30,7 +30,7 @@ public:
     using TensorOperation = LinearType<PrecisionType>;
 
 private:
-    Vector  W;            ///< Inner weight
+    Vector W;             ///< Inner weight
     size_type N;          ///< Size of weight vector (same as power size + 1)
 
     TensorOperation linear;
@@ -49,7 +49,7 @@ public:
                      const Vector& odata) const;
 
     const Vector& getInnerWeight() const noexcept { return W; }
-    precision_type getInnerPower() const noexcept { return N; }
+    size_type getInnerPower() const noexcept { return N - 1; }
 };
 
 TRIXY_REGRESSION_TPL_DECLARATION
@@ -69,8 +69,8 @@ TRIXY_REGRESSION_TPL_DECLARATION
 void TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::reset(
     size_type new_power)
 {
-    W.resize(new_power + 1);
     N = new_power + 1;
+    W.resize(N);
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION

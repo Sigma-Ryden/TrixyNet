@@ -49,8 +49,8 @@ void test_image_batch(const Net& net, const ImageDataType& data, const ImageData
 
         prediction.copy(net.feedforward(data[i]));
 
-        std::cout << "\nTRUE: " << util::max(target[i])
-                  << "\nPRED: " << util::max(prediction) << '\n'; // << prediction << '\n';
+        std::cout << "\nTRUE: " << li::argmax(target[i])
+                  << "\nPRED: " << li::argmax(prediction) << '\n'; // << prediction << '\n';
 
         std::cin.get();
     }

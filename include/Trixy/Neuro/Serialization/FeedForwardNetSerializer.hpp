@@ -39,8 +39,8 @@ private:
     Container<Vector> B;            ///< Container of network bias
     Container<Matrix> W;            ///< Container of network weight
 
-    AllActivationId activation;     ///< Network activation functions id
-    LossId loss;                    ///< Network loss function id
+    AllActivationId activationId;   ///< Network activation functions id
+    LossId lossId;                  ///< Network loss function id
 
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
@@ -58,19 +58,23 @@ public:
     const Container<Vector>& getBias() const noexcept { return B; }
     const Container<Matrix>& getWeight() const noexcept { return W; }
 
-    ActivationId getActivationId() const noexcept { return activation.front(); }
-    ActivationId getNormalizationId() const noexcept { return activation.back(); }
+    ActivationId getActivationId() const noexcept { return activationId.front(); }
+    ActivationId getNormalizationId() const noexcept { return activationId.back(); }
 
-    const AllActivationId& getAllActivationId() const noexcept { return activation; }
+    const AllActivationId& getAllActivationId() const noexcept { return activationId; }
 
-    LossId getLossId() const noexcept { return loss; }
+    LossId getLossId() const noexcept { return lossId; }
 
 private:
-    template <class Tensor>
-    static void serializeTensor(const Tensor& tensor, std::ofstream& out, size_type offset);
+    template <typename Data>
+    static void serializeData(
+        std::ofstream& out, const Data* beg, size_type size
+    );
 
-    template <class Tensor>
-    static void deserializeTensor(Tensor& tensor, std::ifstream& in, size_type offset);
+    template <typename Data>
+    static void deserializeData(
+        std::ifstream& in, Data* beg, size_type size
+    );
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -85,31 +89,37 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
 
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].resize(net.inner.B[i].size(), net.inner.B[i].data());
-        W[i].resize(net.inner.W[i].shape(), net.inner.W[i].data());
+        B[i].resize(
+            net.inner.B[i].size(),
+            net.inner.B[i].data()
+        );
+
+        W[i].resize(
+            net.inner.W[i].shape(),
+            net.inner.W[i].data()
+        );
     }
 
-    activation = net.function.getAllActivationId();
-    loss = net.function.getLossId();
+    activationId = net.function.getAllActivationId();
+    lossId = net.function.getLossId();
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(std::ofstream& out) const
 {
     size_type n = topology.size();
-    out.write(detail::const_byte_cast(&n), sizeof(size_type));
 
-    serializeTensor(topology, out, sizeof(size_type));
+    serializeData(out, &n, 1);
+    serializeData(out, topology.data(), topology.size());
 
-    serializeTensor(activation, out, sizeof(ActivationId));
-
-    out.write(detail::const_byte_cast(&loss), sizeof(LossId));
+    serializeData(out, activationId.data(), activationId.size());
+    serializeData(out, &lossId, 1);
 
     for(auto& tensor : B)
-        serializeTensor(tensor, out, sizeof(precision_type));
+        serializeData(out, tensor.data(), tensor.size());
 
     for(auto& tensor : W)
-        serializeTensor(tensor, out, sizeof(precision_type));
+        serializeData(out, tensor.data(), tensor.size());
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -117,19 +127,28 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(
     std::ofstream& out, const Serializable& net) const
 {
     size_type n = net.inner.topology.size();
-    out.write(detail::const_byte_cast(&n), sizeof(size_type));
 
-    serializeTensor(net.inner.topology, out, sizeof(size_type));
+    serializeData(out, &n, 1);
 
-    serializeTensor(net.function.getAllActivationId(), out, sizeof(ActivationId));
+    serializeData(
+        out,
+        net.inner.topology.data(),
+        net.inner.topology.size()
+    );
 
-    out.write(detail::const_byte_cast(&net.function.getLossId()), sizeof(LossId));
+    serializeData(
+        out,
+        net.function.getAllActivationId().data(),
+        net.function.getAllActivationId().size()
+    );
+
+    serializeData(out, &net.function.getLossId(), 1);
 
     for(auto& tensor : net.inner.B)
-        serializeTensor(tensor, out, sizeof(precision_type));
+        serializeData(out, tensor.data(), tensor.size());
 
     for(auto& tensor : net.inner.W)
-        serializeTensor(tensor, out, sizeof(precision_type));
+        serializeData(out, tensor.data(), tensor.size());
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -137,15 +156,15 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
 {
     size_type n;
 
-    in.read(detail::byte_cast(&n), sizeof(size_type));
+    deserializeData(in, &n, 1);
 
     topology.resize(n);
 
-    deserializeTensor(topology, in, sizeof(size_type));
+    deserializeData(in, topology.data(), topology.size());
 
     N = n - 1;
 
-    activation.resize(N);
+    activationId.resize(N);
     B.resize(N);
     W.resize(N);
 
@@ -155,45 +174,30 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
         W[n].resize(topology[n], topology[n + 1]);
     }
 
-    deserializeTensor(activation, in, sizeof(ActivationId));
-
-    in.read(detail::byte_cast(&loss), sizeof(LossId));
+    deserializeData(in, activationId.data(), activationId.size());
+    deserializeData(in, &lossId, 1);
 
     for(auto& tensor : B)
-        deserializeTensor(tensor, in, sizeof(precision_type));
+        deserializeData(in, tensor.data(), tensor.size());
 
     for(auto& tensor : W)
-        deserializeTensor(tensor, in, sizeof(precision_type));
+        deserializeData(in, tensor.data(), tensor.size());
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <class Tensor>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeTensor(
-    const Tensor& tensor, std::ofstream& out, size_type offset)
+template <typename Data>
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
+    std::ofstream& out, const Data* beg, size_type size)
 {
-    auto beg = tensor.data();
-    auto end = tensor.data() + tensor.size();
-
-    while(beg != end)
-    {
-        out.write(detail::const_byte_cast(beg), offset);
-        ++beg;
-    }
+    out.write(reinterpret_cast<const char*>(beg), sizeof(*beg) * size);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <class Tensor>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeTensor(
-    Tensor& tensor, std::ifstream& in, size_type offset)
+template <typename Data>
+void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
+    std::ifstream& in, Data* beg, size_type size)
 {
-    auto beg = tensor.data();
-    auto end = tensor.data() + tensor.size();
-
-    while(beg != end)
-    {
-        in.read(detail::byte_cast(beg), offset);
-        ++beg;
-    }
+    in.read(reinterpret_cast<char*>(beg), sizeof(*beg) * size);
 }
 
 } // namespace trixy

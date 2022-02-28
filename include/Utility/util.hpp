@@ -37,19 +37,6 @@ public:
     }
 };
 
-template <typename Precision>
-std::size_t max(const trixy::lique::Vector<Precision>& vector) noexcept
-{
-    static std::size_t max;
-
-    max = 0;
-    for(std::size_t i = 1; i < vector.size(); ++i)
-        if(vector(max) < vector(i))
-            max = i;
-
-    return max;
-}
-
 template <template <typename...> class Collection>
 void network_size(const Collection<std::size_t>& topology)
 {
@@ -129,10 +116,10 @@ template <class Net>
 void show_inner_struct(const Net& net)
 {
     for(std::size_t i = 0; i < net.getInnerWeight().size(); ++i)
-        std::cout << "W[" << i << "]: " << net.getInnerWeight()[i] << '\n';
+        std::cout << "W[" << i << "]: " << net.getInnerWeight()[i].base() << '\n';
 
     for(std::size_t i = 0; i < net.getInnerBias().size(); ++i)
-        std::cout << "B[" << i << "]: " << net.getInnerBias()[i] << '\n';
+        std::cout << "B[" << i << "]: " << net.getInnerBias()[i].base() << '\n';
 }
 
 } // namespace util

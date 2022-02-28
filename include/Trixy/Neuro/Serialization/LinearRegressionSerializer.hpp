@@ -23,15 +23,17 @@ public:
     using size_type      = typename Serializable::size_type;
 
 private:
-    Vector W;            ///< Inner weight
+    Vector    W;         ///< Inner weight
     size_type N;         ///< Size of weight vector (same as sample size + 1)
 
 public:
-    Serializer() = default;
+    Serializer() : W(), N(0) {}
 
     void prepare(const Serializable& reg);
 
     void serialize(std::ofstream& out) const;
+    void serialize(std::ofstream& out, const Serializable& reg) const;
+
     void deserialize(std::ifstream& in);
 
     const Vector& getWeight() const noexcept { return W; };
@@ -49,9 +51,20 @@ TRIXY_SERIALIZER_TPL_DECLARATION
 void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(std::ofstream& out) const
 {
     out.write(detail::const_byte_cast(&N), sizeof(size_type));
+    out.write(detail::const_byte_cast(W.data()), W.size() * sizeof(precision_type));
+}
 
-    for(size_type i = 0; i < W.size(); ++i)
-        out.write(detail::const_byte_cast(&W(i)), sizeof(precision_type));
+TRIXY_SERIALIZER_TPL_DECLARATION
+void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(
+    std::ofstream& out, const Serializable& reg) const
+{
+    size_type n = reg.getInnerSize();
+    out.write(detail::const_byte_cast(&n), sizeof(size_type));
+
+    out.write(
+        detail::const_byte_cast(reg.getInnerWeight().data()),
+        reg.getInnerWeight().size() * sizeof(precision_type)
+    );
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -60,9 +73,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::deserialize(std::ifstream
     in.read(detail::byte_cast(&N), sizeof(size_type));
 
     W.resize(N + 1);
-
-    for(size_type i = 0; i < W.size(); ++i)
-        in.read(detail::byte_cast(&W(i)), sizeof(precision_type));
+    in.read(detail::byte_cast(W.data()), W.size() * sizeof(precision_type));
 }
 
 } // namespace trixy

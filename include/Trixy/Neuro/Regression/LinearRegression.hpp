@@ -68,8 +68,8 @@ void TRIXY_REGRESSION_TPL(RegressionType::Linear)::initializeInnerStruct(Vector 
 TRIXY_REGRESSION_TPL_DECLARATION
 void TRIXY_REGRESSION_TPL(RegressionType::Linear)::reset(size_type new_sample_size)
 {
-    W.resize(new_sample_size + 1);
     N = new_sample_size + 1;
+    W.resize(N);
 }
 
 TRIXY_REGRESSION_TPL_DECLARATION

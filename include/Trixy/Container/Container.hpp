@@ -208,7 +208,7 @@ Container<Type>& Container<Type>::operator= (const Container& container)
     capacity_ = container.capacity_;
 
     size_ = container.size_;
-    data_ = Container::allocate(size_);
+    data_ = Container::allocate(capacity_);
 
     for(size_type i = 0; i < size_; ++i)
         new (data_ + i) value_type(container.data_[i]);

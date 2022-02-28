@@ -105,7 +105,7 @@ void polynomial_regression_test_deserialization()
     auto Y = get_sin_odata<PolynomialReg>();
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
+    std::cout << "Test:\n" << reg.feedforward(X) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 }
 
@@ -123,17 +123,17 @@ void polynomial_regression_test()
     auto Y = get_sin_odata<PolynomialReg>();
 
     teach.train(X, Y);
-
+    std::cout << reg.getInnerPower() << '\n';
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test v:\n" << reg.feedforward(X) << "\n\n";
+    std::cout << "Test:\n" << reg.feedforward(X) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
-    sr.prepare(reg);
-    sr.serialize(out);
+
+    sr.serialize(out, reg);
     out.close();
 
     std::cout << "End of serialization\n";
@@ -160,7 +160,7 @@ void linear_regression_test_deserialization()
     auto Y = get_linear_odata<LinearReg>();
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
+    std::cout << "Test:\n" << reg.feedforwardBatch(X) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 }
 
@@ -178,17 +178,17 @@ void linear_regression_test()
     auto Y = get_linear_odata<LinearReg>();
 
     teach.train(X, Y);
-
+    std::cout << reg.getInnerSize() << '\n';
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test m:\n" << reg.feedforwardBatch(X) << "\n\n";
+    std::cout << "Test:\n" << reg.feedforwardBatch(X) << "\n\n";
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if(!out.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
-    sr.prepare(reg);
-    sr.serialize(out);
+
+    sr.serialize(out, reg);
     out.close();
 
     std::cout << "End of serialization\n";
