@@ -136,122 +136,52 @@ int main()
     std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
+    //speed_test();
     speed_test_deserialization();
 
     //std::cin.get();
 
     return 0;
 }
-//
 /*
-#include <cstring>
-
-using size_type = std::conditional<0, std::size_t, unsigned int>::type;
-using byte_type = char;
-
-template <size_type N>
-class Buff
+#include "Trixy/Buffer/Buffer.hpp"
+//
+int main()
 {
-private:
-    byte_type data_[N];
+    std::srand(unsigned(std::time(nullptr)));
+    std::cout << std::fixed << std::setprecision(3);
 
-public:
-    byte_type* data() noexcept
-    {
-        return data_;
-    }
+    using util::operator<<;
 
-    const byte_type* data() const noexcept
-    {
-        return data_;
-    }
+    tr::DataBuffer buff(2);
 
-    template <typename OutData,
-              typename = typename std::enable_if<(sizeof(OutData) <= N)>::type>
-    void copy(OutData& dst)
-    {
-        std::memcpy(&dst, data_, sizeof(dst));
-    }
+    li::Vector<int> a(2, 12345);
 
-    template <typename InData,
-              typename = typename std::enable_if<(sizeof(InData) <= N)>::type>
-    void put(const InData& src)
-    {
-        std::memcpy(data_, &src, sizeof(src));
-    }
-};
+    std::cout << "BEGIN of buff\n";
+    for(int i = 0; i < 2 * 8; ++i)
+        std::cout << (double) buff.data()[i] << ' ';
+    std::cout << "\nEND of buff\n";
 
-byte_type powerof2(byte_type base2)
-{
-    byte_type pow = 0;
+    std::cout << a << '\n';
 
-    while((base2 >>= 1) != 0)
-    {
-        ++pow;
-    }
+    buff.write(a.data(), a.data() + a.size());
 
-    return pow;
-}
+    std::cout << "BEGIN of buff\n";
+    for(int i = 0; i < 2 * 8; ++i)
+        std::cout << (double) buff.data()[i] << ' ';
+    std::cout << "\nEND of buff\n";
 
-void w()
-{
-    std::ofstream out("D:\\temp.bin");
+    li::Vector<short> b(2);
 
-    byte_type sizeof_size_type = 16;
-    byte_type sizeof_precision_type = 4;
-    byte_type sizeof_activation_id = 8;
-    byte_type sizeof_loss_id = 2;
+    buff.read(b.data(), b.data() + b.size());
 
-    byte_type meta;
+    std::cout << b << '\n';
 
-    // each 4 bits in first 2nd bytes of serialized binary file
-    // using for writing meta-value 'n' where
-    // 'n' is position of binary 1 in each variables sizeof_'name'
+    //speed_test();
+    //speed_test_deserialization();
 
-    // writing first 4 bits of sizeof_'size_type',
-    // and second 4 bits of sizeof_'precision_type'
-    meta = (powerof2(sizeof_size_type) << 4) + powerof2(sizeof_precision_type);
+    //std::cin.get();
 
-    out.write(reinterpret_cast<const byte_type*>(&meta), 1);
-
-    // writing first 4 bits of sizeof_'size_type',
-    // and second 4 bits of sizeof_'precision_type'
-    meta = (powerof2(sizeof_activation_id) << 4) + powerof2(sizeof_loss_id);
-
-    out.write(reinterpret_cast<const byte_type*>(&meta), 1);
-
-    out.close();
-}
-
-void r()
-{
-    std::ifstream out("D:\\temp.bin");
-
-    byte_type size = 0x01;
-
-    byte_type meta;
-
-    byte_type sizeof_size_type;
-    byte_type sizeof_precision_type;
-    byte_type sizeof_activation_id;
-    byte_type sizeof_loss_id;
-
-    // reading first 2 meta-data bytes in deserializing binary file
-    out.read(reinterpret_cast<byte_type*>(&meta), 1);
-
-    // set first 4 bits of meta-data for sizeof_size_type,
-    // and second 4 bits for sizeof_precision_type
-    sizeof_size_type = size << (meta >> 4);
-    sizeof_precision_type = size << (meta & 0x0F);
-
-    out.read(reinterpret_cast<byte_type*>(meta), 1);
-
-    // set first 4 bits of meta-data for sizeof_size_type,
-    // and second 4 bits for sizeof_precision_type
-    sizeof_activation_id = size << (meta >> 4);
-    sizeof_loss_id = size << (meta & 0x0F);
-
-    out.close();
+    return 0;
 }
 */
