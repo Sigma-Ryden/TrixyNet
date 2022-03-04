@@ -139,8 +139,8 @@ public:
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(
     const Container<size_type>& topology)
-    : S(Trainable::init1D(topology))
-    , H(Trainable::init1D(topology))
+    : S(Trainable::initlock1D(topology))
+    , H(Trainable::initlock1D(topology))
     , size(topology.size() - 1)
 {
 }
@@ -148,10 +148,10 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(
     const Container<size_type>& topology)
-    : derivedB(Trainable::init1D(topology))
-    , derivedW(Trainable::init2D(topology))
-    , deltaB(Trainable::init1D(topology))
-    , deltaW(Trainable::init2D(topology))
+    : derivedB(Trainable::initlock1D(topology))
+    , derivedW(Trainable::initlock2D(topology))
+    , deltaB(Trainable::initlock1D(topology))
+    , deltaW(Trainable::initlock2D(topology))
     , size(topology.size() - 1)
 {
 }
@@ -192,7 +192,7 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     : net(network)
     , feedforward(network.inner.topology)
     , backprop(network.inner.topology)
-    , buff(Trainable::init1D(network.inner.topology))
+    , buff(Trainable::initlock1D(network.inner.topology))
 {
 }
 

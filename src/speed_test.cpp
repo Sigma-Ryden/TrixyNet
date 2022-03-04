@@ -52,7 +52,7 @@ void speed_test_deserialization()
 {
     using namespace tr::functional;
 
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, double>;
     using TrixyNetFunctional = tr::Functional<TrixyNet>;
     using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
@@ -74,6 +74,7 @@ void speed_test_deserialization()
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
 
+    util::show_inner_struct(net);
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 }

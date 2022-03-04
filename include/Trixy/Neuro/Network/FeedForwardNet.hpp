@@ -116,10 +116,16 @@ public:
 
 public:
     template <typename... Pack>
-    static LContainer<LVector> init1D(const InnerTopology& topology, Pack&&... args);
+    static LContainer<LVector> initlock1D(const InnerTopology& topology, Pack&&... args);
 
     template <typename... Pack>
-    static LContainer<LMatrix> init2D(const InnerTopology& topology, Pack&&... args);
+    static Container<Vector> init1D(const InnerTopology& topology, Pack&&... args);
+
+    template <typename... Pack>
+    static LContainer<LMatrix> initlock2D(const InnerTopology& topology, Pack&&... args);
+
+    template <typename... Pack>
+    static Container<Matrix> init2D(const InnerTopology& topology, Pack&&... args);
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -144,8 +150,8 @@ TRIXY_NET_TPL_DECLARATION
 TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::InnerStruct(
     const Container<size_type>& topology)
     : N(topology.size() - 1)
-    , B(TrixyNet::init1D(topology))
-    , W(TrixyNet::init2D(topology))
+    , B(TrixyNet::initlock1D(topology))
+    , W(TrixyNet::initlock2D(topology))
     , topology(topology)
 {
 }
@@ -283,7 +289,7 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setLoss(
 TRIXY_NET_TPL_DECLARATION
 TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
     const Container<size_type>& topology)
-    : buff(TrixyNet::init1D(topology))
+    : buff(TrixyNet::initlock1D(topology))
     , inner(topology)
     , function(topology.size() - 1)
 {
@@ -356,7 +362,7 @@ TRIXY_NET_TPL_DECLARATION
 template <typename... Pack>
 typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::template
     LContainer<typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::LVector>
-TRIXY_NET_TPL(TrixyNetType::FeedForward)::init1D(
+TRIXY_NET_TPL(TrixyNetType::FeedForward)::initlock1D(
     const Container<size_type>& topology, Pack&&... args)
 {
     Container<LVector> data;
@@ -371,11 +377,43 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::init1D(
 TRIXY_NET_TPL_DECLARATION
 template <typename... Pack>
 typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::template
+    Container<typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector>
+TRIXY_NET_TPL(TrixyNetType::FeedForward)::init1D(
+    const Container<size_type>& topology, Pack&&... args)
+{
+    Container<Vector> data;
+
+    data.reserve(topology.size() - 1);
+    for(size_type i = 1; i < topology.size(); ++i)
+        data.emplace_back(topology[i], std::forward<Pack>(args)...);
+
+    return data;
+}
+
+TRIXY_NET_TPL_DECLARATION
+template <typename... Pack>
+typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::template
     LContainer<typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::LMatrix>
-TRIXY_NET_TPL(TrixyNetType::FeedForward)::init2D(
+TRIXY_NET_TPL(TrixyNetType::FeedForward)::initlock2D(
     const Container<size_type>& topology, Pack&&... args)
 {
     Container<LMatrix> data;
+
+    data.reserve(topology.size() - 1);
+    for(size_type i = 1; i < topology.size(); ++i)
+        data.emplace_back(topology[i - 1], topology[i], std::forward<Pack>(args)...);
+
+    return data;
+}
+
+TRIXY_NET_TPL_DECLARATION
+template <typename... Pack>
+typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::template
+    Container<typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Matrix>
+TRIXY_NET_TPL(TrixyNetType::FeedForward)::init2D(
+    const Container<size_type>& topology, Pack&&... args)
+{
+    Container<Matrix> data;
 
     data.reserve(topology.size() - 1);
     for(size_type i = 1; i < topology.size(); ++i)

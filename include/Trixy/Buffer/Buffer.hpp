@@ -1,7 +1,9 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include <cstdint> // size_t, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t
+#include <cstdint>
+// size_t, int8_t, int16_t, int32_t, int64_t
+// uint8_t, uint16_t, uint32_t, uint64_t
 
 #include "Trixy/Detail/TrixyMeta.hpp"
 
@@ -10,23 +12,15 @@
 namespace trixy
 {
 
-enum class ItemSize : std::uint8_t
-{
-    _1bytes  = 1,
-    _2bytes  = 2,
-    _4bytes  = 4,
-    _8bytes  = 8,
-    _16bytes = 16
-};
-
-template <ItemSize Size = ItemSize::_8bytes>
 class Buffer
 {
 public:
     struct SupportType;
 
 public:
+    using buff_size     = std::size_t;
     using size_type     = std::size_t;
+
     using byte_type     = char;
 
     using pointer       = byte_type*;
@@ -35,57 +29,79 @@ public:
 private:
     enum class SupportTypeId : std::uint8_t
     {
-        undefined,
+        null,
         i8, i16, i32, i64,
         u8, u16, u32, u64,
         f32, f64, f128
     };
 
+public:
+    enum class BaseTypeId : std::uint8_t
+    {
+        Integer, Unsigned, Float
+    };
+
+    struct BaseType
+    {
+        struct Integer; struct Unsigned; struct Float;
+    };
+
 private:
     pointer data_;
-
-    size_type data_size_;
-    size_type buff_size_;
+    size_type size_;
 
     SupportTypeId id_;
-
-    bool empty_;
+    size_type offset_;
 
 public:
     Buffer() noexcept;
     ~Buffer();
 
-    Buffer(size_type n);
+    Buffer(buff_size size);
 
-    pointer data() noexcept { return data_; }
-    const_pointer data() const noexcept { return data_; }
+    char* data() noexcept { return data_; }
+    const char* data() const noexcept { return data_; }
 
-    void resize(size_type n);
-    void erase() noexcept;
+    buff_size size() const noexcept { return size_ ; }
+    size_type offset() const noexcept { return offset_; }
 
-    void empty() const noexcept;
+    void resize(buff_size size);
+    void reserve(buff_size size);
 
-    template <typename OutData,
-              meta::enable_if_t<sizeof(OutData) <= std::size_t(Size), int> = 0>
+    void clear() noexcept;
+    bool empty() const noexcept;
+
+    void set(BaseTypeId id, size_type offset) noexcept;
+    template <class BaseType>
+    void set(size_type offset) noexcept;
+
+    bool is_ready() const noexcept { return id_ != SupportTypeId::null; }
+
+    template <typename OutData>
     void read(OutData* beg, OutData* end) noexcept;
 
-    template <typename InData,
-              meta::enable_if_t<sizeof(InData) <= std::size_t(Size), int> = 0>
-    void write(const InData* beg, const InData* end) noexcept;
+    template <typename OutData>
+    void read(OutData* odata, buff_size size) noexcept;
+
+    template <typename InData>
+    void write(const InData* beg, const InData* end, bool is_mutable = true) noexcept;
+
+    template <typename InData>
+    void write(const InData* idata, buff_size size, bool is_mutable = true) noexcept;
 
 private:
-    template <typename DstData, typename SrcData>
-    void copy(DstData* dst, const SrcData* src);
-
     template <typename DataCastType, typename OutData>
     void read_buff(OutData* beg, OutData* end);
 
     template <typename DetectionDataType>
     SupportTypeId detect_data_type_id();
+
+    static SupportTypeId get_integer_id(size_type sizeof_type) noexcept;
+    static SupportTypeId get_unsigned_id(size_type sizeof_type) noexcept;
+    static SupportTypeId get_float_id(size_type sizeof_type) noexcept;
 };
 
-template <ItemSize Size>
-struct Buffer<Size>::SupportType
+struct Buffer::SupportType
 {
     using i8   = std::int8_t;
     using i16  = std::int16_t;
@@ -102,54 +118,23 @@ struct Buffer<Size>::SupportType
     using f128 = long double;
 };
 
-template <ItemSize Size>
-inline Buffer<Size>::Buffer() noexcept
+inline Buffer::Buffer() noexcept
     : data_(nullptr)
-    , data_size_(0)
-    , buff_size_(0)
-    , id_(SupportTypeId::undefined)
-    , empty_(true)
+    , size_(0)
+    , id_(SupportTypeId::null)
+    , offset_(1)
 {
 }
 
-template <ItemSize Size>
-inline Buffer<Size>::~Buffer()
+inline Buffer::~Buffer()
 {
     delete[] data_;
 }
 
-template <ItemSize Size>
-Buffer<Size>::Buffer(size_type n)
-    : data_(new byte_type [size_type(Size) * n])
-    , data_size_(n)
-    , buff_size_(size_type(Size) * n)
-    , id_(SupportTypeId::undefined)
-    , empty_(false)
+template <typename OutData>
+void Buffer::read(OutData* beg, OutData* end) noexcept
 {
-    erase();
-}
-
-template <ItemSize Size>
-void Buffer<Size>::resize(size_type n)
-{
-    delete[] data_;
-
-    data_size_ = n;
-    buff_size_ = size_type(Size) * n;
-
-    data_ = new byte_type [buff_size_];
-
-    id_ = SupportType::undefined;
-
-    erase();
-}
-
-template <ItemSize Size>
-template <typename OutData,
-          meta::enable_if_t<sizeof(OutData) <= std::size_t(Size), int>>
-void Buffer<Size>::read(OutData* beg, OutData* end) noexcept
-{
-    if(end - beg > data_size_) return;
+    if(offset_ * (end - beg) > size_) return;
 
     switch (id_)
     {
@@ -167,66 +152,78 @@ void Buffer<Size>::read(OutData* beg, OutData* end) noexcept
     BUFF_CASE_READ_HELPER(f64)
     BUFF_CASE_READ_HELPER(f128)
 
-    default: break;
+    default: return;
     }
-
-    id_ = SupportTypeId::undefined;
 }
 
-template <ItemSize Size>
-template <typename InData,
-          meta::enable_if_t<sizeof(InData) <= std::size_t(Size), int>>
-void Buffer<Size>::write(const InData* beg, const InData* end) noexcept
+template <typename OutData>
+void Buffer::read(OutData* odata, buff_size size) noexcept
 {
-    if(end - beg > data_size_) return;
+    read(odata, odata + size / offset_);
+}
 
-    id_ = detect_data_type_id<InData>();
+template <typename InData>
+void Buffer::write(const InData* beg, const InData* end, bool is_mutable) noexcept
+{
+    SupportTypeId type_id = detect_data_type_id<InData>();
+
+    if(type_id == SupportTypeId::null) return;
+
+    if(sizeof(InData) * (end - beg) > size_)
+    {
+        if(is_mutable) resize(sizeof(InData) * (end - beg));
+        else return;
+    }
+
+    id_ = type_id;
+    offset_ = sizeof(InData);
 
     auto it = data_;
     while(beg != end)
     {
-        copy(reinterpret_cast<InData*>(it), beg);
-        it += static_cast<size_type>(Size);
+        *reinterpret_cast<InData*>(it) = *beg;
+        it += offset_;
         ++beg;
     }
-
-    empty_ = false;
 }
 
-template <ItemSize Size>
-void Buffer<Size>::erase() noexcept
+template <typename InData>
+void Buffer::write(const InData* idata, buff_size size, bool is_mutable) noexcept
 {
-    auto beg = data_;
-    auto end = data_ + buff_size_;
-
-    while(beg != end) *beg++ = 0;
-
-    empty_ = true;
+    write(idata, idata + size / sizeof(InData), is_mutable);
 }
 
-template <ItemSize Size>
-template <typename DstData, typename SrcData>
-inline void Buffer<Size>::copy(DstData* dst, const SrcData* src)
+template <class Type>
+void Buffer::set(size_type offset) noexcept
 {
-    *dst = static_cast<DstData>(*src);
+    if(std::is_same<Type, typename BaseType::Integer>::value)
+        id_ = get_integer_id(offset);
+
+    else if(std::is_same<Type, typename BaseType::Unsigned>::value)
+        id_ = get_unsigned_id(offset);
+
+    else if(std::is_same<Type, typename BaseType::Float>::value)
+        id_ = get_float_id(offset);
+
+    else return;
+
+    offset_ = offset;
 }
 
-template <ItemSize Size>
 template <typename DataCastType, typename OutData>
-void Buffer<Size>::read_buff(OutData* beg, OutData* end)
+void Buffer::read_buff(OutData* beg, OutData* end)
 {
     auto it = data_;
     while(beg != end)
     {
-        *beg = *reinterpret_cast<DataCastType*>(it);
-        it += static_cast<size_type>(Size);
+        *beg = static_cast<OutData>(*reinterpret_cast<DataCastType*>(it));
+        it += offset_;
         ++beg;
     }
 }
 
-template <ItemSize Size>
 template <typename DetectionDataType>
-typename Buffer<Size>::SupportTypeId Buffer<Size>::detect_data_type_id()
+typename Buffer::SupportTypeId Buffer::detect_data_type_id()
 {
     BUFF_DETECT_HELPER(i8)
     BUFF_DETECT_HELPER(i16)
@@ -240,10 +237,8 @@ typename Buffer<Size>::SupportTypeId Buffer<Size>::detect_data_type_id()
     BUFF_DETECT_HELPER(f64)
     BUFF_DETECT_HELPER(f128)
 
-    return SupportTypeId::undefined;
+    return SupportTypeId::null;
 }
-
-using DataBuffer = Buffer<ItemSize::_8bytes>;
 
 } // namespace trixy
 

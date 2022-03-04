@@ -58,6 +58,7 @@ set(TRIXY_NEURO
     include/Trixy/Locker/Detail/MacroScope.hpp
     include/Trixy/Locker/Detail/MacroUnscope.hpp
     include/Trixy/Buffer/Buffer.hpp
+    include/Trixy/Buffer/Buffer.cpp
     include/Trixy/Buffer/Detail/MacroScope.hpp
     include/Trixy/Buffer/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
