@@ -22,14 +22,10 @@ private:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 
-    template <class... T>
-    using LContainer        = typename Optimizeriable::template LContainer<T...>;
-
     using LVector           = typename Optimizeriable::LVector;
     using LMatrix           = typename Optimizeriable::LMatrix;
 
     using precision_type    = typename Optimizeriable::precision_type;
-    using size_type         = typename Optimizeriable::size_type;
 
 public:
     template <typename Ret = void, typename... Args>
@@ -58,9 +54,9 @@ protected:
     {
         ptr_derived_set_learning_rate = [] (
             void *const self,
-            precision_type new_learning_rate) noexcept
+            precision_type value) noexcept
         {
-            static_cast<Derived*>(self)->set_learning_rate(new_learning_rate);
+            static_cast<Derived*>(self)->set_learning_rate(value);
         };
 
         ptr_derived_update = [] (
@@ -79,9 +75,9 @@ public:
     {
     }
 
-    void set_learning_rate(precision_type new_learning_rate) noexcept
+    void set_learning_rate(precision_type value) noexcept
     {
-        ptr_derived_set_learning_rate(this, new_learning_rate);
+        ptr_derived_set_learning_rate(this, value);
     }
 
     void update(const Container<LVector>& gradB,
@@ -94,6 +90,9 @@ public:
 struct OptimizerType
 {
 private:
+    template <class... Bn>
+    using disjunction_t = typename meta::disjunction<Bn...>::type;
+
     using id_type = trixy::functional::OptimizationId;
 
 public:
@@ -106,8 +105,8 @@ public:
     TRIXY_DEF_OPT_HELPER(id_type, adam);
 
 public:
-    template <id_type id>
-    using type_from = typename ::trixy::meta::disjunction<
+    template <id_type id> using type_from = disjunction_t
+    <
         undefined::def<id>,
         grad_descent::def<id>,
         momentum::def<id>,
@@ -115,7 +114,7 @@ public:
         ada_grad::def<id>,
         rms_prop::def<id>,
         adam::def<id>
-    >::type;
+    >;
 };
 
 } // namespace train

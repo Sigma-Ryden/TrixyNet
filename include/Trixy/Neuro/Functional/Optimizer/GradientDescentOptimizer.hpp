@@ -28,11 +28,13 @@ public:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 
-    template <class... T>
-    using LContainer        = typename Optimizeriable::template LContainer<T...>;
+    using Vector            = typename Optimizeriable::Vector;
+    using Matrix            = typename Optimizeriable::Matrix;
 
     using LVector           = typename Optimizeriable::LVector;
     using LMatrix           = typename Optimizeriable::LMatrix;
+
+    using NetInit           = typename Optimizeriable::Init;
 
     using precision_type    = typename Optimizeriable::precision_type;
     using size_type         = typename Optimizeriable::size_type;
@@ -40,8 +42,8 @@ public:
 private:
     Optimizeriable& net;
 
-    LContainer<LVector> buff1;
-    LContainer<LMatrix> buff2;
+    Container<Vector> buff1;
+    Container<Matrix> buff2;
 
     precision_type learning_rate;
 
@@ -61,8 +63,8 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
     precision_type learning_rate)
     : Base()
     , net(network)
-    , buff1(Optimizeriable::initlock1D(net.inner.topology))
-    , buff2(Optimizeriable::initlock2D(net.inner.topology))
+    , buff1(NetInit::get1D(net.inner.topology))
+    , buff2(NetInit::get2D(net.inner.topology))
     , learning_rate(learning_rate)
 {
     this->template initialize<Optimizer>();

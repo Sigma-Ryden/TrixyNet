@@ -137,52 +137,11 @@ int main()
     std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
-    speed_test_deserialization();
-
-    //std::cin.get();
-
-    return 0;
-}
-/*
-#include "Trixy/Buffer/Buffer.hpp"
-//
-int main()
-{
-    std::srand(unsigned(std::time(nullptr)));
-    std::cout << std::fixed << std::setprecision(3);
-
-    using util::operator<<;
-
-    tr::DataBuffer buff(2);
-
-    li::Vector<int> a(2, 12345);
-
-    std::cout << "BEGIN of buff\n";
-    for(int i = 0; i < 2 * 8; ++i)
-        std::cout << (double) buff.data()[i] << ' ';
-    std::cout << "\nEND of buff\n";
-
-    std::cout << a << '\n';
-
-    buff.write(a.data(), a.data() + a.size());
-
-    std::cout << "BEGIN of buff\n";
-    for(int i = 0; i < 2 * 8; ++i)
-        std::cout << (double) buff.data()[i] << ' ';
-    std::cout << "\nEND of buff\n";
-
-    li::Vector<short> b(2);
-
-    buff.read(b.data(), b.data() + b.size());
-
-    std::cout << b << '\n';
-
-    //speed_test();
+    speed_test();
     //speed_test_deserialization();
 
     //std::cin.get();
 
     return 0;
 }
-*/
+//

@@ -28,11 +28,13 @@ public:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 
-    template <class... T>
-    using LContainer        = typename Optimizeriable::template LContainer<T...>;
+    using Vector            = typename Optimizeriable::Vector;
+    using Matrix            = typename Optimizeriable::Matrix;
 
     using LVector           = typename Optimizeriable::LVector;
     using LMatrix           = typename Optimizeriable::LMatrix;
+
+    using NetInit           = typename Optimizeriable::Init;
 
     using precision_type    = typename Optimizeriable::precision_type;
     using size_type         = typename Optimizeriable::size_type;
@@ -40,11 +42,11 @@ public:
 private:
     Optimizeriable& net;
 
-    LContainer<LVector> buff1;
-    LContainer<LMatrix> buff2;
+    Container<Vector> buff1;
+    Container<Matrix> buff2;
 
-    LContainer<LVector> optimizedB;
-    LContainer<LMatrix> optimizedW;
+    Container<Vector> optimizedB;
+    Container<Matrix> optimizedW;
 
     precision_type learning_rate;
 
@@ -63,11 +65,11 @@ public:
     Optimizer& reset() noexcept;
 
 private:
-    template <class Tensor>
-    void update(Tensor& buff,
-                Tensor& optimized,
-                Tensor& parameter,
-                const Tensor& grad) noexcept;
+    template <class Buffer, class Optimized, class Parameter, class Gradient>
+    void update(Buffer& buff,
+                Optimized& optimized,
+                Parameter& parameter,
+                const Gradient& grad) noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -77,10 +79,10 @@ MomentumOptimizer<Optimizeriable>::Optimizer(
     precision_type momentum)
     : Base()
     , net(network)
-    , buff1(Optimizeriable::initlock1D(net.inner.topology))
-    , buff2(Optimizeriable::initlock2D(net.inner.topology))
-    , optimizedB(Optimizeriable::initlock1D(net.inner.topology, 0.))
-    , optimizedW(Optimizeriable::initlock2D(net.inner.topology, 0.))
+    , buff1(NetInit::get1D(net.inner.topology))
+    , buff2(NetInit::get2D(net.inner.topology))
+    , optimizedB(NetInit::get1D(net.inner.topology, 0.))
+    , optimizedW(NetInit::get2D(net.inner.topology, 0.))
     , learning_rate(learning_rate)
     , momentum(momentum)
 {
@@ -107,12 +109,12 @@ void MomentumOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-template <class Tensor>
+template <class Buffer, class Optimized, class Parameter, class Gradient>
 void MomentumOptimizer<Optimizeriable>::update(
-    Tensor& buff,
-    Tensor& optimized,
-    Tensor& parameter,
-    const Tensor& grad) noexcept
+    Buffer& buff,
+    Optimized& optimized,
+    Parameter& parameter,
+    const Gradient& grad) noexcept
 {
     // velocity = momentum * velocity - learning_rate * g
     // w = w + velocity

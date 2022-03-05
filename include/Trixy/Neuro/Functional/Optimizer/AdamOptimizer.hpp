@@ -29,11 +29,13 @@ public:
     template <class... T>
     using Container         = typename Optimizeriable::template Container<T...>;
 
-    template <class... T>
-    using LContainer        = typename Optimizeriable::template LContainer<T...>;
+    using Vector            = typename Optimizeriable::Vector;
+    using Matrix            = typename Optimizeriable::Matrix;
 
     using LVector           = typename Optimizeriable::LVector;
     using LMatrix           = typename Optimizeriable::LMatrix;
+
+    using NetInit           = typename Optimizeriable::Init;
 
     using precision_type    = typename Optimizeriable::precision_type;
     using size_type         = typename Optimizeriable::size_type;
@@ -41,14 +43,14 @@ public:
 private:
     Optimizeriable& net;
 
-    LContainer<LVector> buff1;
-    LContainer<LMatrix> buff2;
+    Container<Vector> buff1;
+    Container<Matrix> buff2;
 
-    LContainer<LVector> optimizedB1;
-    LContainer<LMatrix> optimizedW1;
+    Container<Vector> optimizedB1;
+    Container<Matrix> optimizedW1;
 
-    LContainer<LVector> optimizedB2;
-    LContainer<LMatrix> optimizedW2;
+    Container<Vector> optimizedB2;
+    Container<Matrix> optimizedW2;
 
     precision_type learning_rate;
 
@@ -70,7 +72,7 @@ public:
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
-    void set_learning_rate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type value) noexcept;
 
     void update(const Container<LVector>& gradB,
                 const Container<LMatrix>& gradW) noexcept;
@@ -78,12 +80,12 @@ public:
     Optimizer& reset() noexcept;
 
 private:
-    template <class Tensor>
-    void update(Tensor& buff,
-                Tensor& optimized1,
-                Tensor& optimized2,
-                Tensor& parameter,
-                const Tensor& grad) noexcept;
+    template <class Buffer, class Optimized, class Parameter, class Gradient>
+    void update(Buffer& buff,
+                Optimized& optimized1,
+                Optimized& optimized2,
+                Parameter& parameter,
+                const Gradient& grad) noexcept;
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -94,12 +96,12 @@ AdamOptimizer<Optimizeriable>::Optimizer(
     precision_type beta2)
     : Base()
     , net(network)
-    , buff1(Optimizeriable::initlock1D(net.inner.topology))
-    , buff2(Optimizeriable::initlock2D(net.inner.topology))
-    , optimizedB1(Optimizeriable::initlock1D(net.inner.topology, 0.))
-    , optimizedW1(Optimizeriable::initlock2D(net.inner.topology, 0.))
-    , optimizedB2(Optimizeriable::initlock1D(net.inner.topology, 0.))
-    , optimizedW2(Optimizeriable::initlock2D(net.inner.topology, 0.))
+    , buff1(NetInit::get1D(net.inner.topology))
+    , buff2(NetInit::get2D(net.inner.topology))
+    , optimizedB1(NetInit::get1D(net.inner.topology, 0.))
+    , optimizedW1(NetInit::get2D(net.inner.topology, 0.))
+    , optimizedB2(NetInit::get1D(net.inner.topology, 0.))
+    , optimizedW2(NetInit::get2D(net.inner.topology, 0.))
     , learning_rate(learning_rate)
     , beta1(beta1)
     , beta2(beta2)
@@ -139,13 +141,13 @@ void AdamOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-template <class Tensor>
+template <class Buffer, class Optimized, class Parameter, class Gradient>
 void AdamOptimizer<Optimizeriable>::update(
-    Tensor& buff,
-    Tensor& optimized1,
-    Tensor& optimized2,
-    Tensor& parameter,
-    const Tensor& grad) noexcept
+    Buffer& buff,
+    Optimized& optimized1,
+    Optimized& optimized2,
+    Parameter& parameter,
+    const Gradient& grad) noexcept
 {
     // m = beta1 * m + (1 - beta1) * g
     // s = beta2 * m + (1 - beta2) * g * g
