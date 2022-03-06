@@ -51,7 +51,7 @@ public:
     Optimizer(Optimizeriable& network,
               precision_type learning_rate);
 
-    void set_learning_rate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type value) noexcept;
 
     void update(const Container<LVector>& gradB,
                 const Container<LMatrix>& gradW) noexcept;
@@ -72,9 +72,9 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void GradDescentOptimizer<Optimizeriable>::set_learning_rate(
-    precision_type new_learning_rate) noexcept
+    precision_type value) noexcept
 {
-    learning_rate = new_learning_rate;
+    learning_rate = value;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION

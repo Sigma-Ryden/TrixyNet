@@ -143,7 +143,7 @@ void linear_regression_test_deserialization()
 {
     using util::operator<<;
 
-    using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
+    using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, float>;
 
     std::ifstream in("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if(!in.is_open()) return;

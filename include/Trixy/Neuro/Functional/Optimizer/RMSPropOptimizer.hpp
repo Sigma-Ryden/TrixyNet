@@ -59,7 +59,7 @@ public:
               precision_type learning_rate,
               precision_type beta = 0.9);
 
-    void set_learning_rate(precision_type new_learning_rate) noexcept;
+    void set_learning_rate(precision_type value) noexcept;
 
     void update(const Container<LVector>& grad_bias,
                 const Container<LMatrix>& grad_weight) noexcept;
@@ -95,9 +95,9 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 void RMSPropOptimizer<Optimizeriable>::set_learning_rate(
-    precision_type new_learning_rate) noexcept
+    precision_type value) noexcept
 {
-    learning_rate = new_learning_rate;
+    learning_rate = value;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION

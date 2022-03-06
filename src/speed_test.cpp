@@ -74,7 +74,7 @@ void speed_test_deserialization()
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
 
-    util::show_inner_struct(net);
+    //util::show_inner_struct(net);
     util::test_neuro(net, train_in, train_out);
     util::check_neuro(net, train_in, train_out);
 }
@@ -137,8 +137,8 @@ int main()
     std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
-    //speed_test_deserialization();
+    //speed_test();
+    speed_test_deserialization();
 
     //std::cin.get();
 
