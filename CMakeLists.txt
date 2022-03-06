@@ -23,10 +23,10 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueVector.hpp
     include/Trixy/Lique/LiqueBaseTensor.hpp
     include/Trixy/Lique/LiqueTool.hpp
-    include/Trixy/Lique/Detail/MacroScope.hpp
-    include/Trixy/Lique/Detail/MacroUnscope.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp
     include/Trixy/Lique/Detail/LiqueMeta.hpp
+    include/Trixy/Lique/Detail/MacroScope.hpp
+    include/Trixy/Lique/Detail/MacroUnscope.hpp
     include/Trixy/Lique/LiqueCore.hpp
 )
 set(TRIXY_ILIQUE
