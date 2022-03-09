@@ -12,6 +12,59 @@ Buffer::Buffer(buff_size size)
     clear();
 }
 
+Buffer::Buffer(const Buffer& buff)
+    : data_(new byte_type [buff.size_])
+    , size_(buff.size_)
+    , id_(buff.id_)
+    , offset_(buff.offset_)
+{
+    std::memcpy(data_, buff.data_, size_);
+}
+
+Buffer::Buffer(Buffer&& buff) noexcept
+    : data_(buff.data_)
+    , size_(buff.size_)
+    , id_(buff.id_)
+    , offset_(buff.offset_)
+{
+    buff.data_ = nullptr;
+}
+
+Buffer& Buffer::operator= (const Buffer& buff)
+{
+    if(this != &buff)
+    {
+        delete[] data_;
+        data_ = new char [buff.size_];
+
+        std::memcpy(data_, buff.data_, size_);
+
+        size_ = buff.size_;
+        id_ = buff.id_;
+        offset_ = buff.offset_;
+    }
+
+    return *this;
+}
+
+Buffer& Buffer::operator= (Buffer&& buff) noexcept
+{
+    if(this != &buff)
+    {
+        delete[] data_;
+
+        data_ = buff.data_;
+        size_ = buff.size_;
+
+        id_ = buff.id_;
+        offset_ = buff.offset_;
+
+        buff.data_ = nullptr;
+    }
+
+    return *this;
+}
+
 void Buffer::resize(buff_size size)
 {
     delete[] data_;

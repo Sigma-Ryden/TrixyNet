@@ -1,6 +1,7 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
+#include <cstring> // memcpy
 #include <cstdint>
 // size_t, int8_t, int16_t, int32_t, int64_t
 // uint8_t, uint16_t, uint32_t, uint64_t
@@ -58,6 +59,12 @@ public:
     ~Buffer();
 
     Buffer(buff_size size);
+
+    Buffer(const Buffer&);
+    Buffer(Buffer&&) noexcept;
+
+    Buffer& operator= (const Buffer&);
+    Buffer& operator= (Buffer&&) noexcept;
 
     char* data() noexcept { return data_; }
     const char* data() const noexcept { return data_; }

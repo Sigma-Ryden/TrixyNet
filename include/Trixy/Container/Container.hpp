@@ -199,8 +199,7 @@ Container<Type>::Container(std::initializer_list<value_type> list)
 template <typename Type>
 Container<Type>& Container<Type>::operator= (const Container& container)
 {
-    if(this == &container)
-        return *this;
+    if(this == &container) return *this;
 
     Container::destroy(data_, data_ + size_);
     Container::deallocate(data_);
@@ -219,8 +218,7 @@ Container<Type>& Container<Type>::operator= (const Container& container)
 template <typename Type>
 Container<Type>& Container<Type>::operator= (Container&& container) noexcept
 {
-    if(this == &container)
-        return *this;
+    if(this == &container) return *this;
 
     Container::destroy(data_, data_ + size_);
     Container::deallocate(data_);

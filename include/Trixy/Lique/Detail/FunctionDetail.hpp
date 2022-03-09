@@ -12,7 +12,8 @@ namespace lique
 namespace detail
 {
 
-template <typename Precision, trixy::meta::use_for_arithmetic_t<Precision> = 0>
+template <typename Precision,
+          trixy::meta::use_for_arithmetic_t<trixy::meta::decay_t<Precision>> = 0>
 void copy(Precision* beg, Precision* end, const Precision* src)
 {
     while(beg != end) *beg++ = *src++;
