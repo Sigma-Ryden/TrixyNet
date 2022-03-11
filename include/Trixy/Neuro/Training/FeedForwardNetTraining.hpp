@@ -82,18 +82,18 @@ public:
                         IOptimizer& optimizer) noexcept;
 
     long double accuracy(const Container<Vector>& idata,
-                         const Container<Vector>& odata) const noexcept;
+                         const Container<Vector>& odata) const noexcept; // deprecated & will repair
 
     long double accuracyf(const Container<Vector>& idata,
                           const Container<Vector>& odata,
-                          precision_type range_rate) const noexcept;
+                          precision_type range_rate) const noexcept; // deprecated & will repair
 
     long double accuracyg(const Container<Vector>& idata,
                           const Container<Vector>& odata,
-                          precision_type range_rate) const noexcept;
+                          precision_type range_rate) const noexcept; // deprecated & will repair
 
     long double loss(const Container<Vector>& idata,
-                     const Container<Vector>& odata) const noexcept;
+                     const Container<Vector>& odata) const noexcept; // deprecated & will repair
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -108,8 +108,8 @@ public:
 public:
     FeedForwardData(const Container<size_type>& topology);
 
-    FeedForwardData(const FeedForwardData&) = default;
-    FeedForwardData(FeedForwardData&&) noexcept = default;
+    FeedForwardData& operator= (const FeedForwardData&) = delete;
+    FeedForwardData& operator= (FeedForwardData&&) noexcept = default;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -127,8 +127,8 @@ public:
 public:
     BackPropData(const Container<size_type>& topology);
 
-    BackPropData(const BackPropData&) = default;
-    BackPropData(BackPropData&&) noexcept = default;
+    BackPropData& operator= (const BackPropData&) = delete;
+    BackPropData& operator= (BackPropData&&) noexcept = default;
 
     void resetDelta() noexcept;
     void updateDelta() noexcept;

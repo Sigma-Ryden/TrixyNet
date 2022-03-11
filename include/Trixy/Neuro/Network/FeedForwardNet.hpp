@@ -23,7 +23,7 @@ TRIXY_NET_TPL_DECLARATION
 class TRIXY_NET_TPL(TrixyNetType::FeedForward) : public TrixyNetType::FeedForward
 {
 public:
-    struct Init;
+    class Init;
 
     struct InnerStruct;
 
@@ -69,8 +69,8 @@ public:
 public:
     TrixyNet(const InnerTopology& topology);
 
-    TrixyNet(const TrixyNet&) = default;
-    TrixyNet(TrixyNet&&) noexcept = default;
+    TrixyNet& operator= (const TrixyNet&) = delete;
+    TrixyNet& operator= (TrixyNet&&) noexcept = default;
 
     const Vector& feedforward(const Vector& sample) const noexcept;
 
@@ -131,8 +131,8 @@ public:
 public:
     InnerStruct(const InnerTopology& topology);
 
-    InnerStruct(const InnerStruct&) = default;
-    InnerStruct(InnerStruct&&) noexcept = default;
+    InnerStruct& operator= (const InnerStruct&) = delete;
+    InnerStruct& operator= (InnerStruct&&) noexcept = default;
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -215,8 +215,8 @@ private:
 public:
     explicit InnerFunctional(size_type N) : activation(N), loss(), activationId(N) {}
 
-    InnerFunctional(const InnerFunctional&) = default;
-    InnerFunctional(InnerFunctional&&) noexcept = default;
+    InnerFunctional& operator= (const InnerFunctional&) = delete;
+    InnerFunctional& operator= (InnerFunctional&&) noexcept = default;
 
     void setActivation(const ActivationFunction&);
     void setAllActivation(const AllActivationFunction&);
@@ -235,12 +235,12 @@ public:
 
     const LossFunction& getLoss() const noexcept { return loss; }
     const LossId& getLossId() const noexcept { return loss.id; }
-
 };
 
 TRIXY_NET_TPL_DECLARATION
-struct TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init
+class TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init
 {
+public:
     template <class Ret = LContainer<LVector>, typename... Pack>
     static Ret getLock1D(const InnerTopology& topology, Pack&&... args);
 
@@ -253,7 +253,7 @@ struct TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init
     template <class Ret = Container<Matrix>, typename... Pack>
     static Ret get2D(const InnerTopology& topology, Pack&&... args);
 
-private:
+protected:
     template <class Ret, class Init = Ret, typename... Pack>
     static Ret init1D(const InnerTopology& topology, Pack&&... args);
 
