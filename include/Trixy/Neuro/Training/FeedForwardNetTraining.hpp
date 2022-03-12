@@ -55,6 +55,7 @@ private:
 public:
     Training(Trainable& network);
 
+    // operator= for copy and move Training object will not implicit generate
     Training(const Training&) = default;
     Training(Training&&) noexcept = default;
 
@@ -108,8 +109,9 @@ public:
 public:
     FeedForwardData(const Container<size_type>& topology);
 
-    FeedForwardData& operator= (const FeedForwardData&) = delete;
-    FeedForwardData& operator= (FeedForwardData&&) noexcept = default;
+    // operator= for copy and move FeedForwardData object will not implicit generate
+    FeedForwardData(const FeedForwardData&) = default;
+    FeedForwardData(FeedForwardData&&) noexcept = default;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -127,8 +129,9 @@ public:
 public:
     BackPropData(const Container<size_type>& topology);
 
-    BackPropData& operator= (const BackPropData&) = delete;
-    BackPropData& operator= (BackPropData&&) noexcept = default;
+    // operator= for copy and move BackPropData object will not implicit generate
+    BackPropData(const BackPropData&) = default;
+    BackPropData(BackPropData&&) noexcept = default;
 
     void resetDelta() noexcept;
     void updateDelta() noexcept;

@@ -34,8 +34,9 @@ public:
         typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
     Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
 
-    ~Locker() = default;
+    ~Locker() {}
 
+    // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& container) : Lockable(container) {}
     Locker(Locker&& container) noexcept : Lockable(std::move(container)) {}
 

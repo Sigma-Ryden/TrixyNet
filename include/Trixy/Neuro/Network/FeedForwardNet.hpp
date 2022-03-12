@@ -69,8 +69,9 @@ public:
 public:
     TrixyNet(const InnerTopology& topology);
 
-    TrixyNet& operator= (const TrixyNet&) = delete;
-    TrixyNet& operator= (TrixyNet&&) noexcept = default;
+    // operator= for copy and move TrixyNet object will not implicit generate
+    TrixyNet(const TrixyNet&) = default;
+    TrixyNet(TrixyNet&&) noexcept = default;
 
     const Vector& feedforward(const Vector& sample) const noexcept;
 
@@ -131,8 +132,9 @@ public:
 public:
     InnerStruct(const InnerTopology& topology);
 
-    InnerStruct& operator= (const InnerStruct&) = delete;
-    InnerStruct& operator= (InnerStruct&&) noexcept = default;
+    // operator= for copy and move InnerStruct object will not implicit generate
+    InnerStruct(const InnerStruct&) = default;
+    InnerStruct(InnerStruct&&) noexcept = default;
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -215,8 +217,9 @@ private:
 public:
     explicit InnerFunctional(size_type N) : activation(N), loss(), activationId(N) {}
 
-    InnerFunctional& operator= (const InnerFunctional&) = delete;
-    InnerFunctional& operator= (InnerFunctional&&) noexcept = default;
+    // operator= for copy and move InnerFunctional object will not implicit generate
+    InnerFunctional(const InnerFunctional&) = default;
+    InnerFunctional(InnerFunctional&&) noexcept = default;
 
     void setActivation(const ActivationFunction&);
     void setAllActivation(const AllActivationFunction&);
