@@ -2,9 +2,7 @@
 #define NESTOROV_OPTIMIZER_HPP
 
 #include "BaseOptimizer.hpp"
-#include "FeedForwardNetIOptimizer.hpp"
-
-#include "Trixy/Neuro/Functional/IdFunctional.hpp"
+#include "InterfaceOptimizer.hpp"
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 

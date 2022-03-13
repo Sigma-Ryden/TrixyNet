@@ -2,6 +2,7 @@
 #define OPTIMIZER_CORE_HPP
 
 #include "BaseOptimizer.hpp"
+#include "InterfaceOptimizer.hpp"
 
 #include "GradDescentOptimizer.hpp"
 

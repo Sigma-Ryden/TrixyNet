@@ -1,5 +1,5 @@
-#ifndef FEED_FORWARD_NET_IOPTIMIZER_HPP
-#define FEED_FORWARD_NET_IOPTIMIZER_HPP
+#ifndef INTERFACE_OPTIMIZER_HPP
+#define INTERFACE_OPTIMIZER_HPP
 
 #include "BaseOptimizer.hpp"
 
@@ -53,4 +53,4 @@ public:
 
 #include "Trixy/Detail/MacroScope.hpp"
 
-#endif // FEED_FORWARD_NET_IOPTIMIZER_HPP
+#endif // INTERFACE_OPTIMIZER_HPP

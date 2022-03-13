@@ -26,12 +26,12 @@ public:
     using const_reference = typename Lockable::const_reference;
 
 public:
+    // We MUST define explicit copy and move constructors
+    // to prevent EATING args by constructor with perfect forwarding
     template <typename... Args,
         typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
         typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
     Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
-
-    ~Locker() {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& container) : Lockable(container) {}
@@ -41,6 +41,8 @@ public:
     Locker(Lockable&& container) noexcept : Lockable(std::move(container)) {}
 
     Locker(std::initializer_list<value_type> list) : Lockable(list) {}
+
+    ~Locker() {}
 
     const Lockable& base() const noexcept
     { return static_cast<const Lockable&>(*this); }

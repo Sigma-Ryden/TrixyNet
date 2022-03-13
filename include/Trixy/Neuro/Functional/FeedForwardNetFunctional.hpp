@@ -3,11 +3,11 @@
 
 #include <utility> // forward
 
-#include "Trixy/Neuro/Functional/BaseFunctional.hpp"
-#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
+#include "BaseFunctional.hpp"
+#include "Optimizer/BaseOptimizer.hpp"
 
-#include "Trixy/Neuro/Functional/Function/FunctionCore.hpp"
-#include "Trixy/Neuro/Functional/IdFunctional.hpp"
+#include "Function/FunctionCore.hpp"
+#include "IdFunctional.hpp"
 
 #include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
 
