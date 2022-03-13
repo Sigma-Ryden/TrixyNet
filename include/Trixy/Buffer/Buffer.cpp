@@ -3,9 +3,9 @@
 namespace trixy
 {
 
-Buffer::Buffer(buff_size size)
-    : data_(new byte_type [size])
-    , size_(size)
+Buffer::Buffer(memory_size n)
+    : data_(new byte_type [n])
+    , size_(n)
     , id_(SupportTypeId::null)
     , offset_(1)
 {
@@ -65,19 +65,19 @@ Buffer& Buffer::operator= (Buffer&& buff) noexcept
     return *this;
 }
 
-void Buffer::resize(buff_size size)
+void Buffer::resize(memory_size n)
 {
     delete[] data_;
 
-    size_ = size;
-    data_ = new byte_type [size];
+    size_ = n;
+    data_ = new byte_type [n];
 
     clear();
 }
 
-void Buffer::reserve(buff_size size)
+void Buffer::reserve(memory_size n)
 {
-    if(size > size_) resize(size);
+    if(n > size_) resize(n);
 }
 
 void Buffer::set(

@@ -54,8 +54,8 @@ public:
 private:
     static constexpr meta_data_type getBaseMetaData() noexcept;
 
-    template <typename Data>
-    void deserializeData(std::ifstream& in, Data* data, size_type n);
+    template <typename OutData>
+    void deserializeData(std::ifstream& in, OutData data, size_type n);
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -131,9 +131,9 @@ TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::getBaseMetaData() noexcept
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <typename Data>
+template <typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserializeData(
-    std::ifstream& in, Data* data, size_type n)
+    std::ifstream& in, OutData data, size_type n)
 {
     size_type memory_size = n * buff.offset();
 

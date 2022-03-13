@@ -35,8 +35,11 @@ protected:
     virtual ~ITensor() = default;
 
 private:
-    Tensor& self() { return *static_cast<Tensor*>(this); }
-    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
+    Tensor& self() noexcept
+    { return *static_cast<Tensor*>(this); }
+
+    const Tensor& self() const noexcept
+    { return *static_cast<const Tensor*>(this); }
 
 public:
     Tensor& copy(const Tensor& tensor) noexcept { return self().copy(tensor); }

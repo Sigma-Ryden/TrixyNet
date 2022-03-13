@@ -65,13 +65,14 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp
     include/Trixy/Neuro/Functional/Function/LossFunction.hpp
     include/Trixy/Neuro/Functional/Function/FunctionCore.hpp
-    include/Trixy/Neuro/Functional/Optimizer/GradientDescentOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/GradDescentOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/MomentumOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/NestorovOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/AdaGradOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/RMSPropOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/AdamOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp
+    include/Trixy/Neuro/Functional/Optimizer/FeedForwardNetIOptimizer.hpp
     include/Trixy/Neuro/Functional/Optimizer/OptimizerCore.hpp
     include/Trixy/Neuro/Functional/BaseFunctional.hpp
     include/Trixy/Neuro/Functional/IdFunctional.hpp

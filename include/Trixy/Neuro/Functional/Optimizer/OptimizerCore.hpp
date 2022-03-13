@@ -3,7 +3,7 @@
 
 #include "BaseOptimizer.hpp"
 
-#include "GradientDescentOptimizer.hpp"
+#include "GradDescentOptimizer.hpp"
 
 #include "MomentumOptimizer.hpp"
 #include "NestorovOptimizer.hpp"

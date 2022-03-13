@@ -1,7 +1,9 @@
 #ifndef ADAM_OPTIMIZER_HPP
 #define ADAM_OPTIMIZER_HPP
 
-#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
+#include "BaseOptimizer.hpp"
+#include "FeedForwardNetIOptimizer.hpp"
+
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 
 #include "Trixy/Neuro/Detail/FunctionDetail.hpp"
@@ -21,27 +23,26 @@ using AdamOptimizer =
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::adam)
-    : public IOptimizer<Optimizeriable>
+    : public IOptimizer<AdamOptimizer<Optimizeriable>, Optimizeriable>
 {
-    TRIXY_IOPTIMIZER_BODY
-
 public:
+    using Net               = Optimizeriable;
+
+    using Base              = IOptimizer<AdamOptimizer<Net>, Net>;
+
     template <class... T>
-    using Container         = typename Optimizeriable::template Container<T...>;
+    using Container         = typename Net::template Container<T...>;
 
-    using Vector            = typename Optimizeriable::Vector;
-    using Matrix            = typename Optimizeriable::Matrix;
+    using Vector            = typename Net::Vector;
+    using Matrix            = typename Net::Matrix;
 
-    using LVector           = typename Optimizeriable::LVector;
-    using LMatrix           = typename Optimizeriable::LMatrix;
+    using NetInit           = typename Net::Init;
 
-    using NetInit           = typename Optimizeriable::Init;
-
-    using precision_type    = typename Optimizeriable::precision_type;
-    using size_type         = typename Optimizeriable::size_type;
+    using precision_type    = typename Net::precision_type;
+    using size_type         = typename Net::size_type;
 
 private:
-    Optimizeriable& net;
+    Net& net;
 
     Container<Vector> buff1;
     Container<Matrix> buff2;
@@ -54,28 +55,24 @@ private:
 
     precision_type learning_rate;
 
-    precision_type beta1;
-    precision_type beta2;
+    precision_type beta1, beta2;
+    precision_type rbeta1, rbeta2;
 
-    precision_type rbeta1;
-    precision_type rbeta2;
+    precision_type tbeta1, tbeta2;
 
-    precision_type tbeta1;
-    precision_type tbeta2;
-
-    precision_type alpha1;
-    precision_type alpha2;
+    precision_type alpha1, alpha2;
 
 public:
-    Optimizer(Optimizeriable& network,
+    Optimizer(Net& network,
               precision_type learning_rate,
               precision_type beta1 = 0.9,
               precision_type beta2 = 0.999);
 
     void set_learning_rate(precision_type value) noexcept;
 
-    void update(const Container<LVector>& gradB,
-                const Container<LMatrix>& gradW) noexcept;
+    template <class BiasGrad, class WeightGrad>
+    void update(const Container<BiasGrad>& gradB,
+                const Container<WeightGrad>& gradW) noexcept;
 
     Optimizer& reset() noexcept;
 
@@ -90,7 +87,7 @@ private:
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 AdamOptimizer<Optimizeriable>::Optimizer(
-    Optimizeriable& network,
+    Net& network,
     precision_type learning_rate,
     precision_type beta1,
     precision_type beta2)
@@ -111,8 +108,6 @@ AdamOptimizer<Optimizeriable>::Optimizer(
 
     tbeta1 = 1.;
     tbeta2 = 1.;
-
-    this->template initialize<Optimizer>();
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -123,9 +118,10 @@ void AdamOptimizer<Optimizeriable>::set_learning_rate(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
+template <class BiasGrad, class WeightGrad>
 void AdamOptimizer<Optimizeriable>::update(
-    const Container<LVector>& gradB,
-    const Container<LMatrix>& gradW) noexcept
+    const Container<BiasGrad>& gradB,
+    const Container<WeightGrad>& gradW) noexcept
 {
     tbeta1 *= beta1;
     tbeta2 *= beta2;

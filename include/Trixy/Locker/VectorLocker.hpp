@@ -43,7 +43,8 @@ public:
     Locker(const Lockable& container) : Lockable(container) {}
     Locker(Lockable&& container) noexcept : Lockable(std::move(container)) {}
 
-    const Lockable& base() const { return static_cast<const Lockable&>(*this); }
+    const Lockable& base() const noexcept
+    { return static_cast<const Lockable&>(*this); }
 
 public:
     using Lockable::operator();

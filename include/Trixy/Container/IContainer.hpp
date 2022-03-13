@@ -32,8 +32,11 @@ protected:
     virtual ~IContainer() = default;
 
 private:
-    DerivedType& self() { return *static_cast<DerivedType*>(this); }
-    const DerivedType& self() const { return *static_cast<const DerivedType*>(this); }
+    DerivedType& self() noexcept
+    { return *static_cast<DerivedType*>(this); }
+
+    const DerivedType& self() const noexcept
+    { return *static_cast<const DerivedType*>(this); }
 
 public:
     size_type capacity() const noexcept { return self().capacity(); }

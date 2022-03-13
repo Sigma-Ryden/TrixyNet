@@ -19,7 +19,7 @@ public:
     struct SupportType;
 
 public:
-    using buff_size     = std::size_t;
+    using memory_size   = std::size_t;
     using size_type     = std::size_t;
 
     using byte_type     = char;
@@ -49,7 +49,7 @@ public:
 
 private:
     pointer data_;
-    size_type size_;
+    memory_size size_;
 
     SupportTypeId id_;
     size_type offset_;
@@ -58,7 +58,7 @@ public:
     Buffer() noexcept;
     ~Buffer();
 
-    Buffer(buff_size size);
+    Buffer(memory_size n);
 
     Buffer(const Buffer&);
     Buffer(Buffer&&) noexcept;
@@ -69,11 +69,11 @@ public:
     char* data() noexcept { return data_; }
     const char* data() const noexcept { return data_; }
 
-    buff_size size() const noexcept { return size_ ; }
+    memory_size size() const noexcept { return size_ ; }
     size_type offset() const noexcept { return offset_; }
 
-    void resize(buff_size size);
-    void reserve(buff_size size);
+    void resize(memory_size n);
+    void reserve(memory_size n);
 
     void clear() noexcept;
     bool empty() const noexcept;
@@ -85,20 +85,20 @@ public:
     bool is_ready() const noexcept { return id_ != SupportTypeId::null; }
 
     template <typename OutData>
-    void read(OutData* beg, OutData* end) noexcept;
+    void read(OutData beg, OutData end) noexcept;
 
     template <typename OutData>
-    void read(OutData* odata, buff_size size) noexcept;
+    void read(OutData odata, memory_size n) noexcept;
 
     template <typename InData>
-    void write(const InData* beg, const InData* end, bool is_mutable = true) noexcept;
+    void write(const InData beg, const InData end, bool is_mutable = true) noexcept;
 
     template <typename InData>
-    void write(const InData* idata, buff_size size, bool is_mutable = true) noexcept;
+    void write(const InData idata, memory_size n, bool is_mutable = true) noexcept;
 
 private:
     template <typename DataCastType, typename OutData>
-    void read_buff(OutData* beg, OutData* end);
+    void read_buff(OutData beg, OutData end);
 
     template <typename DetectionDataType>
     SupportTypeId detect_data_type_id();
@@ -139,7 +139,7 @@ inline Buffer::~Buffer()
 }
 
 template <typename OutData>
-void Buffer::read(OutData* beg, OutData* end) noexcept
+void Buffer::read(OutData beg, OutData end) noexcept
 {
     if(offset_ * (end - beg) > size_) return;
 
@@ -164,40 +164,44 @@ void Buffer::read(OutData* beg, OutData* end) noexcept
 }
 
 template <typename OutData>
-void Buffer::read(OutData* odata, buff_size size) noexcept
+void Buffer::read(OutData odata, memory_size n) noexcept
 {
-    read(odata, odata + size / offset_);
+    read(odata, odata + n / offset_);
 }
 
 template <typename InData>
-void Buffer::write(const InData* beg, const InData* end, bool is_mutable) noexcept
+void Buffer::write(const InData beg, const InData end, bool is_mutable) noexcept
 {
-    SupportTypeId type_id = detect_data_type_id<InData>();
+    using Data = typename std::remove_pointer<InData>::type;
+
+    SupportTypeId type_id = detect_data_type_id<Data>();
 
     if(type_id == SupportTypeId::null) return;
 
-    if(sizeof(InData) * (end - beg) > size_)
+    if(sizeof(Data) * (end - beg) > size_)
     {
-        if(is_mutable) resize(sizeof(InData) * (end - beg));
+        if(is_mutable) resize(sizeof(Data) * (end - beg));
         else return;
     }
 
     id_ = type_id;
-    offset_ = sizeof(InData);
+    offset_ = sizeof(Data);
 
     auto it = data_;
     while(beg != end)
     {
-        *reinterpret_cast<InData*>(it) = *beg;
+        *reinterpret_cast<Data*>(it) = *beg;
         it += offset_;
         ++beg;
     }
 }
 
 template <typename InData>
-void Buffer::write(const InData* idata, buff_size size, bool is_mutable) noexcept
+void Buffer::write(const InData idata, memory_size n, bool is_mutable) noexcept
 {
-    write(idata, idata + size / sizeof(InData), is_mutable);
+    using Data = typename std::remove_pointer<InData>::type;
+
+    write(idata, idata + n / sizeof(Data), is_mutable);
 }
 
 template <class Type>
@@ -218,12 +222,14 @@ void Buffer::set(size_type offset) noexcept
 }
 
 template <typename DataCastType, typename OutData>
-void Buffer::read_buff(OutData* beg, OutData* end)
+void Buffer::read_buff(OutData beg, OutData end)
 {
+    using Data = typename std::remove_pointer<OutData>::type;
+
     auto it = data_;
     while(beg != end)
     {
-        *beg = static_cast<OutData>(*reinterpret_cast<DataCastType*>(it));
+        *beg = static_cast<Data>(*reinterpret_cast<DataCastType*>(it));
         it += offset_;
         ++beg;
     }

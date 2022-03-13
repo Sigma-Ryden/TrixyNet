@@ -81,14 +81,14 @@ public:
 private:
     constexpr static meta_data_type getBaseMetaData() noexcept;
 
-    template <typename Data>
-    static void rawDeserializeData(std::ifstream& in, Data* data, size_type n);
+    template <typename OutData>
+    static void rawDeserializeData(std::ifstream& in, OutData data, size_type n);
 
-    template <typename Data>
-    void deserializeData(std::ifstream& in, Data* data, size_type n);
+    template <typename OutData>
+    void deserializeData(std::ifstream& in, OutData data, size_type n);
 
-    template <typename Data>
-    static void serializeData(std::ofstream& out, const Data* data, size_type n);
+    template <typename InData>
+    static void serializeData(std::ofstream& out, const InData data, size_type n);
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -258,27 +258,31 @@ TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::getBaseMetaData() noexcept
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <typename Data>
+template <typename InData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
-    std::ofstream& out, const Data* data, size_type n)
+    std::ofstream& out, const InData data, size_type n)
 {
+    using Data = typename std::remove_pointer<InData>::type;
+
     size_type memory_size = n * sizeof(Data);
     out.write(reinterpret_cast<const char*>(data), memory_size);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <typename Data>
+template <typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::rawDeserializeData(
-    std::ifstream& in, Data* data, size_type n)
+    std::ifstream& in, OutData data, size_type n)
 {
+    using Data = typename std::remove_pointer<OutData>::type;
+
     size_type memory_size = n * sizeof(Data);
     in.read(reinterpret_cast<char*>(data), memory_size);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <typename Data>
+template <typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
-    std::ifstream& in, Data* data, size_type n)
+    std::ifstream& in, OutData data, size_type n)
 {
     size_type memory_size = n * buff.offset();
 

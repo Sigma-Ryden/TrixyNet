@@ -52,11 +52,3 @@
 #define TRIXY_REGRESSION_TPL(regression_type)                                                           \
     Regression<regression_type,                                                                         \
                VectorType, MatrixType, LinearType, PrecisionType, void, Args...>
-
-#define TRIXY_IOPTIMIZER_BODY                                                                           \
-    public:                                                                                             \
-        using Base = IOptimizer<Optimizeriable>;                                                        \
-                                                                                                        \
-    private:                                                                                            \
-        using Base::set_learning_rate;                                                                  \
-        using Base::update;

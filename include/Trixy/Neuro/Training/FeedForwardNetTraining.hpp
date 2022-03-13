@@ -23,7 +23,8 @@ public:
     struct BackPropData;
 
 private:
-    using IOptimizer                = typename train::IOptimizer<Trainable>;
+    template <class Derived>
+    using IOptimizer                = typename train::IOptimizer<Derived, Trainable>;
 
     template <class... T>
     using Container                 = typename Trainable::template Container<T...>;
@@ -64,23 +65,25 @@ public:
     void innerBackProp(const Vector& sample,
                        const Vector& target) noexcept;
 
-    template <class GeneratorInteger>
+    template <class GeneratorInteger, class Derived>
     void trainStochastic(const Container<Vector>& idata,
                          const Container<Vector>& odata,
                          size_type iteration_scale,
                          GeneratorInteger generator,
-                         IOptimizer& optimizer) noexcept;
+                         IOptimizer<Derived>& optimizer) noexcept;
 
+    template <class Derived>
     void trainBatch(const Container<Vector>& idata,
                     const Container<Vector>& odata,
                     size_type epoch_scale,
-                    IOptimizer& optimizer) noexcept;
+                    IOptimizer<Derived>& optimizer) noexcept;
 
+    template <class Derived>
     void trainMiniBatch(const Container<Vector>& idata,
                         const Container<Vector>& odata,
                         size_type epoch_scale,
                         size_type mini_batch_size,
-                        IOptimizer& optimizer) noexcept;
+                        IOptimizer<Derived>& optimizer) noexcept;
 
     long double accuracy(const Container<Vector>& idata,
                          const Container<Vector>& odata) const noexcept; // deprecated & will repair
@@ -200,13 +203,13 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-template <class GeneratorInteger>
+template <class GeneratorInteger, class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     size_type iteration_scale,
     GeneratorInteger generator,
-    IOptimizer& optimizer) noexcept
+    IOptimizer<Derived>& optimizer) noexcept
 {
     for(size_type i = 0, sample; i < iteration_scale; ++i)
     {
@@ -220,11 +223,12 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
+template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     size_type epoch_scale,
-    IOptimizer& optimizer) noexcept
+    IOptimizer<Derived>& optimizer) noexcept
 {
     precision_type alpha = 1. / static_cast<precision_type>(idata.size());
 
@@ -246,12 +250,13 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
+template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     size_type epoch_scale,
     size_type mini_batch_size,
-    IOptimizer& optimizer) noexcept
+    IOptimizer<Derived>& optimizer) noexcept
 {
     precision_type alpha = 1. / static_cast<precision_type>(mini_batch_size);
 

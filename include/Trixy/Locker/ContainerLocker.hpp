@@ -42,7 +42,8 @@ public:
 
     Locker(std::initializer_list<value_type> list) : Lockable(list) {}
 
-    const Lockable& base() const { return static_cast<const Lockable&>(*this); }
+    const Lockable& base() const noexcept
+    { return static_cast<const Lockable&>(*this); }
 
 public:
     using Lockable::size;
