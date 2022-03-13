@@ -92,6 +92,7 @@ public:
 
     Tensor apply(Function func) const;
     Tensor& apply(Function func) noexcept;
+    Tensor& apply(Function func, const_pointer src) noexcept;
     Tensor& apply(Function func, const Tensor&) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
@@ -265,7 +266,7 @@ Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& matrix) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::copy(const_pointer src) noexcept
 {
-    copy(data_, data_ + shape_.size_, src);
+    detail::copy(data_, data_ + shape_.size_, src);
 
     return *this;
 }
@@ -305,7 +306,7 @@ void Matrix<Precision>::resize(size_type size)
 {
     delete[] data_;
 
-    shape_.row_  = 1;
+    shape_.row_  = 1; // default value
     shape_.col_  = size;
     shape_.size_ = size;
 
@@ -381,8 +382,10 @@ LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::use_for_callable_t<Generator, Precision>>
 Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = gen();
+    auto beg = data_;
+    auto end = data_ + shape_.size_;
+
+    while(beg != end) *beg++ = gen();
 
     return *this;
 }
@@ -390,8 +393,10 @@ Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::fill(precision_type value) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = value;
+    auto beg = data_;
+    auto end = data_ + shape_.size_;
+
+    while(beg != end) *beg++ = value;
 
     return *this;
 }
@@ -401,8 +406,18 @@ Matrix<Precision> Matrix<Precision>::apply(Function func) const
 {
     Tensor new_matrix(shape_);
 
-    for(size_type i = 0; i < shape_.size_; ++i)
-        new_matrix.data_[i] = func(data_[i]);
+    auto dst = new_matrix.data_;
+
+    auto beg = data_;
+    auto end = data_ + shape_.size_;
+
+    while(beg != end)
+    {
+        *dst = func(*beg);
+
+        ++dst;
+        ++beg;
+    }
 
     return new_matrix;
 }
@@ -410,8 +425,31 @@ Matrix<Precision> Matrix<Precision>::apply(Function func) const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::apply(Function func) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = func(data_[i]);
+    auto beg = data_;
+    auto end = data_ + shape_.size_;
+
+    while(beg != end)
+    {
+        *beg = func(*beg);
+        ++beg;
+    }
+
+    return *this;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>& Matrix<Precision>::apply(Function func, const_pointer src) noexcept
+{
+    auto beg = data_;
+    auto end = data_ + shape_.size_;
+
+    while(beg != end)
+    {
+        *beg = func(*src);
+
+        ++beg;
+        ++end;
+    }
 
     return *this;
 }
@@ -419,10 +457,7 @@ Matrix<Precision>& Matrix<Precision>::apply(Function func) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::apply(Function func, const Tensor& matrix) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = function(matrix.data_[i]);
-
-    return *this;
+    return apply(func,  matrix.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

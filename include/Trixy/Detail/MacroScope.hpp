@@ -30,13 +30,11 @@
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
     template <class Tensor, typename size_type = typename Tensor::size_type>                            \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        for(size_type i = 0; i < buff.size(); ++i)                                                      \
-            buff(i) = ::trixy::set::activation::detail::name(tensor(i));                                \
+        buff.apply(::trixy::set::activation::detail::name, tensor.data());                              \
     }                                                                                                   \
     template <class Tensor, typename size_type = typename Tensor::size_type>                            \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        for(size_type i = 0; i < buff.size(); ++i)                                                      \
-            buff(i) = ::trixy::set::activation::detail::name##_derived(tensor(i));                      \
+        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.data());                    \
     }
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \

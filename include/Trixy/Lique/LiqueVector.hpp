@@ -77,6 +77,7 @@ public:
 
     Tensor apply(Function func) const;
     Tensor& apply(Function func) noexcept;
+    Tensor& apply(Function func, const_pointer src) noexcept;
     Tensor& apply(Function func, const Tensor&) noexcept;
 
     precision_type dot(const Tensor&) const;
@@ -130,8 +131,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(size_type size, precision_type value)
     : data_(new precision_type [size]), size_(size)
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = value;
+    fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -268,8 +268,10 @@ LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::use_for_callable_t<Generator, Precision>>
 Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = gen();
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    while(beg != end) *beg++ = gen();
 
     return *this;
 }
@@ -277,8 +279,10 @@ Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::fill(precision_type value) noexcept
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = value;
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    while(beg != end) *beg++ = value;
 
     return *this;
 }
@@ -288,8 +292,18 @@ Vector<Precision> Vector<Precision>::apply(Function func) const
 {
     Tensor new_vector(size_);
 
-    for(size_type i = 0; i < size_; ++i)
-        new_vector.data_[i] = function(data_[i]);
+    auto dst = new_vector.data_;
+
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    while(beg != end)
+    {
+        *dst = func(*beg);
+
+        ++dst;
+        ++beg;
+    }
 
     return new_vector;
 }
@@ -297,29 +311,58 @@ Vector<Precision> Vector<Precision>::apply(Function func) const
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::apply(Function func) noexcept
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = func(data_[i]);
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    while(beg != end)
+    {
+        *beg = func(*beg);
+        ++beg;
+    }
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>& Vector<Precision>::apply(
-    Function func, const Tensor& vector) noexcept
+Vector<Precision>& Vector<Precision>::apply(Function func, const_pointer src) noexcept
 {
-    for(size_type i = 0; i < size_; ++i)
-        data_[i] = func(vector.data_[i]);
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    while(beg != end)
+    {
+        *beg = func(*src);
+
+        ++beg;
+        ++src;
+    }
 
     return *this;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Vector<Precision>& Vector<Precision>::apply(Function func, const Tensor& vector) noexcept
+{
+    return apply(func, vector.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 typename Vector<Precision>::precision_type Vector<Precision>::dot(const Tensor& vector) const
 {
-    double result = 0.0;
+    precision_type result = 0.0;
 
-    for(size_type i = 0; i < size_; ++i)
-        result += data_[i] * vector.data_[i];
+    auto beg = data_;
+    auto end = data_ + size_;
+
+    auto src = vector.data_;
+
+    while(beg != end)
+    {
+        result += (*beg) * (*src);
+
+        ++beg;
+        ++src;
+    }
 
     return result;
 }

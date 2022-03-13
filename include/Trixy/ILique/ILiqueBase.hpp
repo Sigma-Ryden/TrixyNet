@@ -58,6 +58,9 @@ public:
     Tensor& apply(Function func, const Tensor& tensor) noexcept
     { return self().apply(func, tensor); }
 
+    Tensor& apply(Function func, const_pointer src) noexcept
+    { return self().apply(func, src); }
+
     Tensor  multiply(const Tensor& tensor) const { return self().multiply(tensor); }
     Tensor& multiply(const Tensor& tensor) noexcept { return self().multiply(tensor); }
 
