@@ -28,13 +28,15 @@
     }
 
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
-    template <class Tensor, typename size_type = typename Tensor::size_type>                            \
+    template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        buff.apply(::trixy::set::activation::detail::name, tensor.data());                              \
+        using namespace ::trixy::set::activation::detail;                                               \
+        buff.apply(name<precision_type>, tensor.data());                                                \
     }                                                                                                   \
-    template <class Tensor, typename size_type = typename Tensor::size_type>                            \
+    template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        buff.apply(::trixy::set::activation::detail::name##_derived, tensor.data());                    \
+        using namespace ::trixy::set::activation::detail;                                               \
+        buff.apply(name##_derived<precision_type>, tensor.data());                                      \
     }
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \

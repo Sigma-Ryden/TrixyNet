@@ -3,6 +3,8 @@
 
 #include <cstddef> // size_t
 
+#include "Detail/FunctionDetail.hpp"
+
 #include "Detail/LiqueMeta.hpp"
 
 namespace trixy
@@ -117,10 +119,11 @@ public:
               typename = meta::enable_for_tensor_t<Tensor2>>
     void add(
         Tensor1& buff,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) += tensor(i);
+        detail::assign<precision_type, detail::add>(
+            buff.data(), buff.data() + buff.size(), rhs.data()
+        );
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -132,8 +135,11 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = lhs(i) + rhs(i);
+        detail::assign<precision_type, detail::add>(
+            buff.data(), buff.data() + buff.size(),
+            lhs.data(),
+            rhs.data()
+        );
     }
 
     template <class Tensor1, class Tensor2,
@@ -141,10 +147,11 @@ public:
               typename = meta::enable_for_tensor_t<Tensor2>>
     void sub(
         Tensor1& buff,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) -= tensor(i);
+        detail::assign<precision_type, detail::sub>(
+            buff.data(), buff.data() + buff.size(), rhs.data()
+        );
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -156,8 +163,11 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = lhs(i) - rhs(i);
+        detail::assign<precision_type, detail::sub>(
+            buff.data(), buff.data() + buff.size(),
+            lhs.data(),
+            rhs.data()
+        );
     }
 
     template <class Tensor1, class Tensor2,
@@ -165,10 +175,11 @@ public:
               typename = meta::enable_for_tensor_t<Tensor2>>
     void mul(
         Tensor1& buff,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) *= tensor(i);
+        detail::assign<precision_type, detail::mul>(
+            buff.data(), buff.data() + buff.size(), rhs.data()
+        );
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -180,8 +191,11 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = lhs(i) * rhs(i);
+        detail::assign<precision_type, detail::mul>(
+            buff.data(), buff.data() + buff.size(),
+            lhs.data(),
+            rhs.data()
+        );
     }
 
     template <class Tensor1,
@@ -190,8 +204,9 @@ public:
         Tensor1& buff,
         precision_type value) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) *= value;
+        detail::assign<precision_type, detail::mul>(
+            buff.data(), buff.data() + buff.size(), value
+        );
     }
 
     template <class Tensor1, class Tensor2,
@@ -200,10 +215,11 @@ public:
     void join(
         Tensor1& buff,
         precision_type value,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = value * tensor(i);
+        detail::assign<precision_type, detail::mul>(
+            buff.data(), buff.data() + buff.size(), value, rhs.data()
+        );
     }
 
     template <class Tensor, class Function,
@@ -212,8 +228,7 @@ public:
         Tensor& buff,
         Function func) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = func(buff(i));
+        detail::assign(buff.data(), buff.data() + buff.size(), func);
     }
 
     template <class Tensor1, class Tensor2, class Function,
@@ -222,10 +237,11 @@ public:
     void apply(
         Tensor1& buff,
         Function func,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& rhs) const noexcept
     {
-        for(size_type i = 0; i < buff.size(); ++i)
-            buff(i) = func(tensor(i));
+        detail::assign(
+            buff.data(), buff.data() + buff.size(), func, rhs.data()
+        );
     }
 
     template <class Tensor, class Function,
@@ -234,8 +250,14 @@ public:
         Tensor& tensor,
         Function func) const noexcept
     {
-        for(size_type i = 0; i < tensor.size(); ++i)
-            func(tensor(i));
+        auto first = tensor.data();
+        auto last  = tensor.data() + tensor.size();
+
+        while(first != last)
+        {
+            func(*first);
+            ++first;
+        }
     }
 };
 

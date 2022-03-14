@@ -26,8 +26,6 @@ public:
     using pointer        = typename Lockable::pointer;
     using const_pointer  = typename Lockable::const_pointer;
 
-    using Function       = typename Lockable::Function;
-
 public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding

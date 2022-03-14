@@ -28,8 +28,6 @@ public:
 
     using Shape          = typename Lockable::Shape;
 
-    using Function       = typename Lockable::Function;
-
 public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding

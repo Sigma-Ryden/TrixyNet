@@ -29,8 +29,6 @@ public:
     using reference         = Precision&;
     using const_reference   = const Precision&;
 
-    using Function          = Precision (*)(Precision);
-
 protected:
     virtual ~ITensor() = default;
 
@@ -52,12 +50,17 @@ public:
 
     size_type size() const noexcept { return self().size(); }
 
+    template <class Function>
     Tensor  apply(Function func) const { return self().apply(func); }
+
+    template <class Function>
     Tensor& apply(Function func) noexcept { return self().apply(func); }
 
+    template <class Function>
     Tensor& apply(Function func, const Tensor& tensor) noexcept
     { return self().apply(func, tensor); }
 
+    template <class Function>
     Tensor& apply(Function func, const_pointer src) noexcept
     { return self().apply(func, src); }
 

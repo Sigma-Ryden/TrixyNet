@@ -55,15 +55,20 @@ template <class C, typename Ret = void, typename... Args>
 struct is_callable
 {
 private:
-    template <class U> static auto check(U* p) -> enable_if_t<
+    template <class U>
+    static auto check(U* p) ->
+    enable_if_t<
         std::is_same<decltype((*p)(std::declval<Args>()...)), Ret>::value,
-        std::true_type>;
+        std::true_type
+        >;
 
-    template <class> static std::false_type check(...);
+    template <class>
+    static std::false_type check(...);
 
 public:
     static constexpr bool value = decltype(check<C>(nullptr))::value;
 };
+
 template <class C, typename Ret = void, typename... Args>
 struct use_for_callable : std::enable_if<is_callable<C, Ret, Args...>::value, int> {};
 

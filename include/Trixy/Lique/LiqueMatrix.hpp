@@ -37,8 +37,6 @@ public:
     using reference         = Precision&;
     using const_reference   = const Precision&;
 
-    using Function          = Precision (*)(Precision);
-
 protected:
     pointer data_;
     Shape  shape_;
@@ -48,7 +46,7 @@ public:
     ~Tensor();
 
     explicit Tensor(size_type size);
-    explicit Tensor(const_pointer beg, const_pointer end);
+    explicit Tensor(const_pointer first, const_pointer last);
 
     explicit Tensor(size_type m, size_type n);
     Tensor(size_type m, size_type n, precision_type value);
@@ -90,9 +88,16 @@ public:
 
     Tensor& fill(precision_type value) noexcept;
 
+    template <class Function>
     Tensor apply(Function func) const;
+
+    template <class Function>
     Tensor& apply(Function func) noexcept;
+
+    template <class Function>
     Tensor& apply(Function func, const_pointer src) noexcept;
+
+    template <class Function>
     Tensor& apply(Function func, const Tensor&) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
@@ -171,10 +176,10 @@ inline Matrix<Precision>::Tensor(size_type size)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const_pointer beg, const_pointer end)
-    : data_(new precision_type [end - beg]), shape_(1, end - beg)
+Matrix<Precision>::Tensor(const_pointer first, const_pointer last)
+    : data_(new precision_type [last - first]), shape_(1, last - first)
 {
-     detail::copy(data_, data_ + shape_.size_, beg);
+     detail::copy(data_, data_ + shape_.size_, first);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -241,7 +246,7 @@ Matrix<Precision>& Matrix<Precision>::operator= (const Tensor& matrix)
         shape_ = matrix.shape_;
         data_  = new precision_type [shape_.size_];
 
-         detail::copy(data_, data_ + shape_.size_, matrix.data_);
+        detail::copy(data_, data_ + shape_.size_, matrix.data_);
     }
 
     return *this;
@@ -382,10 +387,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::use_for_callable_t<Generator, Precision>>
 Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 {
-    auto beg = data_;
-    auto end = data_ + shape_.size_;
-
-    while(beg != end) *beg++ = gen();
+    detail::fill(data_, data_ + shape_.size_, gen);
 
     return *this;
 }
@@ -393,71 +395,45 @@ Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::fill(precision_type value) noexcept
 {
-    auto beg = data_;
-    auto end = data_ + shape_.size_;
-
-    while(beg != end) *beg++ = value;
+    detail::fill(data_, data_ + shape_.size_, value);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Function>
 Matrix<Precision> Matrix<Precision>::apply(Function func) const
 {
-    Tensor new_matrix(shape_);
+    Tensor matrix(shape_);
 
-    auto dst = new_matrix.data_;
+    matrix.apply(func, data_);
 
-    auto beg = data_;
-    auto end = data_ + shape_.size_;
-
-    while(beg != end)
-    {
-        *dst = func(*beg);
-
-        ++dst;
-        ++beg;
-    }
-
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Function>
 Matrix<Precision>& Matrix<Precision>::apply(Function func) noexcept
 {
-    auto beg = data_;
-    auto end = data_ + shape_.size_;
-
-    while(beg != end)
-    {
-        *beg = func(*beg);
-        ++beg;
-    }
+    detail::assign(data_, data_ + shape_.size_, func);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Function>
 Matrix<Precision>& Matrix<Precision>::apply(Function func, const_pointer src) noexcept
 {
-    auto beg = data_;
-    auto end = data_ + shape_.size_;
-
-    while(beg != end)
-    {
-        *beg = func(*src);
-
-        ++beg;
-        ++end;
-    }
+    detail::assign(data_, data_ + shape_.size_, func, src);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
+template <class Function>
 Matrix<Precision>& Matrix<Precision>::apply(Function func, const Tensor& matrix) noexcept
 {
-    return apply(func,  matrix.data_);
+    return apply(func, matrix.data_);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -489,11 +465,11 @@ inline typename Matrix<Precision>::const_reference
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::dot(const Tensor& matrix) const
+Matrix<Precision> Matrix<Precision>::dot(const Tensor& rhs) const
 {
-    size_type col = matrix.shape_.col_;
+    size_type col = rhs.shape_.col_;
 
-    Tensor new_matrix(shape_.row_, col, 0.);
+    Tensor matrix(shape_.row_, col, 0.);
 
     precision_type buff;
     for(size_type i = 0; i < shape_.row_; ++i)
@@ -503,29 +479,27 @@ Matrix<Precision> Matrix<Precision>::dot(const Tensor& matrix) const
             buff = data_[i * shape_.col_ + r];
 
             for(size_type j = 0; j <  col; ++j)
-                new_matrix.data_[i * col + j] += buff * matrix.data_[r *col + j];
+                matrix.data_[i * col + j] += buff * rhs.data_[r *col + j];
         }
     }
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::add(const Tensor& matrix) const
+Matrix<Precision> Matrix<Precision>::add(const Tensor& rhs) const
 {
-    Tensor new_matrix(shape_.size_);
+    Tensor matrix(shape_);
 
-    for(size_type i = 0; i < shape_.size_; ++i)
-        new_matrix.data_[i] = data_[i] + matrix.data_[i];
+    matrix.add(*this, rhs);
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::add(const Tensor& matrix) noexcept
+Matrix<Precision>& Matrix<Precision>::add(const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] += matrix.data_[i];
+    detail::assign<precision_type, detail::add>(data_, data_ + shape_.size_, rhs.data_);
 
     return *this;
 }
@@ -533,28 +507,25 @@ Matrix<Precision>& Matrix<Precision>::add(const Tensor& matrix) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = lhs.data_[i] + rhs.data_[i];
+    detail::assign<precision_type, detail::add>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::sub(const Tensor& matrix) const
+Matrix<Precision> Matrix<Precision>::sub(const Tensor& rhs) const
 {
-    Tensor new_matrix(shape_);
+    Tensor matrix(shape_);
 
-    for(size_type i = 0; i < shape_.size_; ++i)
-        new_matrix.data_[i] = data_[i] - matrix.data_[i];
+    matrix.sub(*this, rhs);
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::sub(const Tensor& matrix) noexcept
+Matrix<Precision>& Matrix<Precision>::sub(const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] -= matrix.data_[i];
+    detail::assign<precision_type, detail::sub>(data_, data_ + shape_.size_, rhs.data_);
 
     return *this;
 }
@@ -562,37 +533,33 @@ Matrix<Precision>& Matrix<Precision>::sub(const Tensor& matrix) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = lhs.data_[i] - rhs.data_[i];
+    detail::assign<precision_type, detail::sub>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::multiply(const Tensor& matrix) const
+Matrix<Precision> Matrix<Precision>::multiply(const Tensor& rhs) const
 {
-    Tensor new_matrix(shape_);
+    Tensor matrix(shape_);
 
-    for(size_type i = 0; i < shape_.size_; ++i)
-        new_matrix.data_[i] = data_[i] * matrix.data_[i];
+    matrix.multiply(*this, rhs);
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& matrix) noexcept
+Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] *= matrix.data_[i];
+    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, rhs.data_);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& lsh, const Tensor& rsh) noexcept
+Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = lsh.data_[i] * rsh.data_[i];
+    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
 
     return *this;
 }
@@ -600,28 +567,25 @@ Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& lsh, const Tensor& 
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision> Matrix<Precision>::join(precision_type value) const
 {
-    Tensor new_matrix(shape_);
+    Tensor matrix(shape_);
 
-    for(size_type i = 0; i < shape_.size_; ++i)
-        new_matrix.data_[i] = value * data_[i];
+    matrix.join(value, *this);
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::join(precision_type value) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] *= value;
+    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, value);
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::join(precision_type value, const Tensor& matrix) noexcept
+Matrix<Precision>& Matrix<Precision>::join(precision_type value, const Tensor& rhs) noexcept
 {
-    for(size_type i = 0; i < shape_.size_; ++i)
-        data_[i] = value * matrix.data_[i];
+    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, value, rhs.data_);
 
     return *this;
 }
@@ -629,13 +593,13 @@ Matrix<Precision>& Matrix<Precision>::join(precision_type value, const Tensor& m
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision> Matrix<Precision>::transpose() const
 {
-    Tensor new_matrix(shape_.col_, shape_.row_);
+    Tensor matrix(shape_.col_, shape_.row_);
 
     for(size_type i = 0; i < shape_.col_; ++i)
         for(size_type j = 0; j < shape_.row_; ++j)
-            new_matrix.data_[i * shape_.row_ + j] = data_[j * shape_.col_ + i];
+            matrix.data_[i * shape_.row_ + j] = data_[j * shape_.col_ + i];
 
-    return new_matrix;
+    return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

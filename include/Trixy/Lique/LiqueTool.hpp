@@ -9,6 +9,8 @@
 #include "LiqueMatrix.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
+#include "Trixy/Lique/Detail/LiqueMeta.hpp"
+
 #include "Detail/FunctionDetail.hpp"
 
 #include "Trixy/Detail/MacroScope.hpp"
@@ -165,12 +167,9 @@ template <class Tensor, typename precision_type = typename Tensor::precision_typ
           lique::meta::use_for_tensor_t<Tensor> = 0>
 precision_type mean(const Tensor& tensor) noexcept
 {
-    using size_type = typename Tensor::size_type;
+    precision_type mean_value = 0.;
 
-    size_type mean_value = 0.;
-
-    for(size_type i = 0; i < tensor.size(); ++i)
-        mean_value += tensor(i);
+    detail::accumulate(tensor.data(), tensor.data() + tensor.size(), mean_value);
 
     return mean_value / static_cast<precision_type>(tensor.size());
 }
@@ -214,8 +213,7 @@ Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
             for(size_type i = 0; i < vector.size(); ++i)
                 vector(i) += matrix(n, i);
 
-        for(size_type i = 0; i < vector.size(); ++i)
-            vector(i) *= alpha;
+        vector.join(alpha);
 
         break;
 
@@ -227,19 +225,18 @@ Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
             for(size_type n = 0; n < matrix.shape().col(); ++n)
                 vector(i) += matrix(i, n);
 
-        for(size_type i = 0; i < vector.size(); ++i)
-            vector(i) *= alpha;
+        vector.join(alpha);
 
         break;
 
     default:
-        vector.resize(1, Precision());
-        alpha = 1. / static_cast<Precision>(matrix.size());
+        Precision result = 0.;
+        detail::accumulate(matrix.data(), matrix.data() + matrix.size(), result);
 
-        for(size_type i = 0; i < matrix.size(); ++i)
-            vector(0) += matrix(i);
+        result *= 1. / static_cast<Precision>(matrix.size());
 
-        vector(0) *= alpha;
+        vector.resize(1, alpha);
+
         break;
     }
 
@@ -274,11 +271,8 @@ Vector<Precision> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased 
             vector(i) = std_value;
         }
 
-        for(size_type i = 0; i < vector.size(); ++i)
-        {
-            vector(i) *= alpha;
-            vector(i)  = std::sqrt(vector(i));
-        }
+        vector.join(alpha);
+        vector.apply(std::sqrt<Precision>);
 
         break;
 
@@ -325,10 +319,14 @@ template <class Tensor, class Function,
           typename = lique::meta::enable_for_tensor_t<Tensor>>
 void for_each(Tensor& tensor, Function func) noexcept
 {
-    using size_type = typename Tensor::size_type;
+    auto first = tensor.data();
+    auto last = tensor.data() + tensor.size();
 
-    for(size_type i = 0; i < tensor.size(); ++i)
-        func(tensor(i));
+    while(first != last)
+    {
+        func(*first);
+        ++first;
+    }
 }
 
 namespace detail
@@ -361,8 +359,7 @@ Tensor concat(const Container<Tensor>& list)
 
     size_type accumulate_size = 0;
 
-    for(const auto& it : list)
-        accumulate_size += it.size();
+    for(const auto& it : list) accumulate_size += it.size();
 
     Tensor tensor(accumulate_size);
 
