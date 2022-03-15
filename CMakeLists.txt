@@ -34,8 +34,6 @@ set(TRIXY_ILIQUE
     include/Trixy/ILique/ILiqueLinear.hpp
     include/Trixy/ILique/ILiqueMatrix.hpp
     include/Trixy/ILique/ILiqueVector.hpp
-    include/Trixy/ILique/Detail/MacroScope.hpp
-    include/Trixy/ILique/Detail/MacroUnscope.hpp
     include/Trixy/ILique/ILiqueCore.hpp
 )
 set(TRIXY_NEURO

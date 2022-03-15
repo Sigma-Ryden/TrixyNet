@@ -11,7 +11,7 @@ namespace trixy
 namespace detail
 {
 
-template <typename Precision, meta::use_for_arithmetic_t<Precision> = 0>
+template <typename Precision, meta::as_arithmetic_t<Precision> = 0>
 Precision invert_sqrt(Precision x) noexcept
 {
     return 1. / std::sqrt(1e-9 + x);

@@ -21,6 +21,18 @@ public:
     using precision_type = Precision;
 
 public:
+    template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+    auto first(Tensor& tensor) const noexcept -> decltype(tensor.data())
+    {
+        return tensor.data();
+    }
+
+    template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+    auto last(Tensor& tensor) const noexcept -> decltype(tensor.data() + tensor.size())
+    {
+        return tensor.data() + tensor.size();
+    }
+
     template <class Vector1, class Vector2, class Matrix,
               typename = meta::enable_for_vector_t<Vector1>,
               typename = meta::enable_for_vector_t<Vector2>,
@@ -122,7 +134,7 @@ public:
         const Tensor2& rhs) const noexcept
     {
         detail::assign<precision_type, detail::add>(
-            buff.data(), buff.data() + buff.size(), rhs.data()
+            first(buff), last(buff), first(rhs)
         );
     }
 
@@ -136,9 +148,7 @@ public:
         const Tensor3& rhs) const noexcept
     {
         detail::assign<precision_type, detail::add>(
-            buff.data(), buff.data() + buff.size(),
-            lhs.data(),
-            rhs.data()
+            first(buff), last(buff), first(lhs), first(rhs)
         );
     }
 
@@ -150,7 +160,7 @@ public:
         const Tensor2& rhs) const noexcept
     {
         detail::assign<precision_type, detail::sub>(
-            buff.data(), buff.data() + buff.size(), rhs.data()
+            first(buff), last(buff), first(rhs)
         );
     }
 
@@ -164,9 +174,7 @@ public:
         const Tensor3& rhs) const noexcept
     {
         detail::assign<precision_type, detail::sub>(
-            buff.data(), buff.data() + buff.size(),
-            lhs.data(),
-            rhs.data()
+            first(buff), last(buff), first(lhs), first(rhs)
         );
     }
 
@@ -178,7 +186,7 @@ public:
         const Tensor2& rhs) const noexcept
     {
         detail::assign<precision_type, detail::mul>(
-            buff.data(), buff.data() + buff.size(), rhs.data()
+            first(buff), last(buff), first(rhs)
         );
     }
 
@@ -192,9 +200,7 @@ public:
         const Tensor3& rhs) const noexcept
     {
         detail::assign<precision_type, detail::mul>(
-            buff.data(), buff.data() + buff.size(),
-            lhs.data(),
-            rhs.data()
+            first(buff), last(buff), first(lhs), first(rhs)
         );
     }
 
@@ -205,7 +211,7 @@ public:
         precision_type value) const noexcept
     {
         detail::assign<precision_type, detail::mul>(
-            buff.data(), buff.data() + buff.size(), value
+            first(buff), last(buff), value
         );
     }
 
@@ -218,7 +224,7 @@ public:
         const Tensor2& rhs) const noexcept
     {
         detail::assign<precision_type, detail::mul>(
-            buff.data(), buff.data() + buff.size(), value, rhs.data()
+            first(buff), last(buff), value, first(rhs)
         );
     }
 
@@ -228,7 +234,7 @@ public:
         Tensor& buff,
         Function func) const noexcept
     {
-        detail::assign(buff.data(), buff.data() + buff.size(), func);
+        detail::assign(first(buff), last(buff), func);
     }
 
     template <class Tensor1, class Tensor2, class Function,
@@ -239,9 +245,7 @@ public:
         Function func,
         const Tensor2& rhs) const noexcept
     {
-        detail::assign(
-            buff.data(), buff.data() + buff.size(), func, rhs.data()
-        );
+        detail::assign(first(buff), last(buff), func, first(rhs));
     }
 
     template <class Tensor, class Function,

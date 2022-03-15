@@ -83,7 +83,7 @@ public:
     void reshape(const Shape& shape) noexcept;
 
     template <class Generator,
-              trixy::meta::use_for_callable_t<Generator, precision_type> = 0>
+              trixy::meta::as_callable_t<Generator> = 0>
     Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
@@ -384,7 +384,7 @@ void Matrix<Precision>::reshape(const Shape& shape) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-template <class Generator, trixy::meta::use_for_callable_t<Generator, Precision>>
+template <class Generator, trixy::meta::as_callable_t<Generator>>
 Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 {
     detail::fill(data_, data_ + shape_.size_, gen);

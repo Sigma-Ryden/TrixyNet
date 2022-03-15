@@ -51,26 +51,24 @@ struct select_for<true, T> : std::true_type
     using type = T;
 };
 
-template <class C, typename Ret = void, typename... Args>
+template <class F, typename... Args>
 struct is_callable
 {
 private:
-    template <class U>
-    static auto check(U* p) ->
-    enable_if_t<
-        std::is_same<decltype((*p)(std::declval<Args>()...)), Ret>::value,
-        std::true_type
-        >;
+    template <class> static std::false_type check(...);
 
-    template <class>
-    static std::false_type check(...);
+    template <class U> static auto check(U* p) ->
+    decltype((*p)(std::declval<Args>()...), std::true_type());
 
 public:
-    static constexpr bool value = decltype(check<C>(nullptr))::value;
+    static constexpr bool value = decltype(check<F>(nullptr))::value;
 };
 
-template <class C, typename Ret = void, typename... Args>
-struct use_for_callable : std::enable_if<is_callable<C, Ret, Args...>::value, int> {};
+template <class F, typename... Args>
+struct as_callable : std::enable_if<is_callable<F, Args...>::value, int> {};
+
+template <class F, typename... Args>
+using as_callable_t = typename as_callable<F, Args...>::type;
 
 template <class T, class... Tn>
 struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
@@ -78,11 +76,8 @@ struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
 template <typename T> struct enable_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
 template <typename T> using enable_for_arithmetic_t = typename enable_for_arithmetic<T>::type;
 
-template <class C, typename Ret = void, typename... Args>
-using use_for_callable_t = typename use_for_callable<C, Ret, Args...>::type;
-
-template <typename T> struct use_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
-template <typename T> using use_for_arithmetic_t = typename use_for_arithmetic<T>::type;
+template <typename T> struct as_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
+template <typename T> using as_arithmetic_t = typename as_arithmetic<T>::type;
 
 } // namespace meta
 

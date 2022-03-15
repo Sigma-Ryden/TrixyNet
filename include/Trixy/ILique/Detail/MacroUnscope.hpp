@@ -1,5 +1,0 @@
-// clean up
-#undef ILIQUE_TENSOR_TPL_DECLARATION
-
-#undef ILIQUE_VECTOR_TPL
-#undef ILIQUE_MATRIX_TPL

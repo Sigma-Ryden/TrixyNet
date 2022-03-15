@@ -25,25 +25,13 @@ template <typename> struct is_ltensor : std::false_type {};
 template <typename Precision, class tensor_type>
 struct is_ltensor<Tensor<Precision, tensor_type>> : std::true_type {};
 
-template <typename> struct is_lock_tensor : std::false_type {};
-template <class Tensor, class locker_type>
-struct is_lock_tensor<Locker<Tensor, locker_type>> : is_ltensor<Tensor> {};
-
 template <typename> struct is_lvector : std::false_type {};
 template <typename Precision>
 struct is_lvector<Tensor<Precision, TensorType::vector>> : std::true_type {};
 
-template <typename> struct is_lock_lvector : std::false_type {};
-template <class Tensor>
-struct is_lock_lvector<Locker<Tensor, LockerType::vector>> : is_lvector<Tensor> {};
-
 template <typename> struct is_lmatrix : std::false_type {};
 template <typename Precision>
 struct is_lmatrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
-
-template <typename> struct is_lock_lmatrix : std::false_type {};
-template <class Tensor>
-struct is_lock_lmatrix<Locker<Tensor, LockerType::matrix>> : is_lmatrix<Tensor> {};
 
 template <class Tensor>
 struct is_vector : std::is_same<typename Tensor::type, TensorType::vector> {};
@@ -56,17 +44,17 @@ struct is_tensor : trixy::meta::disjunction<
     std::is_same<typename Tensor::type, TensorType::vector>,
     std::is_same<typename Tensor::type, TensorType::matrix>> {};
 
-template <typename T> struct use_for_vector : std::enable_if<is_vector<T>::value, int> {};
+template <typename T> struct as_vector : std::enable_if<is_vector<T>::value, int> {};
 template <typename T>
-using use_for_vector_t = typename use_for_vector<T>::type;
+using as_vector_t = typename as_vector<T>::type;
 
-template <typename T> struct use_for_matrix : std::enable_if<is_matrix<T>::value, int> {};
+template <typename T> struct as_matrix : std::enable_if<is_matrix<T>::value, int> {};
 template <typename T>
-using use_for_matrix_t = typename use_for_matrix<T>::type;
+using as_matrix_t = typename as_matrix<T>::type;
 
-template <typename T> struct use_for_tensor : std::enable_if<is_tensor<T>::value, int> {};
+template <typename T> struct as_tensor : std::enable_if<is_tensor<T>::value, int> {};
 template <typename T>
-using use_for_tensor_t = typename use_for_tensor<T>::type;
+using as_tensor_t = typename as_tensor<T>::type;
 
 template <typename T> struct enable_for_vector : std::enable_if<is_vector<T>::value> {};
 template <typename T>
