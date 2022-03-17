@@ -93,7 +93,7 @@ void for_each(Iterator first, Iterator last, Function func, T& result)
 {
     while(first != last)
     {
-        func(result, *first);
+        func(*first, result);
         ++first;
     }
 }

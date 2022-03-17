@@ -68,8 +68,19 @@ inline auto last(Tensor& tensor) -> decltype(tensor.data() + tensor.size())
     return tensor.data() + tensor.size();
 }
 
-template <class Tensor,
-          Binary<typename Tensor::precision_type> compare,
+template <typename Iterator, class Function, typename T>
+void accumulate(Iterator first, Iterator last, T& result)
+{
+    detail::for_each(
+        first, last,
+        [](const T& value, T& res) { res += value; },
+        result
+    );
+}
+
+template <typename Precision,
+          Binary<Precision> compare,
+          class Tensor,
           typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 size_type find(const Tensor& tensor) noexcept
@@ -134,14 +145,14 @@ template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 size_type argmin(const Tensor& tensor) noexcept
 {
-    return find<Tensor, comp::is_bigger>(tensor);
+    return find<typename Tensor::precision_type, comp::is_bigger>(tensor);
 }
 
 template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 size_type argmax(const Tensor& tensor) noexcept
 {
-    return find<Tensor, comp::is_less>(tensor);
+    return find<typename Tensor::precision_type, comp::is_less>(tensor);
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
@@ -160,14 +171,14 @@ template <class Tensor, typename precision_type = typename Tensor::precision_typ
           lique::meta::as_tensor_t<Tensor> = 0>
 precision_type min(const Tensor& tensor) noexcept
 {
-    return tensor(find<Tensor, comp::is_bigger>(tensor));
+    return tensor(find<typename Tensor::precision_type, comp::is_bigger>(tensor));
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 precision_type max(const Tensor& tensor) noexcept
 {
-    return tensor(find<Tensor, comp::is_less>(tensor));
+    return tensor(find<typename Tensor::precision_type, comp::is_less>(tensor));
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
@@ -176,7 +187,7 @@ precision_type mean(const Tensor& tensor) noexcept
 {
     precision_type mean_value = 0.;
 
-    detail::for_each(first(tensor), last(tensor), detail::add(), mean_value);
+    accumulate(first(tensor), last(tensor), mean_value);
 
     return mean_value / static_cast<precision_type>(tensor.size());
 }
@@ -238,7 +249,7 @@ Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
 
     default:
         Precision result = 0.;
-        detail::for_each(first(matrix), last(matrix), detail::add(), result);
+        accumulate(first(matrix), last(matrix), result);
 
         result *= 1. / static_cast<Precision>(matrix.size());
 

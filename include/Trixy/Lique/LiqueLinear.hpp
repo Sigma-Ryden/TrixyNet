@@ -75,13 +75,13 @@ public:
               typename = meta::enable_for_vector_t<Vector2>,
               typename = meta::enable_for_matrix_t<Matrix>>
     void tensordot(
-        Matrix& buff2,
+        Matrix& buff,
         const Vector1& col_vector,
         const Vector2& row_vector) const noexcept
     {
         for(size_type i = 0; i < col_vector.size(); ++i)
             for(size_type j = 0; j < row_vector.size(); ++j)
-                buff2(i, j) = row_vector(j) * col_vector(i);
+                buff(i, j) = row_vector(j) * col_vector(i);
     }
 
     template <class Vector, class Matrix,
