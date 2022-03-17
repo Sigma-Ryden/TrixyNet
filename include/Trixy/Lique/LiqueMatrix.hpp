@@ -82,8 +82,7 @@ public:
     void reshape(size_type m, size_type n) noexcept;
     void reshape(const Shape& shape) noexcept;
 
-    template <class Generator,
-              trixy::meta::as_callable_t<Generator> = 0>
+    template <class Generator, trixy::meta::as_callable_t<Generator> = 0>
     Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
@@ -384,7 +383,7 @@ void Matrix<Precision>::reshape(const Shape& shape) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-template <class Generator, trixy::meta::as_callable_t<Generator>>
+template <class Generator, meta::as_callable_t<Generator>>
 Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
 {
     detail::fill(data_, data_ + shape_.size_, gen);
@@ -415,7 +414,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 template <class Function>
 Matrix<Precision>& Matrix<Precision>::apply(Function func) noexcept
 {
-    detail::assign(data_, data_ + shape_.size_, func);
+    detail::apply(data_, data_ + shape_.size_, func);
 
     return *this;
 }
@@ -424,7 +423,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 template <class Function>
 Matrix<Precision>& Matrix<Precision>::apply(Function func, const_pointer src) noexcept
 {
-    detail::assign(data_, data_ + shape_.size_, func, src);
+    detail::apply(data_, data_ + shape_.size_, func, src);
 
     return *this;
 }
@@ -499,7 +498,7 @@ Matrix<Precision> Matrix<Precision>::add(const Tensor& rhs) const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::add(const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::add>(data_, data_ + shape_.size_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::add(), rhs.data_);
 
     return *this;
 }
@@ -507,7 +506,7 @@ Matrix<Precision>& Matrix<Precision>::add(const Tensor& rhs) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::add>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::add(), lhs.data_, rhs.data_);
 
     return *this;
 }
@@ -525,7 +524,7 @@ Matrix<Precision> Matrix<Precision>::sub(const Tensor& rhs) const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::sub(const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::sub>(data_, data_ + shape_.size_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::sub(), rhs.data_);
 
     return *this;
 }
@@ -533,7 +532,7 @@ Matrix<Precision>& Matrix<Precision>::sub(const Tensor& rhs) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::sub>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::sub(), lhs.data_, rhs.data_);
 
     return *this;
 }
@@ -551,7 +550,7 @@ Matrix<Precision> Matrix<Precision>::multiply(const Tensor& rhs) const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::mul(), rhs.data_);
 
     return *this;
 }
@@ -559,7 +558,7 @@ Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& rhs) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& lhs, const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, lhs.data_, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::mul(), lhs.data_, rhs.data_);
 
     return *this;
 }
@@ -577,7 +576,7 @@ Matrix<Precision> Matrix<Precision>::join(precision_type value) const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::join(precision_type value) noexcept
 {
-    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, value);
+    detail::assign(data_, data_ + shape_.size_, detail::mul(), value);
 
     return *this;
 }
@@ -585,7 +584,7 @@ Matrix<Precision>& Matrix<Precision>::join(precision_type value) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>& Matrix<Precision>::join(precision_type value, const Tensor& rhs) noexcept
 {
-    detail::assign<precision_type, detail::mul>(data_, data_ + shape_.size_, value, rhs.data_);
+    detail::assign(data_, data_ + shape_.size_, detail::mul(), value, rhs.data_);
 
     return *this;
 }

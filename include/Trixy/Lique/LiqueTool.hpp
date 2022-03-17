@@ -21,12 +21,7 @@ namespace trixy
 namespace lique
 {
 
-enum class Axis
-{
-    X,
-    Y,
-    None
-};
+enum class Axis { None, X, Y };
 
 template <typename Type>
 using Binary = bool (*)(Type, Type);
@@ -181,7 +176,7 @@ precision_type mean(const Tensor& tensor) noexcept
 {
     precision_type mean_value = 0.;
 
-    detail::calculate<precision_type, detail::add>(first(tensor), last(tensor), mean_value);
+    detail::for_each(first(tensor), last(tensor), detail::add(), mean_value);
 
     return mean_value / static_cast<precision_type>(tensor.size());
 }
@@ -243,7 +238,7 @@ Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
 
     default:
         Precision result = 0.;
-        detail::calculate<Precision, detail::add>(first(matrix), last(matrix). result);
+        detail::for_each(first(matrix), last(matrix), detail::add(), result);
 
         result *= 1. / static_cast<Precision>(matrix.size());
 
