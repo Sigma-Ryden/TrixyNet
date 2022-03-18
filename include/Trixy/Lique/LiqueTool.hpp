@@ -21,10 +21,9 @@ namespace trixy
 namespace lique
 {
 
-enum class Axis { None, X, Y };
+enum class Axis { X, Y };
 
-template <typename Type>
-using Binary = bool (*)(Type, Type);
+template <typename Type> using Binary = bool (*)(Type, Type);
 
 namespace comp
 {
@@ -44,10 +43,7 @@ inline bool is_less(Precision previous, Precision next) noexcept
 } // namespace comp
 
 template <class T>
-inline T sum(T&& t) noexcept
-{
-    return t;
-}
+inline T sum(T&& t) noexcept { return t; }
 
 template <class T, class... Tn,
           trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
@@ -68,14 +64,15 @@ inline auto last(Tensor& tensor) -> decltype(tensor.data() + tensor.size())
     return tensor.data() + tensor.size();
 }
 
-template <typename Iterator, class Function, typename T>
-void accumulate(Iterator first, Iterator last, T& result)
+template <typename Iterator, typename T>
+T accumulate(Iterator first, Iterator last, T result)
 {
     detail::for_each(
         first, last,
-        [](const T& value, T& res) { res += value; },
-        result
+        [&result](const T& value) { result += value; }
     );
+
+    return result;
 }
 
 template <typename Precision,
@@ -98,44 +95,33 @@ template <typename Precision, Binary<Precision> compare,
           trixy::meta::as_arithmetic_t<Precision> = 0>
 Vector<size_type> find(const Matrix<Precision>& matrix, Axis axis)
 {
+    const size_type block_size = matrix.shape().col();
+    const size_type number_of_blocks = matrix.shape().row();
+
     Vector<size_type> vector;
     size_type arg;
 
-    switch(axis)
+    if(axis == Axis::X)
     {
-    case Axis::X:
-        vector.resize(matrix.shape().col(), size_type());
+        vector.resize(block_size, size_type(0));
 
-        for(size_type i = 1; i < matrix.shape().row(); ++i)
+        for(size_type i = 1; i < number_of_blocks; ++i)
             for(size_type n = 0; n < vector.size(); ++n)
                 if(compare(matrix(vector(n), n), matrix(i, n)))
                     vector(n) = i;
-
-        break;
-
-    case Axis::Y:
-        vector.resize(matrix.shape().row());
+    }
+    else
+    {
+        vector.resize(number_of_blocks);
 
         for(size_type n = 0; n < vector.size(); ++n)
         {
-            for(size_type i = 1; i < matrix.shape().col(); ++i)
+            for(size_type i = 1; i < block_size; ++i)
                 if(compare(matrix(n, arg), matrix(n, i)))
                     arg = i;
 
             vector(n) = arg;
         }
-        break;
-
-    default:
-        vector.resize(1);
-
-        arg = 0;
-        for(size_type i = 1; i < matrix.size(); ++i)
-            if(compare(matrix(arg), matrix(i)))
-                arg = i;
-
-        vector(0) = arg;
-        break;
     }
 
     return vector;
@@ -187,7 +173,7 @@ precision_type mean(const Tensor& tensor) noexcept
 {
     precision_type mean_value = 0.;
 
-    accumulate(first(tensor), last(tensor), mean_value);
+    mean_value = accumulate(first(tensor), last(tensor), mean_value);
 
     return mean_value / static_cast<precision_type>(tensor.size());
 }
@@ -199,6 +185,7 @@ precision_type std(const Tensor& tensor, bool unbiased = false)
     using size_type = typename Tensor::size_type;
 
     precision_type mean_value = mean(tensor);
+
     precision_type std_value;
     precision_type buff;
 
@@ -218,44 +205,45 @@ Vector<Precision> mean(const Matrix<Precision>& matrix, Axis axis)
 {
     using size_type = typename Vector<Precision>::size_type;
 
+    const size_type block_size = matrix.shape().col();
+    const size_type number_of_blocks = matrix.shape().row();
+
+    auto m_first = first(matrix);
+    auto m_last = last(matrix);
+
     Vector<Precision> vector;
-    Precision alpha;
 
-    switch(axis)
+    if(axis == Axis::X)
     {
-    case Axis::X:
-        vector.resize(matrix.shape().col(), Precision());
-        alpha = 1. / static_cast<Precision>(matrix.shape().row());
+        vector.resize(block_size, Precision(0.));
 
-        for(size_type n = 0; n < matrix.shape().row(); ++n)
-            for(size_type i = 0; i < vector.size(); ++i)
-                vector(i) += matrix(n, i);
+        auto v_first = first(vector);
+        auto v_last = last(vector);
 
-        vector.join(alpha);
+        while(m_first != m_last)
+        {
+            detail::assign(v_first, v_last, detail::add(), m_first);
+            m_first += vector.size();
+        }
 
-        break;
+        vector.join( 1. / static_cast<Precision>(number_of_blocks));
+    }
+    else
+    {
+        vector.resize(number_of_blocks);
 
-    case Axis::Y:
-        vector.resize(matrix.shape().row(), Precision());
-        alpha = 1. / static_cast<Precision>(matrix.shape().col());
+        auto v_first = first(vector);
+        auto v_last = last(vector);
 
-        for(size_type i = 0; i < vector.size(); ++i)
-            for(size_type n = 0; n < matrix.shape().col(); ++n)
-                vector(i) += matrix(i, n);
+        while(v_first != v_last)
+        {
+            *v_first = accumulate(m_first, m_first + block_size, Precision(0.));
 
-        vector.join(alpha);
+            m_first += block_size;
+            ++v_first;
+        }
 
-        break;
-
-    default:
-        Precision result = 0.;
-        accumulate(first(matrix), last(matrix), result);
-
-        result *= 1. / static_cast<Precision>(matrix.size());
-
-        vector.resize(1, alpha);
-
-        break;
+        vector.join(1. / static_cast<Precision>(block_size));
     }
 
     return vector;
@@ -266,65 +254,64 @@ Vector<Precision> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased 
 {
     using size_type = typename Vector<Precision>::size_type;
 
+    const size_type block_size = matrix.shape().col();
+    const size_type number_of_blocks = matrix.shape().row();
+
     Vector<Precision> vector = mean(matrix, axis);
 
     Precision std_value;
-    Precision alpha;
+    Precision mean_value;
+
     Precision buff;
 
-    switch(axis)
+    auto accumulate_std =
+    [buff](const Precision& mean, const Precision& value, Precision& accumulate)
     {
-    case Axis::X:
-        alpha = 1. / static_cast<Precision>(matrix.shape().row() - unbiased);
+        buff = mean - value;
+        accumulate += buff * buff;
+    };
 
+    if(axis == Axis::X)
+    {
         for(size_type i = 0; i < vector.size(); ++i)
         {
             std_value = 0.;
-            for(size_type n = 0; n < matrix.shape().row(); ++n)
-            {
-                buff = matrix(n, i) - vector(i);
-                std_value += buff * buff;
-            }
+            for(size_type n = 0; n < number_of_blocks; ++n)
+                accumulate_std(vector(i), matrix(n, i), std_value);
 
             vector(i) = std_value;
         }
 
-        vector.join(alpha);
+        vector.join(1. / static_cast<Precision>(number_of_blocks - unbiased));
         vector.apply(std::sqrt<Precision>);
+    }
+    else
+    {
+        auto v_first = first(vector);
+        auto v_last = last(vector);
 
-        break;
+        auto m_first = first(matrix);
 
-    case Axis::Y:
-        alpha = 1. / static_cast<Precision>(matrix.shape().col() - unbiased);
-
-        for(size_type i = 0; i < vector.size(); ++i)
+        while(v_first != v_last)
         {
             std_value = 0.;
-            for(std::size_t n = 0; n < matrix.shape().col(); ++n)
+
+            mean_value = *v_first;
+            auto accumulate_adapter =
+            [accumulate_std, &std_value, mean_value](const Precision& value)
             {
-                buff = matrix(i, n) - vector(i);
-                std_value += buff * buff;
-            }
+                accumulate_std(mean_value, value, std_value);
+            };
 
-            vector(i) = std_value;
+            detail::for_each(m_first, m_first + block_size, accumulate_adapter);
+            *v_first = std_value;
+
+            m_first += block_size;
+            ++v_first;
         }
 
-        vector.join(alpha);
+        vector.join(1. / static_cast<Precision>(block_size - unbiased));
         vector.apply(std::sqrt<Precision>);
-
-        break;
-
-    default:
-        alpha = 1. / static_cast<Precision>(matrix.size() - unbiased);
-        std_value = 0.;
-        for(size_type i = 0; i < matrix.size(); ++i)
-        {
-            buff = matrix(i) - vector(0);
-            std_value += buff * buff;
-        }
-
-        vector(0) = std::sqrt(std_value * alpha);
-        break;
     }
 
     return vector;
@@ -403,17 +390,25 @@ size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_
 {
     using precision_type = typename Tensor::precision_type;
 
-    precision_type r = precision_type(generator()) / precision_type(rand_max);
+    // random_value satisfies the range [0, 1]
+    precision_type random_value = precision_type(generator()) / precision_type(rand_max);
+
     precision_type accumulate = 0.;
 
-    for(size_type i = 0; i < tensor.size(); ++i)
+    auto begin = first(tensor);
+    auto end = last(tensor);
+
+    while(begin != end)
     {
-        accumulate += tensor[i];
-        if(r < accumulate)
-            return i;
+        accumulate += *begin;
+
+        if(random_value < accumulate) return begin - first(tensor);
+
+        ++begin;
     }
 
-    return argmin(tensor);
+    // special case for invalid input data
+    return argmax(tensor);
 }
 
 template <class Tensor,

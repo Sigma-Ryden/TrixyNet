@@ -88,16 +88,6 @@ void apply(Iterator first, Iterator last, Function func, ConstIterator src)
     }
 }
 
-template <typename Iterator, class Function, typename T>
-void for_each(Iterator first, Iterator last, Function func, T& result)
-{
-    while(first != last)
-    {
-        func(*first, result);
-        ++first;
-    }
-}
-
 template <typename Iterator, class Function>
 void for_each(Iterator first, Iterator last, Function func)
 {

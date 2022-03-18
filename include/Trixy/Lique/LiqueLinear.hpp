@@ -46,11 +46,11 @@ public:
 
         buff.fill(0.);
 
-        for(size_type j = 0; j < row_vector.size(); ++j)
+        for(size_type i = 0; i < row_vector.size(); ++i)
         {
-            temp = row_vector(j);
-            for(size_type i = 0; i < buff.size(); ++i)
-               buff(i) += temp * matrix(j, i);
+            temp = row_vector(i);
+            for(size_type j = 0; j < buff.size(); ++j)
+               buff(j) += temp * matrix(i, j);
         }
     }
 
@@ -79,9 +79,14 @@ public:
         const Vector1& col_vector,
         const Vector2& row_vector) const noexcept
     {
+        precision_type temp;
+
         for(size_type i = 0; i < col_vector.size(); ++i)
+        {
+            temp = col_vector(i);
             for(size_type j = 0; j < row_vector.size(); ++j)
-                buff(i, j) = row_vector(j) * col_vector(i);
+                buff(i, j) = temp * row_vector(j);
+        }
     }
 
     template <class Vector, class Matrix,

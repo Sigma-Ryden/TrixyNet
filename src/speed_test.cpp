@@ -111,8 +111,8 @@ void speed_test()
 
     util::Timer t;
     teach.trainBatch(train_in, train_out, 100000, grad);
-    teach.trainStochastic(train_in, train_out, 100000, std::rand, adam);
-    teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, grad);
+    teach.trainStochastic(train_in, train_out, 100000, std::rand, grad);
+    teach.trainMiniBatch(train_in, train_out, 100000 / 6, 2, adam);
 
     std::cout << "Train time: " << t.elapsed() << '\n';
 
