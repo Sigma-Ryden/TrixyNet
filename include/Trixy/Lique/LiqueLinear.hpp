@@ -44,7 +44,7 @@ public:
     {
         precision_type temp;
 
-        buff.fill(0.);
+        detail::assign(first(buff), last(buff), detail::cpy(), precision_type(0.));
 
         for(size_type i = 0; i < row_vector.size(); ++i)
         {
@@ -63,7 +63,7 @@ public:
         const Matrix& matrix,
         const Vector2& col_vector) const noexcept
     {
-        buff.fill(0.);
+        detail::assign(first(buff), last(buff), detail::cpy(), precision_type(0.));
 
         for(size_type i = 0; i < buff.size(); ++i)
             for(size_type j = 0; j < col_vector.size(); ++j)
@@ -79,6 +79,7 @@ public:
         const Vector1& col_vector,
         const Vector2& row_vector) const noexcept
     {
+        /*
         precision_type temp;
 
         for(size_type i = 0; i < col_vector.size(); ++i)
@@ -86,6 +87,23 @@ public:
             temp = col_vector(i);
             for(size_type j = 0; j < row_vector.size(); ++j)
                 buff(i, j) = temp * row_vector(j);
+        }
+        */
+        const size_type block_size = row_vector.size();
+
+        auto dst = first(buff);
+
+        auto c_first = first(col_vector);
+        auto c_last = last(col_vector);
+
+        auto r_first = first(row_vector);
+
+        while(c_first != c_last)
+        {
+            detail::assign(dst, dst + block_size, detail::mul(), *c_first, r_first);
+
+            dst += block_size;
+            ++c_first;
         }
     }
 
@@ -138,9 +156,7 @@ public:
         Tensor1& buff,
         const Tensor2& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::add(), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::add(), first(rhs));
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -152,9 +168,7 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::add(), first(lhs), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::add(), first(lhs), first(rhs));
     }
 
     template <class Tensor1, class Tensor2,
@@ -164,9 +178,7 @@ public:
         Tensor1& buff,
         const Tensor2& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::sub(), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::sub(), first(rhs));
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -178,9 +190,7 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::sub(), first(lhs), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::sub(), first(lhs), first(rhs));
     }
 
     template <class Tensor1, class Tensor2,
@@ -190,9 +200,7 @@ public:
         Tensor1& buff,
         const Tensor2& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::mul(), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::mul(), first(rhs));
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
@@ -204,9 +212,7 @@ public:
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::mul(), first(lhs), first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::mul(), first(lhs), first(rhs));
     }
 
     template <class Tensor1,
@@ -215,9 +221,7 @@ public:
         Tensor1& buff,
         precision_type value) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::mul(), value
-        );
+        detail::assign(first(buff), last(buff), detail::mul(), value);
     }
 
     template <class Tensor1, class Tensor2,
@@ -228,9 +232,7 @@ public:
         precision_type value,
         const Tensor2& rhs) const noexcept
     {
-        detail::assign(
-            first(buff), last(buff), detail::mul(), value, first(rhs)
-        );
+        detail::assign(first(buff), last(buff), detail::mul(), value, first(rhs));
     }
 
     template <class Tensor, class Function,

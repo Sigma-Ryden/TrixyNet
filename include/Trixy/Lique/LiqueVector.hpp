@@ -280,7 +280,7 @@ Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>& Vector<Precision>::fill(precision_type value) noexcept
 {
-    detail::fill(data_, data_ + size_, value);
+    detail::assign(data_, data_ + size_, detail::cpy(), value);
 
     return *this;
 }
