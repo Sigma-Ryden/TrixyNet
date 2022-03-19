@@ -50,11 +50,11 @@ public:
 
     explicit Tensor(size_type m, size_type n);
     Tensor(size_type m, size_type n, precision_type value);
-    Tensor(size_type m, size_type n, const_pointer ptr);
+    Tensor(size_type m, size_type n, const_pointer src);
 
     explicit Tensor(const Shape& shape);
     Tensor(const Shape& shape, precision_type value);
-    Tensor(const Shape& shape, const_pointer ptr);
+    Tensor(const Shape& shape, const_pointer src);
 
     Tensor(const Tensor&);
     Tensor(Tensor&&) noexcept;

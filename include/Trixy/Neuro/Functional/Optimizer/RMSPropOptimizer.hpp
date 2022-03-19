@@ -60,8 +60,8 @@ public:
     void set_learning_rate(precision_type value) noexcept;
 
     template <class BiasGrad, class WeightGrad>
-    void update(const Container<BiasGrad>& grad_bias,
-                const Container<WeightGrad>& grad_weight) noexcept;
+    void update(const Container<BiasGrad>& gradB,
+                const Container<WeightGrad>& gradW) noexcept;
 
     Optimizer& reset() noexcept;
 

@@ -58,7 +58,7 @@ private:
     meta_data_type meta;            ///< 4 bytes of meta data for hold type information
 
 public:
-    Serializer() : buff(), N(0) {}
+    Serializer() : buff(), N(0), meta(0) {}
 
     void prepare(const Serializable& net);
 
@@ -88,7 +88,7 @@ private:
     void deserializeData(std::ifstream& in, OutData data, size_type n);
 
     template <typename InData>
-    static void serializeData(std::ofstream& out, const InData data, size_type n);
+    static void serializeData(std::ofstream& out, InData data, size_type n);
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -260,7 +260,7 @@ TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::getBaseMetaData() noexcept
 TRIXY_SERIALIZER_TPL_DECLARATION
 template <typename InData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
-    std::ofstream& out, const InData data, size_type n)
+    std::ofstream& out, InData data, size_type n)
 {
     using Data = typename std::remove_pointer<InData>::type;
 

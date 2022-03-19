@@ -90,7 +90,7 @@ void tensor_of_units(Tensor& buff, const Tensor& /*unused*/) noexcept
 template <class ActivationFunction, typename CastType, typename ActivationId>
 ActivationFunction get_activation_function(ActivationId id)
 {
-    CastType f_id = static_cast<CastType>(id);
+    auto f_id = static_cast<CastType>(id);
 
     switch (id)
     {

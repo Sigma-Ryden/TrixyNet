@@ -56,7 +56,7 @@ private:
     InnerBuffer buff;               ///< 1D buffer for handle
 
 public:
-    Training(Trainable& network);
+    explicit Training(Trainable& network);
 
     // operator= for copy and move Training object will not implicit generate
     Training(const Training&) = default;

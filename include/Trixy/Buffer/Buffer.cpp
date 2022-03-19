@@ -105,23 +105,23 @@ void Buffer::set(
 
 void Buffer::clear() noexcept
 {
-    auto beg = data_;
-    auto end = data_ + size_;
+    auto first = data_;
+    auto last = data_ + size_;
 
-    while(beg != end) *beg++ = 0;
+    while(first != last) *first++ = 0;
 }
 
 bool Buffer::empty() const noexcept
 {
-    auto beg = data_;
-    auto end = data_ + size_;
+    auto first = data_;
+    auto last = data_ + size_;
 
-    while(beg != end and *beg == 0)
+    while(first != last and *first == 0)
     {
-        ++beg;
+        ++first;
     }
 
-    return beg == end;
+    return first == last;
 }
 
 typename Buffer::SupportTypeId Buffer::get_integer_id(

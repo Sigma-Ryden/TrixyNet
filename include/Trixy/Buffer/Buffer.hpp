@@ -58,7 +58,7 @@ public:
     Buffer() noexcept;
     ~Buffer();
 
-    Buffer(memory_size n);
+    explicit Buffer(memory_size n);
 
     Buffer(const Buffer&);
     Buffer(Buffer&&) noexcept;

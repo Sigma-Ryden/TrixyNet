@@ -40,7 +40,7 @@ private:
     meta_data_type meta; ///< 2 bytes of meta data for hold type information
 
 public:
-    Serializer() : W(), N(0) {}
+    Serializer() : buff(), W(), N(0), meta(0) {}
 
     void prepare(const Serializable& reg);
 

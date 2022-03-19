@@ -176,7 +176,7 @@ void logcosh_derived(Tensor& buff, const Tensor& y_true, const Tensor& y_pred) n
 template <class LossFunction, typename CastType, typename LossId>
 LossFunction get_loss_function(LossId id)
 {
-    CastType f_id = static_cast<CastType>(id);
+    auto f_id = static_cast<CastType>(id);
 
     switch (id)
     {

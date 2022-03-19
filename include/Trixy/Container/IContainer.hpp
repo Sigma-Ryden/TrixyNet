@@ -43,7 +43,7 @@ public:
     size_type size() const noexcept { return self().size(); }
     size_type max_size() const noexcept { return self().max_size(); }
 
-    void reserve(size_type n) { self().reserve(); }
+    void reserve(size_type n) { self().reserve(n); }
 
     template <typename... Args>
     void resize(size_type n, Args&&... args) { self().resize(n, std::forward<Args>(args)...); }

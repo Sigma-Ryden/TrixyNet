@@ -34,7 +34,7 @@ public:
     template <typename... Args,
         typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
         typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
-    Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
+    explicit Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& container) : Lockable(container) {}
@@ -43,7 +43,7 @@ public:
     Locker(const Lockable& container) : Lockable(container) {}
     Locker(Lockable&& container) noexcept : Lockable(std::move(container)) {}
 
-    ~Locker() {}
+    ~Locker() = default;
 
     const Lockable& base() const noexcept
     { return static_cast<const Lockable&>(*this); }
