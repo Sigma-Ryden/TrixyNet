@@ -79,7 +79,8 @@ public:
     bool empty() const noexcept;
 
     void set(BaseTypeId id, size_type offset) noexcept;
-    template <class BaseType>
+
+    template <class Type>
     void set(size_type offset) noexcept;
 
     bool is_ready() const noexcept { return id_ != SupportTypeId::null; }
