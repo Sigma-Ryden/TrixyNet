@@ -107,8 +107,6 @@ void check_neuro(
     const typename TrixyNet::template Container<typename TrixyNet::Vector>& odata)
 {
     std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
-              << "\nNetwork train global accuracy: " << network.accuracyg(idata, odata, 0.05)
-              << "\nNetwork train full accuracy: "   << network.accuracyf(idata, odata, 0.05)
               << "\nNetwork train Loss: "            << network.loss(idata, odata) << '\n';
 }
 

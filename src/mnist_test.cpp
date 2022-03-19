@@ -125,7 +125,7 @@ void mnist_test_deserialization()
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
 
-    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
+    net.initInnerStruct(sr.getBias(), sr.getWeight());
 
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
@@ -180,7 +180,7 @@ void mnist_test()
     TrixyNetTraining teach(net);
 
     constexpr int range = 1000;
-    net.initializeInnerStruct([] () noexcept
+    net.initInnerStruct([] () noexcept
     {
         return float(std::rand() % (2 * range + 1) - range) / (range * range);
     });

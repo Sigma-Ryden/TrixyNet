@@ -69,7 +69,7 @@ void speed_test_deserialization()
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
 
-    net.initializeInnerStruct(sr.getBias(), sr.getWeight());
+    net.initInnerStruct(sr.getBias(), sr.getWeight());
 
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
@@ -96,7 +96,7 @@ void speed_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    net.initializeInnerStruct(random);
+    net.initInnerStruct(random);
 
     net.function.setActivation(manage.get<ActivationId::relu>());
     net.function.setNormalization(manage.get<ActivationId::softmax>());
@@ -145,5 +145,3 @@ int main()
     return 0;
 }
 //
-// NP: x1: 0.488738 | x10: 3.160919 | x25: 7.784160 | x50: 14.912222 | 29.777232
-// AP: x1: 0.225519 | x10: 2.036284| x25: 4.863865 | x50: 9.715929 | 18.536706

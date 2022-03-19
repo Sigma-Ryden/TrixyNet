@@ -63,8 +63,8 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
     precision_type learning_rate)
     : Base()
     , net(network)
-    , buff1(NetInit::get1D(net.inner.topology))
-    , buff2(NetInit::get2D(net.inner.topology))
+    , buff1(NetInit::get1d(net.inner.topology))
+    , buff2(NetInit::get2d(net.inner.topology))
     , learning_rate(learning_rate)
 {
 }

@@ -7,5 +7,5 @@
 
 #define BUFF_CASE_READ_HELPER(name)                                                                     \
     case SupportTypeId::name:                                                                           \
-        read_buff<typename SupportType::name>(beg, end);                                                \
+        read_buff<typename SupportType::name>(first, last);                                             \
         break;

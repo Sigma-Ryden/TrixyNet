@@ -86,20 +86,20 @@ public:
     bool is_ready() const noexcept { return id_ != SupportTypeId::null; }
 
     template <typename OutData>
-    void read(OutData beg, OutData end) noexcept;
+    void read(OutData first, OutData last) noexcept;
 
     template <typename OutData>
     void read(OutData odata, memory_size n) noexcept;
 
     template <typename InData>
-    void write(const InData beg, const InData end, bool is_mutable = true) noexcept;
+    void write(InData first, InData last, bool is_mutable = true) noexcept;
 
     template <typename InData>
-    void write(const InData idata, memory_size n, bool is_mutable = true) noexcept;
+    void write(InData idata, memory_size n, bool is_mutable = true) noexcept;
 
 private:
     template <typename DataCastType, typename OutData>
-    void read_buff(OutData beg, OutData end);
+    void read_buff(OutData first, OutData last);
 
     template <typename DetectionDataType>
     SupportTypeId detect_data_type_id();
@@ -140,9 +140,9 @@ inline Buffer::~Buffer()
 }
 
 template <typename OutData>
-void Buffer::read(OutData beg, OutData end) noexcept
+void Buffer::read(OutData first, OutData last) noexcept
 {
-    if(offset_ * (end - beg) > size_) return;
+    if(offset_ * (last - first) > size_) return;
 
     switch (id_)
     {
@@ -171,17 +171,17 @@ void Buffer::read(OutData odata, memory_size n) noexcept
 }
 
 template <typename InData>
-void Buffer::write(const InData beg, const InData end, bool is_mutable) noexcept
+void Buffer::write(InData first, InData last, bool is_mutable) noexcept
 {
-    using Data = typename std::remove_pointer<InData>::type;
+    using Data = typename std::decay<decltype(*first)>::type;
 
     SupportTypeId type_id = detect_data_type_id<Data>();
 
     if(type_id == SupportTypeId::null) return;
 
-    if(sizeof(Data) * (end - beg) > size_)
+    if(sizeof(Data) * (first - last) > size_)
     {
-        if(is_mutable) resize(sizeof(Data) * (end - beg));
+        if(is_mutable) resize(sizeof(Data) * (last - first));
         else return;
     }
 
@@ -189,18 +189,18 @@ void Buffer::write(const InData beg, const InData end, bool is_mutable) noexcept
     offset_ = sizeof(Data);
 
     auto it = data_;
-    while(beg != end)
+    while(first != last)
     {
-        *reinterpret_cast<Data*>(it) = *beg;
+        *reinterpret_cast<Data*>(it) = *first;
         it += offset_;
-        ++beg;
+        ++first;
     }
 }
 
 template <typename InData>
-void Buffer::write(const InData idata, memory_size n, bool is_mutable) noexcept
+void Buffer::write(InData idata, memory_size n, bool is_mutable) noexcept
 {
-    using Data = typename std::remove_pointer<InData>::type;
+    using Data = typename std::decay<decltype(*idata)>::type;
 
     write(idata, idata + n / sizeof(Data), is_mutable);
 }
@@ -223,16 +223,16 @@ void Buffer::set(size_type offset) noexcept
 }
 
 template <typename DataCastType, typename OutData>
-void Buffer::read_buff(OutData beg, OutData end)
+void Buffer::read_buff(OutData first, OutData last)
 {
-    using Data = typename std::remove_pointer<OutData>::type;
+    using Data = typename std::decay<decltype(*first)>::type;
 
     auto it = data_;
-    while(beg != end)
+    while(first != last)
     {
-        *beg = static_cast<Data>(*reinterpret_cast<DataCastType*>(it));
+        *first = static_cast<Data>(*reinterpret_cast<DataCastType*>(it));
         it += offset_;
-        ++beg;
+        ++first;
     }
 }
 

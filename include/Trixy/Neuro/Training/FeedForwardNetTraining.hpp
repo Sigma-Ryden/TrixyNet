@@ -1,6 +1,8 @@
 #ifndef FEED_FORWARD_NET_TRAINING_HPP
 #define FEED_FORWARD_NET_TRAINING_HPP
 
+#include <cmath> // fabs
+
 #include "BaseTraining.hpp"
 
 #include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
@@ -29,14 +31,14 @@ private:
     template <class... T>
     using Container                 = typename Trainable::template Container<T...>;
 
-    using LVector                   = typename Trainable::LVector;
-    using LMatrix                   = typename Trainable::LMatrix;
+    using XVector                   = typename Trainable::XVector;
+    using XMatrix                   = typename Trainable::XMatrix;
 
     using Vector                    = typename Trainable::Vector;
     using Matrix                    = typename Trainable::Matrix;
 
     template <class... T>
-    using LContainer                = typename Trainable::template LContainer<T...>;
+    using XContainer                = typename Trainable::template XContainer<T...>;
 
     using precision_type            = typename Trainable::precision_type;
     using size_type                 = typename Trainable::size_type;
@@ -86,26 +88,39 @@ public:
                         IOptimizer<Derived>& optimizer) noexcept;
 
     long double accuracy(const Container<Vector>& idata,
-                         const Container<Vector>& odata) const noexcept; // deprecated & will repair
+                         const Container<Vector>& odata) const noexcept;
 
     long double accuracyf(const Container<Vector>& idata,
                           const Container<Vector>& odata,
-                          precision_type range_rate) const noexcept; // deprecated & will repair
+                          precision_type range_rate) const noexcept;
 
     long double accuracyg(const Container<Vector>& idata,
                           const Container<Vector>& odata,
-                          precision_type range_rate) const noexcept; // deprecated & will repair
+                          precision_type range_rate) const noexcept;
 
     long double loss(const Container<Vector>& idata,
-                     const Container<Vector>& odata) const noexcept; // deprecated & will repair
+                     const Container<Vector>& odata) const noexcept;
+
+protected:
+    bool check(const Vector& target,
+               const Vector& prediction) const noexcept;
+
+    bool checkf(const Vector& target,
+                const Vector& prediction,
+                precision_type range_rate) const noexcept;
+
+    void checkg(const Vector& target,
+                const Vector& prediction,
+                precision_type range_rate,
+                size_type& count) const noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
 struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData
 {
 public:
-    LContainer<LVector> S;          ///< non-activated value for hidden layer
-    LContainer<LVector> H;          ///< hidden layer storage
+    XContainer<XVector> S;          ///< non-activated value for hidden layer
+    XContainer<XVector> H;          ///< hidden layer storage
 
     const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
 
@@ -121,11 +136,11 @@ TRIXY_TRAINING_TPL_DECLARATION
 struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData
 {
 public:
-    LContainer<LVector> derivedB;   ///< derived bias storage (using for inner updates)
-    LContainer<LMatrix> derivedW;   ///< derived weight storage (using for inner updates)
+    XContainer<XVector> derivedB;   ///< derived bias storage (using for inner updates)
+    XContainer<XMatrix> derivedW;   ///< derived weight storage (using for inner updates)
 
-    LContainer<LVector> deltaB;     ///< delta bias is accumulator of derived bias
-    LContainer<LMatrix> deltaW;     ///< delta weight is accumulator of derived weight
+    XContainer<XVector> deltaB;     ///< delta bias is accumulator of derived bias
+    XContainer<XMatrix> deltaW;     ///< delta weight is accumulator of derived weight
 
     const size_type size;           ///< Number of functional layer (same as net_topology_size - 1)
 
@@ -145,8 +160,8 @@ public:
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(
     const Container<size_type>& topology)
-    : S(Trainable::Init::getLock1D(topology))
-    , H(Trainable::Init::getLock1D(topology))
+    : S(Trainable::Init::getlock1d(topology))
+    , H(Trainable::Init::getlock1d(topology))
     , size(topology.size() - 1)
 {
 }
@@ -154,10 +169,10 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(
     const Container<size_type>& topology)
-    : derivedB(Trainable::Init::getLock1D(topology))
-    , derivedW(Trainable::Init::getLock2D(topology))
-    , deltaB(Trainable::Init::getLock1D(topology))
-    , deltaW(Trainable::Init::getLock2D(topology))
+    : derivedB(Trainable::Init::getlock1d(topology))
+    , derivedW(Trainable::Init::getlock2d(topology))
+    , deltaB(Trainable::Init::getlock1d(topology))
+    , deltaW(Trainable::Init::getlock2d(topology))
     , size(topology.size() - 1)
 {
 }
@@ -198,7 +213,7 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     : net(network)
     , feedforward(network.inner.topology)
     , backprop(network.inner.topology)
-    , buff(Trainable::Init::getLock1D(network.inner.topology))
+    , buff(Trainable::Init::getlock1d(network.inner.topology))
 {
 }
 
@@ -306,7 +321,13 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyf(
     const Container<Vector>& odata,
     precision_type range_rate) const noexcept
 {
-    return net.accuracyf(idata, odata, range_rate);
+    size_type count = 0;
+
+    for(size_type i = 0; i < odata.size(); ++i)
+        if(checkf(odata[i], feedforward(idata[i]), range_rate))
+            ++count;
+
+    return static_cast<long double>(count) / odata.size();
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -315,7 +336,12 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::accuracyg(
     const Container<Vector>& odata,
     precision_type range_rate) const noexcept
 {
-    return net.accuracyg(idata, odata, range_rate);
+    size_type count = 0;
+
+    for(size_type i = 0; i < odata.size(); ++i)
+        checkg(odata[i], feedforward(idata[i]), range_rate, count);
+
+    return static_cast<long double>(count) / (odata.size() * odata.front().size());
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -390,6 +416,31 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackProp(
     net.linear.mul(backprop.derivedB[0], buff[0]);
 
     net.linear.tensordot(backprop.derivedW[0], sample, backprop.derivedB[0]);
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+bool TRIXY_TRAINING_TPL(meta::is_feedforward_net)::checkf(
+    const Vector& target,
+    const Vector& prediction,
+    precision_type range_rate) const noexcept
+{
+    for(size_type j = 0; j < target.size(); ++j)
+        if(std::fabs(target(j) - prediction(j)) > range_rate)
+            return false;
+
+    return true;
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::checkg(
+    const Vector& target,
+    const Vector& prediction,
+    precision_type range_rate,
+    size_type& count) const noexcept
+{
+    for(size_type i = 0; i < target.size(); ++i)
+        if(std::fabs(target(i) - prediction(i)) < range_rate)
+            ++count;
 }
 
 } // namespace train

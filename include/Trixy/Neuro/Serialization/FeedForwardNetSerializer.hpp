@@ -204,8 +204,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
 
     activationId.resize(N);
 
-    B = Serializable::Init::get1D(topology);
-    W = Serializable::Init::get2D(topology);
+    B = Serializable::Init::get1d(topology);
+    W = Serializable::Init::get2d(topology);
 
     if(meta_activation_id == sizeof(ActivationId))
     {
