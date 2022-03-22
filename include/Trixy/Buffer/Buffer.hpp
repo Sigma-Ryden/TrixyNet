@@ -436,17 +436,37 @@ template <typename T>
 template <class Type>
 void Buff<T>::set(size_type offset) noexcept
 {
-    if(std::is_same<Type, typename BaseType::Integer>::value)
+    using BT = BaseType;
+    using ST = SupportType;
+
+    using U = Type;
+
+    if(
+    std::is_same<U, typename BT::Integer>::value or
+    std::is_same<U, typename ST::i8>::value or
+    std::is_same<U, typename ST::i16>::value or
+    std::is_same<U, typename ST::i32>::value or
+    std::is_same<U, typename ST::i64>::value)
         set_integer(offset);
 
-    else if(std::is_same<Type, typename BaseType::Unsigned>::value)
+    else if(
+    std::is_same<U, typename BT::Unsigned>::value or
+    std::is_same<U, typename ST::u8>::value or
+    std::is_same<U, typename ST::u16>::value or
+    std::is_same<U, typename ST::u32>::value or
+    std::is_same<U, typename ST::u64>::value)
         set_unsigned(offset);
 
-    else if(std::is_same<Type, typename BaseType::Float>::value)
+    else if(
+    std::is_same<U, typename BT::Float>::value or
+    std::is_same<U, typename ST::f32>::value or
+    std::is_same<U, typename ST::f64>::value or
+    std::is_same<U, typename ST::f128>::value)
         set_float(offset);
 
-    else if(std::is_same<Type, typename BaseType::User>::value or
-            std::is_same<Type, T>::value)
+    else if(
+    std::is_same<U, typename BT::User>::value or
+    std::is_same<U, T>::value)
         set_user(offset);
 
     else
