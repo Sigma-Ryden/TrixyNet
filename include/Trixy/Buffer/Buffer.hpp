@@ -5,6 +5,7 @@
 #include <cstdint>
 // size_t, int8_t, int16_t, int32_t, int64_t
 // uint8_t, uint16_t, uint32_t, uint64_t
+#include <tuple> // tuple, get
 
 #include "Trixy/Detail/TrixyMeta.hpp"
 
@@ -13,7 +14,8 @@
 namespace trixy
 {
 
-class Buffer
+template <typename T>
+class Buff
 {
 public:
     struct SupportType;
@@ -33,18 +35,19 @@ private:
         null,
         i8, i16, i32, i64,
         u8, u16, u32, u64,
-        f32, f64, f128
+        f32, f64, f128,
+        user,
     };
 
 public:
     enum class BaseTypeId : std::uint8_t
     {
-        Integer, Unsigned, Float
+        Integer, Unsigned, Float, User
     };
 
     struct BaseType
     {
-        struct Integer; struct Unsigned; struct Float;
+        struct Integer; struct Unsigned; struct Float; struct User;
     };
 
 private:
@@ -55,16 +58,16 @@ private:
     size_type offset_;
 
 public:
-    Buffer() noexcept;
-    ~Buffer();
+    Buff() noexcept;
+    ~Buff();
 
-    explicit Buffer(memory_size n);
+    explicit Buff(memory_size n);
 
-    Buffer(const Buffer&);
-    Buffer(Buffer&&) noexcept;
+    Buff(const Buff&);
+    Buff(Buff&&) noexcept;
 
-    Buffer& operator= (const Buffer&);
-    Buffer& operator= (Buffer&&) noexcept;
+    Buff& operator= (const Buff&);
+    Buff& operator= (Buff&&) noexcept;
 
     char* data() noexcept { return data_; }
     const char* data() const noexcept { return data_; }
@@ -104,12 +107,14 @@ private:
     template <typename DetectionDataType>
     SupportTypeId detect_data_type_id();
 
-    static SupportTypeId get_integer_id(size_type sizeof_type) noexcept;
-    static SupportTypeId get_unsigned_id(size_type sizeof_type) noexcept;
-    static SupportTypeId get_float_id(size_type sizeof_type) noexcept;
+    void set_integer(size_type sizeof_type) noexcept;
+    void set_unsigned(size_type sizeof_type) noexcept;
+    void set_float(size_type sizeof_type) noexcept;
+    void set_user(size_type sizeof_type) noexcept;
 };
 
-struct Buffer::SupportType
+template <typename T>
+struct Buff<T>::SupportType
 {
     using i8   = std::int8_t;
     using i16  = std::int16_t;
@@ -124,9 +129,12 @@ struct Buffer::SupportType
     using f32  = float;
     using f64  = double;
     using f128 = long double;
+
+    using user = T;
 };
 
-inline Buffer::Buffer() noexcept
+template <typename T>
+inline Buff<T>::Buff() noexcept
     : data_(nullptr)
     , size_(0)
     , id_(SupportTypeId::null)
@@ -134,13 +142,93 @@ inline Buffer::Buffer() noexcept
 {
 }
 
-inline Buffer::~Buffer()
+template <typename T>
+inline Buff<T>::~Buff()
 {
     delete[] data_;
 }
 
+template <typename T>
+Buff<T>::Buff(memory_size n)
+    : data_(new byte_type [n])
+    , size_(n)
+    , id_(SupportTypeId::null)
+    , offset_(1)
+{
+    clear();
+}
+
+template <typename T>
+Buff<T>::Buff(const Buff& buff)
+    : data_(new byte_type [buff.size_])
+    , size_(buff.size_)
+    , id_(buff.id_)
+    , offset_(buff.offset_)
+{
+    std::memcpy(data_, buff.data_, size_);
+}
+
+template <typename T>
+Buff<T>::Buff(Buff&& buff) noexcept
+    : data_(buff.data_)
+    , size_(buff.size_)
+    , id_(buff.id_)
+    , offset_(buff.offset_)
+{
+    buff.data_ = nullptr;
+}
+
+template <typename T>
+Buff<T>& Buff<T>::operator= (Buff&& buff) noexcept
+{
+    if(this != &buff)
+    {
+        delete[] data_;
+
+        data_ = buff.data_;
+        size_ = buff.size_;
+
+        id_ = buff.id_;
+        offset_ = buff.offset_;
+
+        buff.data_ = nullptr;
+    }
+
+    return *this;
+}
+
+template <typename T>
+void Buff<T>::resize(memory_size n)
+{
+    delete[] data_;
+
+    size_ = n;
+    data_ = new byte_type [n];
+
+    clear();
+}
+
+template <typename T>
+Buff<T>& Buff<T>::operator= (const Buff& buff)
+{
+    if(this != &buff)
+    {
+        delete[] data_;
+        data_ = new char [buff.size_];
+
+        std::memcpy(data_, buff.data_, size_);
+
+        size_ = buff.size_;
+        id_ = buff.id_;
+        offset_ = buff.offset_;
+    }
+
+    return *this;
+}
+
+template <typename T>
 template <typename OutData>
-void Buffer::read(OutData first, OutData last) noexcept
+void Buff<T>::read(OutData first, OutData last) noexcept
 {
     if(offset_ * (last - first) > size_) return;
 
@@ -160,18 +248,22 @@ void Buffer::read(OutData first, OutData last) noexcept
     BUFF_CASE_READ_HELPER(f64)
     BUFF_CASE_READ_HELPER(f128)
 
+    BUFF_CASE_READ_HELPER(user)
+
     default: return;
     }
 }
 
+template <typename T>
 template <typename OutData>
-void Buffer::read(OutData odata, memory_size n) noexcept
+void Buff<T>::read(OutData odata, memory_size n) noexcept
 {
     read(odata, odata + n / offset_);
 }
 
+template <typename T>
 template <typename InData>
-void Buffer::write(InData first, InData last, bool is_mutable) noexcept
+void Buff<T>::write(InData first, InData last, bool is_mutable) noexcept
 {
     using Data = typename std::decay<decltype(*first)>::type;
 
@@ -197,33 +289,178 @@ void Buffer::write(InData first, InData last, bool is_mutable) noexcept
     }
 }
 
+template <typename T>
 template <typename InData>
-void Buffer::write(InData idata, memory_size n, bool is_mutable) noexcept
+void Buff<T>::write(InData idata, memory_size n, bool is_mutable) noexcept
 {
     using Data = typename std::decay<decltype(*idata)>::type;
 
     write(idata, idata + n / sizeof(Data), is_mutable);
 }
 
+template <typename T>
+void Buff<T>::reserve(memory_size n)
+{
+    if(n > size_) resize(n);
+}
+
+template <typename T>
+void Buff<T>::set(BaseTypeId id, size_type offset) noexcept
+{
+    switch (id)
+    {
+    case BaseTypeId::Integer:
+        return set_integer(offset);
+
+    case BaseTypeId::Unsigned:
+        return set_unsigned(offset);
+
+    case BaseTypeId::Float:
+        return set_float(offset);
+
+    case BaseTypeId::User:
+        return set_user(offset);
+
+    default:
+        id_ = SupportTypeId::null;
+    }
+}
+
+template <typename T>
+void Buff<T>::clear() noexcept
+{
+    auto first = data_;
+    auto last = data_ + size_;
+
+    while(first != last) *first++ = 0;
+}
+
+template <typename T>
+bool Buff<T>::empty() const noexcept
+{
+    auto first = data_;
+    auto last = data_ + size_;
+
+    while(first != last and *first == 0)
+    {
+        ++first;
+    }
+
+    return first == last;
+}
+
+template <typename T>
+void Buff<T>::set_integer(size_type sizeof_type) noexcept
+{
+    if(sizeof_type == 1)
+        id_ = SupportTypeId::i8;
+
+    else if(sizeof_type == 2)
+        id_ = SupportTypeId::i16;
+
+    else if(sizeof_type == 4)
+        id_ = SupportTypeId::i32;
+
+    else if(sizeof_type == 8)
+        id_ = SupportTypeId::i64;
+
+    else
+    {
+        id_ = SupportTypeId::null;
+        return;
+    }
+
+    offset_ = sizeof_type;
+}
+
+template <typename T>
+void Buff<T>::set_unsigned(size_type sizeof_type) noexcept
+{
+    if(sizeof_type == 1)
+        id_ = SupportTypeId::u8;
+
+    else if(sizeof_type == 2)
+        id_ = SupportTypeId::u16;
+
+    else if(sizeof_type == 4)
+        id_ = SupportTypeId::u32;
+
+    else if(sizeof_type == 8)
+        id_ = SupportTypeId::u64;
+
+    else
+    {
+        id_ = SupportTypeId::null;
+        return;
+    }
+
+    offset_ = sizeof_type;
+}
+
+template <typename T>
+void Buff<T>::set_float(size_type sizeof_type) noexcept
+{
+    if(sizeof_type == 4)
+        id_ = SupportTypeId::f32;
+
+    else if(sizeof_type == 8)
+        id_ = SupportTypeId::f64;
+
+    else if(sizeof_type == 16)
+        id_ = SupportTypeId::f128;
+
+    else
+    {
+        id_ = SupportTypeId::null;
+        return;
+    }
+
+    offset_ = sizeof_type;
+}
+
+template <typename T>
+void Buff<T>::set_user(size_type sizeof_type) noexcept
+{
+    if(sizeof_type == sizeof(T))
+    {
+        id_ = SupportTypeId::user;
+        offset_ = sizeof(T);
+    }
+    else
+    {
+        id_ = SupportTypeId::null;
+    }
+}
+
+template <typename T>
 template <class Type>
-void Buffer::set(size_type offset) noexcept
+void Buff<T>::set(size_type offset) noexcept
 {
     if(std::is_same<Type, typename BaseType::Integer>::value)
-        id_ = get_integer_id(offset);
+        set_integer(offset);
 
     else if(std::is_same<Type, typename BaseType::Unsigned>::value)
-        id_ = get_unsigned_id(offset);
+        set_unsigned(offset);
 
     else if(std::is_same<Type, typename BaseType::Float>::value)
-        id_ = get_float_id(offset);
+        set_float(offset);
 
-    else return;
+    else if(std::is_same<Type, typename BaseType::User>::value or
+            std::is_same<Type, T>::value)
+        set_user(offset);
+
+    else
+    {
+        id_ = SupportTypeId::null;
+        return;
+    }
 
     offset_ = offset;
 }
 
+template <typename T>
 template <typename DataCastType, typename OutData>
-void Buffer::read_buff(OutData first, OutData last)
+void Buff<T>::read_buff(OutData first, OutData last)
 {
     using Data = typename std::decay<decltype(*first)>::type;
 
@@ -236,23 +473,30 @@ void Buffer::read_buff(OutData first, OutData last)
     }
 }
 
+template <typename T>
 template <typename DetectionDataType>
-typename Buffer::SupportTypeId Buffer::detect_data_type_id()
+typename Buff<T>::SupportTypeId Buff<T>::detect_data_type_id()
 {
     BUFF_DETECT_HELPER(i8)
     BUFF_DETECT_HELPER(i16)
     BUFF_DETECT_HELPER(i32)
     BUFF_DETECT_HELPER(i64)
+
     BUFF_DETECT_HELPER(u8)
     BUFF_DETECT_HELPER(u16)
     BUFF_DETECT_HELPER(u32)
     BUFF_DETECT_HELPER(u64)
+
     BUFF_DETECT_HELPER(f32)
     BUFF_DETECT_HELPER(f64)
     BUFF_DETECT_HELPER(f128)
 
+    BUFF_DETECT_HELPER(user)
+
     return SupportTypeId::null;
 }
+
+using Buffer = Buff<char>;
 
 } // namespace trixy
 

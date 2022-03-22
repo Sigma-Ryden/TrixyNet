@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(TrixyNet LANGUAGES CXX)
+project(Trixy LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -57,7 +57,6 @@ set(TRIXY_NEURO
     include/Trixy/Locker/Detail/MacroScope.hpp
     include/Trixy/Locker/Detail/MacroUnscope.hpp
     include/Trixy/Buffer/Buffer.hpp
-    include/Trixy/Buffer/Buffer.cpp
     include/Trixy/Buffer/Detail/MacroScope.hpp
     include/Trixy/Buffer/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp

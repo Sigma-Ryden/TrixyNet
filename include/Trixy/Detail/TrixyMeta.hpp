@@ -23,6 +23,30 @@ template <class B, class D>
 struct is_not_base_of :
     std::integral_constant<bool, !std::is_base_of<B, D>::value> {};
 
+template <typename...> struct scope;
+
+template <> struct scope<>
+{
+    template <int I> struct as
+    {
+        using type = void;
+    };
+};
+
+template <typename T, typename... Tn>
+struct scope<T, Tn...>
+{
+    template <int I, typename overload = void> struct as
+    {
+        using type = typename scope<Tn...>::template as<I - 1>::type;
+    };
+
+    template <typename overload> struct as<0, overload>
+    {
+        using type = T;
+    };
+};
+
 template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
 template <class B1, class... Bn>
