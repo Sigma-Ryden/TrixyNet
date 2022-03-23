@@ -24,7 +24,7 @@ using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
 LIQUE_TENSOR_TPL_DECLARATION
 class LIQUE_TENSOR_TPL(TensorType::matrix) : public TensorType::matrix
 {
-protected:
+public:
     class Shape;
 
 public:
@@ -604,61 +604,11 @@ Matrix<Precision> Matrix<Precision>::transpose() const
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision> Matrix<Precision>::inverse() const
 {
-    size_type N = shape_.row_;
-
-    size_type i;
-    size_type j;
-
-    precision_type buff;
-
     Tensor A(*this);
-    Tensor I(shape_);
 
-    for(i = 0; i < N; ++i)
-        for(j = 0; j < N; ++j)
-            I.data_[i * N + j] = (i == j) ? 1. : 0.;
+    A.inverse();
 
-    for(size_type k = 0, p; k < N; ++k)
-    {
-        p = k;
-        for(i = k + 1; i < N; ++i)
-            if(std::fabs(A.data_[p * N + k]) < std::fabs(A.data_[i * N + k]))
-                p = i;
-
-        if(p != k)
-        {
-            for(j = k; j < N; ++j)
-            {
-                buff = A.data_[k * N + j];
-                A.data_[k * N + j] = A.data_[p * N + j];
-                A.data_[p * N + j] = buff;
-            }
-
-            for(j = 0; j < N; ++j)
-            {
-                buff = I.data_[k * N + j];
-                I.data_[k * N + j] = I.data_[p * N + j];
-                I.data_[p * N + j] = buff;
-            }
-        }
-
-        buff = 1. / A.data_[k * N + k];
-
-        for(j = k; j < N; ++j) A.data_[k * N + j] *= buff;
-        for(j = 0; j < N; ++j) I.data_[k * N + j] *= buff;
-
-        for(i = 0; i < N; ++i)
-        {
-            if(i == k) continue;
-
-            buff = A.data_[i * N + k];
-
-            for(j = k; j < N; ++j) A.data_[i * N + j] -= A.data_[k * N + j] * buff;
-            for(j = 0; j < N; ++j) I.data_[i * N + j] -= I.data_[k * N + j] * buff;
-        }
-    }
-
-    return I;
+    return A;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

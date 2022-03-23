@@ -8,6 +8,8 @@
 
 #include "LiqueLinear.hpp"
 
+#include "LiqueRequire.hpp"
+
 #include "LiqueTool.hpp"
 
 #endif // LIQUE_CORE_HPP

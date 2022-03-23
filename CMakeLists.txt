@@ -16,6 +16,8 @@ set(TESTING
 set(TRIXY_COLLECTION
     include/Trixy/Container/Container.hpp
     include/Trixy/Container/IContainer.hpp
+    include/Trixy/Container/ContainerRequire.hpp
+    include/Trixy/Container/ContainerCore.hpp
 )
 set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueLinear.hpp
@@ -23,6 +25,7 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueVector.hpp
     include/Trixy/Lique/LiqueBaseTensor.hpp
     include/Trixy/Lique/LiqueTool.hpp
+    include/Trixy/Lique/LiqueRequire.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp
     include/Trixy/Lique/Detail/LiqueMeta.hpp
     include/Trixy/Lique/Detail/MacroScope.hpp
