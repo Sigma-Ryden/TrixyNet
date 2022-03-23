@@ -198,17 +198,6 @@ Buff<T>& Buff<T>::operator= (Buff&& buff) noexcept
 }
 
 template <typename T>
-void Buff<T>::resize(memory_size n)
-{
-    delete[] data_;
-
-    size_ = n;
-    data_ = new byte_type [n];
-
-    clear();
-}
-
-template <typename T>
 Buff<T>& Buff<T>::operator= (const Buff& buff)
 {
     if(this != &buff)
@@ -252,6 +241,17 @@ void Buff<T>::read(OutData first, OutData last) noexcept
 
     default: return;
     }
+}
+
+template <typename T>
+void Buff<T>::resize(memory_size n)
+{
+    delete[] data_;
+
+    size_ = n;
+    data_ = new byte_type [n];
+
+    clear();
 }
 
 template <typename T>

@@ -23,22 +23,20 @@ namespace lique
 
 enum class Axis { X, Y };
 
-template <typename Type> using Binary = bool (*)(Type, Type);
-
 namespace comp
 {
 
-TRIXY_FUNCTION_TPL_DECLARATION
-inline bool is_bigger(Precision previous, Precision next) noexcept
+struct is_bigger
 {
-    return previous > next;
-}
+    template <typename T>
+    bool operator() (T previous, T next) { return previous > next; }
+};
 
-TRIXY_FUNCTION_TPL_DECLARATION
-inline bool is_less(Precision previous, Precision next) noexcept
+struct is_less
 {
-    return previous < next;
-}
+    template <typename T>
+    bool operator() (T previous, T next) { return previous < next; }
+};
 
 } // namespace comp
 
@@ -64,8 +62,8 @@ inline auto last(Tensor& tensor) -> decltype(tensor.data() + tensor.size())
     return tensor.data() + tensor.size();
 }
 
-template <typename Iterator, typename T>
-T accumulate(Iterator first, Iterator last, T result)
+template <typename InIt, typename T>
+T accumulate(InIt first, InIt last, T result)
 {
     detail::for_each(
         first, last,
@@ -75,25 +73,36 @@ T accumulate(Iterator first, Iterator last, T result)
     return result;
 }
 
-template <typename Precision,
-          Binary<Precision> compare,
-          class Tensor,
-          typename size_type = typename Tensor::size_type,
-          lique::meta::as_tensor_t<Tensor> = 0>
-size_type find(const Tensor& tensor) noexcept
+template <class InIt, class Binary>
+InIt search(InIt first, InIt last, Binary compare) noexcept
 {
-    size_type idx = 0;
-    for(size_type n = 1; n < tensor.size(); ++n)
-        if(compare(tensor(idx), tensor(n)))
-            idx = n;
+    if(first == last) return first;
 
-    return idx;
+    auto hold = first;
+    auto it = ++first;
+
+    while(it != last)
+    {
+        if(compare(*hold, *it)) hold = it;
+
+        ++it;
+    }
+
+    return hold;
 }
 
-template <typename Precision, Binary<Precision> compare,
+template <class Tensor, class Binary,
+          typename size_type = typename Tensor::size_type,
+          lique::meta::as_tensor_t<Tensor> = 0>
+size_type search(const Tensor& tensor, Binary compare) noexcept
+{
+    return search(first(tensor), last(tensor), compare) - first(tensor);
+}
+
+template <typename Precision, class Binary,
           typename size_type = typename Matrix<Precision>::size_type,
           trixy::meta::as_arithmetic_t<Precision> = 0>
-Vector<size_type> find(const Matrix<Precision>& matrix, Axis axis)
+Vector<size_type> search(const Matrix<Precision>& matrix, Axis axis, Binary compare)
 {
     const size_type block_size = matrix.shape().col();
     const size_type number_of_blocks = matrix.shape().row();
@@ -131,40 +140,44 @@ template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 size_type argmin(const Tensor& tensor) noexcept
 {
-    return find<typename Tensor::precision_type, comp::is_bigger>(tensor);
+    return search(tensor, comp::is_bigger());
 }
 
 template <class Tensor, typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 size_type argmax(const Tensor& tensor) noexcept
 {
-    return find<typename Tensor::precision_type, comp::is_less>(tensor);
+    return search(tensor, comp::is_less());
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
 Vector<std::size_t> argmin(const Matrix<Precision>& matrix, Axis axis)
 {
-    return find<Precision, comp::is_bigger>(matrix, axis);
+    return search(matrix, axis, comp::is_bigger());
 }
 
 TRIXY_FUNCTION_TPL_DECLARATION
 Vector<std::size_t> argmax(const Matrix<Precision>& matrix, Axis axis)
 {
-    return find<Precision, comp::is_less>(matrix, axis);
+    return search(matrix, axis, comp::is_less());
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 precision_type min(const Tensor& tensor) noexcept
 {
-    return tensor(find<typename Tensor::precision_type, comp::is_bigger>(tensor));
+    return tensor(
+        search(tensor, comp::is_bigger())
+    );
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
           lique::meta::as_tensor_t<Tensor> = 0>
 precision_type max(const Tensor& tensor) noexcept
 {
-    return tensor(find<typename Tensor::precision_type, comp::is_less>(tensor));
+    return tensor(
+        search(tensor, comp::is_less())
+    );
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
@@ -383,38 +396,48 @@ T concat(const T& tensor, const Tn&... tensor_n)
     return out;
 }
 
-template <class Tensor, class Generator,
-          typename size_type = typename Tensor::size_type,
-          lique::meta::as_tensor_t<Tensor> = 0>
-size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_max)
+template <class InIt, class Generator>
+InIt multinomial(InIt first, InIt last, Generator generator, std::size_t rand_max) noexcept
 {
-    using precision_type = typename Tensor::precision_type;
+    using precision_type = trixy::meta::decay_t<decltype(*first)>;
 
     // random_value satisfies the range [0, 1]
     precision_type random_value = precision_type(generator()) / precision_type(rand_max);
 
     precision_type accumulate = 0.;
 
-    auto begin = first(tensor);
-    auto end = last(tensor);
+    auto it = first;
 
-    while(begin != end)
+    while(it != last)
     {
-        accumulate += *begin;
+        accumulate += *it;
 
-        if(random_value < accumulate) return begin - first(tensor);
+        if(random_value < accumulate) return it;
 
-        ++begin;
+        ++it;
     }
 
     // special case for invalid input data
-    return argmax(tensor);
+    // finding max it* in the sequance
+    return search(first, last, comp::is_less());
 }
 
-template <class Tensor,
-          typename size_type = typename Tensor::size_type,
+template <class Tensor, class Generator, typename size_type = typename Tensor::size_type,
           lique::meta::as_tensor_t<Tensor> = 0>
-size_type multinomial(const Tensor& tensor)
+size_type multinomial(const Tensor& tensor, Generator generator, size_type rand_max) noexcept
+{
+    return multinomial(first(tensor), last(tensor), generator, rand_max) - first(tensor);
+}
+
+template <class InIt>
+InIt multinomial(InIt first, InIt last) noexcept
+{
+    return multinomial(first, last, std::rand, RAND_MAX);
+}
+
+template <class Tensor, typename size_type = typename Tensor::size_type,
+          lique::meta::as_tensor_t<Tensor> = 0>
+size_type multinomial(const Tensor& tensor) noexcept
 {
     return multinomial(tensor, std::rand, RAND_MAX);
 }
