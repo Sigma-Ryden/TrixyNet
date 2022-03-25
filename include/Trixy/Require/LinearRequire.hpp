@@ -1,14 +1,19 @@
 #ifndef LINEAR_REQUIRE_HPP
 #define LINEAR_REQUIRE_HPP
 
+#include "BaseRequire.hpp"
+
 namespace trixy
 {
 
 template <class Linear>
-struct LinearRequire : protected Linear
+using LinearRequire = Require<Linear, RequireType::linear>;
+
+template <class Linear>
+struct Require<Linear, RequireType::linear> : protected Linear
 {
 public:
-    using type = Linear;
+    using type = RequireType::linear;
 
 protected:
     using require = Linear;

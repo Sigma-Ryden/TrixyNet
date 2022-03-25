@@ -1,14 +1,19 @@
 #ifndef CONTAINER_REQUIRE_HPP
 #define CONTAINER_REQUIRE_HPP
 
+#include "BaseRequire.hpp"
+
 namespace trixy
 {
 
 template <class Container>
-struct ContainerRequire : protected Container
+using ContainerRequire = Require<Container, RequireType::container>;
+
+template <class Container>
+struct Require<Container, RequireType::container> : protected Container
 {
 public:
-    using type = Container;
+    using type = RequireType::container;
 
 protected:
     using require = Container;

@@ -24,7 +24,7 @@ template <class RegressionType,
     template <typename P, typename...> class LinearType,
     typename PrecisionType,
     typename... Args>
-class RegressionRequire;
+struct RegressionRequire;
 
 } // namespace trixy
 

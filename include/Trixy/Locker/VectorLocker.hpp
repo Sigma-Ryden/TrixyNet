@@ -11,56 +11,59 @@
 namespace trixy
 {
 
-template <class Lockable>
-using VectorLocker = Locker<Lockable, LockerType::vector, void>;
+template <class Vector>
+using VectorLocker = Locker<Vector, LockerType::vector>;
 
-template <class Lockable>
-class Locker<Lockable, LockerType::vector, void> : protected Lockable
+template <class Vector>
+class Locker<Vector, LockerType::vector> : protected Vector
 {
+protected:
+    using require        = Vector;
+
 public:
-    using type           = typename Lockable::type;
+    using type           = typename Vector::type;
 
-    using size_type      = typename Lockable::size_type;
-    using precision_type = typename Lockable::precision_type;
+    using size_type      = typename Vector::size_type;
+    using precision_type = typename Vector::precision_type;
 
-    using pointer        = typename Lockable::pointer;
-    using const_pointer  = typename Lockable::const_pointer;
+    using pointer        = typename Vector::pointer;
+    using const_pointer  = typename Vector::const_pointer;
 
 public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename... Args,
         typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
-        typename = TRIXY_ENABLE(std::is_constructible<Lockable, Args...>)>
-    explicit Locker(Args&&... args) : Lockable(std::forward<Args>(args)...) {}
+        typename = TRIXY_ENABLE(std::is_constructible<Vector, Args...>)>
+    explicit Locker(Args&&... args) : Vector(std::forward<Args>(args)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
-    Locker(const Locker& container) : Lockable(container) {}
-    Locker(Locker&& container) noexcept : Lockable(std::move(container)) {}
+    Locker(const Locker& vector) : Vector(vector) {}
+    Locker(Locker&& vector) noexcept : Vector(std::move(vector)) {}
 
-    Locker(const Lockable& container) : Lockable(container) {}
-    Locker(Lockable&& container) noexcept : Lockable(std::move(container)) {}
+    Locker(const Vector& vector) : Vector(vector) {}
+    Locker(Vector&& vector) noexcept : Vector(std::move(vector)) {}
 
     ~Locker() = default;
 
-    const Lockable& base() const noexcept
-    { return static_cast<const Lockable&>(*this); }
+    const Vector& base() const noexcept
+    { return static_cast<const Vector&>(*this); }
 
 public:
-    using Lockable::operator();
+    using require::operator();
 
-    using Lockable::copy;
-    using Lockable::size;
+    using require::copy;
+    using require::size;
 
-    using Lockable::fill;
-    using Lockable::apply;
+    using require::fill;
+    using require::apply;
 
-    using Lockable::dot;
-    using Lockable::add;
-    using Lockable::sub;
-    using Lockable::join;
+    using require::dot;
+    using require::add;
+    using require::sub;
+    using require::join;
 
-    using Lockable::data;
+    using require::data;
 };
 
 } // namespace trixy

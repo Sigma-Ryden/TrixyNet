@@ -1,16 +1,21 @@
 #ifndef PRECISION_REQUIRE_HPP
 #define PRECISION_REQUIRE_HPP
 
-#include <type_traits>
+#include <type_traits> // is_floationg_point
+
+#include "BaseRequire.hpp"
 
 namespace trixy
 {
 
 template <typename Precision>
-struct PrecisionRequire
+using PrecisionRequire = Require<Precision, RequireType::precision>;
+
+template <typename Precision>
+struct Require<Precision, RequireType::precision>
 {
 public:
-    using type = Precision;
+    using type = RequireType::precision;
 
 protected:
     using require = Precision;

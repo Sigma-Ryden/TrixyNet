@@ -11,7 +11,7 @@ struct LockerType
     struct matrix { using type = matrix; };
 };
 
-template <class Lockable, typename locker_type, typename enable = void>
+template <class Lockable, typename LockerType>
 class Locker;
 
 } // namespace trixy

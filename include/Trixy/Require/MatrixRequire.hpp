@@ -1,14 +1,19 @@
 #ifndef MATRIX_REQUIRE_HPP
 #define MATRIX_REQUIRE_HPP
 
+#include "BaseRequire.hpp"
+
 namespace trixy
 {
 
 template <class Tensor>
-struct MatrixRequire : protected Tensor
+using MatrixRequire = Require<Tensor, RequireType::matrix>;
+
+template <class Tensor>
+struct Require<Tensor, RequireType::matrix> : protected Tensor
 {
 public:
-    using type = Tensor;
+    using type = RequireType::matrix;
 
 protected:
     using require = Tensor;

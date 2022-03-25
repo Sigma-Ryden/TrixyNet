@@ -44,10 +44,9 @@ set(TRIXY_LOCKER
     include/Trixy/Locker/MatrixLocker.hpp
     include/Trixy/Locker/LockerCore.hpp
     include/Trixy/Locker/Detail/LockerMeta.hpp
-    include/Trixy/Locker/Detail/MacroScope.hpp
-    include/Trixy/Locker/Detail/MacroUnscope.hpp
 )
 set(TRIXY_REQUIRE
+    include/Trixy/Require/BaseRequire.hpp
     include/Trixy/Require/VectorRequire.hpp
     include/Trixy/Require/MatrixRequire.hpp
     include/Trixy/Require/LinearRequire.hpp
