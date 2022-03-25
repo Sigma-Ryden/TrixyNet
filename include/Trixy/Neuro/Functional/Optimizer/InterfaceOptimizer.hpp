@@ -18,8 +18,8 @@ class IOptimizer<Derived, Optimizeriable,
     meta::enable_if_t<meta::is_feedforward_net<Optimizeriable>::value>>
 {
 private:
-    template <class... T>
-    using Container         = typename Optimizeriable::template Container<T...>;
+    template <class T>
+    using Container         = typename Optimizeriable::template Container<T>;
 
     using precision_type    = typename Optimizeriable::precision_type;
 

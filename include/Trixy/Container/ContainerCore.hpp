@@ -4,6 +4,4 @@
 #include "Container.hpp"
 #include "IContainer.hpp"
 
-#include "ContainerRequire.hpp"
-
 #endif // CONTAINER_CORE_HPP

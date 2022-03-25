@@ -27,8 +27,8 @@ public:
 
     using Base              = IOptimizer<GradDescentOptimizer<Net>, Net>;
 
-    template <class... T>
-    using Container         = typename Net::template Container<T...>;
+    template <class T>
+    using Container         = typename Net::template Container<T>;
 
     using Vector            = typename Net::Vector;
     using Matrix            = typename Net::Matrix;

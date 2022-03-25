@@ -4,14 +4,18 @@
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
     template <template <typename P, typename...> class VectorType,                                      \
               template <typename P, typename...> class MatrixType,                                      \
-              template <typename P> class LinearType,                                                   \
-              template <typename...> class ContainerType,                                               \
+              template <typename P, typename...> class LinearType,                                      \
+              template <typename T, typename...> class ContainerType,                                   \
               typename PrecisionType,                                                                   \
               typename... Args>
 
-#define TRIXY_NET_TPL(network_type)                                                                     \
-    TrixyNet<network_type,                                                                              \
-             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, void, Args...>
+#define TRIXY_NET_TPL(trixy_net_type)                                                                   \
+    TrixyNet<trixy_net_type,                                                                            \
+             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, Args...>
+
+#define TRIXY_NET_REQUIRE_TPL(trixy_net_type)                                                           \
+    TrixyNetRequire<trixy_net_type,                                                                     \
+             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, Args...>
 
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
     template <typename Serializable>
@@ -45,10 +49,10 @@
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
     template <template <typename P, typename...> class VectorType,                                      \
               template <typename P, typename...> class MatrixType,                                      \
-              template <typename P> class LinearType,                                                   \
+              template <typename P, typename...> class LinearType,                                      \
               typename PrecisionType,                                                                   \
               typename... Args>
 
 #define TRIXY_REGRESSION_TPL(regression_type)                                                           \
     Regression<regression_type,                                                                         \
-               VectorType, MatrixType, LinearType, PrecisionType, void, Args...>
+               VectorType, MatrixType, LinearType, PrecisionType, Args...>

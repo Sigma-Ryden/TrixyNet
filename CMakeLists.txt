@@ -13,10 +13,9 @@ set(TESTING
     src/speed_test.cpp
     src/regression_test.cpp
 )
-set(TRIXY_COLLECTION
+set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
     include/Trixy/Container/IContainer.hpp
-    include/Trixy/Container/ContainerRequire.hpp
     include/Trixy/Container/ContainerCore.hpp
 )
 set(TRIXY_LIQUE
@@ -25,7 +24,6 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/LiqueVector.hpp
     include/Trixy/Lique/LiqueBaseTensor.hpp
     include/Trixy/Lique/LiqueTool.hpp
-    include/Trixy/Lique/LiqueRequire.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp
     include/Trixy/Lique/Detail/LiqueMeta.hpp
     include/Trixy/Lique/Detail/MacroScope.hpp
@@ -39,6 +37,13 @@ set(TRIXY_ILIQUE
     include/Trixy/ILique/ILiqueVector.hpp
     include/Trixy/ILique/ILiqueCore.hpp
 )
+set(TRIXY_REQUIRE
+    include/Trixy/Require/VectorRequire.hpp
+    include/Trixy/Require/MatrixRequire.hpp
+    include/Trixy/Require/LinearRequire.hpp
+    include/Trixy/Require/ContainerRequire.hpp
+    include/Trixy/Require/PrecisionRequire.hpp
+)
 set(TRIXY_NEURO
     include/Trixy/Detail/TrixyMeta.hpp
     include/Trixy/Detail/FunctionDetail.hpp
@@ -48,6 +53,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Detail/FunctionDetail.hpp
+    include/Trixy/Neuro/Network/TrixyNetRequire.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetCore.hpp
@@ -102,9 +108,10 @@ set(UTILS
 )
 
 add_executable(${PROJECT_NAME}
-    ${TRIXY_COLLECTION}
+    ${TRIXY_CONTAINER}
     ${TRIXY_LIQUE}
     ${TRIXY_ILIQUE}
+    ${TRIXY_REQUIRE}
     ${TRIXY_NEURO}
     ${TIMER}
     ${UTILS}

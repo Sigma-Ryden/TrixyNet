@@ -11,11 +11,11 @@ struct RegressionType
 };
 
 template <class RegressionType,
-          template <typename P, typename...> class Tensor1D,
-          template <typename P, typename...> class Tensor2D,
-          template <typename P> class Linear,
-          typename Precision,
-          typename... Args>
+    template <typename P, typename...> class VectorType,
+    template <typename P, typename...> class MatrixType,
+    template <typename P, typename...> class LinearType,
+    typename PrecisionType,
+    typename... Args>
 class Regression;
 
 } // namespace trixy

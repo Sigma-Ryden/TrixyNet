@@ -28,8 +28,8 @@ private:
     template <class Derived>
     using IOptimizer                = typename train::IOptimizer<Derived, Trainable>;
 
-    template <class... T>
-    using Container                 = typename Trainable::template Container<T...>;
+    template <class T>
+    using Container                 = typename Trainable::template Container<T>;
 
     using XVector                   = typename Trainable::XVector;
     using XMatrix                   = typename Trainable::XMatrix;
@@ -37,8 +37,8 @@ private:
     using Vector                    = typename Trainable::Vector;
     using Matrix                    = typename Trainable::Matrix;
 
-    template <class... T>
-    using XContainer                = typename Trainable::template XContainer<T...>;
+    template <class T>
+    using XContainer                = typename Trainable::template XContainer<T>;
 
     using precision_type            = typename Trainable::precision_type;
     using size_type                 = typename Trainable::size_type;

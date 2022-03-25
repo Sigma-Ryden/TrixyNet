@@ -4,12 +4,15 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
-#include "Trixy/Neuro/Network/BaseTrixyNet.hpp"
+#include "BaseTrixyNet.hpp"
+#include "TrixyNetRequire.hpp"
+
 #include "Trixy/Neuro/Training/BaseTraining.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
 #include "Trixy/Locker/LockerCore.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
+
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 
 namespace trixy
@@ -19,7 +22,8 @@ TRIXY_NET_TPL_DECLARATION
 using FeedForwardNet = TRIXY_NET_TPL(TrixyNetType::FeedForward);
 
 TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward) : public TrixyNetType::FeedForward
+class TRIXY_NET_TPL(TrixyNetType::FeedForward) :
+    public TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
 {
 public:
     struct InnerStruct;
@@ -33,11 +37,11 @@ private:
     class InnerFunctional;
 
 public:
-    template <typename... T>
-    using Container                 = ContainerType<T...>;
+    template <typename T>
+    using Container                 = ContainerType<T>;
 
-    template <typename... T>
-    using XContainer                = ContainerLocker<ContainerType<T...>>;
+    template <typename T>
+    using XContainer                = ContainerLocker<ContainerType<T>>;
 
     using Vector                    = VectorType<PrecisionType, Args...>;
     using Matrix                    = MatrixType<PrecisionType, Args...>;
