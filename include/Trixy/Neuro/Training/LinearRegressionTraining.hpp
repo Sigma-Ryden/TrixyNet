@@ -37,7 +37,6 @@ public:
                      const Vector& odata) const;
 };
 
-
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
     const Matrix& idata,

@@ -3,7 +3,9 @@
 
 #include <cstddef> // size_t
 
-#include "Trixy/Neuro/Regression/BaseRegression.hpp"
+#include "BaseRegression.hpp"
+#include "RegressionRequire.hpp"
+
 #include "Trixy/Neuro/Training/BaseTraining.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
@@ -17,7 +19,8 @@ TRIXY_REGRESSION_TPL_DECLARATION
 using LinearRegression = TRIXY_REGRESSION_TPL(RegressionType::Linear);
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_REGRESSION_TPL(RegressionType::Linear) : public RegressionType::Linear
+class TRIXY_REGRESSION_TPL(RegressionType::Linear) :
+    public TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)::type
 {
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
 

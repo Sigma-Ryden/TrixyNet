@@ -3,7 +3,9 @@
 
 #include <cstddef> // size_t
 
-#include "Trixy/Neuro/Regression/BaseRegression.hpp"
+#include "BaseRegression.hpp"
+#include "RegressionRequire.hpp"
+
 #include "Trixy/Neuro/Training/BaseTraining.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
@@ -16,7 +18,8 @@ TRIXY_REGRESSION_TPL_DECLARATION
 using PolynomialRegression = TRIXY_REGRESSION_TPL(RegressionType::Polynomial);
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) : public RegressionType::Polynomial
+class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) :
+    public TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Polynomial)::type
 {
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)>;
 

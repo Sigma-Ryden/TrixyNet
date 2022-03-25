@@ -56,3 +56,7 @@
 #define TRIXY_REGRESSION_TPL(regression_type)                                                           \
     Regression<regression_type,                                                                         \
                VectorType, MatrixType, LinearType, PrecisionType, Args...>
+
+#define TRIXY_REGRESSION_REQUIRE_TPL(regression_type)                                                   \
+    RegressionRequire<regression_type,                                                                  \
+             VectorType, MatrixType, LinearType, PrecisionType, Args...>

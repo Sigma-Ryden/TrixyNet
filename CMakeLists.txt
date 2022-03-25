@@ -37,12 +37,27 @@ set(TRIXY_ILIQUE
     include/Trixy/ILique/ILiqueVector.hpp
     include/Trixy/ILique/ILiqueCore.hpp
 )
+set(TRIXY_LOCKER
+    include/Trixy/Locker/BaseLocker.hpp
+    include/Trixy/Locker/ContainerLocker.hpp
+    include/Trixy/Locker/VectorLocker.hpp
+    include/Trixy/Locker/MatrixLocker.hpp
+    include/Trixy/Locker/LockerCore.hpp
+    include/Trixy/Locker/Detail/LockerMeta.hpp
+    include/Trixy/Locker/Detail/MacroScope.hpp
+    include/Trixy/Locker/Detail/MacroUnscope.hpp
+)
 set(TRIXY_REQUIRE
     include/Trixy/Require/VectorRequire.hpp
     include/Trixy/Require/MatrixRequire.hpp
     include/Trixy/Require/LinearRequire.hpp
     include/Trixy/Require/ContainerRequire.hpp
     include/Trixy/Require/PrecisionRequire.hpp
+)
+set(TRIXY_BUFFER
+    include/Trixy/Buffer/Buffer.hpp
+    include/Trixy/Buffer/Detail/MacroScope.hpp
+    include/Trixy/Buffer/Detail/MacroUnscope.hpp
 )
 set(TRIXY_NEURO
     include/Trixy/Detail/TrixyMeta.hpp
@@ -53,21 +68,10 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Detail/FunctionDetail.hpp
+    include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetRequire.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
-    include/Trixy/Neuro/Network/BaseTrixyNet.hpp
     include/Trixy/Neuro/Network/TrixyNetCore.hpp
-    include/Trixy/Locker/BaseLocker.hpp
-    include/Trixy/Locker/ContainerLocker.hpp
-    include/Trixy/Locker/VectorLocker.hpp
-    include/Trixy/Locker/MatrixLocker.hpp
-    include/Trixy/Locker/LockerCore.hpp
-    include/Trixy/Locker/Detail/LockerMeta.hpp
-    include/Trixy/Locker/Detail/MacroScope.hpp
-    include/Trixy/Locker/Detail/MacroUnscope.hpp
-    include/Trixy/Buffer/Buffer.hpp
-    include/Trixy/Buffer/Detail/MacroScope.hpp
-    include/Trixy/Buffer/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
     include/Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp
     include/Trixy/Neuro/Functional/Function/LossFunction.hpp
@@ -91,6 +95,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Serialization/LinearRegressionSerializer.hpp
     include/Trixy/Neuro/Serialization/SerializerCore.hpp
     include/Trixy/Neuro/Regression/BaseRegression.hpp
+    include/Trixy/Neuro/Regression/RegressionRequire.hpp
     include/Trixy/Neuro/Regression/LinearRegression.hpp
     include/Trixy/Neuro/Regression/PolynomialRegression.hpp
     include/Trixy/Neuro/Regression/RegressionCore.hpp
@@ -108,12 +113,13 @@ set(UTILS
 )
 
 add_executable(${PROJECT_NAME}
+    ${TESTING}
     ${TRIXY_CONTAINER}
     ${TRIXY_LIQUE}
     ${TRIXY_ILIQUE}
+    ${TRIXY_LOCKER}
     ${TRIXY_REQUIRE}
+    ${TRIXY_BUFFER}
     ${TRIXY_NEURO}
-    ${TIMER}
     ${UTILS}
-    ${TESTING}
 )
