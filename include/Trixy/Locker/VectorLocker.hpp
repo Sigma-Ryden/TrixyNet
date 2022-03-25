@@ -11,43 +11,43 @@
 namespace trixy
 {
 
-template <class Vector>
-using VectorLocker = Locker<Vector, LockerType::vector>;
+template <class Tensor>
+using VectorLocker = Locker<Tensor, LockerType::vector>;
 
-template <class Vector>
-class Locker<Vector, LockerType::vector> : protected Vector
+template <class Tensor>
+class Locker<Tensor, LockerType::vector> : protected Tensor
 {
 protected:
-    using require        = Vector;
+    using require        = Tensor;
 
 public:
-    using type           = typename Vector::type;
+    using type           = typename Tensor::type;
 
-    using size_type      = typename Vector::size_type;
-    using precision_type = typename Vector::precision_type;
+    using size_type      = typename Tensor::size_type;
+    using precision_type = typename Tensor::precision_type;
 
-    using pointer        = typename Vector::pointer;
-    using const_pointer  = typename Vector::const_pointer;
+    using pointer        = typename Tensor::pointer;
+    using const_pointer  = typename Tensor::const_pointer;
 
 public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename... Args,
         typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
-        typename = TRIXY_ENABLE(std::is_constructible<Vector, Args...>)>
-    explicit Locker(Args&&... args) : Vector(std::forward<Args>(args)...) {}
+        typename = TRIXY_ENABLE(std::is_constructible<Tensor, Args...>)>
+    explicit Locker(Args&&... args) : Tensor(std::forward<Args>(args)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
-    Locker(const Locker& vector) : Vector(vector) {}
-    Locker(Locker&& vector) noexcept : Vector(std::move(vector)) {}
+    Locker(const Locker& vector) : Tensor(vector) {}
+    Locker(Locker&& vector) noexcept : Tensor(std::move(vector)) {}
 
-    Locker(const Vector& vector) : Vector(vector) {}
-    Locker(Vector&& vector) noexcept : Vector(std::move(vector)) {}
+    Locker(const Tensor& vector) : Tensor(vector) {}
+    Locker(Tensor&& vector) noexcept : Tensor(std::move(vector)) {}
 
     ~Locker() = default;
 
-    const Vector& base() const noexcept
-    { return static_cast<const Vector&>(*this); }
+    const Tensor& base() const noexcept
+    { return static_cast<const Tensor&>(*this); }
 
 public:
     using require::operator();

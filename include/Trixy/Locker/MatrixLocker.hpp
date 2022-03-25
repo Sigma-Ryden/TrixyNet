@@ -11,45 +11,45 @@
 namespace trixy
 {
 
-template <class Matrix>
-using MatrixLocker = Locker<Matrix, LockerType::matrix>;
+template <class Tensor>
+using MatrixLocker = Locker<Tensor, LockerType::matrix>;
 
-template <class Matrix>
-class Locker<Matrix, LockerType::matrix> : protected Matrix
+template <class Tensor>
+class Locker<Tensor, LockerType::matrix> : protected Tensor
 {
 protected:
-    using require        = Matrix;
+    using require        = Tensor;
 
 public:
-    using type           = typename Matrix::type;
+    using type           = typename Tensor::type;
 
-    using size_type      = typename Matrix::size_type;
-    using precision_type = typename Matrix::precision_type;
+    using size_type      = typename Tensor::size_type;
+    using precision_type = typename Tensor::precision_type;
 
-    using pointer        = typename Matrix::pointer;
-    using const_pointer  = typename Matrix::const_pointer;
+    using pointer        = typename Tensor::pointer;
+    using const_pointer  = typename Tensor::const_pointer;
 
-    using Shape          = typename Matrix::Shape;
+    using Shape          = typename Tensor::Shape;
 
 public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename... Args,
         typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
-        typename = TRIXY_ENABLE(std::is_constructible<Matrix, Args...>)>
-    explicit Locker(Args&&... args) : Matrix(std::forward<Args>(args)...) {}
+        typename = TRIXY_ENABLE(std::is_constructible<Tensor, Args...>)>
+    explicit Locker(Args&&... args) : Tensor(std::forward<Args>(args)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
-    Locker(const Locker& matrix) : Matrix(matrix) {}
-    Locker(Locker&& matrix) noexcept : Matrix(std::move(matrix)) {}
+    Locker(const Locker& matrix) : Tensor(matrix) {}
+    Locker(Locker&& matrix) noexcept : Tensor(std::move(matrix)) {}
 
-    Locker(const Matrix& matrix) : Matrix(matrix) {}
-    Locker(Matrix&& matrix) noexcept : Matrix(std::move(matrix)) {}
+    Locker(const Tensor& matrix) : Tensor(matrix) {}
+    Locker(Tensor&& matrix) noexcept : Tensor(std::move(matrix)) {}
 
     ~Locker() = default;
 
-    const Matrix& base() const noexcept
-    { return static_cast<const Matrix&>(*this); }
+    const Tensor& base() const noexcept
+    { return static_cast<const Tensor&>(*this); }
 
 public:
     using require::operator();
