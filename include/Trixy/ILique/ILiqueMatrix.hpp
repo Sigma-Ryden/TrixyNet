@@ -3,7 +3,10 @@
 
 #include <cstddef> // size_t
 
+#include "ILiqueBase.hpp"
 #include "Trixy/Lique/LiqueBaseTensor.hpp"
+
+#include "Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -11,28 +14,33 @@ namespace trixy
 namespace ilique
 {
 
-template <template <typename...> class Derived, typename Precision, typename... Args>
-class IMatrix : public lique::TensorType::matrix
+ILIQUE_TENSOR_TPL_DECLARATION
+using IMatrix = ILIQUE_TENSOR_TPL(lique::TensorType::matrix);
+
+ILIQUE_TENSOR_TPL_DECLARATION
+class ILIQUE_TENSOR_TPL(lique::TensorType::matrix) : public lique::TensorType::matrix,
+    protected ilique::ITensorBase<Derived, Precision, Pack...>
 {
+private:
+    using Base = ilique::ITensorBase<Derived, Precision, Pack...>;
+
 public:
     class Shape;
 
 public:
-    using Tensor          = Derived<Precision, Args...>;
+    using typename Base::Tensor;
 
-public:
-    using size_type       = std::size_t;
-    using precision_type  = Precision;
+    using typename Base::size_type;
+    using typename Base::precision_type;
 
-    using reference       = Precision&;
-    using const_reference = const Precision&;
+    using typename Base::pointer;
+    using typename Base::const_pointer;
+
+    using typename Base::reference;
+    using typename Base::const_reference;
 
 protected:
-    virtual ~IMatrix()    = default;
-
-private:
-    Tensor& self() { return *static_cast<Tensor*>(this); }
-    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
+    using Base::self;
 
 public:
     reference operator() (size_type i, size_type j) noexcept
@@ -60,13 +68,29 @@ public:
 
     Tensor  inverse() const { return self().inverse(); }
     Tensor& inverse() { return self().inverse(); }
+
+public:
+    using Base::copy;
+
+    using Base::size;
+
+    using Base::fill;
+    using Base::apply;
+
+    using Base::add;
+    using Base::sub;
+    using Base::multiply;
+
+    using Base::join;
+
+    using Base::data;
 };
 
-template <template <typename...> class Derived, typename Precision, typename... Args>
-class IMatrix<Derived, Precision, Args...>::Shape
+ILIQUE_TENSOR_TPL_DECLARATION
+class IMatrix<Derived, Precision, Pack...>::Shape
 {
-friend IMatrix<Derived, Precision, Args...>;
-friend Derived<Precision, Args...>;
+friend IMatrix<Derived, Precision, Pack...>;
+friend Derived<Precision, Pack...>;
 
 public:
     using size_type = std::size_t;
@@ -90,6 +114,8 @@ public:
 } // namespace ilique
 
 } // namespace trixy
+
+#include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_MATRIX_HPP
 

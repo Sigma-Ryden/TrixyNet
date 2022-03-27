@@ -14,12 +14,6 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-float random() noexcept
-{
-    static constexpr int range = 1000;
-    return float(std::rand() % (2 * range + 1) - range) / range;
-}
-
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_speed_test_idata()
 {
@@ -96,7 +90,10 @@ void speed_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    net.initInnerStruct(random);
+    net.initInnerStruct([]() {
+        constexpr int range = 1000;
+        return float(std::rand() % (2 * range + 1) - range) / float(range);
+    });
 
     net.function.setActivation(manage.get<ActivationId::relu>());
     net.function.setNormalization(manage.get<ActivationId::softmax>());
@@ -124,9 +121,7 @@ void speed_test()
     if(!out.is_open()) return;
 
     TrixyNetSerializer sr;
-
     sr.serialize(out, net);
-
     out.close();
 
     std::cout << "End of serialization\n";
@@ -138,7 +133,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
 
     speed_test();
-    speed_test_deserialization();
+    //speed_test_deserialization();
 
     //std::cin.get();
 

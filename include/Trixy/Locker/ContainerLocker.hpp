@@ -19,14 +19,14 @@ template <class Container>
 class Locker<Container, LockerType::container> : protected Container
 {
 protected:
-    using require         = Container;
+    using require = Container;
 
 public:
-    using size_type       = typename Container::size_type;
-    using value_type      = typename Container::value_type;
+    using typename require::size_type;
+    using typename require::value_type;
 
-    using reference       = typename Container::reference;
-    using const_reference = typename Container::const_reference;
+    using typename require::reference;
+    using typename require::const_reference;
 
 public:
     // We MUST define explicit copy and move constructors

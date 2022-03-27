@@ -15,7 +15,7 @@ template <class TrixyNetType,
           template <typename P, typename...> class LinearType,
           template <typename T, typename...> class ContainerType,
           typename PrecisionType,
-          typename... Args>
+          typename... Pack>
 class TrixyNet;
 
 template <class TrixyNetType,
@@ -24,7 +24,7 @@ template <class TrixyNetType,
           template <typename P, typename...> class LinearType,
           template <typename T, typename...> class ContainerType,
           typename PrecisionType,
-          typename... Args>
+          typename... Pack>
 struct TrixyNetRequire;
 
 } // namespace trixy

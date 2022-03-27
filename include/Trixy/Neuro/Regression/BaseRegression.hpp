@@ -15,7 +15,7 @@ template <class RegressionType,
     template <typename P, typename...> class MatrixType,
     template <typename P, typename...> class LinearType,
     typename PrecisionType,
-    typename... Args>
+    typename... Pack>
 class Regression;
 
 template <class RegressionType,
@@ -23,7 +23,7 @@ template <class RegressionType,
     template <typename P, typename...> class MatrixType,
     template <typename P, typename...> class LinearType,
     typename PrecisionType,
-    typename... Args>
+    typename... Pack>
 struct RegressionRequire;
 
 } // namespace trixy

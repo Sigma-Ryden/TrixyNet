@@ -3,7 +3,10 @@
 
 #include <cstddef> // size_t
 
+#include "ILiqueBase.hpp"
 #include "Trixy/Lique/LiqueBaseTensor.hpp"
+
+#include "Detail/MacroScope.hpp"
 
 namespace trixy
 {
@@ -11,25 +14,30 @@ namespace trixy
 namespace ilique
 {
 
-template <template <typename...> class Derived, typename Precision, typename... Args>
-class IVector : public lique::TensorType::vector
+ILIQUE_TENSOR_TPL_DECLARATION
+using IVector = ILIQUE_TENSOR_TPL(lique::TensorType::vector);
+
+ILIQUE_TENSOR_TPL_DECLARATION
+class ILIQUE_TENSOR_TPL(lique::TensorType::vector) : public lique::TensorType::vector,
+    protected ilique::ITensorBase<Derived, Precision, Pack...>
 {
-public:
-    using Tensor          = Derived<Precision, Args...>;
+private:
+    using Base = ilique::ITensorBase<Derived, Precision, Pack...>;
 
 public:
-    using size_type       = std::size_t;
-    using precision_type  = Precision;
+    using typename Base::Tensor;
 
-    using reference       = Precision&;
-    using const_reference = const Precision&;
+    using typename Base::size_type;
+    using typename Base::precision_type;
+
+    using typename Base::pointer;
+    using typename Base::const_pointer;
+
+    using typename Base::reference;
+    using typename Base::const_reference;
 
 protected:
-    virtual ~IVector() = default;
-
-private:
-    Tensor& self() { return *static_cast<Tensor*>(this); }
-    const Tensor& self() const { return *static_cast<const Tensor*>(this); }
+    using Base::self;
 
 public:
     reference operator() (size_type i) noexcept { return self().operator()(i); }
@@ -39,10 +47,28 @@ public:
     void resize(size_type size, precision_type value) { self().resize(size, value); }
 
     precision_type dot(const Tensor& tensor) const { return self().dot(tensor); }
+
+public:
+    using Base::copy;
+
+    using Base::size;
+
+    using Base::fill;
+    using Base::apply;
+
+    using Base::add;
+    using Base::sub;
+    using Base::multiply;
+
+    using Base::join;
+
+    using Base::data;
 };
 
 } // namespace ilique
 
 } // namespace trixy
+
+#include "Detail/MacroUnscope.hpp"
 
 #endif // ILIQUE_VECTOR_HPP

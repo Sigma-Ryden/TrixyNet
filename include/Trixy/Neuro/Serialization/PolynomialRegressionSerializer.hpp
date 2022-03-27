@@ -3,7 +3,7 @@
 
 #include <fstream> // ifstream, ofstream
 
-#include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
+#include "BaseSerializer.hpp"
 
 #include "Trixy/Buffer/Buffer.hpp"
 

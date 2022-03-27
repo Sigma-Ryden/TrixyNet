@@ -23,20 +23,22 @@ class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::nestorov)
     : public IOptimizer<NestorovOptimizer<Optimizeriable>, Optimizeriable>
 {
 public:
-    using Net               = Optimizeriable;
+    using Net  = Optimizeriable;
+    using Base = IOptimizer<NestorovOptimizer<Net>, Net>;
 
-    using Base              = IOptimizer<NestorovOptimizer<Net>, Net>;
+    friend Base;
 
-    template <class T>
-    using Container         = typename Net::template Container<T>;
+public:
+    template <typename T>
+    using Container = typename Base::template Container<T>;
 
-    using Vector            = typename Net::Vector;
-    using Matrix            = typename Net::Matrix;
+    using typename Base::Vector;
+    using typename Base::Matrix;
 
-    using NetInit           = typename Net::Init;
+    using typename Base::NetInit;
 
-    using precision_type    = typename Net::precision_type;
-    using size_type         = typename Net::size_type;
+    using typename Base::precision_type;
+    using typename Base::size_type;
 
 private:
     Net& net;
@@ -56,13 +58,14 @@ public:
               precision_type learning_rate,
               precision_type momentum = 0.9);
 
+    Optimizer& reset() noexcept;
+
+private:
     void set_learning_rate(precision_type value) noexcept;
 
     template <class BiasGrad, class WeightGrad>
     void update(const Container<BiasGrad>& gradB,
                 const Container<WeightGrad>& gradW) noexcept;
-
-    Optimizer& reset() noexcept;
 
 private:
     template <class Buffer, class Optimized, class Parameter, class Gradient>

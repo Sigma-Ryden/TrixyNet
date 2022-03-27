@@ -24,8 +24,8 @@ class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) :
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)>;
 
 public:
-    using Vector          = VectorType<PrecisionType, Args...>;
-    using Matrix          = MatrixType<PrecisionType, Args...>;
+    using Vector          = VectorType<PrecisionType, Pack...>;
+    using Matrix          = MatrixType<PrecisionType, Pack...>;
 
     using precision_type  = PrecisionType;
     using size_type       = std::size_t;

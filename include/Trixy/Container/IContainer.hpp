@@ -7,7 +7,7 @@
 namespace trixy
 {
 
-template <template <typename...> class Derived, typename Type, typename... Pack>
+template <template <typename, typename...> class Derived, typename Type, typename... Pack>
 class IContainer
 {
 public:
@@ -27,9 +27,6 @@ public:
 
 protected:
     using DerivedType     = Derived<Type, Pack...>;
-
-protected:
-    virtual ~IContainer() = default;
 
 private:
     DerivedType& self() noexcept
@@ -78,7 +75,7 @@ public:
     const_reference operator[] (size_type i) const noexcept { return self().operator[](i); }
 };
 
-template <template <typename...> class Derived, typename Type, typename... Pack>
+template <template <typename, typename...> class Derived, typename Type, typename... Pack>
 class IContainer<Derived, Type, Pack...>::iterator
 {
 private:
@@ -103,7 +100,7 @@ public:
     reference operator[] (size_type i) noexcept { return ptr_[i]; }
 };
 
-template <template <typename...> class Derived, typename Type, typename... Pack>
+template <template <typename, typename...> class Derived, typename Type, typename... Pack>
 class IContainer<Derived, Type, Pack...>::const_iterator
 {
 private:

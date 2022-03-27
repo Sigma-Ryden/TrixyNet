@@ -1,7 +1,7 @@
 #ifndef REGRESSION_REQUIRE_HPP
 #define REGRESSION_REQUIRE_HPP
 
-#include "Trixy/Neuro/Regression/BaseRegression.hpp"
+#include "BaseRegression.hpp"
 
 #include "Trixy/Require/PrecisionRequire.hpp"
 
@@ -24,8 +24,8 @@ public:
 protected:
     using Precision         = PrecisionType;
 
-    using Vector            = VectorType<Precision, Args...>;
-    using Matrix            = MatrixType<Precision, Args...>;
+    using Vector            = VectorType<Precision, Pack...>;
+    using Matrix            = MatrixType<Precision, Pack...>;
 
     using Linear            = LinearType<Precision>;
 
@@ -47,8 +47,8 @@ public:
 protected:
     using Precision         = PrecisionType;
 
-    using Vector            = VectorType<Precision, Args...>;
-    using Matrix            = MatrixType<Precision, Args...>;
+    using Vector            = VectorType<Precision, Pack...>;
+    using Matrix            = MatrixType<Precision, Pack...>;
 
     using Linear            = LinearType<Precision>;
 

@@ -43,8 +43,8 @@ public:
     template <typename T>
     using XContainer                = ContainerLocker<ContainerType<T>>;
 
-    using Vector                    = VectorType<PrecisionType, Args...>;
-    using Matrix                    = MatrixType<PrecisionType, Args...>;
+    using Vector                    = VectorType<PrecisionType, Pack...>;
+    using Matrix                    = MatrixType<PrecisionType, Pack...>;
 
     using XVector                   = VectorLocker<Vector>;
     using XMatrix                   = MatrixLocker<Matrix>;
@@ -184,17 +184,17 @@ TRIXY_NET_TPL_DECLARATION
 class TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init
 {
 public:
-    template <class Ret = XContainer<XVector>, class Init = Container<XVector>, typename... Pack>
-    static Ret getlock1d(const InnerTopology& topology, Pack&&... args);
+    template <class Ret = XContainer<XVector>, class Init = Container<XVector>, typename... Args>
+    static Ret getlock1d(const InnerTopology& topology, Args&&... args);
 
-    template <class Ret = Container<Vector>, class Init = Ret, typename... Pack>
-    static Ret get1d(const InnerTopology& topology, Pack&&... args);
+    template <class Ret = Container<Vector>, class Init = Ret, typename... Args>
+    static Ret get1d(const InnerTopology& topology, Args&&... args);
 
-    template <class Ret = XContainer<XMatrix>, class Init = Container<XMatrix>, typename... Pack>
-    static Ret getlock2d(const InnerTopology& topology, Pack&&... args);
+    template <class Ret = XContainer<XMatrix>, class Init = Container<XMatrix>, typename... Args>
+    static Ret getlock2d(const InnerTopology& topology, Args&&... args);
 
-    template <class Ret = Container<Matrix>, class Init = Ret, typename... Pack>
-    static Ret get2d(const InnerTopology& topology, Pack&&... args);
+    template <class Ret = Container<Matrix>, class Init = Ret, typename... Args>
+    static Ret get2d(const InnerTopology& topology, Args&&... args);
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -243,47 +243,47 @@ public:
 };
 
 TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Pack>
+template <class Ret, class Init, typename... Args>
 Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init::get1d(
-    const Container<size_type>& topology, Pack&&... args)
+    const Container<size_type>& topology, Args&&... args)
 {
     Init data;
 
     data.reserve(topology.size() - 1);
     for(size_type i = 1; i < topology.size(); ++i)
-        data.emplace_back(topology[i], std::forward<Pack>(args)...);
+        data.emplace_back(topology[i], std::forward<Args>(args)...);
 
     return data;
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Pack>
+template <class Ret, class Init, typename... Args>
 Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init::getlock1d(
-    const Container<size_type>& topology, Pack&&... args)
+    const Container<size_type>& topology, Args&&... args)
 {
-    return get1d<Ret, Init>(topology, std::forward<Pack>(args)...);
+    return get1d<Ret, Init>(topology, std::forward<Args>(args)...);
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Pack>
+template <class Ret, class Init, typename... Args>
 Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init::get2d(
-    const Container<size_type>& topology, Pack&&... args)
+    const Container<size_type>& topology, Args&&... args)
 {
     Init data;
 
     data.reserve(topology.size() - 1);
     for(size_type i = 1; i < topology.size(); ++i)
-        data.emplace_back(topology[i - 1], topology[i], std::forward<Pack>(args)...);
+        data.emplace_back(topology[i - 1], topology[i], std::forward<Args>(args)...);
 
     return data;
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Pack>
+template <class Ret, class Init, typename... Args>
 Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Init::getlock2d(
-    const Container<size_type>& topology, Pack&&... args)
+    const Container<size_type>& topology, Args&&... args)
 {
-    return get2d<Ret, Init>(topology, std::forward<Pack>(args)...);
+    return get2d<Ret, Init>(topology, std::forward<Args>(args)...);
 }
 
 TRIXY_NET_TPL_DECLARATION

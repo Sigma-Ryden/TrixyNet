@@ -25,8 +25,8 @@ class TRIXY_REGRESSION_TPL(RegressionType::Linear) :
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
 
 public:
-    using Vector          = VectorType<PrecisionType, Args...>;
-    using Matrix          = MatrixType<PrecisionType, Args...>;
+    using Vector          = VectorType<PrecisionType, Pack...>;
+    using Matrix          = MatrixType<PrecisionType, Pack...>;
 
     using precision_type  = PrecisionType;
     using size_type       = std::size_t;

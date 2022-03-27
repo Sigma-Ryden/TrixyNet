@@ -11,11 +11,17 @@ namespace trixy
 namespace ilique
 {
 
-template <template <typename...> class Derived, typename Precision, typename... Args>
-class ITensor
+template <typename tensor_type,
+          template <typename, typename...> class Derived,
+          typename Precision, typename... Pack>
+class ITensor;
+
+template <template <typename, typename...> class Derived,
+          typename Precision, typename... Pack>
+class ITensorBase
 {
 public:
-    using Tensor            = Derived<Precision, Args...>;
+    using Tensor            = Derived<Precision, Pack...>;
 
 public:
     using size_type         = std::size_t;
@@ -26,9 +32,6 @@ public:
 
     using reference         = Precision&;
     using const_reference   = const Precision&;
-
-protected:
-    virtual ~ITensor() = default;
 
 private:
     Tensor& self() noexcept
@@ -42,8 +45,7 @@ public:
 
     Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    template <class Generator,
-              trixy::meta::as_callable_t<Generator, precision_type> = 0>
+    template <class Generator, trixy::meta::as_callable_t<Generator> = 0>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
 
     size_type size() const noexcept { return self().size(); }
@@ -85,6 +87,9 @@ public:
 
     Tensor& sub(const Tensor& lhs, const Tensor& rhs) noexcept
     { return self().sub(lhs, rhs); }
+
+    pointer data() noexcept { return self().data(); }
+    const_pointer data() const noexcept { return self().data(); }
 };
 
 } // namespace ilique

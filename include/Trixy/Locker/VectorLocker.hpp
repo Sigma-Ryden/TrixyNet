@@ -18,16 +18,16 @@ template <class Tensor>
 class Locker<Tensor, LockerType::vector> : protected Tensor
 {
 protected:
-    using require        = Tensor;
+    using require = Tensor;
 
 public:
-    using type           = typename Tensor::type;
+    using typename require::type;
 
-    using size_type      = typename Tensor::size_type;
-    using precision_type = typename Tensor::precision_type;
+    using typename require::size_type;
+    using typename require::precision_type;
 
-    using pointer        = typename Tensor::pointer;
-    using const_pointer  = typename Tensor::const_pointer;
+    using typename require::pointer;
+    using typename require::const_pointer;
 
 public:
     // We MUST define explicit copy and move constructors

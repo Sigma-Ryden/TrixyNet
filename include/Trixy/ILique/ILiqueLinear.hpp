@@ -11,18 +11,18 @@ namespace trixy
 namespace ilique
 {
 
-template <class Derived, typename Precision>
+template <template <typename, typename...> class Derived,
+          typename Precision, typename... Pack>
 class ILinear
 {
 public:
+    using Linear         = Derived<Precision, Pack...>;
+
     using size_type      = std::size_t;
     using precision_type = Precision;
 
-protected:
-    virtual ~ILinear() = default;
-
 private:
-    const Derived& self() const { return *static_cast<const Derived*>(this); }
+    const Linear& self() const { return *static_cast<const Linear*>(this); }
 
 public:
     template <class Vector1, class Vector2, class Matrix,

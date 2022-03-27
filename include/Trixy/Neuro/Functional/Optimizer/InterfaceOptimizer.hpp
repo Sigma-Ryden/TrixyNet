@@ -17,17 +17,22 @@ template <class Derived, class Optimizeriable>
 class IOptimizer<Derived, Optimizeriable,
     meta::enable_if_t<meta::is_feedforward_net<Optimizeriable>::value>>
 {
-private:
-    template <class T>
-    using Container         = typename Optimizeriable::template Container<T>;
+public:
+    using Net               = Optimizeriable;
 
-    using precision_type    = typename Optimizeriable::precision_type;
+    template <class T>
+    using Container         = typename Net::template Container<T>;
+
+    using Vector            = typename Net::Vector;
+    using Matrix            = typename Net::Matrix;
+
+    using NetInit           = typename Net::Init;
+
+    using precision_type    = typename Net::precision_type;
+    using size_type         = typename Net::size_type;
 
 protected:
     using DerivedType       = Derived;
-
-protected:
-    virtual ~IOptimizer() = default;
 
 private:
     DerivedType& self() { return *static_cast<DerivedType*>(this); }
