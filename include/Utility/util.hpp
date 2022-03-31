@@ -57,6 +57,8 @@ template <typename Precision>
 std::ostream& operator<< (
     std::ostream& out, const trixy::lique::Vector<Precision>& vector)
 {
+    if(vector.size() == 0) return out;
+
     out << '[';
     for(std::size_t i = 0; i < vector.size() - 1; ++i)
         out << vector(i) << ", ";

@@ -181,7 +181,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(std::ifstream& 
     byte_type meta_activation_id = (meta & 0x0000FF00) >> 8;
     byte_type meta_loss_id = meta & 0x000000FF;
 
-    size_type topology_size;
+    size_type topology_size = 0;
 
     if(meta_size_type == sizeof(size_type))
     {
