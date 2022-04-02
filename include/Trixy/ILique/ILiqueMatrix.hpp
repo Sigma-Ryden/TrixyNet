@@ -53,6 +53,7 @@ public:
     const_reference operator() (size_type i) const noexcept { return self().operator()(i); }
 
     const Shape& shape() const noexcept { return self().shape(); }
+    const Shape& dim() const noexcept { return self().dim(); }
 
     void resize(size_type size) { self().resize(size); }
     void resize(size_type m, size_type n) { self().resize(m, n); }
@@ -79,7 +80,7 @@ public:
 
     using Base::add;
     using Base::sub;
-    using Base::multiply;
+    using Base::mul;
 
     using Base::join;
 

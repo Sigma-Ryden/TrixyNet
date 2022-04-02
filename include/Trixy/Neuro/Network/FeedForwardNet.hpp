@@ -9,7 +9,10 @@
 
 #include "Trixy/Neuro/Training/BaseTraining.hpp"
 #include "Trixy/Neuro/Functional/IdFunctional.hpp"
-#include "Trixy/Locker/LockerCore.hpp"
+
+#include "Trixy/Locker/VectorLocker.hpp"
+#include "Trixy/Locker/MatrixLocker.hpp"
+#include "Trixy/Locker/ContainerLocker.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
 

@@ -69,6 +69,8 @@ public:
     const Shape& shape() const noexcept;
     size_type size() const noexcept;
 
+    const Shape& dim() const noexcept;
+
     void resize(size_type size);
     void resize(size_type m, size_type n);
     void resize(const Shape& shape);
@@ -115,9 +117,9 @@ public:
     Tensor& sub(const Tensor&) noexcept;
     Tensor& sub(const Tensor&, const Tensor&) noexcept;
 
-    Tensor multiply(const Tensor&) const;
-    Tensor& multiply(const Tensor&) noexcept;
-    Tensor& multiply(const Tensor&, const Tensor&) noexcept;
+    Tensor mul(const Tensor&) const;
+    Tensor& mul(const Tensor&) noexcept;
+    Tensor& mul(const Tensor&, const Tensor&) noexcept;
 
     Tensor join(precision_type value) const;
     Tensor& join(precision_type value) noexcept;
@@ -303,6 +305,12 @@ LIQUE_TENSOR_TPL_DECLARATION
 inline typename Matrix<Precision>::size_type Matrix<Precision>::size() const noexcept
 {
     return shape_.size_;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline const typename Matrix<Precision>::Shape& Matrix<Precision>::dim() const noexcept
+{
+    return shape_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -538,17 +546,17 @@ Matrix<Precision>& Matrix<Precision>::sub(const Tensor& lhs, const Tensor& rhs) 
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::multiply(const Tensor& rhs) const
+Matrix<Precision> Matrix<Precision>::mul(const Tensor& rhs) const
 {
     Tensor matrix(shape_);
 
-    matrix.multiply(*this, rhs);
+    matrix.mul(*this, rhs);
 
     return matrix;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& rhs) noexcept
+Matrix<Precision>& Matrix<Precision>::mul(const Tensor& rhs) noexcept
 {
     detail::assign(data_, data_ + shape_.size_, detail::mul(), rhs.data_);
 
@@ -556,7 +564,7 @@ Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& rhs) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::multiply(const Tensor& lhs, const Tensor& rhs) noexcept
+Matrix<Precision>& Matrix<Precision>::mul(const Tensor& lhs, const Tensor& rhs) noexcept
 {
     detail::assign(data_, data_ + shape_.size_, detail::mul(), lhs.data_, rhs.data_);
 

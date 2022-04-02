@@ -59,8 +59,10 @@ public:
     using require::apply;
 
     using require::dot;
+
     using require::add;
     using require::sub;
+    using require::mul;
     using require::join;
 
     using require::data;

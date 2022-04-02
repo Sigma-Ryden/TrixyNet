@@ -75,8 +75,8 @@ public:
     template <class Function>
     Tensor apply(Function func) const;
 
-    template <class Function> Tensor&
-    apply(Function func) noexcept;
+    template <class Function>
+    Tensor& apply(Function func) noexcept;
 
     template <class Function>
     Tensor& apply(Function func, const_pointer src) noexcept;
@@ -94,9 +94,9 @@ public:
     Tensor& sub(const Tensor&) noexcept;
     Tensor& sub(const Tensor&, const Tensor&) noexcept;
 
-    Tensor multiply(const Tensor&) const;
-    Tensor& multiply(const Tensor&) noexcept;
-    Tensor& multiply(const Tensor&, const Tensor&) noexcept;
+    Tensor mul(const Tensor&) const;
+    Tensor& mul(const Tensor&) noexcept;
+    Tensor& mul(const Tensor&, const Tensor&) noexcept;
 
     Tensor join(precision_type value) const;
     Tensor& join(precision_type value) noexcept;
@@ -126,7 +126,7 @@ inline Vector<Precision>::Tensor(size_type size)
 
 LIQUE_TENSOR_TPL_DECLARATION
 Vector<Precision>::Tensor(const_pointer first, const_pointer last)
-    : data_(new precision_type [last - first]), size_(1, last - first)
+    : data_(new precision_type [last - first]), size_(last - first)
 {
      detail::copy(data_, data_ + size_, first);
 }
@@ -395,17 +395,17 @@ Vector<Precision>& Vector<Precision>::sub(const Tensor& lhs, const Tensor& rhs) 
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision> Vector<Precision>::multiply(const Tensor& rhs) const
+Vector<Precision> Vector<Precision>::mul(const Tensor& rhs) const
 {
     Tensor vector(size_);
 
-    vector.multiply(*this, rhs);
+    vector.mul(*this, rhs);
 
     return vector;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>& Vector<Precision>::multiply(const Tensor& rhs) noexcept
+Vector<Precision>& Vector<Precision>::mul(const Tensor& rhs) noexcept
 {
     detail::assign(data_, data_ + size_, detail::mul(), rhs.data_);
 
@@ -413,7 +413,7 @@ Vector<Precision>& Vector<Precision>::multiply(const Tensor& rhs) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>& Vector<Precision>::multiply(const Tensor& lhs, const Tensor& rhs) noexcept
+Vector<Precision>& Vector<Precision>::mul(const Tensor& lhs, const Tensor& rhs) noexcept
 {
     detail::assign(data_, data_ + size_, detail::mul(), lhs.data_, rhs.data_);
 

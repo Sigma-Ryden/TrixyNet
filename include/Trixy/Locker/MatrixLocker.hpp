@@ -56,6 +56,8 @@ public:
 
     using require::copy;
     using require::size;
+    using require::dim;
+
     using require::shape;
 
     using require::fill;
@@ -65,6 +67,7 @@ public:
 
     using require::add;
     using require::sub;
+    using require::mul;
     using require::join;
 
     using require::transpose;

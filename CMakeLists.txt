@@ -44,7 +44,6 @@ set(TRIXY_LOCKER
     include/Trixy/Locker/ContainerLocker.hpp
     include/Trixy/Locker/VectorLocker.hpp
     include/Trixy/Locker/MatrixLocker.hpp
-    include/Trixy/Locker/LockerCore.hpp
     include/Trixy/Locker/Detail/LockerMeta.hpp
 )
 set(TRIXY_REQUIRE
@@ -112,7 +111,6 @@ set(UTILS
     include/Utility/mnist_reader.hpp
     include/Utility/mnist_reader_common.hpp
 )
-
 add_executable(${PROJECT_NAME}
     ${TESTING}
     ${TRIXY_CONTAINER}

@@ -73,18 +73,18 @@ std::ostream& operator<< (
     std::ostream& out, const trixy::lique::Matrix<Precision>& matrix)
 {
     out << '[';
-    for(std::size_t i = 0; i < matrix.shape().row() - 1; ++i)
+    for(std::size_t i = 0; i < matrix.dim().row() - 1; ++i)
     {
         out << '[';
-        for(std::size_t j = 0; j < matrix.shape().col() - 1; ++j)
+        for(std::size_t j = 0; j < matrix.dim().col() - 1; ++j)
             out << matrix(i, j) << ", ";
 
-        out << matrix(i, matrix.shape().col() - 1) << "],\n";
+        out << matrix(i, matrix.dim().col() - 1) << "],\n";
     }
 
     out << '[';
-    for(std::size_t j = 0; j < matrix.shape().col() - 1; ++j)
-        out << matrix(matrix.shape().row() - 1, j) << ", ";
+    for(std::size_t j = 0; j < matrix.dim().col() - 1; ++j)
+        out << matrix(matrix.dim().row() - 1, j) << ", ";
 
     out << matrix(matrix.size() - 1) << "]]";
 

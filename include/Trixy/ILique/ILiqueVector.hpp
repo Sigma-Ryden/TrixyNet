@@ -58,7 +58,7 @@ public:
 
     using Base::add;
     using Base::sub;
-    using Base::multiply;
+    using Base::mul;
 
     using Base::join;
 

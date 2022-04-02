@@ -36,6 +36,8 @@ protected:
 
     using require::shape;
     using require::size;
+    using require::dim;
+
     using require::resize;
     using require::reshape;
 
@@ -47,7 +49,7 @@ protected:
     using require::dot;
     using require::add;
     using require::sub;
-    using require::multiply;
+    using require::mul;
     using require::join;
 
     using require::transpose;

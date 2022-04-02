@@ -64,11 +64,11 @@ public:
     Tensor& apply(Function func, const_pointer src) noexcept
     { return self().apply(func, src); }
 
-    Tensor  multiply(const Tensor& tensor) const { return self().multiply(tensor); }
-    Tensor& multiply(const Tensor& tensor) noexcept { return self().multiply(tensor); }
+    Tensor  mul(const Tensor& tensor) const { return self().mul(tensor); }
+    Tensor& mul(const Tensor& tensor) noexcept { return self().mul(tensor); }
 
-    Tensor& multiply(const Tensor& lhs, const Tensor& rhs) noexcept
-    { return self().multiply(lhs, rhs); }
+    Tensor& mul(const Tensor& lhs, const Tensor& rhs) noexcept
+    { return self().mul(lhs, rhs); }
 
     Tensor  join(Precision value) const { return self().join(value); }
     Tensor& join(Precision value) noexcept { return self().join(value); }

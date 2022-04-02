@@ -103,9 +103,12 @@ public:
     pointer operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const iterator& it) const noexcept { return ptr_ != it.ptr_; }
+    bool operator== (const iterator& it) const noexcept { return ptr_ == it.ptr_; }
 
     iterator operator++ () noexcept { ++ptr_; return *this; }
     iterator operator-- () noexcept { --ptr_; return *this; }
+
+    difference_type operator- (iterator it) noexcept { return ptr_ - it.ptr_; }
 
     iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
     iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }
@@ -128,9 +131,12 @@ public:
     const_pointer operator-> () const noexcept { return ptr_; }
 
     bool operator!= (const const_iterator& it) const noexcept { return ptr_ != it.ptr_; }
+    bool operator== (const const_iterator& it) const noexcept { return ptr_ == it.ptr_; }
 
     const_iterator operator++ () noexcept { ++ptr_; return *this; }
     const_iterator operator-- () noexcept { --ptr_; return *this; }
+
+    difference_type operator- (const_iterator it) noexcept { return ptr_ - it.ptr_; }
 
     const_iterator operator+ (difference_type n) noexcept { ptr_ + n; return *this; }
     const_iterator operator- (difference_type n) noexcept { ptr_ - n; return *this; }

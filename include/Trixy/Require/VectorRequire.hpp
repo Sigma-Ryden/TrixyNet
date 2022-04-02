@@ -42,7 +42,7 @@ protected:
     using require::dot;
     using require::add;
     using require::sub;
-    using require::multiply;
+    using require::mul;
 
     using require::join;
 
