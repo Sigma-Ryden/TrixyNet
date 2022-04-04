@@ -1,18 +1,18 @@
-#ifndef FEED_FORWARD_NET_HPP
-#define FEED_FORWARD_NET_HPP
+#ifndef TRIXY_NETWORK_FEED_FORWARD_NET_HPP
+#define TRIXY_NETWORK_FEED_FORWARD_NET_HPP
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
-#include "BaseTrixyNet.hpp"
-#include "TrixyNetRequire.hpp"
+#include "Base.hpp"
+#include "Require.hpp"
 
-#include "Trixy/Neuro/Training/BaseTraining.hpp"
-#include "Trixy/Neuro/Functional/IdFunctional.hpp"
+#include "Trixy/Neuro/Training/Base.hpp"
+#include "Trixy/Neuro/Functional/Id.hpp"
 
-#include "Trixy/Locker/VectorLocker.hpp"
-#include "Trixy/Locker/MatrixLocker.hpp"
-#include "Trixy/Locker/ContainerLocker.hpp"
+#include "Trixy/Locker/Vector.hpp"
+#include "Trixy/Locker/Matrix.hpp"
+#include "Trixy/Locker/Container.hpp"
 
 #include "Trixy/Detail/TrixyMeta.hpp"
 
@@ -459,4 +459,4 @@ bool TRIXY_NET_TPL(TrixyNetType::FeedForward)::check(
 
 #include "Trixy/Neuro/Detail/MacroUnscope.hpp"
 
-#endif // FEED_FORWARD_NET_HPP
+#endif // TRIXY_NETWORK_FEED_FORWARD_NET_HPP

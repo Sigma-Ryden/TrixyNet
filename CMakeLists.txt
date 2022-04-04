@@ -16,43 +16,46 @@ set(TESTING
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
     include/Trixy/Container/IContainer.hpp
-    include/Trixy/Container/ContainerCore.hpp
+    include/Trixy/Container/Core.hpp
 )
 set(TRIXY_LIQUE
-    include/Trixy/Lique/LiqueLinear.hpp
-    include/Trixy/Lique/LiqueMatrix.hpp
-    include/Trixy/Lique/LiqueVector.hpp
-    include/Trixy/Lique/LiqueBaseTensor.hpp
-    include/Trixy/Lique/LiqueTool.hpp
     include/Trixy/Lique/Detail/FunctionDetail.hpp
     include/Trixy/Lique/Detail/LiqueMeta.hpp
     include/Trixy/Lique/Detail/MacroScope.hpp
     include/Trixy/Lique/Detail/MacroUnscope.hpp
-    include/Trixy/Lique/LiqueCore.hpp
+
+    include/Trixy/Lique/BaseTensor.hpp
+    include/Trixy/Lique/Linear.hpp
+    include/Trixy/Lique/Matrix.hpp
+    include/Trixy/Lique/Vector.hpp
+    include/Trixy/Lique/Tool.hpp
+    include/Trixy/Lique/Core.hpp
 )
 set(TRIXY_ILIQUE
-    include/Trixy/ILique/ILiqueBase.hpp
-    include/Trixy/ILique/ILiqueLinear.hpp
-    include/Trixy/ILique/ILiqueMatrix.hpp
-    include/Trixy/ILique/ILiqueVector.hpp
     include/Trixy/ILique/Detail/MacroScope.hpp
     include/Trixy/ILique/Detail/MacroUnscope.hpp
-    include/Trixy/ILique/ILiqueCore.hpp
+
+    include/Trixy/ILique/Base.hpp
+    include/Trixy/ILique/Linear.hpp
+    include/Trixy/ILique/Matrix.hpp
+    include/Trixy/ILique/Vector.hpp
+    include/Trixy/ILique/Core.hpp
 )
 set(TRIXY_LOCKER
-    include/Trixy/Locker/BaseLocker.hpp
-    include/Trixy/Locker/ContainerLocker.hpp
-    include/Trixy/Locker/VectorLocker.hpp
-    include/Trixy/Locker/MatrixLocker.hpp
     include/Trixy/Locker/Detail/LockerMeta.hpp
+
+    include/Trixy/Locker/Base.hpp
+    include/Trixy/Locker/Container.hpp
+    include/Trixy/Locker/Vector.hpp
+    include/Trixy/Locker/Matrix.hpp
 )
 set(TRIXY_REQUIRE
-    include/Trixy/Require/BaseRequire.hpp
-    include/Trixy/Require/VectorRequire.hpp
-    include/Trixy/Require/MatrixRequire.hpp
-    include/Trixy/Require/LinearRequire.hpp
-    include/Trixy/Require/ContainerRequire.hpp
-    include/Trixy/Require/PrecisionRequire.hpp
+    include/Trixy/Require/Base.hpp
+    include/Trixy/Require/Vector.hpp
+    include/Trixy/Require/Matrix.hpp
+    include/Trixy/Require/Linear.hpp
+    include/Trixy/Require/Container.hpp
+    include/Trixy/Require/Precision.hpp
 )
 set(TRIXY_BUFFER
     include/Trixy/Buffer/Buffer.hpp
@@ -64,47 +67,55 @@ set(TRIXY_NEURO
     include/Trixy/Detail/FunctionDetail.hpp
     include/Trixy/Detail/MacroScope.hpp
     include/Trixy/Detail/MacroUnscope.hpp
+
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp
-    include/Trixy/Neuro/Detail/FunctionDetail.hpp
-    include/Trixy/Neuro/Network/BaseTrixyNet.hpp
-    include/Trixy/Neuro/Network/TrixyNetRequire.hpp
+
+    include/Trixy/Neuro/Network/Base.hpp
+    include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
-    include/Trixy/Neuro/Network/TrixyNetCore.hpp
-    include/Trixy/Neuro/Functional/Function/ActivationFunction.hpp
-    include/Trixy/Neuro/Functional/Function/ActivationFunctionLess.hpp
-    include/Trixy/Neuro/Functional/Function/LossFunction.hpp
-    include/Trixy/Neuro/Functional/Function/FunctionCore.hpp
-    include/Trixy/Neuro/Functional/Optimizer/GradDescentOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/MomentumOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/NestorovOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/AdaGradOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/RMSPropOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/AdamOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/InterfaceOptimizer.hpp
-    include/Trixy/Neuro/Functional/Optimizer/OptimizerCore.hpp
-    include/Trixy/Neuro/Functional/BaseFunctional.hpp
-    include/Trixy/Neuro/Functional/IdFunctional.hpp
-    include/Trixy/Neuro/Functional/FeedForwardNetFunctional.hpp
-    include/Trixy/Neuro/Functional/FunctionalCore.hpp
-    include/Trixy/Neuro/Serialization/BaseSerializer.hpp
-    include/Trixy/Neuro/Serialization/FeedForwardNetSerializer.hpp
-    include/Trixy/Neuro/Serialization/PolynomialRegressionSerializer.hpp
-    include/Trixy/Neuro/Serialization/LinearRegressionSerializer.hpp
-    include/Trixy/Neuro/Serialization/SerializerCore.hpp
-    include/Trixy/Neuro/Regression/BaseRegression.hpp
-    include/Trixy/Neuro/Regression/RegressionRequire.hpp
-    include/Trixy/Neuro/Regression/LinearRegression.hpp
-    include/Trixy/Neuro/Regression/PolynomialRegression.hpp
-    include/Trixy/Neuro/Regression/RegressionCore.hpp
-    include/Trixy/Neuro/Training/BaseTraining.hpp
-    include/Trixy/Neuro/Training/FeedForwardNetTraining.hpp
-    include/Trixy/Neuro/Training/LinearRegressionTraining.hpp
-    include/Trixy/Neuro/Training/PolynomialRegressionTraining.hpp
-    include/Trixy/Neuro/Training/TrainingCore.hpp
-    include/Trixy/Neuro/NeuroCore.hpp
+    include/Trixy/Neuro/Network/Core.hpp
+
+    include/Trixy/Neuro/Functional/Function/Activation.hpp
+    include/Trixy/Neuro/Functional/Function/ActivationLess.hpp
+    include/Trixy/Neuro/Functional/Function/Loss.hpp
+    include/Trixy/Neuro/Functional/Function/Core.hpp
+
+    include/Trixy/Neuro/Functional/Optimizer/Base.hpp
+    include/Trixy/Neuro/Functional/Optimizer/GradDescent.hpp
+    include/Trixy/Neuro/Functional/Optimizer/Momentum.hpp
+    include/Trixy/Neuro/Functional/Optimizer/Nestorov.hpp
+    include/Trixy/Neuro/Functional/Optimizer/AdaGrad.hpp
+    include/Trixy/Neuro/Functional/Optimizer/RMSProp.hpp
+    include/Trixy/Neuro/Functional/Optimizer/Adam.hpp
+    include/Trixy/Neuro/Functional/Optimizer/Interface.hpp
+    include/Trixy/Neuro/Functional/Optimizer/Core.hpp
+
+    include/Trixy/Neuro/Functional/Base.hpp
+    include/Trixy/Neuro/Functional/Id.hpp
+    include/Trixy/Neuro/Functional/FeedForwardNet.hpp
+    include/Trixy/Neuro/Functional/Core.hpp
+
+    include/Trixy/Neuro/Serialization/Base.hpp
+    include/Trixy/Neuro/Serialization/FeedForwardNet.hpp
+    include/Trixy/Neuro/Serialization/PolynomialRegression.hpp
+    include/Trixy/Neuro/Serialization/LinearRegression.hpp
+    include/Trixy/Neuro/Serialization/Core.hpp
+
+    include/Trixy/Neuro/Regression/Base.hpp
+    include/Trixy/Neuro/Regression/Require.hpp
+    include/Trixy/Neuro/Regression/Linear.hpp
+    include/Trixy/Neuro/Regression/Polynomial.hpp
+    include/Trixy/Neuro/Regression/Core.hpp
+
+    include/Trixy/Neuro/Training/Base.hpp
+    include/Trixy/Neuro/Training/FeedForwardNet.hpp
+    include/Trixy/Neuro/Training/LinearRegression.hpp
+    include/Trixy/Neuro/Training/PolynomialRegression.hpp
+    include/Trixy/Neuro/Training/Core.hpp
+
+    include/Trixy/Neuro/Core.hpp
 )
 set(UTILS
     include/Utility/util.hpp

@@ -1,5 +1,5 @@
-#include "Trixy/Neuro/NeuroCore.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
-#include "Trixy/Lique/LiqueCore.hpp" // Tensor, Linear
+#include "Trixy/Neuro/Core.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
+#include "Trixy/Lique/Core.hpp" // Tensor, Linear
 
 #include "Trixy/Container/Container.hpp" // Container
 #include "Utility/util.hpp" // Timer, test_neuro, check_neuro
@@ -128,8 +128,7 @@ int main()
     std::cout << std::fixed << std::setprecision(6);
 
     speed_test();
-    //speed_test_deserialization();
-
+    speed_test_deserialization();
     //std::cin.get();
 
     return 0;

@@ -1,5 +1,5 @@
-#ifndef LIQUE_FUNCTION_DETAIL_HPP
-#define LIQUE_FUNCTION_DETAIL_HPP
+#ifndef TRIXY_LIQUE_FUNCTION_DETAIL_HPP
+#define TRIXY_LIQUE_FUNCTION_DETAIL_HPP
 
 #include <cstddef> // size_t
 #include <functional> // mem_fn
@@ -43,6 +43,7 @@ void copy(FwdIt first, FwdIt last, InIt src)
 }
 
 // __EXPERIMENTAL__ maybe unstable
+/*
 template <typename FwdIt, typename InIt>
 void parrallel_copy(FwdIt first, FwdIt last, InIt src)
 {
@@ -72,7 +73,7 @@ void parrallel_copy(FwdIt first, FwdIt last, InIt src)
 
     detail::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
-
+*/
 template <typename FwdIt, typename Generator>
 void fill(FwdIt first, FwdIt last, Generator gen)
 {
@@ -80,6 +81,7 @@ void fill(FwdIt first, FwdIt last, Generator gen)
 }
 
 // __EXPERIMENTAL__ maybe unstable
+/*
 template <typename FwdIt, class Generator>
 void parallel_fill(FwdIt first, FwdIt last, Generator gen)
 {
@@ -107,7 +109,7 @@ void parallel_fill(FwdIt first, FwdIt last, Generator gen)
 
     detail::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 }
-
+*/
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T& value)
 {
@@ -190,4 +192,4 @@ struct mul
 
 } // namespace trixy
 
-#endif // LIQUE_FUNCTION_DETAIL_HPP
+#endif // TRIXY_LIQUE_FUNCTION_DETAIL_HPP

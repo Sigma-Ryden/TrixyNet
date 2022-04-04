@@ -1,9 +1,12 @@
-#ifndef FUNCTIONDETAIL_HPP
-#define FUNCTIONDETAIL_HPP
+#ifndef TRIXY_FUNCTION_DETAIL_HPP
+#define TRIXY_FUNCTION_DETAIL_HPP
 
+#include <cmath> // sqrt
 #include <cstddef> // size_t
 #include <thread> // thread
 #include <tuple> // pair
+
+#include "Trixy/Detail/TrixyMeta.hpp"
 
 namespace trixy
 {
@@ -32,8 +35,26 @@ std::pair<std::size_t, std::size_t> parallel_info(std::size_t size)
     return { number_of_threads, block_size };
 }
 
+template <typename Precision, meta::as_arithmetic_t<Precision> = 0>
+Precision invert_sqrt(Precision x) noexcept
+{
+    return 1. / std::sqrt(1e-9 + x);
+}
+
+template <typename Pointer>
+inline const char* const_byte_cast(Pointer* ptr) noexcept
+{
+    return reinterpret_cast<const char*>(ptr);
+}
+
+template <typename Pointer>
+inline char* byte_cast(Pointer* ptr) noexcept
+{
+    return reinterpret_cast<char*>(ptr);
+}
+
 } // namespace detail
 
 } // namespace trixy
 
-#endif // FUNCTIONDETAIL_HPP
+#endif // TRIXY_FUNCTION_DETAIL_HPP

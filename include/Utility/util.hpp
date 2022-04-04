@@ -7,8 +7,8 @@
 #include <utility> // declval
 #include <chrono> // chrono
 
-#include "Trixy/Lique/LiqueVector.hpp"
-#include "Trixy/Lique/LiqueMatrix.hpp"
+#include "Trixy/Lique/Vector.hpp"
+#include "Trixy/Lique/Matrix.hpp"
 
 namespace util
 {

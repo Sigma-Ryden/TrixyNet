@@ -1,5 +1,5 @@
-#ifndef ICONTAINER_HPP
-#define ICONTAINER_HPP
+#ifndef TRIXY_ICONTAINER_HPP
+#define TRIXY_ICONTAINER_HPP
 
 #include <cstddef> // size_t, ptrdiff_t
 #include <utility> // forward
@@ -133,4 +133,4 @@ public:
 
 } // namespace trixy
 
-#endif // ICONTAINER_HPP
+#endif // TRIXY_ICONTAINER_HPP

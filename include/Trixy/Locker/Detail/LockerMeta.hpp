@@ -1,9 +1,9 @@
-#ifndef LOCKER_META_HPP
-#define LOCKER_META_HPP
+#ifndef TRIXY_LOCKER_META_HPP
+#define TRIXY_LOCKER_META_HPP
 
 #include <type_traits> // enable_if, true_type, false_type
 
-#include "Trixy/Locker/BaseLocker.hpp"
+#include "Trixy/Locker/Base.hpp"
 
 namespace trixy
 {
@@ -19,4 +19,4 @@ struct is_locker<Locker<Lockable, locker_type>> : std::true_type {};
 
 } // namespace trixy
 
-#endif // LOCKER_META_HPP
+#endif // TRIXY_LOCKER_META_HPP

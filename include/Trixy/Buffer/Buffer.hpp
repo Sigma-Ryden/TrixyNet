@@ -1,5 +1,5 @@
-#ifndef BUFFER_HPP
-#define BUFFER_HPP
+#ifndef TRIXY_BUFFER_HPP
+#define TRIXY_BUFFER_HPP
 
 #include <cstring> // memcpy
 #include <cstdint>
@@ -521,4 +521,4 @@ using Buffer = Buff<char>;
 
 #include "Detail/MacroUnscope.hpp"
 
-#endif // BUFFER_HPP
+#endif // TRIXY_BUFFER_HPP

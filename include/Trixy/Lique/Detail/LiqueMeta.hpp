@@ -1,14 +1,14 @@
 // This file contains all extern meta function
 // For safer use, you MUST only include the Base*.hpp file from lib
-#ifndef LIQUE_META_HPP
-#define LIQUE_META_HPP
+#ifndef TRIXY_LIQUE_META_HPP
+#define TRIXY_LIQUE_META_HPP
 
 #include <type_traits> // enable_if, is_same, true_type, false_type
 
 #include "Trixy/Detail/TrixyMeta.hpp"
 
-#include "Trixy/Lique/LiqueBaseTensor.hpp"
-#include "Trixy/Locker/BaseLocker.hpp"
+#include "Trixy/Lique/BaseTensor.hpp"
+#include "Trixy/Locker/Base.hpp"
 
 #include "Trixy/Locker/Detail/LockerMeta.hpp"
 
@@ -74,4 +74,4 @@ using enable_for_tensor_t = typename enable_for_tensor<T>::type;
 
 } // namespace trixy
 
-#endif // LIQUE_META_HPP
+#endif // TRIXY_LIQUE_META_HPP

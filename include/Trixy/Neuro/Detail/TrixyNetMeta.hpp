@@ -5,12 +5,12 @@
 
 #include <type_traits> // true_type, false_type
 
-#include "Trixy/Neuro/Network/BaseTrixyNet.hpp"
-#include "Trixy/Neuro/Regression/BaseRegression.hpp"
-#include "Trixy/Neuro/Functional/Optimizer/BaseOptimizer.hpp"
-#include "Trixy/Neuro/Functional/BaseFunctional.hpp"
-#include "Trixy/Neuro/Training/BaseTraining.hpp"
-#include "Trixy/Neuro/Serialization/BaseSerializer.hpp"
+#include "Trixy/Neuro/Network/Base.hpp"
+#include "Trixy/Neuro/Regression/Base.hpp"
+#include "Trixy/Neuro/Functional/Optimizer/Base.hpp"
+#include "Trixy/Neuro/Functional/Base.hpp"
+#include "Trixy/Neuro/Training/Base.hpp"
+#include "Trixy/Neuro/Serialization/Base.hpp"
 
 #include "Trixy/Neuro/Detail/MacroScope.hpp"
 

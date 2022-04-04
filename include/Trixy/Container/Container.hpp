@@ -1,5 +1,5 @@
-#ifndef CONTAINER_HPP
-#define CONTAINER_HPP
+#ifndef TRIXY_CONTAINER_HPP
+#define TRIXY_CONTAINER_HPP
 
 #include <cstddef> // size_t, ptrdiff_t
 #include <initializer_list> // initializer_list
@@ -336,4 +336,4 @@ void Container<Type>::destroy(pointer beg, pointer end)
 
 } // namespace trixy
 
-#endif // CONTAINER_HPP
+#endif // TRIXY_CONTAINER_HPP
