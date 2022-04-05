@@ -1,7 +1,7 @@
 #ifndef TRIXY_REQUIRE_VECTOR_HPP
 #define TRIXY_REQUIRE_VECTOR_HPP
 
-#include "Base.hpp"
+#include <Trixy/Require/Base.hpp>
 
 namespace trixy
 {

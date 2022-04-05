@@ -4,9 +4,9 @@
 #include <cstddef> // size_t
 #include <cmath> // exp, log, fabs, tanh, cosh
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Detail/MacroScope.hpp"
+#include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -220,6 +220,6 @@ Precision mod_tanh_derived(Precision x) noexcept
 
 } // namespace trixy
 
-#include "Trixy/Detail/MacroUnscope.hpp"
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_FUNCTION_ACTIVATION_LESS_HPP

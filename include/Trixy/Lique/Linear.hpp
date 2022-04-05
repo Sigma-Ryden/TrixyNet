@@ -3,9 +3,9 @@
 
 #include <cstddef> // size_t
 
-#include "Detail/FunctionDetail.hpp"
+#include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
-#include "Detail/LiqueMeta.hpp"
+#include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
 namespace trixy
 {

@@ -1,18 +1,18 @@
 #ifndef TRIXY_NETWORK_REQUIRE_HPP
 #define TRIXY_NETWORK_REQUIRE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Require/Base.hpp>
 
-#include "Trixy/Require/Precision.hpp"
+#include <Trixy/Require/Precision.hpp>
 
-#include "Trixy/Require/Vector.hpp"
-#include "Trixy/Require/Matrix.hpp"
+#include <Trixy/Require/Vector.hpp>
+#include <Trixy/Require/Matrix.hpp>
 
-#include "Trixy/Require/Linear.hpp"
+#include <Trixy/Require/Linear.hpp>
 
-#include "Trixy/Require/Container.hpp"
+#include <Trixy/Require/Container.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -46,6 +46,6 @@ protected:
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NETWORK_REQUIRE_HPP

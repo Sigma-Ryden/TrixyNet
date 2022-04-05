@@ -3,7 +3,7 @@
 
 #include <cstddef> // size_t
 
-#include "Trixy/Lique/Detail/LiqueMeta.hpp"
+#include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
 namespace trixy
 {

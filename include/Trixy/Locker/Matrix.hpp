@@ -3,10 +3,10 @@
 
 #include <utility> // move, forward
 
-#include "Base.hpp"
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Locker/Base.hpp>
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Detail/MacroScope.hpp"
+#include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -78,6 +78,6 @@ public:
 
 } // namespace trixy
 
-#include "Trixy/Detail/MacroUnscope.hpp"
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LOCKER_MATRIX_HPP

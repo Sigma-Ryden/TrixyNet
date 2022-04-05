@@ -1,12 +1,12 @@
 #ifndef TRIXY_OPTIMIZER_MOMENTUM_HPP
 #define TRIXY_OPTIMIZER_MOMENTUM_HPP
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -145,6 +145,6 @@ MomentumOptimizer<Optimizeriable>& MomentumOptimizer<Optimizeriable>::reset() no
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_OPTIMIZER_MOMENTUM_HPP

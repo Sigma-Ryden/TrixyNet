@@ -5,12 +5,12 @@
 #include <cmath> // fabs
 #include <initializer_list> // initializer_list
 
-#include "BaseTensor.hpp"
+#include <Trixy/Lique/BaseTensor.hpp>
 
-#include "Trixy/Detail/TrixyMeta.hpp"
-#include "Detail/FunctionDetail.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
-#include "Detail/MacroScope.hpp"
+#include <Trixy/Lique/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -699,6 +699,6 @@ inline typename Matrix<Precision>::const_pointer Matrix<Precision>::data() const
 
 } // namespace trixy
 
-#include "Detail/MacroUnscope.hpp"
+#include <Trixy/Lique/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_MATRIX_HPP

@@ -1,10 +1,10 @@
-#include "Trixy/Neuro/Core.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
-#include "Trixy/Lique/Core.hpp" // Tensor, Linear
+#include <Trixy/Neuro/Core.hpp> // TrixyNet, Functional, Optimizer, Training, Serializer
+#include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
-#include "Trixy/Container/Container.hpp" // Container
+#include <Trixy/Container/Container.hpp> // Container
 
-#include "Utility/util.hpp" // Timer, max, operator<<
-#include "Utility/mnist_reader.hpp" // read_dataset
+#include <Utility/util.hpp> // Timer, max, operator<<
+#include <Utility/mnist_reader.hpp> // read_dataset
 
 #include <cstdlib> // rand, srand, size_t
 #include <ctime> // time

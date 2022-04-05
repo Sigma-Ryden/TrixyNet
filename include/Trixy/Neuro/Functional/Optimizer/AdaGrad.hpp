@@ -1,13 +1,13 @@
 #ifndef TRIXY_OPTIMIZER_ADA_GRAD_HPP
 #define TRIXY_OPTIMIZER_ADA_GRAD_HPP
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
-#include "Trixy/Detail/FunctionDetail.hpp"
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Detail/FunctionDetail.hpp>
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -144,6 +144,6 @@ AdaGradOptimizer<Optimizeriable>& AdaGradOptimizer<Optimizeriable>::reset() noex
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_OPTIMIZER_ADA_GRAD_HPP

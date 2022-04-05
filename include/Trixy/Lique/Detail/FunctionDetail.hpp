@@ -7,9 +7,9 @@
 #include <thread> // thread
 #include <vector> // vector
 
-#include "Trixy/Detail/FunctionDetail.hpp"
+#include <Trixy/Detail/FunctionDetail.hpp>
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
 namespace trixy
 {

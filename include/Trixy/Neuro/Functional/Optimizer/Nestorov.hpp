@@ -1,12 +1,12 @@
 #ifndef TRIXY_OPTIMIZER_NESTOROV_HPP
 #define TRIXY_OPTIMIZER_NESTOROV_HPP
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -147,6 +147,6 @@ NestorovOptimizer<Optimizeriable>& NestorovOptimizer<Optimizeriable>::reset() no
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_OPTIMIZER_NESTOROV_HPP

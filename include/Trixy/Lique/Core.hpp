@@ -1,13 +1,13 @@
 #ifndef TRIXY_LIQUE_CORE_HPP
 #define TRIXY_LIQUE_CORE_HPP
 
-#include "BaseTensor.hpp"
+#include <Trixy/Lique/BaseTensor.hpp>
 
-#include "Vector.hpp"
-#include "Matrix.hpp"
+#include <Trixy/Lique/Vector.hpp>
+#include <Trixy/Lique/Matrix.hpp>
 
-#include "Linear.hpp"
+#include <Trixy/Lique/Linear.hpp>
 
-#include "Tool.hpp"
+#include <Trixy/Lique/Tool.hpp>
 
 #endif // TRIXY_LIQUE_CORE_HPP

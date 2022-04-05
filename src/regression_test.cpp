@@ -1,7 +1,7 @@
-#include "Trixy/Neuro/Core.hpp" // // Regression, Training, Serializer
-#include "Trixy/Lique/Core.hpp" // Tensor, Linear
+#include <Trixy/Neuro/Core.hpp> // // Regression, Training, Serializer
+#include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
-#include "Utility/util.hpp" // operator<<
+#include <Utility/util.hpp> // operator<<
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed

@@ -3,14 +3,14 @@
 
 #include <cstddef> // size_t
 
-#include "Base.hpp"
-#include "Require.hpp"
+#include <Trixy/Neuro/Regression/Base.hpp>
+#include <Trixy/Neuro/Regression/Require.hpp>
 
-#include "Trixy/Neuro/Training/Base.hpp"
+#include <Trixy/Neuro/Training/Base.hpp>
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -132,6 +132,6 @@ long double TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::loss(
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_REGRESSION_POLYNOMIAL_HPP

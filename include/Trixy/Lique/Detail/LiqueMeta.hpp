@@ -5,12 +5,12 @@
 
 #include <type_traits> // enable_if, is_same, true_type, false_type
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Lique/BaseTensor.hpp"
-#include "Trixy/Locker/Base.hpp"
+#include <Trixy/Lique/BaseTensor.hpp>
+#include <Trixy/Locker/Base.hpp>
 
-#include "Trixy/Locker/Detail/LockerMeta.hpp"
+#include <Trixy/Locker/Detail/LockerMeta.hpp>
 
 namespace trixy
 {

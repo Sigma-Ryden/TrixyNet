@@ -1,13 +1,13 @@
 #ifndef TRIXY_OPTIMIZER_ADAM_HPP
 #define TRIXY_OPTIMIZER_ADAM_HPP
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
-#include "Trixy/Detail/FunctionDetail.hpp"
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Detail/FunctionDetail.hpp>
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -195,6 +195,6 @@ AdamOptimizer<Optimizeriable>& AdamOptimizer<Optimizeriable>::reset() noexcept
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_OPTIMIZER_ADAM_HPP

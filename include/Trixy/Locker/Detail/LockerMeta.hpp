@@ -3,7 +3,7 @@
 
 #include <type_traits> // enable_if, true_type, false_type
 
-#include "Trixy/Locker/Base.hpp"
+#include <Trixy/Locker/Base.hpp>
 
 namespace trixy
 {

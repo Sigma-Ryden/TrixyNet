@@ -3,15 +3,15 @@
 
 #include <utility> // forward
 
-#include "Base.hpp"
-#include "Optimizer/Base.hpp"
+#include <Trixy/Neuro/Functional/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 
-#include "Function/Core.hpp"
-#include "Id.hpp"
+#include <Trixy/Neuro/Functional/Core.hpp>
+#include <Trixy/Neuro/Functional/Id.hpp>
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -78,6 +78,6 @@ public:
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_FUNCTIONAL_FEED_FORWARD_NET_HPP

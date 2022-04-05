@@ -1,10 +1,10 @@
 #ifndef TRIXY_TRAINING_POLYNOMIAL_REGRESSION_HPP
 #define TRIXY_TRAINING_POLYNOMIAL_REGRESSION_HPP
 
-#include "Base.hpp"
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Neuro/Training/Base.hpp>
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -77,5 +77,7 @@ long double TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::loss(
 } // namespace train
 
 } // namespace trixy
+
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_TRAINING_POLYNOMIAL_REGRESSION_HPP

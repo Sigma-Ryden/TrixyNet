@@ -3,7 +3,7 @@
 
 #include <cstddef> // size_t
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
 namespace trixy
 {

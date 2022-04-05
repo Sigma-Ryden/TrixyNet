@@ -1,10 +1,10 @@
 #ifndef TRIXY_FUNCTIONAL_CORE_HPP
 #define TRIXY_FUNCTIONAL_CORE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Functional/Base.hpp>
 
-#include "Id.hpp"
+#include <Trixy/Neuro/Functional/Id.hpp>
 
-#include "FeedForwardNet.hpp"
+#include <Trixy/Neuro/Functional/FeedForwardNet.hpp>
 
 #endif // TRIXY_FUNCTIONAL_CORE_HPP

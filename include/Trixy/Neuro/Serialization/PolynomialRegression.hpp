@@ -1,16 +1,16 @@
-#ifndef TRIXY_SERIALIZER_POLYNOMIAL_REGRESSION_HPP
-#define TRIXY_SERIALIZER_POLYNOMIAL_REGRESSION_HPP
+#ifndef TRIXY_SERIALIZATION_POLYNOMIAL_REGRESSION_HPP
+#define TRIXY_SERIALIZATION_POLYNOMIAL_REGRESSION_HPP
 
 #include <fstream> // ifstream, ofstream
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Serialization/Base.hpp>
 
-#include "Trixy/Buffer/Buffer.hpp"
+#include <Trixy/Buffer/Buffer.hpp>
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
-#include "Trixy/Detail/FunctionDetail.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
+#include <Trixy/Detail/FunctionDetail.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -144,6 +144,6 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserializeData(
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
-#endif // TRIXY_SERIALIZER_POLYNOMIAL_REGRESSION_HPP
+#endif // TRIXY_SERIALIZATION_POLYNOMIAL_REGRESSION_HPP

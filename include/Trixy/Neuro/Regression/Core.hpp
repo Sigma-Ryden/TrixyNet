@@ -1,9 +1,9 @@
 #ifndef TRIXY_REGRESSION_CORE_HPP
 #define TRIXY_REGRESSION_CORE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Regression/Base.hpp>
 
-#include "Linear.hpp"
-#include "Polynomial.hpp"
+#include <Trixy/Neuro/Regression/Linear.hpp>
+#include <Trixy/Neuro/Regression/Polynomial.hpp>
 
 #endif // TRIXY_REGRESSION_CORE_HPP

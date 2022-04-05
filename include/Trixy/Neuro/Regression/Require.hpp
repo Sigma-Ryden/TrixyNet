@@ -1,16 +1,16 @@
 #ifndef TRIXY_REGRESSION_REQUIRE_HPP
 #define TRIXY_REGRESSION_REQUIRE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Regression/Base.hpp>
 
-#include "Trixy/Require/Precision.hpp"
+#include <Trixy/Require/Precision.hpp>
 
-#include "Trixy/Require/Vector.hpp"
-#include "Trixy/Require/Matrix.hpp"
+#include <Trixy/Require/Vector.hpp>
+#include <Trixy/Require/Matrix.hpp>
 
-#include "Trixy/Require/Linear.hpp"
+#include <Trixy/Require/Linear.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -63,6 +63,6 @@ protected:
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_REGRESSION_REQUIRE_HPP

@@ -6,7 +6,7 @@
 #include <thread> // thread
 #include <tuple> // pair
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
 namespace trixy
 {

@@ -1,5 +1,5 @@
-#ifndef TRIXY_SERIALIZER_BASE_HPP
-#define TRIXY_SERIALIZER_BASE_HPP
+#ifndef TRIXY_SERIALIZATION_BASE_HPP
+#define TRIXY_SERIALIZATION_BASE_HPP
 
 namespace trixy
 {
@@ -9,4 +9,4 @@ class Serializer;
 
 } // namespace trixy
 
-#endif // TRIXY_SERIALIZER_BASE_HPP
+#endif // TRIXY_SERIALIZATION_BASE_HPP

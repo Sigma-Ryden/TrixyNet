@@ -4,10 +4,10 @@
 #include <cstddef> // size_t
 #include <cmath> // exp
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
-#include "ActivationLess.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
+#include <Trixy/Neuro/Functional/Function/ActivationLess.hpp>
 
-#include "Trixy/Detail/MacroScope.hpp"
+#include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -128,6 +128,6 @@ ActivationFunction get_activation_function(ActivationId id)
 
 } // namespace trixy
 
-#include "Trixy/Detail/MacroUnscope.hpp"
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_FUNCTION_ACTIVATION_HPP

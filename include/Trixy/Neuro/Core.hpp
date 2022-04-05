@@ -1,16 +1,16 @@
 #ifndef TRIXY_NEURO_CORE_HPP
 #define TRIXY_NEURO_CORE_HPP
 
-#include "Network/Core.hpp"
-#include "Regression/Core.hpp"
+#include <Trixy/Neuro/Network/Core.hpp>
+#include <Trixy/Neuro/Regression/Core.hpp>
 
-#include "Training/Core.hpp"
+#include <Trixy/Neuro/Training/Core.hpp>
 
-#include "Functional/Function/Core.hpp"
-#include "Functional/Optimizer/Core.hpp"
+#include <Trixy/Neuro/Functional/Function/Core.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Core.hpp>
 
-#include "Functional/Core.hpp"
+#include <Trixy/Neuro/Functional/Core.hpp>
 
-#include "Serialization/Core.hpp"
+#include <Trixy/Neuro/Serialization/Core.hpp>
 
 #endif // TRIXY_NEURO_CORE_HPP

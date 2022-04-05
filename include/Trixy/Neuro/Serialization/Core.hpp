@@ -1,11 +1,11 @@
-#ifndef TRIXY_SERIALIZER_CORE_HPP
-#define TRIXY_SERIALIZER_CORE_HPP
+#ifndef TRIXY_SERIALIZATION_CORE_HPP
+#define TRIXY_SERIALIZATION_CORE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Serialization/Base.hpp>
 
-#include "FeedForwardNet.hpp"
+#include <Trixy/Neuro/Serialization/FeedForwardNet.hpp>
 
-#include "LinearRegression.hpp"
-#include "PolynomialRegression.hpp"
+#include <Trixy/Neuro/Serialization/LinearRegression.hpp>
+#include <Trixy/Neuro/Serialization/PolynomialRegression.hpp>
 
-#endif // TRIXY_SERIALIZER_CORE_HPP
+#endif // TRIXY_SERIALIZATION_CORE_HPP

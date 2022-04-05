@@ -1,8 +1,8 @@
-#include "Trixy/Neuro/Core.hpp" // TrixyNet, Functional, Optimizer, Training, Serializer
-#include "Trixy/Lique/Core.hpp" // Tensor, Linear
+#include <Trixy/Neuro/Core.hpp> // TrixyNet, Functional, Optimizer, Training, Serializer
+#include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
-#include "Trixy/Container/Container.hpp" // Container
-#include "Utility/util.hpp" // Timer, test_neuro, check_neuro
+#include <Trixy/Container/Container.hpp> // Container
+#include <Utility/util.hpp> // Timer, test_neuro, check_neuro
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed

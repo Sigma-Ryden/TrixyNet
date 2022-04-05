@@ -3,10 +3,10 @@
 
 #include <cstddef> // size_t
 
-#include "Base.hpp"
-#include "Trixy/Lique/BaseTensor.hpp"
+#include <Trixy/Lique/BaseTensor.hpp>
+#include <Trixy/ILique/Base.hpp>
 
-#include "Detail/MacroScope.hpp"
+#include <Trixy/ILique/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -69,6 +69,6 @@ public:
 
 } // namespace trixy
 
-#include "Detail/MacroUnscope.hpp"
+#include <Trixy/ILique/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_ILIQUE_VECTOR_HPP

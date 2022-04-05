@@ -1,11 +1,11 @@
 #ifndef TRIXY_TRAINING_CORE_HPP
 #define TRIXY_TRAINING_CORE_HPP
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Training/Base.hpp>
 
-#include "FeedForwardNet.hpp"
+#include <Trixy/Neuro/Training/FeedForwardNet.hpp>
 
-#include "LinearRegression.hpp"
-#include "PolynomialRegression.hpp"
+#include <Trixy/Neuro/Training/LinearRegression.hpp>
+#include <Trixy/Neuro/Training/PolynomialRegression.hpp>
 
 #endif // TRIXY_TRAINING_CORE_HPP

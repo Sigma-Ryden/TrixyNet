@@ -3,13 +3,13 @@
 
 #include <cmath> // fabs
 
-#include "Base.hpp"
+#include <Trixy/Neuro/Training/Base.hpp>
 
-#include "Trixy/Neuro/Functional/Optimizer/Base.hpp"
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 
-#include "Trixy/Neuro/Detail/TrixyNetMeta.hpp"
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -482,6 +482,6 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_TRAINING_FEED_FORWARD_NET_HPP

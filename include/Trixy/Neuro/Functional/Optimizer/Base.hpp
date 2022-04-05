@@ -1,10 +1,10 @@
 #ifndef TRIXY_OPTIMIZER_BASE_HPP
 #define TRIXY_OPTIMIZER_BASE_HPP
 
-#include "Trixy/Detail/TrixyMeta.hpp"
-#include "Trixy/Neuro/Functional/Id.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Neuro/Functional/Id.hpp>
 
-#include "Trixy/Detail/MacroScope.hpp"
+#include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -52,6 +52,6 @@ public:
 
 } // namespace trixy
 
-#include "Trixy/Detail/MacroUnscope.hpp"
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_OPTIMIZER_BASE_HPP

@@ -4,19 +4,19 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
-#include "Base.hpp"
-#include "Require.hpp"
+#include <Trixy/Neuro/Network/Base.hpp>
+#include <Trixy/Neuro/Network/Require.hpp>
 
-#include "Trixy/Neuro/Training/Base.hpp"
-#include "Trixy/Neuro/Functional/Id.hpp"
+#include <Trixy/Neuro/Training/Base.hpp>
+#include <Trixy/Neuro/Functional/Id.hpp>
 
-#include "Trixy/Locker/Vector.hpp"
-#include "Trixy/Locker/Matrix.hpp"
-#include "Trixy/Locker/Container.hpp"
+#include <Trixy/Locker/Vector.hpp>
+#include <Trixy/Locker/Matrix.hpp>
+#include <Trixy/Locker/Container.hpp>
 
-#include "Trixy/Detail/TrixyMeta.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Neuro/Detail/MacroScope.hpp"
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -457,6 +457,6 @@ bool TRIXY_NET_TPL(TrixyNetType::FeedForward)::check(
 
 } // namespace trixy
 
-#include "Trixy/Neuro/Detail/MacroUnscope.hpp"
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NETWORK_FEED_FORWARD_NET_HPP

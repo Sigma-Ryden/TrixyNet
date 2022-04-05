@@ -5,15 +5,15 @@
 #include <random> // rand
 #include <utility> // forward
 
-#include "Vector.hpp"
-#include "Matrix.hpp"
+#include <Trixy/Lique/Vector.hpp>
+#include <Trixy/Lique/Matrix.hpp>
 
-#include "Trixy/Detail/TrixyMeta.hpp"
-#include "Trixy/Lique/Detail/LiqueMeta.hpp"
+#include <Trixy/Lique/Detail/LiqueMeta.hpp>
+#include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
-#include "Detail/FunctionDetail.hpp"
+#include <Trixy/Detail/TrixyMeta.hpp>
 
-#include "Trixy/Detail/MacroScope.hpp"
+#include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -470,6 +470,6 @@ std::size_t multinomial(const Tensor& tensor) noexcept
 
 } // namespace trixy
 
-#include "Trixy/Detail/MacroUnscope.hpp"
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_TOOL_HPP
