@@ -1,16 +1,11 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
-#define TRIXY_HAS_TYPE_HELPER(type)                                                                     \
-    template <typename T> struct has_##type {                                                           \
-    private:                                                                                            \
-        template <typename U, typename = typename U::type>                                              \
-        static int detect(U &&);                                                                        \
-        static void detect(...);                                                                        \
-    public:                                                                                             \
-        static constexpr bool value =                                                                   \
-            std::is_integral<decltype(detect(std::declval<T>()))>::value;                               \
-    }
+#define TRIXY_HAS_TYPE_HELPER(name)                                                                     \
+    template <typename T, typename = std::void_t<>>                                                     \
+    struct has_##name : std::false_type {};								\
+    template <typename T>                                                                               \
+    struct has_##_name<T, std::void_t<typename T::name>> : std::true_type {}
 
 #define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
     template <class T, typename Ret = void, typename... Args>                                           \

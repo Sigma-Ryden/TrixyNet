@@ -7,6 +7,7 @@
 // uint8_t, uint16_t, uint32_t, uint64_t
 
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Detail/FunctionDetail.hpp>
 
 #include <Trixy/Buffer/Detail/MacroScope.hpp>
 
@@ -270,7 +271,7 @@ void Buff<T>::write(InData first, InData last, bool is_mutable) noexcept
 
     if(type_id == SupportTypeId::null) return;
 
-    if(sizeof(Data) * (first - last) > size_)
+    if(sizeof(Data) * (last - first) > size_)
     {
         if(is_mutable) resize(sizeof(Data) * (last - first));
         else return;
@@ -486,7 +487,7 @@ void Buff<T>::read_buff(OutData first, OutData last)
     auto it = data_;
     while(first != last)
     {
-        *first = static_cast<Data>(*reinterpret_cast<DataCastType*>(it));
+        *first = detail::try_cast<Data>(*reinterpret_cast<DataCastType*>(it));
         it += offset_;
         ++first;
     }

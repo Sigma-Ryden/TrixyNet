@@ -52,6 +52,12 @@ public:
     template <int I> using type = typename as_impl<I>::type;
 };
 
+template <typename T, typename = std::void_t<>>
+struct has_type : std::false_type {};
+
+template <typename T>
+struct has_type<T, std::void_t<typename T::type>> : std::true_type {};
+
 template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
 template <class B1, class... Bn>
