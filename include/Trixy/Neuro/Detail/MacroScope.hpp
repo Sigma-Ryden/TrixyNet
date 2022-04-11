@@ -22,14 +22,14 @@
 
 #define TRIXY_SERIALIZER_TPL(is_type)                                                                   \
     Serializer<Serializable,                                                                            \
-        typename std::enable_if<is_type<Serializable>::value>::type>
+        ::trixy::meta::when<is_type<Serializable>::value>>
 
 #define TRIXY_FUNCTIONAL_TPL_DECLARATION                                                                \
     template <typename Functionable>
 
 #define TRIXY_FUNCTIONAL_TPL(is_type...)                                                                \
     Functional<Functionable,                                                                            \
-        typename std::enable_if<::trixy::meta::has_true<Functionable, is_type>::value>::type>
+        ::trixy::meta::when<::trixy::meta::has_true<Functionable, is_type>::value>>
 
 #define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
     template <class Optimizeriable>
@@ -37,14 +37,14 @@
 #define TRIXY_OPTIMIZER_TPL(is_type, optimizer_type)                                                    \
     Optimizer<Optimizeriable,                                                                           \
         optimizer_type,                                                                                 \
-        typename std::enable_if<is_type<Optimizeriable>::value>::type>
+        ::trixy::meta::when<is_type<Optimizeriable>::value>>
 
 #define TRIXY_TRAINING_TPL_DECLARATION                                                                  \
     template <class Trainable>
 
 #define TRIXY_TRAINING_TPL(is_type)                                                                     \
     Training<Trainable,                                                                                 \
-        typename std::enable_if<is_type<Trainable>::value>::type>
+        ::trixy::meta::when<is_type<Trainable>::value>>
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
     template <template <typename P, typename...> class VectorType,                                      \

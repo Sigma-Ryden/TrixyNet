@@ -44,19 +44,19 @@ template <class T>
 inline T sum(T&& t) noexcept { return t; }
 
 template <class T, class... Tn,
-          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
+          trixy::meta::as<trixy::meta::is_same_all<T, Tn...>::value> = 0>
 inline T sum(T&& t, Tn&&... tn)
 {
     return t + sum(std::forward<T>(tn)...);
 }
 
-template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
 inline auto first(Tensor& tensor) -> decltype(tensor.data())
 {
     return tensor.data();
 }
 
-template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
 inline auto last(Tensor& tensor) -> decltype(tensor.data() + tensor.size())
 {
     return tensor.data() + tensor.size();
@@ -91,17 +91,17 @@ FwdIt search(FwdIt first, FwdIt last, Binary compare) noexcept
 }
 
 template <class Tensor, class Binary,
-          lique::meta::as_tensor_t<Tensor> = 0>
+          lique::meta::as_tensor<Tensor> = 0>
 std::size_t search(const Tensor& tensor, Binary compare) noexcept
 {
     return search(first(tensor), last(tensor), compare) - first(tensor);
 }
 
-template <typename Precision, class Binary,
-          typename size_type = typename Matrix<Precision>::size_type,
-          trixy::meta::as_arithmetic_t<Precision> = 0>
+template <typename Precision, class Binary>
 Vector<std::size_t> search(const Matrix<Precision>& matrix, Axis axis, Binary compare) // repair
 {
+    using size_type = std::size_t;
+
     const size_type block_size = matrix.dim().col();
     const size_type number_of_blocks = matrix.dim().row();
 
@@ -140,7 +140,7 @@ std::size_t argmin(FwdIt first, FwdIt last) noexcept
     return search(first, last, comp::is_bigger{}) - first;
 }
 
-template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
 std::size_t argmin(const Tensor& tensor) noexcept
 {
     return search(tensor, comp::is_bigger{});
@@ -152,7 +152,7 @@ std::size_t argmax(FwdIt first, FwdIt last) noexcept
     return search(first, last, comp::is_less{}) - first;
 }
 
-template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
 std::size_t argmax(const Tensor& tensor) noexcept
 {
     return search(tensor, comp::is_less{});
@@ -177,7 +177,7 @@ auto min(FwdIt first, FwdIt last) noexcept -> decltype(*search(first, last, comp
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
-          lique::meta::as_tensor_t<Tensor> = 0>
+          lique::meta::as_tensor<Tensor> = 0>
 precision_type min(const Tensor& tensor) noexcept
 {
     return tensor(search(tensor, comp::is_bigger{}));
@@ -190,7 +190,7 @@ auto max(FwdIt first, FwdIt last) noexcept -> decltype(*search(first, last, comp
 }
 
 template <class Tensor, typename precision_type = typename Tensor::precision_type,
-          lique::meta::as_tensor_t<Tensor> = 0>
+          lique::meta::as_tensor<Tensor> = 0>
 precision_type max(const Tensor& tensor) noexcept
 {
     return tensor(search(tensor, comp::is_less{}));
@@ -204,7 +204,7 @@ T mean(InIt first, InIt last, T init) noexcept
     return init / static_cast<T>(last - first);
 }
 
-template <class Tensor, typename T = double, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, typename T = double, lique::meta::as_tensor<Tensor> = 0>
 T mean(const Tensor& tensor) noexcept
 {
     return mean(first(tensor), last(tensor), T{});
@@ -232,7 +232,7 @@ T std(InIt first, InIt last, T init, bool unbiased = false)
 }
 
 template <class Tensor, typename T = double,
-          lique::meta::as_tensor_t<Tensor> = 0>
+          lique::meta::as_tensor<Tensor> = 0>
 T std(const Tensor& tensor, bool unbiased = false)
 {
     return std(first(tensor), last(tensor), T{}, unbiased);
@@ -357,7 +357,7 @@ Vector<double> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = f
 using detail::for_each;
 
 template <class Tensor, class Function,
-          typename = lique::meta::enable_for_tensor_t<Tensor>>
+          typename = lique::meta::when_is_tensor<Tensor>>
 void for_each(Tensor& tensor, Function func) noexcept
 {
     detail::for_each(first(tensor), last(tensor), func);
@@ -366,14 +366,14 @@ void for_each(Tensor& tensor, Function func) noexcept
 namespace detail
 {
 
-template <class T, lique::meta::as_tensor_t<T> = 0>
+template <class T, lique::meta::as_tensor<T> = 0>
 void concat(T& out, std::size_t& at, const T& tensor)
 {
     detail::copy(out.data() + at, out.data() + at + tensor.size(), tensor.data());
 }
 
 template <class T, class... Tn,
-          lique::meta::as_tensor_t<T> = 0,
+          lique::meta::as_tensor<T> = 0,
           trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
 void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 {
@@ -386,7 +386,7 @@ void concat(T& out, std::size_t& at, const T& tensor, const Tn&... tensor_n)
 } // namespace detail
 
 template <class Tensor, template <typename...> class Container,
-          lique::meta::as_tensor_t<Tensor> = 0>
+          lique::meta::as_tensor<Tensor> = 0>
 Tensor concat(const Container<Tensor>& list)
 {
     using size_type = typename Tensor::size_type;
@@ -408,8 +408,8 @@ Tensor concat(const Container<Tensor>& list)
 }
 
 template <class T, class... Tn,
-          lique::meta::as_tensor_t<T> = 0,
-          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
+          lique::meta::as_tensor<T> = 0,
+          trixy::meta::as<trixy::meta::is_same_all<T, Tn...>::value> = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
     using size_type = typename T::size_type;
@@ -448,7 +448,7 @@ std::size_t multinomial(FwdIt first, FwdIt last, Generator generator, std::size_
     return std::size_t(search(first, last, comp::is_less{}) - first);
 }
 
-template <class Tensor, class Generator, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, class Generator, lique::meta::as_tensor<Tensor> = 0>
 std::size_t multinomial(const Tensor& tensor, Generator generator, std::size_t rand_max) noexcept
 {
     return multinomial(first(tensor), last(tensor), generator, rand_max);
@@ -460,7 +460,7 @@ std::size_t multinomial(FwdIt first, FwdIt last) noexcept
     return multinomial(first, last, std::rand, RAND_MAX);
 }
 
-template <class Tensor, lique::meta::as_tensor_t<Tensor> = 0>
+template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
 std::size_t multinomial(const Tensor& tensor) noexcept
 {
     return multinomial(tensor, std::rand, RAND_MAX);

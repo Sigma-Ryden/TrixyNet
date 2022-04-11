@@ -45,7 +45,7 @@ public:
 
     Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    template <class Generator, trixy::meta::as_callable_t<Generator> = 0>
+    template <class Generator, trixy::meta::as<meta::is_callable<Generator>::value> = 0>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
 
     size_type size() const noexcept { return self().size(); }

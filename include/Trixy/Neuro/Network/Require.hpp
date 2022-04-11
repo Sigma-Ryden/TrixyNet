@@ -1,6 +1,8 @@
 #ifndef TRIXY_NETWORK_REQUIRE_HPP
 #define TRIXY_NETWORK_REQUIRE_HPP
 
+#include <Trixy/Neuro/Network/Base.hpp>
+
 #include <Trixy/Require/Base.hpp>
 
 #include <Trixy/Require/Precision.hpp>

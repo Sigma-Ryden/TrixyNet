@@ -67,7 +67,8 @@ public:
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
 
-    template <class Generator, trixy::meta::as_callable_t<Generator> = 0>
+    template <class Generator,
+              meta::as<meta::is_callable<Generator>::value> = 0>
     Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
@@ -269,7 +270,7 @@ inline typename Vector<Precision>::const_reference
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-template <class Generator, trixy::meta::as_callable_t<Generator>>
+template <class Generator, meta::as<meta::is_callable<Generator>::value>>
 Vector<Precision>& Vector<Precision>::fill(Generator gen) noexcept
 {
     detail::fill(data_, data_ + size_, gen);

@@ -385,7 +385,7 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     Operations:
     . - dot
     Processing:
-    buff = H' . W + B, H' - previous
+    buff = H' . W + B, where H' - previous
     H = activation(buff)
     */
     linear.dot(buff[0], sample, inner.W[0]);

@@ -10,6 +10,12 @@ namespace trixy
 namespace meta
 {
 
+template <bool condition>
+using when = typename std::enable_if<condition, void>::type;
+
+template <bool condition>
+using as = typename std::enable_if<condition, int>::type;
+
 template <bool condition, typename T = void>
 using enable_if_t = typename std::enable_if<condition, T>::type;
 
@@ -28,10 +34,7 @@ template <typename...> struct scope;
 template <> struct scope<>
 {
 private:
-    template <int I> struct as_impl
-    {
-        using type = void;
-    };
+    template <int I> struct as_impl { using type = void; };
 };
 
 template <typename T, typename... Tn>
@@ -99,20 +102,11 @@ public:
     static constexpr bool value = decltype(check<F>(nullptr))::value;
 };
 
-template <class F, typename... Args>
-struct as_callable : std::enable_if<is_callable<F, Args...>::value, int> {};
-
-template <class F, typename... Args>
-using as_callable_t = typename as_callable<F, Args...>::type;
-
 template <class T, class... Tn>
 struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
 
-template <typename T> struct enable_for_arithmetic : std::enable_if<std::is_arithmetic<T>::value> {};
-template <typename T> using enable_for_arithmetic_t = typename enable_for_arithmetic<T>::type;
-
-template <typename T> struct as_arithmetic : std::enable_if<std::is_arithmetic<T>::value, int> {};
-template <typename T> using as_arithmetic_t = typename as_arithmetic<T>::type;
+template <typename It>
+using source = typename std::decay<decltype(*std::declval<It>())>::type;
 
 } // namespace meta
 

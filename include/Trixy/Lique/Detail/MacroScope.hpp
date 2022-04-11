@@ -6,4 +6,4 @@
 
 #define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
     Tensor<Precision, tensor_type,                                                                      \
-           ::trixy::meta::enable_for_arithmetic_t<Precision>>
+           ::trixy::meta::when<std::is_arithmetic<Precision>::value>>

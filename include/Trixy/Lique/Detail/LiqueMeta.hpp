@@ -44,29 +44,23 @@ struct is_tensor : trixy::meta::disjunction<
     std::is_same<typename Tensor::type, TensorType::vector>,
     std::is_same<typename Tensor::type, TensorType::matrix>> {};
 
-template <typename T> struct as_vector : std::enable_if<is_vector<T>::value, int> {};
 template <typename T>
-using as_vector_t = typename as_vector<T>::type;
+using as_vector = trixy::meta::as<is_vector<T>::value>;
 
-template <typename T> struct as_matrix : std::enable_if<is_matrix<T>::value, int> {};
 template <typename T>
-using as_matrix_t = typename as_matrix<T>::type;
+using as_matrix = trixy::meta::as<is_matrix<T>::value>;
 
-template <typename T> struct as_tensor : std::enable_if<is_tensor<T>::value, int> {};
 template <typename T>
-using as_tensor_t = typename as_tensor<T>::type;
+using as_tensor = trixy::meta::as<is_tensor<T>::value>;
 
-template <typename T> struct enable_for_vector : std::enable_if<is_vector<T>::value> {};
 template <typename T>
-using enable_for_vector_t = typename enable_for_vector<T>::type;
+using when_is_vector = trixy::meta::when<is_vector<T>::value>;
 
-template <typename T> struct enable_for_matrix : std::enable_if<is_matrix<T>::value> {};
 template <typename T>
-using enable_for_matrix_t = typename enable_for_matrix<T>::type;
+using when_is_matrix = trixy::meta::when<is_matrix<T>::value>;
 
-template <typename T> struct enable_for_tensor : std::enable_if<is_tensor<T>::value> {};
 template <typename T>
-using enable_for_tensor_t = typename enable_for_tensor<T>::type;
+using when_is_tensor = trixy::meta::when<is_tensor<T>::value>;
 
 } // namespace meta
 

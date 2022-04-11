@@ -7,7 +7,6 @@
 // uint8_t, uint16_t, uint32_t, uint64_t
 
 #include <Trixy/Detail/TrixyMeta.hpp>
-#include <Trixy/Detail/FunctionDetail.hpp>
 
 #include <Trixy/Buffer/Detail/MacroScope.hpp>
 
@@ -101,8 +100,13 @@ public:
     void write(InData idata, memory_size n, bool is_mutable = true) noexcept;
 
 private:
-    template <typename DataCastType, typename OutData>
+    template <typename CastType, typename OutData,
+    meta::as<std::is_convertible<meta::source<OutData>, CastType>::value> = 0>
     void read_buff(OutData first, OutData last);
+
+    template <typename CastType, typename OutData,
+    meta::as<not std::is_convertible<meta::source<OutData>, CastType>::value> = 0>
+    void read_buff(OutData first, OutData last) {}
 
     template <typename DetectionDataType>
     SupportTypeId detect_data_type_id();
@@ -479,15 +483,16 @@ void Buff<T>::set(size_type offset) noexcept
 }
 
 template <typename T>
-template <typename DataCastType, typename OutData>
+template <typename CastType, typename OutData,
+meta::as<std::is_convertible<meta::source<OutData>, CastType>::value>>
 void Buff<T>::read_buff(OutData first, OutData last)
 {
-    using Data = typename std::decay<decltype(*first)>::type;
+    using Data = meta::source<OutData>;
 
     auto it = data_;
     while(first != last)
     {
-        *first = detail::try_cast<Data>(*reinterpret_cast<DataCastType*>(it));
+        *first = static_cast<Data>(*reinterpret_cast<CastType*>(it));
         it += offset_;
         ++first;
     }

@@ -36,20 +36,20 @@ std::pair<std::size_t, std::size_t> parallel_info(std::size_t size)
 }
 
 template <typename To, typename Alt = To, typename From,
-          meta::enable_if_t<std::is_convertible<From, To>::value, int> = 0>
+          meta::as<std::is_convertible<From, To>::value> = 0>
 constexpr To try_cast(From&& from)
 {
     return static_cast<To>(std::forward<From>(from));
 }
 
 template <typename To, typename Alt = To, typename From,
-          meta::enable_if_t<not std::is_convertible<From, To>::value, int> = 0>
+          meta::as<not std::is_convertible<From, To>::value> = 0>
 constexpr Alt try_cast(From&& /*unused*/)
 {
     return {};
 }
 
-template <typename Precision, meta::as_arithmetic_t<Precision> = 0>
+template <typename Precision, meta::as<std::is_arithmetic<Precision>::value> = 0>
 Precision invert_sqrt(Precision x) noexcept
 {
     return 1. / std::sqrt(1e-9 + x);
