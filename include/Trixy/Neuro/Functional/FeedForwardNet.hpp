@@ -6,7 +6,7 @@
 #include <Trixy/Neuro/Functional/Base.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 
-#include <Trixy/Neuro/Functional/Core.hpp>
+#include <Trixy/Neuro/Functional/Function/Core.hpp>
 #include <Trixy/Neuro/Functional/Id.hpp>
 
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>

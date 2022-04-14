@@ -190,7 +190,7 @@ Precision mod_relu(Precision x) noexcept
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision mod_relu_derived(Precision x) noexcept
 {
-    if (x < 0. || x > 1.) return 0.01;
+    if (x < 0. or x > 1.) return 0.01;
     else return 1.;
 }
 

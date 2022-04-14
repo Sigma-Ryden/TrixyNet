@@ -52,7 +52,7 @@ typename Net::template Container<typename Net::Vector> get_speed_test_odata()
 void speed_test_deserialization()
 {
     std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
-    if(!in.is_open()) return;
+    if (not in.is_open()) return;
 
     auto idata = get_speed_test_idata<TrixyNet>();
     auto odata = get_speed_test_odata<TrixyNet>();
@@ -84,9 +84,9 @@ void speed_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
+    constexpr int range = 1000;
     net.initInnerStruct([]
     {
-        constexpr int range = 1000;
         return float(std::rand() % (2 * range + 1) - range) / float(range);
     });
 
@@ -113,7 +113,7 @@ void speed_test()
     util::check_neuro(net, idata, odata);
 
     std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
-    if(!out.is_open()) return;
+    if (not out.is_open()) return;
 
     TrixyNetSerializer sr;
     sr.serialize(out, net);

@@ -92,7 +92,7 @@ void polynomial_regression_test_deserialization()
     using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
 
     std::ifstream in("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-    if(!in.is_open()) return;
+    if (not in.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
     sr.deserialize(in);
@@ -129,7 +129,7 @@ void polynomial_regression_test()
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-    if(!out.is_open()) return;
+    if (not out.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
 
@@ -146,7 +146,7 @@ void linear_regression_test_deserialization()
     using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, float>;
 
     std::ifstream in("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-    if(!in.is_open()) return;
+    if (not in.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
     sr.deserialize(in);
@@ -184,7 +184,7 @@ void linear_regression_test()
     std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
 
     std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-    if(!out.is_open()) return;
+    if (not out.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
 

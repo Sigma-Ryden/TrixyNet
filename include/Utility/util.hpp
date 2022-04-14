@@ -38,7 +38,7 @@ public:
 };
 
 template <template <typename...> class Collection>
-void network_size(const Collection<std::size_t>& topology)
+void network_size(const Collection<std::size_t>& topology) // deprecated & repair
 {
     std::size_t count = 0;
     for(std::size_t i = 1; i < topology.size(); ++i)
@@ -110,16 +110,6 @@ void check_neuro(
 {
     std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
               << "\nNetwork train Loss: "            << network.loss(idata, odata) << '\n';
-}
-
-template <class Net>
-void show_inner_struct(const Net& net)
-{
-    for(std::size_t i = 0; i < net.getInnerWeight().size(); ++i)
-        std::cout << "W[" << i << "]: " << net.getInnerWeight()[i].base() << '\n';
-
-    for(std::size_t i = 0; i < net.getInnerBias().size(); ++i)
-        std::cout << "B[" << i << "]: " << net.getInnerBias()[i].base() << '\n';
 }
 
 } // namespace util

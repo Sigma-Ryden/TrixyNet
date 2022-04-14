@@ -111,15 +111,15 @@ void mnist_test_deserialization()
     size_type out_size   = 10;
 
     // Train batch initialize:
-    auto train_in  = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_out = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_idata = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_in  = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_out = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_idata = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
-    if(!in.is_open()) return;
+    if (not in.is_open()) return;
 
     // NeuralNetwork preparing:
     TrixyNetSerializer sr;
@@ -134,18 +134,18 @@ void mnist_test_deserialization()
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
     //
-    std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_in, train_out)
-              << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_in, train_out) << '\n'
-              << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_in, test_out)
-              << "\nNEURO TEST_SET LOSS: " << net.loss(test_in, test_out) << '\n';
+    std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_idata, train_odata)
+              << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_idata, train_odata) << '\n'
+              << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_idata, test_odata)
+              << "\nNEURO TEST_SET LOSS: " << net.loss(test_idata, test_odata) << '\n';
     //
     //
     std::cout << "TESTING TRAIN_SET\n";
-    test_image_batch(net, train_in, train_out);
+    test_image_batch(net, train_idata, train_odata);
     //
     //
     std::cout << "TESTING TEST_SET\n";
-    test_image_batch(net, test_in, test_out);
+    test_image_batch(net, test_idata, test_odata);
     //
 }
 
@@ -160,12 +160,12 @@ void mnist_test()
     size_type out_size   = 10;
 
     // Train batch initialize:
-    auto train_in  = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_out = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_idata = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_in  = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_out = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_idata = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);
@@ -188,33 +188,32 @@ void mnist_test()
 
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
-    std::cout << std::fixed << std::setprecision(6);
     // Train network:
     util::Timer t;
     //
     size_type times = 10;
-    for(size_type i = 1; i <= times; ++i)
+    for (size_type i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
         //teach.trainBatch(train_in, train_out, 10, optimizer);
         //teach.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
-        teach.trainMiniBatch(train_in, train_out, 1, 40, optimizer);
-        std::cout << "Accuracy: " << net.accuracy(train_in, train_out) << '\n';
+        teach.trainMiniBatch(train_idata, train_odata, 1, 40, optimizer);
+        std::cout << "Accuracy: " << net.accuracy(train_idata, train_odata) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
     t.reset();
 
     // Test train_batch after train
     std::cout
-        << "Network train set loss: " << net.loss(train_in, train_out) << '\n'
-        << "Network tarin set normal accuracy: " << net.accuracy(train_in, train_out) << '\n'
+        << "Network train set loss: " << net.loss(train_idata, train_odata) << '\n'
+        << "Network tarin set normal accuracy: " << net.accuracy(train_idata, train_odata) << '\n'
     // Test test_batch after train
-        << "Network test set loss: " << net.loss(test_in, test_out) << '\n'
-        << "Network test set normal accuracy: " << net.accuracy(test_in, test_out) << '\n'
+        << "Network test set loss: " << net.loss(test_idata, test_odata) << '\n'
+        << "Network test set normal accuracy: " << net.accuracy(test_idata, test_odata) << '\n'
         << "Check time: " << t.elapsed() << '\n';
 
     std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);
-    if(!out.is_open()) return;
+    if (not out.is_open()) return;
 
     TrixyNetSerializer sr;
     sr.serialize(out, net);

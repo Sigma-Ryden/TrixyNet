@@ -12,6 +12,16 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
+using namespace tr::functional;
+
+using Precision = double;
+
+using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
+
+using TrixyNetFunctional = tr::Functional<TrixyNet>;
+using TrixyNetTraining   = tr::train::Training<TrixyNet>;
+using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_simple_test_idata()
 {
@@ -36,20 +46,13 @@ typename Net::template Container<typename Net::Vector> get_simple_test_odata()
     };
 }
 
-template <typename Precision = double>
 void simple_test_deserialization()
 {
-    using namespace tr::functional;
-
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using TrixyNetFunctional = tr::Functional<TrixyNet>;
-    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
-
     std::ifstream in("D:\\Serialized\\simple_test.bin");
-    if (!in.is_open()) return;
+    if (not in.is_open()) return;
 
-    auto train_in  = get_simple_test_idata<TrixyNet>();
-    auto train_out = get_simple_test_odata<TrixyNet>();
+    auto idata = get_simple_test_idata<TrixyNet>();
+    auto odata = get_simple_test_odata<TrixyNet>();
 
     TrixyNetSerializer sr;
     sr.deserialize(in);
@@ -63,23 +66,15 @@ void simple_test_deserialization()
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
 
-    util::test_neuro(net, train_in, train_out);
-    util::check_neuro(net, train_in, train_out);
+    util::test_neuro(net, idata, odata);
+    util::check_neuro(net, idata, odata);
     //util::show_inner_struct(net);
 }
 
-template <typename Precision = double>
 void simple_test()
 {
-    using namespace tr::functional;
-
-    using TrixyNet           = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, Precision>;
-    using TrixyNetFunctional = tr::Functional<TrixyNet>;
-    using TrixyNetTraining   = tr::train::Training<TrixyNet>;
-    using TrixyNetSerializer = tr::Serializer<TrixyNet>;
-
-    auto train_in  = get_simple_test_idata<TrixyNet>();
-    auto train_out = get_simple_test_odata<TrixyNet>();
+    auto idata = get_simple_test_idata<TrixyNet>();
+    auto odata = get_simple_test_odata<TrixyNet>();
 
     TrixyNet net({2, 2, 2});
     TrixyNetFunctional manage;
@@ -99,15 +94,15 @@ void simple_test()
     auto optimizer = manage.template get<OptimizationId::adam>(net, 0.01);
 
     util::Timer t;
-    teach.trainStochastic(train_in, train_out, 2000, std::rand, optimizer);
+    teach.trainStochastic(idata, odata, 2000, std::rand, optimizer);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
-    util::test_neuro(net, train_in, train_out);
-    util::check_neuro(net, train_in, train_out);
+    util::test_neuro(net, idata, odata);
+    util::check_neuro(net, idata, odata);
     //util::show_inner_struct(net);
 
     std::ofstream out("D:\\Serialized\\simple_test.bin");
-    if(!out.is_open()) return;
+    if (not out.is_open()) return;
 
     TrixyNetSerializer sr;
 
@@ -123,8 +118,8 @@ int main()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    simple_test<>();
-    simple_test_deserialization<>();
+    simple_test();
+    simple_test_deserialization();
 
     return 0;
 }
