@@ -63,8 +63,8 @@ void simple_test_deserialization()
 
     net.inner.initialize(sr.getBias(), sr.getWeight());
 
-    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
-    net.function.setLoss(manage.get(sr.getLossId()));
+    net.function.activationSet(manage.get(sr.getAllActivationId()));
+    net.function.loss(manage.get(sr.getLossId()));
 
     util::test_neuro(net, idata, odata);
     util::check_neuro(net, idata, odata);
@@ -86,15 +86,15 @@ void simple_test()
         return Precision(std::rand() % (2 * range + 1) - range) / range;
     });
 
-    net.function.setActivation(manage.template get<ActivationId::relu>());
-    net.function.setNormalization(manage.template get<ActivationId::softmax>());
+    net.function.activation(manage.template get<ActivationId::relu>());
+    net.function.normalization(manage.template get<ActivationId::softmax>());
 
-    net.function.setLoss(manage.template get<LossId::CCE>());
+    net.function.loss(manage.template get<LossId::CCE>());
 
     auto optimizer = manage.template get<OptimizationId::adam>(net, 0.01);
 
     util::Timer t;
-    teach.trainStochastic(idata, odata, 2000, std::rand, optimizer);
+    teach.trainStochastic(idata, odata, optimizer, 2000, std::rand);
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     util::test_neuro(net, idata, odata);

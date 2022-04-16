@@ -6,7 +6,7 @@
 
 #include <Trixy/Neuro/Serialization/Base.hpp>
 
-#include <Trixy/Buffer/Buffer.hpp>
+#include <Trixy/Buffer/Core.hpp>
 
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 #include <Trixy/Detail/FunctionDetail.hpp>
@@ -114,8 +114,8 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Serializable&
         );
     }
 
-    activationId = net.function.getAllActivationId();
-    lossId = net.function.getLossId();
+    activationId = net.function.activationIdSet();
+    lossId = net.function.lossId();
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -157,11 +157,11 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(
 
     serializeData(
         out,
-        net.function.getAllActivationId().data(),
-        net.function.getAllActivationId().size()
+        net.function.activationIdSet().data(),
+        net.function.activationIdSet().size()
     );
 
-    serializeData(out, &net.function.getLossId(), 1);
+    serializeData(out, &net.function.lossId(), 1);
 
     for(auto& tensor : net.inner.B)
         serializeData(out, tensor.data(), tensor.size());

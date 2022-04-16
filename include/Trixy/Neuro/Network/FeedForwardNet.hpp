@@ -85,15 +85,6 @@ public:
     const Container<XVector>& getInnerBias() const noexcept { return inner.B.base(); }
     const Container<XMatrix>& getInnerWeight() const noexcept { return inner.W.base(); }
     const InnerTopology& getTopology() const noexcept { return inner.topology; }
-
-    long double accuracy(const Container<Vector>& idata,
-                         const Container<Vector>& odata) const noexcept;
-
-    long double loss(const Container<Vector>& idata,
-                     const Container<Vector>& odata) const noexcept;
-
-    bool check(const Vector& target,
-               const Vector& prediction) const noexcept;
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -197,46 +188,41 @@ public:
 TRIXY_NET_TPL_DECLARATION
 class TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional
 {
-friend TrixyNet;
-friend train::Training<TrixyNet>;
-
-private:
-    ~InnerFunctional() = default;
-
 public:
     using AllActivationFunction             = Container<ActivationFunction>;
     using AllActivationId                   = Container<ActivationId>;
 
 private:
-    AllActivationFunction activation;       ///< Network activation functions
-    LossFunction loss;                      ///< Network loss function
+    AllActivationFunction activation_;      ///< Network activation functions
+    LossFunction loss_;                     ///< Network loss function
 
-    AllActivationId activationId;           ///< Network activation function ids
+    AllActivationId activationId_;          ///< Network activation function ids
 
 public:
-    explicit InnerFunctional(size_type N) : activation(N), loss(), activationId(N) {}
+    explicit InnerFunctional(size_type N) : activation_(N), loss_(), activationId_(N) {}
+    ~InnerFunctional() = default;
 
     // operator= for copy and move InnerFunctional object will not implicit generate
     InnerFunctional(const InnerFunctional&) = default;
     InnerFunctional(InnerFunctional&&) noexcept = default;
 
-    void setActivation(const ActivationFunction&);
-    void setAllActivation(const AllActivationFunction&);
-    void setNormalization(const ActivationFunction&);
+    void activation(const ActivationFunction&);
+    void activationSet(const AllActivationFunction&);
+    void normalization(const ActivationFunction&);
 
-    void setLoss(const LossFunction&);
+    void loss(const LossFunction&);
 
-    const ActivationFunction& getActivation() const noexcept { return activation.front(); }
-    const ActivationId& getActivationId() const noexcept { return activationId.front(); }
+    const ActivationFunction& activation(size_type i = 0) const noexcept { return activation_[i]; }
+    const ActivationId& activationId(size_type i = 0) const noexcept { return activationId_[i]; }
 
-    const AllActivationFunction& getAllActivation() const noexcept { return activation; }
-    const Container<ActivationId>& getAllActivationId() const noexcept { return activationId; }
+    const AllActivationFunction& activationSet() const noexcept { return activation_; }
+    const Container<ActivationId>& activationIdSet() const noexcept { return activationId_; }
 
-    const ActivationFunction& getNormalization() const noexcept { return activation.back(); }
-    const ActivationId& getNormalizationId() const noexcept { return activationId.back(); }
+    const ActivationFunction& normalization() const noexcept { return activation_.back(); }
+    const ActivationId& normalizationId() const noexcept { return activationId_.back(); }
 
-    const LossFunction& getLoss() const noexcept { return loss; }
-    const LossId& getLossId() const noexcept { return loss.id; }
+    const LossFunction& loss() const noexcept { return loss_; }
+    const LossId& lossId() const noexcept { return loss_.id; }
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -321,49 +307,40 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::getlock2d(
 }
 
 TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setActivation(
+void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activation(
     const TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction& f)
 {
-    for(size_type i = 0; i < activation.size() - 1; ++i)
+    for(size_type i = 0; i < activation_.size() - 1; ++i)
     {
-        activation  [i] = f;
-        activationId[i] = f.id;
+        activation_  [i] = f;
+        activationId_[i] = f.id;
     }
 }
 
 TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setAllActivation(
+void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activationSet(
     const Container<ActivationFunction>& fs)
 {
-    for(size_type i = 0; i < activation.size(); ++i)
+    for(size_type i = 0; i < activation_.size(); ++i)
     {
-        activation  [i] = fs[i];
-        activationId[i] = fs[i].id;
+        activation_  [i] = fs[i];
+        activationId_[i] = fs[i].id;
     }
 }
 
 TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setNormalization(
+void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::normalization(
     const ActivationFunction& f)
 {
-    activation.  back() = f;
-    activationId.back() = f.id;
+    activation_  .back() = f;
+    activationId_.back() = f.id;
 }
 
 TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::setLoss(
+void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::loss(
     const LossFunction& f)
 {
-    loss = f;
-}
-
-TRIXY_NET_TPL_DECLARATION
-TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
-    const Container<size_type>& topology)
-    : buff(TrixyNet::Builder::getlock1d(topology))
-    , inner(topology)
-    , function(topology.size() - 1)
-{
+    loss_ = f;
 }
 
 TRIXY_NET_TPL_DECLARATION
@@ -373,6 +350,16 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::InnerStruct(
     , B(TrixyNet::Builder::getlock1d(topology))
     , W(TrixyNet::Builder::getlock2d(topology))
     , topology(topology)
+{
+}
+
+TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
+    const Container<size_type>& topology)
+    : buff(TrixyNet::Builder::getlock1d(topology))
+    , inner(topology)
+    , function(topology.size() - 1)
+    , linear()
 {
 }
 
@@ -390,69 +377,16 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     */
     linear.dot(buff[0], sample, inner.W[0]);
     linear.add(buff[0], inner.B[0]);
-    function.activation[0].f(buff[0], buff[0]);
+    function.activation(0).f(buff[0], buff[0]);
 
     for(size_type i = 1; i < inner.N; ++i)
     {
         linear.dot(buff[i], buff[i - 1], inner.W[i]);
         linear.add(buff[i], inner.B[i]);
-        function.activation[i].f(buff[i], buff[i]);
+        function.activation(i).f(buff[i], buff[i]);
     }
 
     return buff.back().base();
-}
-
-TRIXY_NET_TPL_DECLARATION
-long double TRIXY_NET_TPL(TrixyNetType::FeedForward)::accuracy(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata) const noexcept
-{
-    size_type count = 0;
-
-    for(size_type i = 0; i < odata.size(); ++i)
-        if(check(odata[i], feedforward(idata[i])))
-            ++count;
-
-    return static_cast<long double>(count) / odata.size();
-}
-
-TRIXY_NET_TPL_DECLARATION
-long double TRIXY_NET_TPL(TrixyNetType::FeedForward)::loss(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata) const noexcept
-{
-    precision_type result = 0.;
-    precision_type error  = 0.;
-
-    for(size_type i = 0; i < odata.size(); ++i)
-    {
-        function.loss.f(error, odata[i], feedforward(idata[i]));
-        result += error;
-    }
-
-    return result / static_cast<long double>(odata.size());
-}
-
-TRIXY_NET_TPL_DECLARATION
-bool TRIXY_NET_TPL(TrixyNetType::FeedForward)::check(
-    const Vector& target,
-    const Vector& prediction) const noexcept
-{
-    size_type max_true_out;
-    size_type max_pred_out;
-
-    max_true_out = 0;
-    max_pred_out = 0;
-
-    for(size_type j = 1; j < target.size(); ++j)
-        if(target(max_true_out) < target(j))
-            max_true_out = j;
-
-    for(size_type j = 1; j < target.size(); ++j)
-        if(prediction(max_pred_out) < prediction(j))
-            max_pred_out = j;
-
-    return max_true_out == max_pred_out;
 }
 
 } // namespace trixy

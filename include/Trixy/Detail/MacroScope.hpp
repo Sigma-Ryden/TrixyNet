@@ -34,6 +34,14 @@
         buff.apply(name##_derived<precision_type>, tensor.data());                                      \
     }
 
+#define TRIXY_FUNCTION_GENERIC_LOSS_HELPER(name, function_name)                                         \
+struct name {                                                                                           \
+    template <typename Precision, class Target, class Prediction>                                       \
+    void operator() (Precision& result, const Target& y_true, const Prediction& y_pred) {               \
+        function_name(result, y_true, y_pred);                                                          \
+    }                                                                                                   \
+}
+
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
     template <class Tensor,                                                                             \
               typename precision_type = typename Tensor::precision_type,                                \

@@ -9,6 +9,14 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
+using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
+using LinearReg     = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, float>;
+
+using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
+using LinearRegTraining     = tr::train::Training<LinearReg>;
+
+using util::operator<<;
+
 template <class Reg, class Vector = typename Reg::Vector>
 Vector get_sin_idata()
 {
@@ -87,10 +95,6 @@ Vector get_linear_odata()
 
 void polynomial_regression_test_deserialization()
 {
-    using util::operator<<;
-
-    using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
-
     std::ifstream in("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not in.is_open()) return;
 
@@ -104,29 +108,28 @@ void polynomial_regression_test_deserialization()
     auto X = get_sin_idata<PolynomialReg>();
     auto Y = get_sin_odata<PolynomialReg>();
 
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test:\n" << reg.feedforward(X) << "\n\n";
-    std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
+    tr::Checker<PolynomialReg> check(reg);
+
+    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+              << "Test:\n" << reg.feedforward(X) << "\n\n"
+              << "Accuracy:\n" << check.guide.global(Y, reg.feedforward(X), 0.1) << '/' << Y.size() << "\n\n";
 }
 
 void polynomial_regression_test()
 {
-    using util::operator<<;
-
-    using PolynomialReg         = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
-    using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
-
     PolynomialReg reg(6);
     PolynomialRegTraining teach(reg);
 
     auto X = get_sin_idata<PolynomialReg>();
     auto Y = get_sin_odata<PolynomialReg>();
 
+    tr::Checker<PolynomialReg> check(reg);
+
     teach.train(X, Y);
-    std::cout << reg.getInnerPower() << '\n';
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test:\n" << reg.feedforward(X) << "\n\n";
-    std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
+    std::cout << reg.getInnerPower() << '\n'
+              << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+              << "Test:\n" << reg.feedforward(X) << "\n\n"
+              << "Loss:\n" << check.loss(X, Y, tr::set::loss::MSE()) << '\n';
 
     std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not out.is_open()) return;
@@ -141,10 +144,6 @@ void polynomial_regression_test()
 
 void linear_regression_test_deserialization()
 {
-    using util::operator<<;
-
-    using LinearReg = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, float>;
-
     std::ifstream in("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not in.is_open()) return;
 
@@ -159,29 +158,28 @@ void linear_regression_test_deserialization()
     auto X = get_linear_idata<LinearReg>();
     auto Y = get_linear_odata<LinearReg>();
 
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test:\n" << reg.feedforwardBatch(X) << "\n\n";
-    std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
+    tr::Checker<LinearReg> check(reg);
+
+    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+              << "Test:\n" << reg.feedforward(X) << "\n\n"
+              << "Accuracy:\n" << check.guide.full(Y, reg.feedforward(X), 0.1) << "\n\n";
 }
 
 void linear_regression_test()
 {
-    using util::operator<<;
-
-    using LinearReg         = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, double>;
-    using LinearRegTraining = tr::train::Training<LinearReg>;
-
     LinearReg reg(1);
     LinearRegTraining teach(reg);
+    tr::Checker<LinearReg> check(reg);
 
     auto X = get_linear_idata<LinearReg>();
     auto Y = get_linear_odata<LinearReg>();
 
     teach.train(X, Y);
     std::cout << reg.getInnerSize() << '\n';
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n";
-    std::cout << "Test:\n" << reg.feedforwardBatch(X) << "\n\n";
-    std::cout << "Loss:\n" << reg.loss(X, Y) << "\n\n";
+
+    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+              << "Test:\n" << reg.feedforward(X) << "\n\n"
+              << "Loss:\n" << check.loss(X, Y, tr::set::loss::MSE()) << '\n';
 
     std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not out.is_open()) return;

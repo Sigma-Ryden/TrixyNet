@@ -23,6 +23,7 @@ using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Cont
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+using TrixyNetChecker    = tr::Checker<TrixyNet>;
 
 using size_type = std::size_t;
 
@@ -131,13 +132,15 @@ void mnist_test_deserialization()
 
     net.inner.initialize(sr.getBias(), sr.getWeight());
 
-    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
-    net.function.setLoss(manage.get(sr.getLossId()));
+    net.function.activationSet(manage.get(sr.getAllActivationId()));
+    net.function.loss(manage.get(sr.getLossId()));
+
+    TrixyNetChecker check(net);
     //
-    std::cout << "NEURO TRAIN_SET ACCURACY: " << net.accuracy(train_idata, train_odata)
-              << "\nNEURO TRAIN_SET LOSS: " << net.loss(train_idata, train_odata) << '\n'
-              << "NEURO TEST_SET ACCURACY: " << net.accuracy(test_idata, test_odata)
-              << "\nNEURO TEST_SET LOSS: " << net.loss(test_idata, test_odata) << '\n';
+    std::cout << "NEURO TRAIN_SET ACCURACY: " << check.accuracy(train_idata, train_odata)
+              << "\nNEURO TRAIN_SET LOSS: " << check.loss(train_idata, train_odata) << '\n'
+              << "NEURO TEST_SET ACCURACY: " << check.accuracy(test_idata, test_odata)
+              << "\nNEURO TEST_SET LOSS: " << check.loss(test_idata, test_odata) << '\n';
     //
     //
     std::cout << "TESTING TRAIN_SET\n";
@@ -174,6 +177,7 @@ void mnist_test()
     TrixyNet net({ input_size, 256, out_size });
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
+    TrixyNetChecker check(net);
 
     constexpr int range = 1000;
     net.inner.initialize([]
@@ -181,10 +185,10 @@ void mnist_test()
         return float(std::rand() % (2 * range + 1) - range) / (range * range);
     });
 
-    net.function.setActivation(manage.get<ActivationId::relu>());
-    net.function.setNormalization(manage.get<ActivationId::softmax>());
+    net.function.activation(manage.get<ActivationId::relu>());
+    net.function.normalization(manage.get<ActivationId::softmax>());
 
-    net.function.setLoss(manage.get<LossId::CCE>());
+    net.function.loss(manage.get<LossId::CCE>());
 
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
@@ -196,20 +200,20 @@ void mnist_test()
     {
         std::cout << "start train [" << i << "]:\n";
         //teach.trainBatch(train_in, train_out, 10, optimizer);
-        //teach.trainStochastic(train_in, train_out, 5000, std::rand, optimizer);
-        teach.trainMiniBatch(train_idata, train_odata, 1, 40, optimizer);
-        std::cout << "Accuracy: " << net.accuracy(train_idata, train_odata) << '\n';
+        //teach.trainStochastic(train_in, train_out, 5000, optimizer, std::rand);
+        teach.trainMiniBatch(train_idata, train_odata, optimizer, 1, 40);
+        std::cout << "Accuracy: " << check.accuracy(train_idata, train_odata) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
     t.reset();
 
     // Test train_batch after train
     std::cout
-        << "Network train set loss: " << net.loss(train_idata, train_odata) << '\n'
-        << "Network tarin set normal accuracy: " << net.accuracy(train_idata, train_odata) << '\n'
+        << "Network train set loss: " << teach.loss(train_idata, train_odata) << '\n'
+        << "Network tarin set normal accuracy: " << check.accuracy(train_idata, train_odata) << '\n'
     // Test test_batch after train
-        << "Network test set loss: " << net.loss(test_idata, test_odata) << '\n'
-        << "Network test set normal accuracy: " << net.accuracy(test_idata, test_odata) << '\n'
+        << "Network test set loss: " << teach.loss(test_idata, test_odata) << '\n'
+        << "Network test set normal accuracy: " << check.accuracy.normal(test_idata, test_odata) << '\n'
         << "Check time: " << t.elapsed() << '\n';
 
     std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);

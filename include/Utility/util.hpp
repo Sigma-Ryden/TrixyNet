@@ -9,6 +9,7 @@
 
 #include <Trixy/Lique/Vector.hpp>
 #include <Trixy/Lique/Matrix.hpp>
+#include <Trixy/Neuro/Checker/Core.hpp>
 
 namespace util
 {
@@ -108,8 +109,10 @@ void check_neuro(
     const typename TrixyNet::template Container<typename TrixyNet::Vector>& idata,
     const typename TrixyNet::template Container<typename TrixyNet::Vector>& odata)
 {
-    std::cout << "Network train normal accuracy: "   << network.accuracy(idata, odata)
-              << "\nNetwork train Loss: "            << network.loss(idata, odata) << '\n';
+    trixy::Checker<TrixyNet> check(network);
+
+    std::cout << "Network train normal accuracy: "   << check.accuracy(idata, odata)
+              << "\nNetwork train Loss: "            << check.loss(idata, odata) << '\n';
 }
 
 } // namespace util

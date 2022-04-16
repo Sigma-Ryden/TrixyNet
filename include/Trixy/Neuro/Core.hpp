@@ -6,6 +6,8 @@
 
 #include <Trixy/Neuro/Training/Core.hpp>
 
+#include <Trixy/Neuro/Checker/Core.hpp>
+
 #include <Trixy/Neuro/Functional/Function/Core.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Core.hpp>
 

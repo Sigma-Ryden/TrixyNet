@@ -47,11 +47,11 @@ public:
     void reset(size_type new_sample_size);
 
     precision_type feedforwardSample(const Vector& sample) const;
-    Vector feedforwardBatch(const Matrix& idata) const;
-
+    Vector feedforward(const Matrix& idata) const;
+    //
     long double loss(const Matrix& idata,
                      const Vector& odata) const;
-
+    //
     const Vector& getInnerWeight() const noexcept { return W; }
     size_type getInnerSize() const noexcept { return N - 1; }
 };
@@ -92,7 +92,7 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::precision_type
 
 TRIXY_REGRESSION_TPL_DECLARATION
 typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
-    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforwardBatch(
+    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforward(
     const Matrix& idata) const
 {
     Matrix X(idata.shape().row(), N);
@@ -105,17 +105,6 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
     }
 
     return linear.dot(X, W);
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-long double TRIXY_REGRESSION_TPL(RegressionType::Linear)::loss(
-    const Matrix& idata,
-    const Vector& odata) const
-{
-    Vector r = feedforwardBatch(idata);
-    r.sub(odata);
-
-    return r.dot(r) / static_cast<long double>(r.size());
 }
 
 } // namespace trixy

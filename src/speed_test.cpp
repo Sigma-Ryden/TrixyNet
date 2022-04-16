@@ -66,8 +66,8 @@ void speed_test_deserialization()
 
     net.inner.initialize(sr.getBias(), sr.getWeight());
 
-    net.function.setAllActivation(manage.get(sr.getAllActivationId()));
-    net.function.setLoss(manage.get(sr.getLossId()));
+    net.function.activationSet(manage.get(sr.getAllActivationId()));
+    net.function.loss(manage.get(sr.getLossId()));
 
     //util::show_inner_struct(net);
     util::test_neuro(net, idata, odata);
@@ -90,9 +90,9 @@ void speed_test()
         return float(std::rand() % (2 * range + 1) - range) / float(range);
     });
 
-    net.function.setActivation(manage.get<ActivationId::relu>());
-    net.function.setNormalization(manage.get<ActivationId::softmax>());
-    net.function.setLoss(manage.get<LossId::CCE>());
+    net.function.activation(manage.get<ActivationId::relu>());
+    net.function.normalization(manage.get<ActivationId::softmax>());
+    net.function.loss(manage.get<LossId::CCE>());
 
     auto grad = manage.get<OptimizationId::grad_descent>(net, 0.1);
     auto adam = manage.get<OptimizationId::adam>(net, 0.001);
@@ -102,16 +102,15 @@ void speed_test()
     util::check_neuro(net, idata, odata);
 
     util::Timer t;
-    teach.trainBatch(idata, odata, 100000, grad);
-    teach.trainStochastic(idata, odata, 100000, std::rand, grad);
-    teach.trainMiniBatch(idata, odata, 15000, 2, adam);
+    teach.trainBatch(idata, odata, grad, 100000);
+    teach.trainStochastic(idata, odata, grad, 100000, std::rand);
+    teach.trainMiniBatch(idata, odata, adam, 15000, 2);
 
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
     util::test_neuro(net, idata, odata);
     util::check_neuro(net, idata, odata);
-
     std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if (not out.is_open()) return;
 

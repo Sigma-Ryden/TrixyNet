@@ -5,7 +5,7 @@
 
 #include <Trixy/Neuro/Serialization/Base.hpp>
 
-#include <Trixy/Buffer/Buffer.hpp>
+#include <Trixy/Buffer/Core.hpp>
 
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 #include <Trixy/Detail/FunctionDetail.hpp>

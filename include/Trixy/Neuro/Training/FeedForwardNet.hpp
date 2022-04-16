@@ -23,7 +23,6 @@ class TRIXY_TRAINING_TPL(meta::is_feedforward_net)
 public:
     struct FeedForwardData;
     struct BackPropData;
-    struct Accuracy;
 
 public:
     using Net = Trainable;
@@ -56,7 +55,6 @@ private:
 public:
     FeedForwardData feedforward;    ///< data struct only for feed forward signal
     BackPropData backprop;          ///< data struct only for back propagation signal
-    Accuracy accuracy;              ///< object for information of different accuracy types
 
 private:
     InnerBuffer buff;               ///< 1D buffer for handle
@@ -68,25 +66,25 @@ public:
     Training(const Training&) = default;
     Training(Training&&) noexcept = default;
 
-    template <class GeneratorInteger, class Derived>
+    template <class Derived, class GeneratorInteger>
     void trainStochastic(const Container<Vector>& idata,
                          const Container<Vector>& odata,
+                         IOptimizer<Derived>& optimizer,
                          size_type iteration_scale,
-                         GeneratorInteger generator,
-                         IOptimizer<Derived>& optimizer) noexcept;
+                         GeneratorInteger generator) noexcept;
 
     template <class Derived>
     void trainBatch(const Container<Vector>& idata,
                     const Container<Vector>& odata,
-                    size_type epoch_scale,
-                    IOptimizer<Derived>& optimizer) noexcept;
+                    IOptimizer<Derived>& optimizer,
+                    size_type number_of_epochs) noexcept;
 
     template <class Derived>
     void trainMiniBatch(const Container<Vector>& idata,
                         const Container<Vector>& odata,
-                        size_type epoch_scale,
-                        size_type mini_batch_size,
-                        IOptimizer<Derived>& optimizer) noexcept;
+                        IOptimizer<Derived>& optimizer,
+                        size_type number_of_epochs,
+                        size_type mini_batch_size) noexcept;
 
     void innerFeedForward(const Vector& sample) noexcept;
 
@@ -94,7 +92,7 @@ public:
                        const Vector& target) noexcept;
 
     long double loss(const Container<Vector>& idata,
-                     const Container<Vector>& odata) const noexcept;
+                     const Container<Vector>& odata) const noexcept; // repair
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -140,45 +138,6 @@ public:
     void updateDelta() noexcept;
 
     void normalizeDelta(precision_type alpha) noexcept;
-};
-
-TRIXY_TRAINING_TPL_DECLARATION
-struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy
-{
-private:
-    const Net& net;
-
-public:
-    explicit Accuracy(Net& network) : net(network) {}
-
-    // operator= for copy and move BackPropData object will not implicit generate
-    Accuracy(const Accuracy&) = default;
-    Accuracy(Accuracy&&) noexcept = default;
-
-public:
-    long double normal(const Container<Vector>& idata,
-                       const Container<Vector>& odata) const noexcept; // repair & replace
-
-    long double full(const Container<Vector>& idata,
-                     const Container<Vector>& odata,
-                     precision_type range_rate) const noexcept; // repair
-
-    long double global(const Container<Vector>& idata,
-                       const Container<Vector>& odata,
-                       precision_type range_rate) const noexcept; // repair
-
-private:
-    bool check_normal(const Vector& target,
-                      const Vector& prediction) const noexcept; // repair & replace
-
-    bool check_full(const Vector& target,
-                    const Vector& prediction,
-                    precision_type range_rate) const noexcept; // maybe repair
-
-    void check_global(const Vector& target,
-                      const Vector& prediction,
-                      precision_type range_rate,
-                      size_type& count) const noexcept; // maybe repair
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -232,93 +191,22 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::normalizeDelta(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::normal(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata) const noexcept
-{
-    return net.accuracy(idata, odata);
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::full(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata,
-    precision_type range_rate) const noexcept
-{
-    size_type count = 0;
-
-    for(size_type i = 0; i < odata.size(); ++i)
-        if(check_full(odata[i], net.feedforward(idata[i]), range_rate))
-            ++count;
-
-    return static_cast<long double>(count) / odata.size();
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::global(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata,
-    precision_type range_rate) const noexcept
-{
-    size_type count = 0;
-
-    for(size_type i = 0; i < odata.size(); ++i)
-        check_global(odata[i], net.feedforward(idata[i]), range_rate, count);
-
-    return static_cast<long double>(count) / (odata.size() * odata.front().size());
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-bool TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::check_normal(
-    const Vector& target,
-    const Vector& prediction) const noexcept
-{
-    return net.check(target, prediction);
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-bool TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::check_full(
-    const Vector& target,
-    const Vector& prediction,
-    precision_type range_rate) const noexcept
-{
-    for(size_type j = 0; j < target.size(); ++j)
-        if(std::fabs(target(j) - prediction(j)) > range_rate)
-            return false;
-
-    return true;
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Accuracy::check_global(
-    const Vector& target,
-    const Vector& prediction,
-    precision_type range_rate,
-    size_type& count) const noexcept
-{
-    for(size_type i = 0; i < target.size(); ++i)
-        if(std::fabs(target(i) - prediction(i)) < range_rate)
-            ++count;
-}
-
-TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     : net(network)
     , feedforward(network)
     , backprop(network)
-    , accuracy(network)
     , buff(Builder::getlock1d(network.inner.topology))
 {
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-template <class GeneratorInteger, class Derived>
+template <class Derived, class GeneratorInteger>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
+    IOptimizer<Derived>& optimizer,
     size_type iteration_scale,
-    GeneratorInteger generator,
-    IOptimizer<Derived>& optimizer) noexcept
+    GeneratorInteger generator) noexcept
 {
     for(size_type iteration = 0, sample; iteration < iteration_scale; ++iteration)
     {
@@ -336,12 +224,12 @@ template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
-    size_type epoch_scale,
-    IOptimizer<Derived>& optimizer) noexcept
+    IOptimizer<Derived>& optimizer,
+    size_type number_of_epochs) noexcept
 {
     precision_type alpha = 1. / static_cast<precision_type>(idata.size());
 
-    for(size_type epoch = 0, sample; epoch < epoch_scale; ++epoch)
+    for(size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
     {
         backprop.resetDelta();
 
@@ -351,7 +239,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
             innerBackProp(idata[sample], odata[sample]);
             backprop.updateDelta();
         }
-
+        // averaging deltas for one full-batch
         backprop.normalizeDelta(alpha);
 
         optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
@@ -363,18 +251,19 @@ template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
-    size_type epoch_scale,
-    size_type mini_batch_size,
-    IOptimizer<Derived>& optimizer) noexcept
+    IOptimizer<Derived>& optimizer,
+    size_type number_of_epochs,
+    size_type mini_batch_size) noexcept
 {
     precision_type alpha = 1. / static_cast<precision_type>(mini_batch_size);
 
+    // number of iterations per full batch
     size_type iteration_scale = idata.size() / mini_batch_size; // implicit drop floating part
 
     size_type sample;
     size_type sample_limit;
 
-    for(size_type epoch = 0, iteration; epoch < epoch_scale; ++epoch)
+    for(size_type epoch = 0, iteration; epoch < number_of_epochs; ++epoch)
     {
         sample = 0;
         sample_limit = 0;
@@ -385,6 +274,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
 
             backprop.resetDelta();
 
+            // accumulating deltas for one mini-batch
             while(sample < sample_limit)
             {
                 innerFeedForward(idata[sample]);
@@ -393,7 +283,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
 
                 ++sample;
             }
-
+            // averaging deltas for one mini-batch
             backprop.normalizeDelta(alpha);
 
             optimizer.update(backprop.deltaB.base(), backprop.deltaW.base());
@@ -422,13 +312,13 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerFeedForward(
 
     for(; fwd < net.inner.N; ++curr, ++fwd)
     {
-        net.function.activation[curr].f(feedforward.H[curr], feedforward.S[curr]);
+        net.function.activation(curr).f(feedforward.H[curr], feedforward.S[curr]);
 
         net.linear.dot(feedforward.S[fwd], feedforward.H[curr], net.inner.W[fwd]);
         net.linear.add(feedforward.S[fwd], net.inner.B[fwd]);
     }
 
-    net.function.activation[curr].f(feedforward.H[curr], feedforward.S[curr]);
+    net.function.activation(curr).f(feedforward.H[curr], feedforward.S[curr]);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -452,11 +342,11 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackProp(
     size_type curr = net.inner.N - 1;
     size_type back = curr - 1;
 
-    net.function.loss.df(buff[curr], target, feedforward.H[curr]);
+    net.function.loss().df(buff[curr], target, feedforward.H[curr]);
 
     for(; curr > 0; --curr, --back)
     {
-        net.function.activation[curr].df(backprop.derivedB[curr], feedforward.S[curr]);
+        net.function.activation(curr).df(backprop.derivedB[curr], feedforward.S[curr]);
         net.linear.mul(backprop.derivedB[curr], buff[curr]);
 
         net.linear.tensordot(backprop.derivedW[curr], feedforward.H[back], backprop.derivedB[curr]);
@@ -464,7 +354,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::innerBackProp(
         net.linear.dot(buff[back], net.inner.W[curr], backprop.derivedB[curr]);
     }
 
-    net.function.activation[curr].df(backprop.derivedB[curr], feedforward.S[curr]);
+    net.function.activation(curr).df(backprop.derivedB[curr], feedforward.S[curr]);
     net.linear.mul(backprop.derivedB[curr], buff[curr]);
 
     net.linear.tensordot(backprop.derivedW[curr], sample, backprop.derivedB[curr]);
@@ -475,7 +365,16 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
     const Container<Vector>& idata,
     const Container<Vector>& odata) const noexcept
 {
-    return net.loss(idata, odata);
+    precision_type result = 0.;
+    precision_type error  = 0.;
+
+    for(size_type i = 0; i < odata.size(); ++i)
+    {
+        net.function.loss().f(error, odata[i], net.feedforward(idata[i]));
+        result += error;
+    }
+
+    return result / static_cast<long double>(odata.size());
 }
 
 } // namespace train

@@ -58,7 +58,7 @@ set(TRIXY_REQUIRE
     include/Trixy/Require/Precision.hpp
 )
 set(TRIXY_BUFFER
-    include/Trixy/Buffer/Buffer.hpp
+    include/Trixy/Buffer/Core.hpp
     include/Trixy/Buffer/Detail/MacroScope.hpp
     include/Trixy/Buffer/Detail/MacroUnscope.hpp
 )
@@ -76,6 +76,8 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
+
+    include/Trixy/Neuro/Checker/Core.hpp
 
     include/Trixy/Neuro/Functional/Function/Activation.hpp
     include/Trixy/Neuro/Functional/Function/ActivationLess.hpp

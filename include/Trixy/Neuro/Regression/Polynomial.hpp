@@ -48,9 +48,6 @@ public:
     precision_type feedforward(precision_type sample) const noexcept;
     Vector feedforward(const Vector& idata) const;
 
-    long double loss(const Vector& idata,
-                     const Vector& odata) const;
-
     const Vector& getInnerWeight() const noexcept { return W; }
     size_type getInnerPower() const noexcept { return N - 1; }
 };
@@ -117,17 +114,6 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::Vector
     }
 
     return linear.dot(X, W);
-}
-
-TRIXY_REGRESSION_TPL_DECLARATION
-long double TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::loss(
-    const Vector& idata,
-    const Vector& odata) const
-{
-    Vector r = feedforward(idata);
-    r.sub(odata);
-
-    return r.dot(r) / static_cast<long double>(r.size());
 }
 
 } // namespace trixy
