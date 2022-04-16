@@ -41,14 +41,6 @@ public:
     long double loss(const Sample& idata,
                      const Target& odata,
                      LossFunction func) const noexcept;
-
-    template <template <typename, typename...> class Container,
-              class Sample, class Target,
-              typename U = Checkable,
-              typename = meta::when<meta::is_feedforward_net<U>::value>>
-    long double loss(const Container<Sample>& idata,
-                     const Container<Target>& odata) const noexcept // expreimental
-    { return loss(idata, odata, net.function.loss().f); }
 };
 
 template <class Checkable>

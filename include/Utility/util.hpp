@@ -111,8 +111,8 @@ void check_neuro(
 {
     trixy::Checker<TrixyNet> check(network);
 
-    std::cout << "Network train normal accuracy: "   << check.accuracy(idata, odata)
-              << "\nNetwork train Loss: "            << check.loss(idata, odata) << '\n';
+    std::cout << "Network train normal accuracy: " << check.accuracy(idata, odata)
+              << "\nNetwork train Loss: " << check.loss(idata, odata, network.function.loss().f) << '\n';
 }
 
 } // namespace util

@@ -135,12 +135,14 @@ void mnist_test_deserialization()
     net.function.activationSet(manage.get(sr.getAllActivationId()));
     net.function.loss(manage.get(sr.getLossId()));
 
+    auto error = net.function.loss().f;
+
     TrixyNetChecker check(net);
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << check.accuracy(train_idata, train_odata)
-              << "\nNEURO TRAIN_SET LOSS: " << check.loss(train_idata, train_odata) << '\n'
+              << "\nNEURO TRAIN_SET LOSS: " << check.loss(train_idata, train_odata, error) << '\n'
               << "NEURO TEST_SET ACCURACY: " << check.accuracy(test_idata, test_odata)
-              << "\nNEURO TEST_SET LOSS: " << check.loss(test_idata, test_odata) << '\n';
+              << "\nNEURO TEST_SET LOSS: " << check.loss(test_idata, test_odata, error) << '\n';
     //
     //
     std::cout << "TESTING TRAIN_SET\n";
