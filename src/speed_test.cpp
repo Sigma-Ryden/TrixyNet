@@ -64,7 +64,7 @@ void speed_test_deserialization()
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
 
-    net.initInnerStruct(sr.getBias(), sr.getWeight());
+    net.inner.initialize(sr.getBias(), sr.getWeight());
 
     net.function.setAllActivation(manage.get(sr.getAllActivationId()));
     net.function.setLoss(manage.get(sr.getLossId()));
@@ -85,7 +85,7 @@ void speed_test()
     TrixyNetTraining teach(net);
 
     constexpr int range = 1000;
-    net.initInnerStruct([]
+    net.inner.initialize([]
     {
         return float(std::rand() % (2 * range + 1) - range) / float(range);
     });

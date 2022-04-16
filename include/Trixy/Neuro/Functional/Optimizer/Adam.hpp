@@ -36,7 +36,7 @@ public:
     using typename Base::Vector;
     using typename Base::Matrix;
 
-    using typename Base::NetInit;
+    using typename Base::Builder;
 
     using typename Base::precision_type;
     using typename Base::size_type;
@@ -94,12 +94,12 @@ AdamOptimizer<Optimizeriable>::Optimizer(
     precision_type beta2)
     : Base()
     , net(network)
-    , buff1(NetInit::get1d(net.inner.topology))
-    , buff2(NetInit::get2d(net.inner.topology))
-    , optimizedB1(NetInit::get1d(net.inner.topology, 0.))
-    , optimizedW1(NetInit::get2d(net.inner.topology, 0.))
-    , optimizedB2(NetInit::get1d(net.inner.topology, 0.))
-    , optimizedW2(NetInit::get2d(net.inner.topology, 0.))
+    , buff1(Builder::get1d(net.inner.topology))
+    , buff2(Builder::get2d(net.inner.topology))
+    , optimizedB1(Builder::get1d(net.inner.topology, 0.))
+    , optimizedW1(Builder::get2d(net.inner.topology, 0.))
+    , optimizedB2(Builder::get1d(net.inner.topology, 0.))
+    , optimizedW2(Builder::get2d(net.inner.topology, 0.))
     , learning_rate(learning_rate)
     , beta1(beta1)
     , beta2(beta2)

@@ -26,7 +26,7 @@ public:
     using Vector            = typename Net::Vector;
     using Matrix            = typename Net::Matrix;
 
-    using NetInit           = typename Net::Init;
+    using Builder           = typename Net::Builder;
 
     using precision_type    = typename Net::precision_type;
     using size_type         = typename Net::size_type;

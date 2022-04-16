@@ -28,7 +28,7 @@ public:
 public:
     using Net = Trainable;
 
-    using NetInit                   = typename Net::Init;
+    using Builder                   = typename Net::Builder;
 
     template <class Derived>
     using IOptimizer                = typename train::IOptimizer<Derived, Net>;
@@ -183,8 +183,8 @@ private:
 
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(const Net& network)
-    : S(NetInit::getlock1d(network.inner.topology))
-    , H(NetInit::getlock1d(network.inner.topology))
+    : S(Builder::getlock1d(network.inner.topology))
+    , H(Builder::getlock1d(network.inner.topology))
     , size(network.inner.N)
 {
 }
@@ -192,10 +192,10 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(c
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(Net& network)
     : net(network)
-    , derivedB(NetInit::getlock1d(network.inner.topology))
-    , derivedW(NetInit::getlock2d(network.inner.topology))
-    , deltaB(NetInit::getlock1d(network.inner.topology))
-    , deltaW(NetInit::getlock2d(network.inner.topology))
+    , derivedB(Builder::getlock1d(network.inner.topology))
+    , derivedW(Builder::getlock2d(network.inner.topology))
+    , deltaB(Builder::getlock1d(network.inner.topology))
+    , deltaW(Builder::getlock2d(network.inner.topology))
     , size(network.inner.N)
 {
 }
@@ -307,7 +307,7 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     , feedforward(network)
     , backprop(network)
     , accuracy(network)
-    , buff(NetInit::getlock1d(network.inner.topology))
+    , buff(Builder::getlock1d(network.inner.topology))
 {
 }
 

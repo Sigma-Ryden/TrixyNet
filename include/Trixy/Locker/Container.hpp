@@ -29,12 +29,17 @@ public:
     using typename require::const_reference;
 
 public:
+    template <typename U = Container,
+              typename = meta::when<std::is_constructible<U>::value>>
+    Locker() : Container() {}
+
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
-    template <typename... Args,
-        typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
-        typename = TRIXY_ENABLE(std::is_constructible<Container, Args...>)>
-    explicit Locker(Args&&... args) : Container(std::forward<Args>(args)...) {}
+    template <typename T, typename... Tn,
+        typename = meta::when<not std::is_base_of<meta::decay_t<T>, Locker>::value>,
+        typename = meta::when<std::is_constructible<Container, T, Tn...>::value>>
+    explicit Locker(T&& t, Tn&&... tn)
+    : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& container) : Container(container) {}

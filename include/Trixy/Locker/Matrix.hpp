@@ -32,12 +32,17 @@ public:
     using typename require::Shape;
 
 public:
+    template <typename U = Tensor,
+              typename = meta::when<std::is_constructible<U>::value>>
+    Locker() : Tensor() {}
+
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
-    template <typename... Args,
-        typename = TRIXY_ENABLE(meta::is_not_base_of<meta::decay_t<Args>, Locker>...),
-        typename = TRIXY_ENABLE(std::is_constructible<Tensor, Args...>)>
-    explicit Locker(Args&&... args) : Tensor(std::forward<Args>(args)...) {}
+    template <typename T, typename... Tn,
+        typename = meta::when<not std::is_base_of<meta::decay_t<T>, Locker>::value>,
+        typename = meta::when<std::is_constructible<Tensor, T, Tn...>::value>>
+    explicit Locker(T&& t, Tn&&... tn)
+    : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& matrix) : Tensor(matrix) {}

@@ -36,7 +36,7 @@ public:
     using typename Base::Vector;
     using typename Base::Matrix;
 
-    using typename Base::NetInit;
+    using typename Base::Builder;
 
     using typename Base::precision_type;
     using typename Base::size_type;
@@ -83,10 +83,10 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
     precision_type beta)
     : Base()
     , net(network)
-    , buff1(NetInit::get1d(net.inner.topology))
-    , buff2(NetInit::get2d(net.inner.topology))
-    , optimizedB(NetInit::get1d(net.inner.topology, 0.))
-    , optimizedW(NetInit::get2d(net.inner.topology, 0.))
+    , buff1(Builder::get1d(net.inner.topology))
+    , buff2(Builder::get2d(net.inner.topology))
+    , optimizedB(Builder::get1d(net.inner.topology, 0.))
+    , optimizedW(Builder::get2d(net.inner.topology, 0.))
     , learning_rate(learning_rate)
     , beta(beta)
 {
