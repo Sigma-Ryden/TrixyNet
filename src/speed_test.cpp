@@ -111,6 +111,7 @@ void speed_test()
     std::cout << "After train\n";
     util::test_neuro(net, idata, odata);
     util::check_neuro(net, idata, odata);
+
     std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if (not out.is_open()) return;
 
@@ -126,7 +127,7 @@ int main()
     std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
+    //speed_test();
     speed_test_deserialization();
 
     //std::cin.get();

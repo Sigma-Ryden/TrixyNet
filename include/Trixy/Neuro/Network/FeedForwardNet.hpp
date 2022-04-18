@@ -81,6 +81,9 @@ public:
 
     const Vector& feedforward(const Vector& sample) const noexcept;
 
+    const Vector& operator()(const Vector& sample) const noexcept
+    { return feedforward(sample); }
+
 public:
     const Container<XVector>& getInnerBias() const noexcept { return inner.B.base(); }
     const Container<XMatrix>& getInnerWeight() const noexcept { return inner.W.base(); }

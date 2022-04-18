@@ -77,6 +77,9 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
 
+    include/Trixy/Neuro/Checker/Detail/MacroScope.hpp
+    include/Trixy/Neuro/Checker/Detail/MacroUnscope.hpp
+    include/Trixy/Neuro/Checker/Accuracy.hpp
     include/Trixy/Neuro/Checker/Core.hpp
 
     include/Trixy/Neuro/Functional/Function/Activation.hpp

@@ -21,22 +21,22 @@ class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)
 {
 public:
     template <typename T>
-    using Container            = typename Functionable::template Container<T>;
+    using Container                 = typename Functionable::template Container<T>;
 
-    using size_type            = typename Functionable::size_type;
+    using size_type                 = typename Functionable::size_type;
 
-    using ActivationId         = typename Functionable::ActivationId;
-    using LossId               = typename Functionable::LossId;
+    using ActivationId              = typename Functionable::ActivationId;
+    using LossId                    = typename Functionable::LossId;
 
-    using ActivationFunction   = typename Functionable::ActivationFunction;
-    using LossFunction         = typename Functionable::LossFunction;
+    using ActivationFunction        = typename Functionable::ActivationFunction;
+    using LossFunction              = typename Functionable::LossFunction;
 
     template <class optimizer_type>
-    using OptimizationFunction = typename train::Optimizer<Functionable, optimizer_type>;
+    using OptimizationFunction      = typename train::Optimizer<Functionable, optimizer_type>;
 
 private:
     template <functional::OptimizationId id>
-    using optimizer_type_from  = train::OptimizerType::type_from<id>;
+    using optimizer_type_from       = train::OptimizerType::type_from<id>;
 
 public:
     ActivationFunction get(ActivationId id) const noexcept
@@ -60,14 +60,10 @@ public:
     }
 
     template <ActivationId id> ActivationFunction get() const noexcept
-    {
-        return get(id);
-    }
+    { return get(id); }
 
     template <LossId id> LossFunction get() const noexcept
-    {
-        return get(id);
-    }
+    { return get(id); }
 
     template <functional::OptimizationId id, typename... Args>
     OptimizationFunction<optimizer_type_from<id>> get(Args&&... args) const

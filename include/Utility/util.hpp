@@ -100,7 +100,7 @@ void test_neuro(
 {
     for(std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
-            << network.feedforward(idata[i]) << " : " << odata[i] << '\n';
+            << network(idata[i]) << " : " << odata[i] << '\n';
 }
 
 template <class TrixyNet>

@@ -48,6 +48,9 @@ public:
     precision_type feedforward(precision_type sample) const noexcept;
     Vector feedforward(const Vector& idata) const;
 
+    Vector operator() (const Vector& idata) const
+    { return feedforward(idata); }
+
     const Vector& getInnerWeight() const noexcept { return W; }
     size_type getInnerPower() const noexcept { return N - 1; }
 };

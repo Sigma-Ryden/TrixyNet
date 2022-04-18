@@ -48,10 +48,10 @@ public:
 
     precision_type feedforwardSample(const Vector& sample) const;
     Vector feedforward(const Matrix& idata) const;
-    //
-    long double loss(const Matrix& idata,
-                     const Vector& odata) const;
-    //
+
+    Vector operator() (const Matrix& idata) const
+    { return feedforward(idata); }
+
     const Vector& getInnerWeight() const noexcept { return W; }
     size_type getInnerSize() const noexcept { return N - 1; }
 };

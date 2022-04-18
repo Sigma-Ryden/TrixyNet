@@ -65,7 +65,7 @@ Matrix get_linear_idata()
 
     precision_type arg = -1.;
 
-    for(size_type i = 0; i < x.shape().row(); ++i)
+    for(size_type i = 0; i < x.dim().row(); ++i)
     {
         x(i, 0) = arg;
         arg    += .02;
@@ -111,8 +111,8 @@ void polynomial_regression_test_deserialization()
     tr::Checker<PolynomialReg> check(reg);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
-              << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Accuracy:\n" << check.guide.global(Y, reg.feedforward(X), 0.1) << '/' << Y.size() << "\n\n";
+              << "Test:\n" << reg(X) << "\n\n"
+              << "Accuracy:\n" << check.guide.global(Y, reg(X), 0.1) << '/' << Y.size() << "\n\n";
 }
 
 void polynomial_regression_test()
@@ -161,8 +161,8 @@ void linear_regression_test_deserialization()
     tr::Checker<LinearReg> check(reg);
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
-              << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Accuracy:\n" << check.guide.full(Y, reg.feedforward(X), 0.1) << "\n\n";
+              << "Test:\n" << reg(X) << "\n\n"
+              << "Accuracy:\n" << check.guide.full(Y, reg(X), 0.1) << "\n\n";
 }
 
 void linear_regression_test()
