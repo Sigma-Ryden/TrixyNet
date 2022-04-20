@@ -3,6 +3,7 @@
 
 #include <Utility/util.hpp> // operator<<
 
+#include <fstream> // ifstream, ofstream
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 

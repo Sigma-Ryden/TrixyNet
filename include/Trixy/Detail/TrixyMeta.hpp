@@ -2,7 +2,8 @@
 #define TRIXY_META_HPP
 
 #include <utility> // declval
-#include <type_traits> // enable_if, is_arithmetic, is_same, conditional, true_type, false_type
+#include <type_traits>
+// enable_if, is_arithmetic, is_same, conditional, true_type, false_type, remove_reference
 
 namespace trixy
 {
@@ -99,7 +100,7 @@ template <class T, class... Tn>
 struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
 
 template <typename It>
-using source = typename std::decay<decltype(*std::declval<It>())>::type;
+using deref = typename std::remove_reference<decltype(*std::declval<It>())>::type;
 
 } // namespace meta
 

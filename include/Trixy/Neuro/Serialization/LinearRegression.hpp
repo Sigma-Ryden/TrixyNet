@@ -1,7 +1,6 @@
 #ifndef TRIXY_SERIALIZATION_LINEAR_REGRESSION_HPP
 #define TRIXY_SERIALIZATION_LINEAR_REGRESSION_HPP
 
-#include <fstream> // ifstream, ofstream
 #include <cstdint> // int8_t, int16_t
 
 #include <Trixy/Neuro/Serialization/Base.hpp>
@@ -20,34 +19,40 @@ TRIXY_SERIALIZER_TPL_DECLARATION
 class TRIXY_SERIALIZER_TPL(meta::is_linear_regression)
 {
 public:
-    using Vector         = typename Serializable::Vector;
+    using Regression        = Serializable;
 
-    using precision_type = typename Serializable::precision_type;
-    using size_type      = typename Serializable::size_type;
+    using Vector            = typename Regression::Vector;
 
-private:
-    using meta_data_type = std::int16_t;
-    using byte_type      = std::int8_t;
-
-    using BaseId         = Buffer::BaseTypeId;
+    using precision_type    = typename Regression::precision_type;
+    using size_type         = typename Regression::size_type;
 
 private:
-    Buffer buff;         ///< Specialized Buffer for casting stream data
+    using meta_data_type    = std::int16_t;
+    using byte_type         = std::int8_t;
 
-    Vector W;            ///< Inner weight
-    size_type N;         ///< Size of weight vector (same as sample size + 1)
+    using BaseId            = Buffer::BaseTypeId;
 
-    meta_data_type meta; ///< 2 bytes of meta data for hold type information
+private:
+    Buffer buff;            ///< Specialized Buffer for casting stream data
+
+    Vector W;               ///< Inner weight
+    size_type N;            ///< Size of weight vector (same as sample size + 1)
+
+    meta_data_type meta;    ///< 2 bytes of meta data for hold type information
 
 public:
     Serializer() : buff(), W(), N(0), meta(0) {}
 
-    void prepare(const Serializable& reg);
+    void prepare(const Regression& reg);
 
-    void serialize(std::ofstream& out) const;
-    void serialize(std::ofstream& out, const Serializable& reg) const;
+    template <class OutStream>
+    void serialize(OutStream& out) const;
 
-    void deserialize(std::ifstream& in);
+    template <class OutStream>
+    void serialize(OutStream& out, const Regression& reg) const;
+
+    template <class InStream>
+    void deserialize(InStream& in);
 
     const Vector& getWeight() const noexcept { return W; };
     size_type getSize() const noexcept { return N; };
@@ -55,19 +60,20 @@ public:
 private:
     static constexpr meta_data_type getBaseMetaData() noexcept;
 
-    template <typename OutData>
-    void deserializeData(std::ifstream& in, OutData data, size_type n);
+    template <class InStream, typename OutData>
+    void deserializeData(InStream& in, OutData data, size_type n, bool buffering);
 };
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::prepare(const Serializable& reg)
+void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::prepare(const Regression& reg)
 {
     W = reg.getInnerWeight();
     N = reg.getInnerSize();
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(std::ofstream& out) const
+template <class OutStream>
+void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(OutStream& out) const
 {
     meta_data_type xmeta = getBaseMetaData();
     out.write(detail::const_byte_cast(&xmeta), 2); // writing 2 bytes of meta data
@@ -77,8 +83,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(std::ofstream& 
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
+template <class OutStream>
 void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(
-    std::ofstream& out, const Serializable& reg) const
+    OutStream& out, const Regression& reg) const
 {
     meta_data_type xmeta = getBaseMetaData();
     out.write(detail::const_byte_cast(&xmeta), 2); // writing 2 bytes of meta data
@@ -93,34 +100,27 @@ void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::serialize(
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::deserialize(std::ifstream& in)
+template <class InStream>
+void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::deserialize(InStream& in)
 {
     in.read(detail::byte_cast(&meta), 2); // reading 2 bytes of meta data
 
     byte_type meta_size_type = meta >> 8;
     byte_type meta_precision_type = meta & 0x00FF;
 
-    if(meta_size_type == sizeof(size_type))
-    {
-        in.read(detail::byte_cast(&N), meta_size_type);
-    }
-    else
-    {
-        buff.set(BaseId::Unsigned, meta_size_type);
-        deserializeData(in, &N, 1);
-    }
+    bool buffering;
+
+    buffering = (sizeof(size_type) != meta_size_type);
+    if(buffering) buff.set(BaseId::Unsigned, meta_size_type);
+
+    deserializeData(in, &N, 1, buffering);
 
     W.resize(N + 1);
 
-    if(meta_precision_type == sizeof(precision_type))
-    {
-        in.read(detail::byte_cast(W.data()), meta_precision_type * W.size());
-    }
-    else
-    {
-        buff.set(BaseId::Float, meta_precision_type);
-        deserializeData(in, W.data(), W.size());
-    }
+    buffering = (sizeof(precision_type) != meta_precision_type);
+    if(buffering) buff.set(BaseId::Float, meta_precision_type);
+
+    deserializeData(in, W.data(), W.size(), buffering);
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
@@ -132,15 +132,26 @@ TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::getBaseMetaData() noexcept
 }
 
 TRIXY_SERIALIZER_TPL_DECLARATION
-template <typename OutData>
+template <class InStream, typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_linear_regression)::deserializeData(
-    std::ifstream& in, OutData data, size_type n)
+    InStream& in, OutData data, size_type n, bool buffering)
 {
-    size_type memory_size  = n * buff.offset();
+    using Data = meta::deref<OutData>; // dereferencing OutData type
 
-    buff.reserve(memory_size);
-    in.read(buff.data(), memory_size);
-    buff.read(data, memory_size);
+    if(buffering)
+    {
+        // you MUST pre-define offset for buffer before
+        size_type memory_size = n * buff.offset();
+
+        buff.reserve(memory_size);
+        in.read(buff.data(), memory_size); // write from stream to buffer
+        buff.read(data, memory_size); // write from buffer to data
+    }
+    else
+    {
+        size_type memory_size = n * sizeof(Data);
+        in.read(reinterpret_cast<char*>(data), memory_size);
+    }
 }
 
 } // namespace trixy
