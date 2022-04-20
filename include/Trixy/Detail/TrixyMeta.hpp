@@ -16,6 +16,9 @@ using when = typename std::enable_if<condition, void>::type;
 template <bool condition>
 using as = typename std::enable_if<condition, int>::type;
 
+template <typename...>
+using void_t = void;
+
 template <bool condition, typename T = void>
 using enable_if_t = typename std::enable_if<condition, T>::type;
 

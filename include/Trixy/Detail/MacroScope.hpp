@@ -2,10 +2,10 @@
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
 #define TRIXY_HAS_TYPE_HELPER(name)                                                                     \
-    template <typename T, typename = std::void_t<>>                                                     \
+    template <typename T, typename = ::trixy::meta::void_t<>>                                           \
     struct has_##name : std::false_type {};								\
     template <typename T>                                                                               \
-    struct has_##_name<T, std::void_t<typename T::name>> : std::true_type {}
+    struct has_##_name<T, ::trixy::meta::void_t<typename T::name>> : std::true_type {}
 
 #define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
     template <class T, typename Ret = void, typename... Args>                                           \
@@ -25,13 +25,11 @@
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
     template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        using namespace ::trixy::set::activation::detail;                                               \
-        buff.apply(name<precision_type>, tensor.data());                                                \
+        buff.apply(::trixy::set::activation::detail::name<precision_type>, tensor.data());              \
     }                                                                                                   \
     template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        using namespace ::trixy::set::activation::detail;                                               \
-        buff.apply(name##_derived<precision_type>, tensor.data());                                      \
+        buff.apply(::trixy::set::activation::detail::name##_derived<precision_type>, tensor.data());    \
     }
 
 #define TRIXY_FUNCTION_GENERIC_LOSS_HELPER(name, function_name)                                         \
@@ -49,7 +47,7 @@ struct name {                                                                   
 
 #define TRIXY_FUNCTION_TPL_DECLARATION                                                                  \
     template <typename Precision,                                                                       \
-        typename std::enable_if<std::is_arithmetic<Precision>::value, int>::type = 0>
+        ::trixy::meta::as<std::is_arithmetic<Precision>::value> = 0>
 
 #define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \
     template <typename Class, typename enable = void>                                                   \
@@ -60,11 +58,10 @@ struct name {                                                                   
 
 #define TRIXY_CLASS_TPL(class_name, is_type...)                                                         \
     class_name<Class,                                                                                   \
-        typename std::enable_if<::trixy::meta::has_true<Class, is_type>::value>::type>
+        ::trixy::meta::when<::trixy::meta::has_true<Class, is_type>::value>>
 
 #define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
-    template <typename T = Class,                                                                       \
-              typename std::enable_if<is_type<T>::value, int>::type = 0>
+    template <typename T = Class, ::trixy::meta::as<is_type<T>::value> = 0>
 
 #define TRIXY_DEF_OPT_HELPER(id_type, T)                                                                \
     struct T {                                                                                          \
@@ -74,6 +71,3 @@ struct name {                                                                   
 
 #define TRIXY_REQUIRE(conditions...)                                                                    \
     ::trixy::meta::conjunction<conditions>::value
-
-#define TRIXY_ENABLE(conditions...)                                                                     \
-    typename std::enable_if<TRIXY_REQUIRE(conditions)>::type
