@@ -28,10 +28,6 @@ using decay_t = typename std::decay<T>::type;
 template <bool condition, typename if_true, typename if_false>
 using conditional_t = typename std::conditional<condition, if_true, if_false>::type;
 
-template <class B, class D>
-struct is_not_base_of :
-    std::integral_constant<bool, !std::is_base_of<B, D>::value> {};
-
 template <typename...> struct scope;
 
 template <> struct scope<>
@@ -57,12 +53,6 @@ private:
 public:
     template <int I> using type = typename as_impl<I>::type;
 };
-
-template <typename T, typename = std::void_t<>>
-struct has_type : std::false_type {};
-
-template <typename T>
-struct has_type<T, std::void_t<typename T::type>> : std::true_type {};
 
 template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
