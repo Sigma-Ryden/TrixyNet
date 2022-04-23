@@ -85,7 +85,7 @@ private:
     static pointer allocate(size_type n);
     static void deallocate(pointer ptr);
 
-    static void destroy(pointer beg, pointer end);
+    static void destroy(pointer first, pointer last);
 };
 
 template <typename Type>
@@ -323,14 +323,14 @@ inline void Container<Type>::deallocate(pointer ptr)
 }
 
 template <typename Type>
-void Container<Type>::destroy(pointer beg, pointer end)
+void Container<Type>::destroy(pointer first, pointer last)
 {
-    if(beg == nullptr) return;
+    if(first == nullptr) return;
 
-    while(beg != end)
+    while(first != last)
     {
-        beg->~value_type();
-        ++beg;
+        first->~value_type();
+        ++first;
     }
 }
 
