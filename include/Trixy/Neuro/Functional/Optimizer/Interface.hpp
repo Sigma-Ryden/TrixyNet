@@ -15,7 +15,7 @@ namespace train
 
 template <class Derived, class Optimizeriable>
 class IOptimizer<Derived, Optimizeriable,
-    meta::enable_if_t<meta::is_feedforward_net<Optimizeriable>::value>>
+    meta::when<meta::is_feedforward_net<Optimizeriable>::value>>
 {
 public:
     using Net               = Optimizeriable;
