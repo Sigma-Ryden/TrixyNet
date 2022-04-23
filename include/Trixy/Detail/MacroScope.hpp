@@ -7,21 +7,6 @@
     template <typename T>                                                                               \
     struct has_##_name<T, ::trixy::meta::void_t<typename T::name>> : std::true_type {}
 
-#define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
-    template <class T, typename Ret = void, typename... Args>                                           \
-    struct has_##name {                                                                                 \
-    private:                                                                                            \
-        template <class U>                                                                              \
-        static auto detect(U*) -> typename std::enable_if<                                              \
-            std::is_same<decltype(std::declval<U>().name(std::declval<Args>()...)), Ret>::value,        \
-            std::true_type>::type;                                                                      \
-        template <class>                                                                                \
-        static std::false_type detect(...);                                                             \
-                                                                                                        \
-    public:                                                                                             \
-        static constexpr bool value = decltype(detect<T>(nullptr))::value;                              \
-    }
-
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
     template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
