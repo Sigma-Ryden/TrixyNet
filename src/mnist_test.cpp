@@ -2,12 +2,11 @@
 #include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
 #include <Trixy/Container/Container.hpp> // Container
+#include <Trixy/Random/Core.hpp> // Random
 
 #include <Utility/util.hpp> // Timer, max, operator<<
 #include <Utility/mnist_reader.hpp> // read_dataset
 
-#include <cstdlib> // rand, srand, size_t
-#include <ctime> // time
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 #include <fstream> // ifstream, ofstream
@@ -24,6 +23,9 @@ using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 using TrixyNetChecker    = tr::Checker<TrixyNet>;
+
+using RandomIntegral     = tr::RandomIntegral<>;
+using RandomFloating     = tr::RandomFloating<>;
 
 using size_type = std::size_t;
 
@@ -181,11 +183,8 @@ void mnist_test()
     TrixyNetTraining teach(net);
     TrixyNetChecker check(net);
 
-    constexpr int range = 1000;
-    net.inner.initialize([]
-    {
-        return float(std::rand() % (2 * range + 1) - range) / (range * range);
-    });
+    RandomFloating gen;
+    net.inner.initialize([&gen] { return gen(-.25, .25); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());
@@ -202,7 +201,7 @@ void mnist_test()
     {
         std::cout << "start train [" << i << "]:\n";
         //teach.trainBatch(train_in, train_out, 10, optimizer);
-        //teach.trainStochastic(train_in, train_out, 5000, optimizer, std::rand);
+        //teach.trainStochastic(train_in, train_out, 5000, optimizer, RandomIntegral{});
         teach.trainMiniBatch(train_idata, train_odata, optimizer, 1, 40);
         std::cout << "Accuracy: " << check.accuracy(train_idata, train_odata) << '\n';
     }

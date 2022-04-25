@@ -62,6 +62,9 @@ set(TRIXY_BUFFER
     include/Trixy/Buffer/Detail/MacroScope.hpp
     include/Trixy/Buffer/Detail/MacroUnscope.hpp
 )
+set(TRIXY_RANDOM
+    include/Trixy/Random/Core.hpp
+)
 set(TRIXY_NEURO
     include/Trixy/Detail/TrixyMeta.hpp
     include/Trixy/Detail/FunctionDetail.hpp
@@ -135,6 +138,7 @@ add_executable(${PROJECT_NAME}
     ${TRIXY_LOCKER}
     ${TRIXY_REQUIRE}
     ${TRIXY_BUFFER}
+    ${TRIXY_RANDOM}
     ${TRIXY_NEURO}
     ${UTILS}
 )

@@ -2,12 +2,13 @@
 #include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
 #include <Trixy/Container/Container.hpp> // Container
+#include <Trixy/Random/Core.hpp> // Random
+
 #include <Utility/util.hpp> // Timer, test_neuro, check_neuro
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 #include <fstream> // ifstream, ofstream
-#include <random> // mt19937
 
 namespace tr = trixy;
 namespace li = trixy::lique;
@@ -21,6 +22,9 @@ using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Cont
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+
+using RandomIntegral     = tr::RandomIntegral<>;
+using RandomFloating     = tr::RandomFloating<>;
 
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_simple_test_idata()
@@ -80,11 +84,7 @@ void simple_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    constexpr int range = 1000;
-    net.inner.initialize([]
-    {
-        return Precision(std::rand() % (2 * range + 1) - range) / range;
-    });
+    net.inner.initialize(RandomFloating{});
 
     net.function.activation(manage.template get<ActivationId::relu>());
     net.function.normalization(manage.template get<ActivationId::softmax>());
@@ -94,7 +94,7 @@ void simple_test()
     auto optimizer = manage.template get<OptimizationId::adam>(net, 0.01);
 
     util::Timer t;
-    teach.trainStochastic(idata, odata, optimizer, 2000, std::rand);
+    teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     util::test_neuro(net, idata, odata);

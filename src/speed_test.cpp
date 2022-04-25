@@ -2,10 +2,10 @@
 #include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
 #include <Trixy/Container/Container.hpp> // Container
+#include <Trixy/Random/Core.hpp> // Random
+
 #include <Utility/util.hpp> // Timer, test_neuro, check_neuro
 
-#include <cstdlib> // rand, srand, size_t
-#include <ctime> // time
 #include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
 #include <iomanip> // setprecision, fixed
@@ -20,6 +20,9 @@ using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Cont
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+
+using RandomIntegral     = tr::RandomIntegral<>;
+using RandomFloating     = tr::RandomFloating<>;
 
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_speed_test_idata()
@@ -84,11 +87,8 @@ void speed_test()
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
 
-    constexpr int range = 1000;
-    net.inner.initialize([]
-    {
-        return float(std::rand() % (2 * range + 1) - range) / float(range);
-    });
+    RandomFloating gen;
+    net.inner.initialize([&gen] { return gen(.0, .5); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());
@@ -103,7 +103,7 @@ void speed_test()
 
     util::Timer t;
     teach.trainBatch(idata, odata, grad, 100000);
-    teach.trainStochastic(idata, odata, grad, 100000, std::rand);
+    teach.trainStochastic(idata, odata, grad, 100000, RandomIntegral{});
     teach.trainMiniBatch(idata, odata, adam, 15000, 2);
 
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -127,7 +127,7 @@ int main()
     std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
+    speed_test();
     speed_test_deserialization();
 
     //std::cin.get();

@@ -14,6 +14,7 @@
 
 namespace trixy
 {
+
 TRIXY_REGRESSION_TPL_DECLARATION
 using PolynomialRegression = TRIXY_REGRESSION_TPL(RegressionType::Polynomial);
 
