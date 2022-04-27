@@ -122,8 +122,6 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Training/LinearRegression.hpp
     include/Trixy/Neuro/Training/PolynomialRegression.hpp
     include/Trixy/Neuro/Training/Core.hpp
-
-    include/Trixy/Neuro/Core.hpp
 )
 set(UTILS
     include/Utility/util.hpp
