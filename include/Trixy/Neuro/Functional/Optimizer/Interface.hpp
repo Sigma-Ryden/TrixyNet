@@ -39,9 +39,14 @@ private:
     const DerivedType& self() const { return *static_cast<const DerivedType*>(this); }
 
 public:
-    void set_learning_rate(precision_type value) noexcept
+    void learning_rate(precision_type value) noexcept
     {
-        self().set_learning_rate(value);
+        self().learning_rate(value);
+    }
+
+    precision_type learning_rate() const noexcept
+    {
+        return self().learning_rate();
     }
 
     template <class BiasGrad, class WeightGrad>

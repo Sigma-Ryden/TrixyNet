@@ -26,8 +26,6 @@ public:
     using Net  = Optimizeriable;
     using Base = IOptimizer<GradDescentOptimizer<Net>, Net>;
 
-    friend Base;
-
 public:
     template <typename T>
     using Container = typename Base::template Container<T>;
@@ -46,14 +44,14 @@ private:
     Container<Vector> buff1;
     Container<Matrix> buff2;
 
-    precision_type learning_rate;
+    precision_type learning_rate_;
 
 public:
     Optimizer(Net& network,
               precision_type learning_rate);
 
-private:
-    void set_learning_rate(precision_type value) noexcept;
+    precision_type learning_rate() const noexcept { return learning_rate_; }
+    void learning_rate(precision_type value) noexcept;
 
     template <class BiasGrad, class WeightGrad>
     void update(const Container<BiasGrad>& gradB,
@@ -68,15 +66,15 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
     , net(network)
     , buff1(Builder::get1d(net.inner.topology))
     , buff2(Builder::get2d(net.inner.topology))
-    , learning_rate(learning_rate)
+    , learning_rate_(learning_rate)
 {
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void GradDescentOptimizer<Optimizeriable>::set_learning_rate(
+void GradDescentOptimizer<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
-    learning_rate = value;
+    learning_rate_ = value;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -89,10 +87,10 @@ void GradDescentOptimizer<Optimizeriable>::update(
 
     for(size_type i = 0; i < net.inner.N; ++i)
     {
-        net.linear.join(buff1[i], learning_rate, gradB[i]);
+        net.linear.join(buff1[i], learning_rate_, gradB[i]);
         net.linear.sub(net.inner.B[i], buff1[i]);
 
-        net.linear.join(buff2[i], learning_rate, gradW[i]);
+        net.linear.join(buff2[i], learning_rate_, gradW[i]);
         net.linear.sub(net.inner.W[i], buff2[i]);
     }
 }

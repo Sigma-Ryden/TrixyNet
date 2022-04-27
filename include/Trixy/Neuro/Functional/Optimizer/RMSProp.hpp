@@ -27,8 +27,6 @@ public:
     using Net  = Optimizeriable;
     using Base = IOptimizer<RMSPropOptimizer<Net>, Net>;
 
-    friend Base;
-
 public:
     template <typename T>
     using Container = typename Base::template Container<T>;
@@ -50,7 +48,7 @@ private:
     Container<Vector> optimizedB;
     Container<Matrix> optimizedW;
 
-    precision_type learning_rate;
+    precision_type learning_rate_;
 
     precision_type beta, rbeta;
 
@@ -61,8 +59,8 @@ public:
 
     Optimizer& reset() noexcept;
 
-private:
-    void set_learning_rate(precision_type value) noexcept;
+    precision_type learning_rate() const noexcept { return learning_rate_; }
+    void learning_rate(precision_type value) noexcept;
 
     template <class BiasGrad, class WeightGrad>
     void update(const Container<BiasGrad>& gradB,
@@ -87,17 +85,17 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
     , buff2(Builder::get2d(net.inner.topology))
     , optimizedB(Builder::get1d(net.inner.topology, 0.))
     , optimizedW(Builder::get2d(net.inner.topology, 0.))
-    , learning_rate(learning_rate)
+    , learning_rate_(learning_rate)
     , beta(beta)
 {
     rbeta = 1. - beta;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::set_learning_rate(
+void RMSPropOptimizer<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
-    learning_rate = value;
+    learning_rate_ = value;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -131,7 +129,7 @@ void RMSPropOptimizer<Optimizeriable>::update(
 
     net.linear.apply(buff, &detail::invert_sqrt<precision_type>, optimized);
     net.linear.mul(buff, grad);
-    net.linear.join(buff, learning_rate);
+    net.linear.join(buff, learning_rate_);
 
     net.linear.sub(parameter, buff);
 }

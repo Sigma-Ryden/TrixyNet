@@ -37,7 +37,7 @@ public:
     using integral_type = long long;
     using floating_type = double;
 
-    using size_type  = std::size_t;
+    using size_type     = std::size_t;
 
 private:
     Generator generator_;

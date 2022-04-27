@@ -27,8 +27,6 @@ public:
     using Net  = Optimizeriable;
     using Base = IOptimizer<AdamOptimizer<Net>, Net>;
 
-    friend Base;
-
 public:
     template <typename T>
     using Container = typename Base::template Container<T>;
@@ -53,7 +51,7 @@ private:
     Container<Vector> optimizedB2;
     Container<Matrix> optimizedW2;
 
-    precision_type learning_rate;
+    precision_type learning_rate_;
 
     precision_type beta1, beta2;
     precision_type rbeta1, rbeta2;
@@ -70,8 +68,8 @@ public:
 
     Optimizer& reset() noexcept;
 
-private:
-    void set_learning_rate(precision_type value) noexcept;
+    precision_type learning_rate() const noexcept { return learning_rate_; }
+    void learning_rate(precision_type value) noexcept;
 
     template <class BiasGrad, class WeightGrad>
     void update(const Container<BiasGrad>& gradB,
@@ -100,7 +98,7 @@ AdamOptimizer<Optimizeriable>::Optimizer(
     , optimizedW1(Builder::get2d(net.inner.topology, 0.))
     , optimizedB2(Builder::get1d(net.inner.topology, 0.))
     , optimizedW2(Builder::get2d(net.inner.topology, 0.))
-    , learning_rate(learning_rate)
+    , learning_rate_(learning_rate)
     , beta1(beta1)
     , beta2(beta2)
 {
@@ -112,10 +110,10 @@ AdamOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void AdamOptimizer<Optimizeriable>::set_learning_rate(
+void AdamOptimizer<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
-    learning_rate = value;
+    learning_rate_ = value;
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
@@ -127,7 +125,7 @@ void AdamOptimizer<Optimizeriable>::update(
     tbeta1 *= beta1;
     tbeta2 *= beta2;
 
-    alpha1 = learning_rate / (1. - tbeta1);
+    alpha1 = learning_rate_ / (1. - tbeta1);
     alpha2 = 1. / (1. - tbeta2);
 
     for(size_type i = 0; i < net.inner.N; ++i)
