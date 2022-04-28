@@ -57,10 +57,7 @@ public:
 
     void resize(size_type size) { self().resize(size); }
     void resize(size_type m, size_type n) { self().resize(m, n); }
-    void resize(const Shape& shape) { self().resize(shape); }
-
     void resize(size_type m, size_type n, Precision value) { self().resize(m, n, value); }
-    void resize(const Shape& shape, Precision value) { self().resize(shape, value); }
 
     void reshape(size_type m, size_type n) noexcept { self().reshape(m, n); }
 

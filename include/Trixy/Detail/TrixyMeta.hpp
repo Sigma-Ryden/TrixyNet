@@ -90,7 +90,7 @@ private:
     template <class> static std::false_type check(...);
 
     template <class U> static auto check(U* p) ->
-    decltype((*p)(std::declval<Args>()...), std::true_type());
+    decltype((*p)(std::declval<Args>()...), std::true_type{});
 
 public:
     static constexpr bool value = decltype(check<F>(nullptr))::value;
