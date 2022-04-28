@@ -60,7 +60,7 @@ public:
               meta::as<meta::is_integral_random_type<U>::value> = 0>
     integral_type operator() (integral_type min, integral_type max) noexcept
     {
-        return static_cast<integral_type>(generator_()) % (max - min + 1) + min;
+        return (*this)() % (max - min + 1) + min;
     }
 
     template <typename U = random_type,
@@ -114,7 +114,7 @@ public:
               meta::as<meta::is_integral_random_type<U>::value> = 0>
     integral_type operator() (integral_type min, integral_type max) noexcept
     {
-        return static_cast<integral_type>(generator_()) % (max - min + 1) + min;
+        return (*this)() % (max - min + 1) + min;
     }
 
     template <typename U = random_type,
