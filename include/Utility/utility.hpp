@@ -1,5 +1,5 @@
-#ifndef UTIL_HPP
-#define UTIL_HPP
+#ifndef UTILITY_HPP
+#define UTILITY_HPP
 
 #include <cstddef> // size_t
 #include <iostream> // ostream
@@ -11,7 +11,7 @@
 #include <Trixy/Lique/Matrix.hpp>
 #include <Trixy/Neuro/Checker/Core.hpp>
 
-namespace util
+namespace utility
 {
 
 class Timer
@@ -92,29 +92,28 @@ std::ostream& operator<< (
     return out;
 }
 
-template <class TrixyNet>
-void test_neuro(
+template <class TrixyNet,
+          template <typename> class Container = TrixyNet::template Container,
+          typename Sample = typename TrixyNet::Vector,
+          typename Target = typename TrixyNet::Vector>
+void statistic(
     const TrixyNet& network,
-    const typename TrixyNet::template Container<typename TrixyNet::Vector>& idata,
-    const typename TrixyNet::template Container<typename TrixyNet::Vector>& odata)
-{
-    for(std::size_t i = 0; i < idata.size(); ++i)
-        std::cout << "<" << i << "> "
-            << network(idata[i]) << " : " << odata[i] << '\n';
-}
-
-template <class TrixyNet>
-void check_neuro(
-    const TrixyNet& network,
-    const typename TrixyNet::template Container<typename TrixyNet::Vector>& idata,
-    const typename TrixyNet::template Container<typename TrixyNet::Vector>& odata)
+    const Container<Sample>& idata,
+    const Container<Target>& odata)
 {
     trixy::Checker<TrixyNet> check(network);
 
-    std::cout << "Network train normal accuracy: " << check.accuracy(idata, odata)
-              << "\nNetwork train Loss: " << check.loss(idata, odata, network.function.loss().f) << '\n';
+    for(std::size_t i = 0; i < idata.size(); ++i)
+        std::cout << "<" << i << "> "
+            << network(idata[i]) << " : " << odata[i] << '\n';
+
+    std::cout << "Network normal accuracy: " << check.accuracy.normal(idata, odata)
+              //<< "\nNetwork global accuracy: " << check.accuracy.global(idata, odata, 0.1)
+              //<< "\nNetwork full accuracy: " << check.accuracy(idata, odata)
+              << "\nNetwork loss: " << check.loss(idata, odata, network.function.loss().f)
+              << '\n';
 }
 
-} // namespace util
+} // namespace utility
 
-#endif // UTIL_HPP
+#endif // UTILITY_HPP

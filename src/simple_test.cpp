@@ -4,7 +4,7 @@
 #include <Trixy/Container/Container.hpp> // Container
 #include <Trixy/Random/Core.hpp> // Random
 
-#include <Utility/util.hpp> // Timer, test_neuro, check_neuro
+#include <Utility/utility.hpp> // Timer, test_neuro, check_neuro
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
@@ -70,9 +70,7 @@ void simple_test_deserialization()
     net.function.activationSet(manage.get(sr.getAllActivationId()));
     net.function.loss(manage.get(sr.getLossId()));
 
-    util::test_neuro(net, idata, odata);
-    util::check_neuro(net, idata, odata);
-    //util::show_inner_struct(net);
+    utility::statistic(net, idata, odata);
 }
 
 void simple_test()
@@ -86,20 +84,18 @@ void simple_test()
 
     net.inner.initialize(RandomFloating{});
 
-    net.function.activation(manage.template get<ActivationId::relu>());
-    net.function.normalization(manage.template get<ActivationId::softmax>());
+    net.function.activation(manage.get<ActivationId::relu>());
+    net.function.normalization(manage.get<ActivationId::softmax>());
 
-    net.function.loss(manage.template get<LossId::CCE>());
+    net.function.loss(manage.get<LossId::CCE>());
 
-    auto optimizer = manage.template get<OptimizationId::adam>(net, 0.01);
+    auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
-    util::Timer t;
+    utility::Timer t;
     teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
-    util::test_neuro(net, idata, odata);
-    util::check_neuro(net, idata, odata);
-    //util::show_inner_struct(net);
+    utility::statistic(net, idata, odata);
 
     std::ofstream out("D:\\Serialized\\simple_test.bin");
     if (not out.is_open()) return;

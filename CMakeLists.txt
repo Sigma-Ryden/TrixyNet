@@ -124,7 +124,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Training/Core.hpp
 )
 set(UTILS
-    include/Utility/util.hpp
+    include/Utility/utility.hpp
     include/Utility/mnist_reader.hpp
     include/Utility/mnist_reader_common.hpp
 )

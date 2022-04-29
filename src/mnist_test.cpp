@@ -4,7 +4,7 @@
 #include <Trixy/Container/Container.hpp> // Container
 #include <Trixy/Random/Core.hpp> // Random
 
-#include <Utility/util.hpp> // Timer, max, operator<<
+#include <Utility/utility.hpp> // Timer, max, operator<<
 #include <Utility/mnist_reader.hpp> // read_dataset
 
 #include <iostream> // cin, cout
@@ -29,7 +29,7 @@ using RandomFloating     = tr::RandomFloating<>;
 
 using size_type = std::size_t;
 
-using util::operator<<;
+using utility::operator<<;
 
 template <class Net, class ImageType = typename Net::Vector>
 void show_image(const ImageType& image) noexcept
@@ -194,7 +194,7 @@ void mnist_test()
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
     // Train network:
-    util::Timer t;
+    utility::Timer t;
     //
     size_type times = 10;
     for (size_type i = 1; i <= times; ++i)

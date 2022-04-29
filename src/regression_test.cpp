@@ -1,7 +1,7 @@
 #include <Trixy/Neuro/Core.hpp> // // Regression, Training, Serializer
 #include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
-#include <Utility/util.hpp> // operator<<
+#include <Utility/utility.hpp> // operator<<
 
 #include <fstream> // ifstream, ofstream
 #include <iostream> // cin, cout
@@ -16,7 +16,7 @@ using LinearReg     = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, f
 using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
 using LinearRegTraining     = tr::train::Training<LinearReg>;
 
-using util::operator<<;
+using utility::operator<<;
 
 template <class Reg, class Vector = typename Reg::Vector>
 Vector get_sin_idata()

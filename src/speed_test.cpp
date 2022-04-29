@@ -4,10 +4,10 @@
 #include <Trixy/Container/Container.hpp> // Container
 #include <Trixy/Random/Core.hpp> // Random
 
-#include <Utility/util.hpp> // Timer, test_neuro, check_neuro
+#include <Utility/utility.hpp> // Timer, statistic
 
-#include <iostream> // cin, cout
 #include <fstream> // ifstream, ofstream
+#include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 
 namespace tr = trixy;
@@ -72,9 +72,7 @@ void speed_test_deserialization()
     net.function.activationSet(manage.get(sr.getAllActivationId()));
     net.function.loss(manage.get(sr.getLossId()));
 
-    //util::show_inner_struct(net);
-    util::test_neuro(net, idata, odata);
-    util::check_neuro(net, idata, odata);
+    utility::statistic(net, idata, odata);
 }
 
 void speed_test()
@@ -98,10 +96,9 @@ void speed_test()
     auto adam = manage.get<OptimizationId::adam>(net, 0.001);
 
     std::cout << "Before train\n";
-    util::test_neuro(net, idata, odata);
-    util::check_neuro(net, idata, odata);
+    utility::statistic(net, idata, odata);
 
-    util::Timer t;
+    utility::Timer t;
     teach.trainBatch(idata, odata, grad, 100000);
     teach.trainStochastic(idata, odata, grad, 100000, RandomIntegral{});
     teach.trainMiniBatch(idata, odata, adam, 15000, 2);
@@ -109,8 +106,7 @@ void speed_test()
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     std::cout << "After train\n";
-    util::test_neuro(net, idata, odata);
-    util::check_neuro(net, idata, odata);
+    utility::statistic(net, idata, odata);
 
     std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
     if (not out.is_open()) return;
