@@ -200,8 +200,6 @@ void mnist_test()
     for (size_type i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        //teach.trainBatch(train_in, train_out, 10, optimizer);
-        //teach.trainStochastic(train_in, train_out, 5000, optimizer, RandomIntegral{});
         teach.trainMiniBatch(train_idata, train_odata, optimizer, 1, 40);
         std::cout << "Accuracy: " << check.accuracy(train_idata, train_odata) << '\n';
     }
@@ -214,7 +212,7 @@ void mnist_test()
         << "Network tarin set normal accuracy: " << check.accuracy(train_idata, train_odata) << '\n'
     // Test test_batch after train
         << "Network test set loss: " << teach.loss(test_idata, test_odata) << '\n'
-        << "Network test set normal accuracy: " << check.accuracy.normal(test_idata, test_odata) << '\n'
+        << "Network test set normal accuracy: " << check.accuracy(test_idata, test_odata) << '\n'
         << "Check time: " << t.elapsed() << '\n';
 
     std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);
@@ -229,7 +227,6 @@ void mnist_test()
 /*
 int main()
 {
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
     //mnist_test();

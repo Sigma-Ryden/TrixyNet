@@ -1,3 +1,4 @@
+#include "Trixy/Neuro/Checker/Core.hpp"
 #include <Trixy/Neuro/Core.hpp> // TrixyNet, Functional, Optimizer, Training, Serializer
 #include <Trixy/Lique/Core.hpp> // Tensor, Linear
 
@@ -9,6 +10,7 @@
 #include <fstream> // ifstream, ofstream
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
+#include <vector>
 
 namespace tr = trixy;
 namespace li = trixy::lique;
@@ -120,7 +122,6 @@ void speed_test()
 //
 int main()
 {
-    std::srand(unsigned(std::time(nullptr)));
     std::cout << std::fixed << std::setprecision(6);
 
     speed_test();

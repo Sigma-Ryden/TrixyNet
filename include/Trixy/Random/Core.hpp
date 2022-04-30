@@ -12,131 +12,119 @@ namespace trixy
 
 struct RandomType
 {
-    struct Integral { using type = Integral; };
-    struct Floating { using type = Floating; };
+    template <typename T = long long,
+              typename = meta::when<std::is_integral<T>::value>>
+    struct Integral { using type = T; };
+
+    template <typename T = double,
+              typename = meta::when<std::is_floating_point<T>::value>>
+    struct Floating { using type = T; };
 };
 
 namespace meta
 {
 
 template <typename> struct is_integral_random_type : std::false_type {};
-template <> struct is_integral_random_type<RandomType::Integral> : std::true_type {};
+template <typename T> struct is_integral_random_type<RandomType::Integral<T>> : std::true_type {};
 
 template <typename> struct is_floating_random_type : std::false_type {};
-template <> struct is_floating_random_type<RandomType::Floating> : std::true_type {};
+template <typename T> struct is_floating_random_type<RandomType::Floating<T>> : std::true_type {};
 
 } // namespace meta
 
-template <typename random_type, typename Generator = int (*)(), typename enable = void>
-class Random;
-
-template <typename random_type, typename Generator>
-class Random<random_type, Generator, meta::when<meta::is_callable<Generator>::value>>
+class DefaultGenerator
 {
 public:
-    using integral_type = long long;
-    using floating_type = double;
-
-    using size_type     = std::size_t;
-
-private:
-    Generator generator_;
-
-public:
-    Random() : generator_(static_cast<size_type>(std::time(nullptr))) {}
-    Random(size_type seed) : generator_(seed) {}
-
-    void seed(size_type seed)
-    { generator_.seed(seed); }
-
-    template <typename U = random_type,
-              meta::as<meta::is_integral_random_type<U>::value> = 0>
-    integral_type operator() () noexcept
-    {
-        return static_cast<integral_type>(generator_());
-    }
-
-    template <typename U = random_type,
-              meta::as<meta::is_integral_random_type<U>::value> = 0>
-    integral_type operator() (integral_type min, integral_type max) noexcept
-    {
-        return (*this)() % (max - min + 1) + min;
-    }
-
-    template <typename U = random_type,
-              meta::as<meta::is_floating_random_type<U>::value> = 0>
-    floating_type operator() () noexcept
-    {
-        return static_cast<floating_type>(generator_()) / static_cast<floating_type>(generator_.max());
-    }
-
-    template <typename U = random_type,
-              meta::as<meta::is_floating_random_type<U>::value> = 0>
-    floating_type operator() (floating_type min, floating_type max) noexcept
-    {
-        return (max - min) * (*this)() + min;
-    }
-};
-
-template <typename random_type>
-class Random<random_type>
-{
-public:
-    using integral_type = long long;
-    using floating_type = double;
-
-    using size_type  = std::size_t;
-
-private:
+    using size_type = std::size_t;
     using Generator = int (*)();
 
-private:
-    Generator generator_;
-
 public:
-    Random() : generator_(std::rand)
-    { std::srand(static_cast<unsigned>(std::time(nullptr))); }
-
-    Random(size_type seed) : generator_(std::rand)
-    { std::srand(seed); }
-
-    void seed(size_type seed)
-    { std::srand(seed); }
-
-    template <typename U = random_type,
-              meta::as<meta::is_integral_random_type<U>::value> = 0>
-    integral_type operator() () noexcept
+    DefaultGenerator() noexcept
     {
-        return static_cast<integral_type>(generator_());
+        std::srand(DefaultGenerator::seed());
     }
 
-    template <typename U = random_type,
-              meta::as<meta::is_integral_random_type<U>::value> = 0>
+    DefaultGenerator(size_type seed) noexcept { std::srand(seed); }
+
+    void seed(size_type seed) noexcept { std::srand(seed); }
+
+    int operator() () noexcept { return std::rand(); }
+
+    static std::size_t seed() noexcept
+    {
+        return static_cast<std::size_t>(std::time(nullptr));
+    }
+
+    static constexpr int min() noexcept { return 0; }
+    static constexpr int max() noexcept { return RAND_MAX; }
+};
+
+template <typename RandomType, class Generator = DefaultGenerator, typename enable = void>
+class Random;
+
+template <typename RandomType, class Generator>
+class Random<RandomType, Generator,
+    meta::when<meta::is_integral_random_type<RandomType>::value and
+               meta::is_callable<Generator>::value>>
+{
+public:
+    using integral_type = typename RandomType::type;
+    using size_type = std::size_t;
+
+private:
+    Generator gen;
+
+public:
+    Random() noexcept : gen(DefaultGenerator::seed()) {}
+    Random(size_type seed) noexcept : gen(seed) {}
+
+    void seed(size_type seed) noexcept { gen.seed(seed); }
+
+    integral_type operator() () noexcept
+    {
+        return static_cast<integral_type>(gen());
+    }
+
     integral_type operator() (integral_type min, integral_type max) noexcept
     {
         return (*this)() % (max - min + 1) + min;
     }
+};
 
-    template <typename U = random_type,
-              meta::as<meta::is_floating_random_type<U>::value> = 0>
+template <typename RandomType, class Generator>
+class Random<RandomType, Generator,
+    meta::when<meta::is_floating_random_type<RandomType>::value and
+               meta::is_callable<Generator>::value>>
+{
+public:
+    using floating_type = typename RandomType::type;
+    using size_type = std::size_t;
+
+private:
+    Generator gen;
+
+public:
+    Random() noexcept : gen(DefaultGenerator::seed()) {}
+    Random(size_type seed) noexcept : gen(seed) {}
+
+    void seed(size_type seed) noexcept { gen.seed(seed); }
+
     floating_type operator() () noexcept
     {
-        return static_cast<floating_type>(generator_()) / static_cast<floating_type>(RAND_MAX);
+        return static_cast<floating_type>(gen()) / static_cast<floating_type>(gen.max());
     }
 
-    template <typename U = random_type,
-              meta::as<meta::is_floating_random_type<U>::value> = 0>
     floating_type operator() (floating_type min, floating_type max) noexcept
     {
         return (max - min) * (*this)() + min;
     }
 };
 
-template <typename Generator = int (*)()>
-using RandomIntegral = Random<RandomType::Integral, Generator>;
+template <typename T = RandomType::Integral<>::type, class Generator = DefaultGenerator>
+using RandomIntegral = Random<RandomType::Integral<T>, Generator>;
 
-template <typename Generator = int (*)()>
-using RandomFloating = Random<RandomType::Floating, Generator>;
+template <typename T = RandomType::Floating<>::type, class Generator = DefaultGenerator>
+using RandomFloating = Random<RandomType::Floating<T>, Generator>;
 
 } // namespace trixy
 
