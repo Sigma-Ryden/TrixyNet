@@ -16,16 +16,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using AdaGradOptimizer =
+using AdaGrad =
     TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::ada_grad);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::ada_grad)
-    : public IOptimizer<AdaGradOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<AdaGrad<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<AdaGradOptimizer<Net>, Net>;
+    using Base = IOptimizer<AdaGrad<Net>, Net>;
 
 public:
     template <typename T>
@@ -72,7 +72,7 @@ private:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-AdaGradOptimizer<Optimizeriable>::Optimizer(
+AdaGrad<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate)
     : Base()
@@ -86,7 +86,7 @@ AdaGradOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void AdaGradOptimizer<Optimizeriable>::learning_rate(
+void AdaGrad<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -94,7 +94,7 @@ void AdaGradOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void AdaGradOptimizer<Optimizeriable>::update(
+void AdaGrad<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -107,7 +107,7 @@ void AdaGradOptimizer<Optimizeriable>::update(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class Buffer, class Optimized, class Parameter, class Gradient>
-void AdaGradOptimizer<Optimizeriable>::update(
+void AdaGrad<Optimizeriable>::update(
     Buffer& buff,
     Optimized& optimized,
     Parameter& parameter,
@@ -127,7 +127,7 @@ void AdaGradOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-AdaGradOptimizer<Optimizeriable>& AdaGradOptimizer<Optimizeriable>::reset() noexcept
+AdaGrad<Optimizeriable>& AdaGrad<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < net.inner.N; ++i)
     {
@@ -136,6 +136,12 @@ AdaGradOptimizer<Optimizeriable>& AdaGradOptimizer<Optimizeriable>::reset() noex
     }
 
     return *this;
+}
+
+template <class Net, typename... Args>
+AdaGrad<Net> AdaGradOptimizer(Net& net, Args&&... args)
+{
+    return AdaGrad<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

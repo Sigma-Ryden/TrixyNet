@@ -255,6 +255,16 @@ public:
         detail::apply(first(buff), last(buff), func, first(rhs));
     }
 
+    template <class Tensor1, class Tensor2,
+              typename = meta::when_is_tensor<Tensor1>,
+              typename = meta::when_is_tensor<Tensor2>>
+    void assign(
+        Tensor1& lhs,
+        const Tensor2& rhs) const noexcept
+    {
+        detail::copy(first(lhs), last(lhs), first(rhs));
+    }
+
     template <class Tensor, class Function,
               typename = meta::when_is_tensor<Tensor>>
     void for_each(

@@ -15,16 +15,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using NestorovOptimizer =
+using Nestorov =
     TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::nestorov);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::nestorov)
-    : public IOptimizer<NestorovOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<Nestorov<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<NestorovOptimizer<Net>, Net>;
+    using Base = IOptimizer<Nestorov<Net>, Net>;
 
 public:
     template <typename T>
@@ -74,7 +74,7 @@ private:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-NestorovOptimizer<Optimizeriable>::Optimizer(
+Nestorov<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate,
     precision_type momentum)
@@ -90,7 +90,7 @@ NestorovOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void NestorovOptimizer<Optimizeriable>::learning_rate(
+void Nestorov<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -98,7 +98,7 @@ void NestorovOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void NestorovOptimizer<Optimizeriable>::update(
+void Nestorov<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -111,7 +111,7 @@ void NestorovOptimizer<Optimizeriable>::update(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class Buffer, class Optimized, class Parameter, class Gradient>
-void NestorovOptimizer<Optimizeriable>::update(
+void Nestorov<Optimizeriable>::update(
     Buffer& buff,
     Optimized& optimized,
     Parameter& parameter,
@@ -130,7 +130,7 @@ void NestorovOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-NestorovOptimizer<Optimizeriable>& NestorovOptimizer<Optimizeriable>::reset() noexcept
+Nestorov<Optimizeriable>& Nestorov<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < net.inner.N; ++i)
     {
@@ -139,6 +139,12 @@ NestorovOptimizer<Optimizeriable>& NestorovOptimizer<Optimizeriable>::reset() no
     }
 
     return *this;
+}
+
+template <class Net, typename... Args>
+Nestorov<Net> NestorovOptimizer(Net& net, Args&&... args)
+{
+    return Nestorov<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

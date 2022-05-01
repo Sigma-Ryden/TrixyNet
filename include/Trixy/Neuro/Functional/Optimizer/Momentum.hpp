@@ -15,16 +15,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using MomentumOptimizer =
+using Momentum =
     TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::momentum);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::momentum)
-    : public IOptimizer<MomentumOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<Momentum<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<MomentumOptimizer<Net>, Net>;
+    using Base = IOptimizer<Momentum<Net>, Net>;
 
 public:
     template <typename T>
@@ -74,7 +74,7 @@ private:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-MomentumOptimizer<Optimizeriable>::Optimizer(
+Momentum<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate,
     precision_type momentum)
@@ -90,7 +90,7 @@ MomentumOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void MomentumOptimizer<Optimizeriable>::learning_rate(
+void Momentum<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -98,7 +98,7 @@ void MomentumOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void MomentumOptimizer<Optimizeriable>::update(
+void Momentum<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -111,7 +111,7 @@ void MomentumOptimizer<Optimizeriable>::update(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class Buffer, class Optimized, class Parameter, class Gradient>
-void MomentumOptimizer<Optimizeriable>::update(
+void Momentum<Optimizeriable>::update(
     Buffer& buff,
     Optimized& optimized,
     Parameter& parameter,
@@ -128,7 +128,7 @@ void MomentumOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-MomentumOptimizer<Optimizeriable>& MomentumOptimizer<Optimizeriable>::reset() noexcept
+Momentum<Optimizeriable>& Momentum<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < net.inner.N; ++i)
     {
@@ -137,6 +137,12 @@ MomentumOptimizer<Optimizeriable>& MomentumOptimizer<Optimizeriable>::reset() no
     }
 
     return *this;
+}
+
+template <class Net, typename... Args>
+Momentum<Net> MomentumOptimizer(Net& net, Args&&... args)
+{
+    return Momentum<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

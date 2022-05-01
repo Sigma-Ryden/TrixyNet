@@ -121,8 +121,8 @@ private:
     const Net& net;
 
 public:
-    XContainer<XVector> derivedB;   ///< derived bias storage (using for inner updates)
-    XContainer<XMatrix> derivedW;   ///< derived weight storage (using for inner updates)
+    XContainer<XVector> gradB;      ///< derived bias storage (using for inner updates)
+    XContainer<XMatrix> gradW;      ///< derived weight storage (using for inner updates)
 
     XContainer<XVector> deltaB;     ///< delta bias is accumulator of derived bias
     XContainer<XMatrix> deltaW;     ///< delta weight is accumulator of derived weight
@@ -153,8 +153,8 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(c
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(Net& network)
     : net(network)
-    , derivedB(Builder::getlock1d(network.inner.topology))
-    , derivedW(Builder::getlock2d(network.inner.topology))
+    , gradB(Builder::getlock1d(network.inner.topology))
+    , gradW(Builder::getlock2d(network.inner.topology))
     , deltaB(Builder::getlock1d(network.inner.topology))
     , deltaW(Builder::getlock2d(network.inner.topology))
     , size(network.inner.N)
@@ -176,8 +176,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::updateDelta() n
 {
     for(size_type i = 0; i < size; ++i)
     {
-        net.linear.add(deltaB[i], derivedB[i]);
-        net.linear.add(deltaW[i], derivedW[i]);
+        net.linear.add(deltaB[i], gradB[i]);
+        net.linear.add(deltaW[i], gradW[i]);
     }
 }
 
@@ -217,7 +217,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         feedforward(idata[sample]);
         backprop(idata[sample], odata[sample]);
 
-        optimizer.update(backprop_.derivedB.base(), backprop_.derivedW.base());
+        optimizer.update(backprop_.gradB.base(), backprop_.gradW.base());
     }
 }
 
@@ -330,13 +330,13 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
 {
     /*
     Operations:
-    * - mul
-    x - tensordot
+    X - mul
+    * - tensordot
     . - dot
     Processing:
     Z* = DE,        Z* - initial value of Z, DE - cost function derived
-    DB = DH * Z,    DH - such as DH = activation_derived(S)
-    DW = H x DB,    since DW = H x (Z * DH)
+    DB = Z x DH,    DH - such as DH = activation_derived(S)
+    DW = H * DB,    since DW = H * (Z x DH)
     Z' = W . DB^T,  Z' - previous Z in container
     */
 
@@ -348,18 +348,18 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
 
     for(; curr > 0; --curr, --back)
     {
-        net.function.activation(curr).df(backprop_.derivedB[curr], feedforward_.S[curr]);
-        net.linear.mul(backprop_.derivedB[curr], buff[curr]);
+        net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
+        net.linear.mul(backprop_.gradB[curr], buff[curr]);
 
-        net.linear.tensordot(backprop_.derivedW[curr], feedforward_.H[back], backprop_.derivedB[curr]);
+        net.linear.tensordot(backprop_.gradW[curr], feedforward_.H[back], backprop_.gradB[curr]);
 
-        net.linear.dot(buff[back], net.inner.W[curr], backprop_.derivedB[curr]);
+        net.linear.dot(buff[back], net.inner.W[curr], backprop_.gradB[curr]);
     }
 
-    net.function.activation(curr).df(backprop_.derivedB[curr], feedforward_.S[curr]);
-    net.linear.mul(backprop_.derivedB[curr], buff[curr]);
+    net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
+    net.linear.mul(backprop_.gradB[curr], buff[curr]);
 
-    net.linear.tensordot(backprop_.derivedW[curr], sample, backprop_.derivedB[curr]);
+    net.linear.tensordot(backprop_.gradW[curr], sample, backprop_.gradB[curr]);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION

@@ -11,7 +11,7 @@
 namespace trixy
 {
 
-namespace set
+namespace functional
 {
 
 namespace activation
@@ -216,7 +216,7 @@ Precision mod_tanh_derived(Precision x) noexcept
 
 } // namespace activation
 
-} // namespace set
+} // namespace functional
 
 } // namespace trixy
 

@@ -16,6 +16,7 @@ namespace tr = trixy;
 namespace li = trixy::lique;
 
 using namespace tr::functional;
+using namespace tr::train;
 
 using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
 
@@ -94,10 +95,9 @@ void speed_test()
     net.function.normalization(manage.get<ActivationId::softmax>());
     net.function.loss(manage.get<LossId::CCE>());
 
-    auto grad = manage.get<OptimizationId::grad_descent>(net, 0.1);
+    auto grad = GradDescentOptimizer(net, 0.1); // new style
     auto adam = manage.get<OptimizationId::adam>(net, 0.001);
 
-    std::cout << "Before train\n";
     utility::statistic(net, idata, odata);
 
     utility::Timer t;

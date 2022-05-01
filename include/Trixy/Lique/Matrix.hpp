@@ -151,7 +151,7 @@ public:
     : size_(m * n), row_(m), col_(n) {}
 
     Shape(const Shape& shape) noexcept
-    : size_(shape.size_), row_(shape.row_), col_(shape.col_)  {}
+    : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
 
     size_type row() const noexcept { return row_; }
     size_type col() const noexcept { return col_; }

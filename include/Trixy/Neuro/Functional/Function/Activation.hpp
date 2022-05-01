@@ -12,7 +12,7 @@
 namespace trixy
 {
 
-namespace set
+namespace functional
 {
 
 namespace activation
@@ -82,7 +82,7 @@ void softmax(Tensor& buff, const Tensor& vector) noexcept
 }
 
 template <class Tensor>
-void tensor_of_units(Tensor& buff, const Tensor& /*unused*/) noexcept
+void softmax_derived(Tensor& buff, const Tensor& /*unused*/) noexcept
 {
     buff.fill(1.);
 }
@@ -112,19 +112,39 @@ ActivationFunction get_activation_function(ActivationId id)
     case ActivationId::mod_relu:    return { mod_relu, mod_relu_derived, f_id };
     case ActivationId::mod_tanh:    return { mod_tanh, mod_tanh_derived, f_id };
 
-    case ActivationId::softmax:     return { softmax, tensor_of_units, f_id };
+    case ActivationId::softmax:     return { softmax, softmax_derived, f_id };
 
-    case ActivationId::unstable_softmax:    return { unstable_softmax, tensor_of_units, f_id };
-    case ActivationId::sigmoid_:            return { sigmoid, tensor_of_units, f_id };
+    case ActivationId::unstable_softmax:    return { unstable_softmax, softmax_derived, f_id };
 
     default:
         return { nullptr, nullptr, static_cast<CastType>(ActivationId::undefined) };
     }
 }
 
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(Identity, identity);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(ReLU, relu);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(ELU, elu);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(LReLU, lrelu);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SELU, selu);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(GELU, gelu);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(Sigmoid, sigmoid);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(Tanh, tanh);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SoftSign, softsign);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SoftPlus, softplus);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(Swish, swish);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(ModRelu, mod_relu);
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(ModTanh, mod_tanh);
+
+TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SoftMax, softmax);
+
 } // namespace activation
 
-} // namespace set
+} // namespace functional
 
 } // namespace trixy
 

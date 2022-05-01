@@ -16,16 +16,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using RMSPropOptimizer =
+using RMSProp =
     TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::rms_prop);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::rms_prop)
-    : public IOptimizer<RMSPropOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<RMSProp<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<RMSPropOptimizer<Net>, Net>;
+    using Base = IOptimizer<RMSProp<Net>, Net>;
 
 public:
     template <typename T>
@@ -75,7 +75,7 @@ private:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-RMSPropOptimizer<Optimizeriable>::Optimizer(
+RMSProp<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate,
     precision_type beta)
@@ -92,7 +92,7 @@ RMSPropOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void RMSPropOptimizer<Optimizeriable>::learning_rate(
+void RMSProp<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -100,7 +100,7 @@ void RMSPropOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void RMSPropOptimizer<Optimizeriable>::update(
+void RMSProp<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -113,7 +113,7 @@ void RMSPropOptimizer<Optimizeriable>::update(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class Buffer, class Optimized, class Parameter, class Gradient>
-void RMSPropOptimizer<Optimizeriable>::update(
+void RMSProp<Optimizeriable>::update(
     Buffer& buff,
     Optimized& optimized,
     Parameter& parameter,
@@ -135,7 +135,7 @@ void RMSPropOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-RMSPropOptimizer<Optimizeriable>& RMSPropOptimizer<Optimizeriable>::reset() noexcept
+RMSProp<Optimizeriable>& RMSProp<Optimizeriable>::reset() noexcept
 {
     for(size_type i = 0; i < net.inner.N; ++i)
     {
@@ -144,6 +144,12 @@ RMSPropOptimizer<Optimizeriable>& RMSPropOptimizer<Optimizeriable>::reset() noex
     }
 
     return *this;
+}
+
+template <class Net, typename... Args>
+RMSProp<Net> RMSPropOptimizer(Net& net, Args&&... args)
+{
+    return RMSProp<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

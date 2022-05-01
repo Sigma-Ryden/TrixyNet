@@ -4,6 +4,7 @@
 #define TRIXY_NET_META_HPP
 
 #include <type_traits> // true_type, false_type
+#include <utility> // forward
 
 #include <Trixy/Neuro/Network/Base.hpp>
 #include <Trixy/Neuro/Regression/Base.hpp>

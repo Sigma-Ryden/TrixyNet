@@ -16,16 +16,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using AdamOptimizer =
+using Adam =
     TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::adam);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::adam)
-    : public IOptimizer<AdamOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<Adam<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<AdamOptimizer<Net>, Net>;
+    using Base = IOptimizer<Adam<Net>, Net>;
 
 public:
     template <typename T>
@@ -85,7 +85,7 @@ private:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-AdamOptimizer<Optimizeriable>::Optimizer(
+Adam<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate,
     precision_type beta1,
@@ -110,7 +110,7 @@ AdamOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void AdamOptimizer<Optimizeriable>::learning_rate(
+void Adam<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -118,7 +118,7 @@ void AdamOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void AdamOptimizer<Optimizeriable>::update(
+void Adam<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -137,7 +137,7 @@ void AdamOptimizer<Optimizeriable>::update(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class Buffer, class Optimized, class Parameter, class Gradient>
-void AdamOptimizer<Optimizeriable>::update(
+void Adam<Optimizeriable>::update(
     Buffer& buff,
     Optimized& optimized1,
     Optimized& optimized2,
@@ -172,7 +172,7 @@ void AdamOptimizer<Optimizeriable>::update(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-AdamOptimizer<Optimizeriable>& AdamOptimizer<Optimizeriable>::reset() noexcept
+Adam<Optimizeriable>& Adam<Optimizeriable>::reset() noexcept
 {
     tbeta1 = 1.;
     tbeta2 = 1.;
@@ -187,6 +187,12 @@ AdamOptimizer<Optimizeriable>& AdamOptimizer<Optimizeriable>::reset() noexcept
     }
 
     return *this;
+}
+
+template <class Net, typename... Args>
+Adam<Net> AdamOptimizer(Net& net, Args&&... args)
+{
+    return Adam<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

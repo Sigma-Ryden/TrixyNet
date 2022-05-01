@@ -10,11 +10,17 @@
 #define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
     template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name(Tensor& buff, const Tensor& tensor) noexcept {                                            \
-        buff.apply(::trixy::set::activation::detail::name<precision_type>, tensor.data());              \
+        buff.apply(                                                                                     \
+            ::trixy::functional::activation::detail::name<precision_type>,                              \
+            tensor.data()                                                                               \
+        );                                                                                              \
     }                                                                                                   \
     template <class Tensor, typename precision_type = typename Tensor::precision_type>                  \
     void name##_derived(Tensor& buff, const Tensor& tensor) noexcept {                                  \
-        buff.apply(::trixy::set::activation::detail::name##_derived<precision_type>, tensor.data());    \
+        buff.apply(                                                                                     \
+            ::trixy::functional::activation::detail::name##_derived<precision_type>,                    \
+            tensor.data()                                                                               \
+        );                                                                                              \
     }
 
 #define TRIXY_FUNCTION_GENERIC_LOSS_HELPER(name, function_name)                                         \
@@ -22,6 +28,18 @@ struct name {                                                                   
     template <typename Precision, class Target, class Prediction>                                       \
     void operator() (Precision& result, const Target& y_true, const Prediction& y_pred) {               \
         function_name(result, y_true, y_pred);                                                          \
+    }                                                                                                   \
+}
+
+#define TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(name, function_name)                                   \
+struct name {                                                                                           \
+    template <class Tensor1, class Tensor2>                                                             \
+    void f(Tensor1& result, const Tensor2& input) {                                                     \
+        function_name(result, input);                                                                   \
+    }                                                                                                   \
+    template <class Tensor1, class Tensor2>                                                             \
+    void df(Tensor1& result, const Tensor2& input) {                                                    \
+        function_name##_derived(result, input);                                                         \
     }                                                                                                   \
 }
 

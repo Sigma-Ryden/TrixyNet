@@ -379,6 +379,7 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     buff = H' . W + B, where H' - previous
     H = activation(buff)
     */
+
     linear.dot(buff[0], sample, inner.W[0]);
     linear.add(buff[0], inner.B[0]);
     function.activation(0).f(buff[0], buff[0]);

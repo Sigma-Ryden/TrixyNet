@@ -15,16 +15,16 @@ namespace train
 {
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-using GradDescentOptimizer
+using GradDescent
     = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::grad_descent);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::grad_descent)
-    : public IOptimizer<GradDescentOptimizer<Optimizeriable>, Optimizeriable>
+    : public IOptimizer<GradDescent<Optimizeriable>, Optimizeriable>
 {
 public:
     using Net  = Optimizeriable;
-    using Base = IOptimizer<GradDescentOptimizer<Net>, Net>;
+    using Base = IOptimizer<GradDescent<Net>, Net>;
 
 public:
     template <typename T>
@@ -59,7 +59,7 @@ public:
 };
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-GradDescentOptimizer<Optimizeriable>::Optimizer(
+GradDescent<Optimizeriable>::Optimizer(
     Net& network,
     precision_type learning_rate)
     : Base()
@@ -71,7 +71,7 @@ GradDescentOptimizer<Optimizeriable>::Optimizer(
 }
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-void GradDescentOptimizer<Optimizeriable>::learning_rate(
+void GradDescent<Optimizeriable>::learning_rate(
     precision_type value) noexcept
 {
     learning_rate_ = value;
@@ -79,7 +79,7 @@ void GradDescentOptimizer<Optimizeriable>::learning_rate(
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 template <class BiasGrad, class WeightGrad>
-void GradDescentOptimizer<Optimizeriable>::update(
+void GradDescent<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
@@ -93,6 +93,12 @@ void GradDescentOptimizer<Optimizeriable>::update(
         net.linear.join(buff2[i], learning_rate_, gradW[i]);
         net.linear.sub(net.inner.W[i], buff2[i]);
     }
+}
+
+template <class Net, typename... Args>
+GradDescent<Net> GradDescentOptimizer(Net& net, Args&&... args)
+{
+    return GradDescent<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

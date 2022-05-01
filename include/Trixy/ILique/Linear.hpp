@@ -167,6 +167,16 @@ public:
         self().apply(buff, func, tensor);
     }
 
+    template <class Tensor1, class Tensor2,
+              typename = lique::meta::when_is_tensor<Tensor1>,
+              typename = lique::meta::when_is_tensor<Tensor2>>
+    void assign(
+        Tensor1& lhs,
+        const Tensor2& rhs) const noexcept
+    {
+        self().assign(lhs, rhs);
+    }
+
     template <class Tensor, class Function,
               typename = lique::meta::when_is_tensor<Tensor>>
     void for_each(

@@ -70,7 +70,7 @@ void test_image_batch(const Net& net, const ImageDataType& data, const ImageData
 }
 
 template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-ImageDataType initialize_i(
+ImageDataType get_idata(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
     ImageDataType input_batch;
@@ -87,7 +87,7 @@ ImageDataType initialize_i(
 }
 
 template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-ImageDataType initialize_o(
+ImageDataType get_odata(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
     ImageDataType output_batch;
@@ -114,12 +114,12 @@ void mnist_test_deserialization()
     size_type out_size   = 10;
 
     // Train batch initialize:
-    auto train_idata = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_idata = get_idata<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_idata = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_idata = get_idata<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if (not in.is_open()) return;
@@ -167,12 +167,12 @@ void mnist_test()
     size_type out_size   = 10;
 
     // Train batch initialize:
-    auto train_idata = initialize_i<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = initialize_o<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_idata = get_idata<TrixyNet>(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
 
     // Test batch initialize:
-    auto test_idata = initialize_i<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = initialize_o<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_idata = get_idata<TrixyNet>(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
 
     // Show image:
     //show_image_batch(train_in);

@@ -130,7 +130,7 @@ void polynomial_regression_test()
     std::cout << reg.getInnerPower() << '\n'
               << "Weight:\n" << reg.getInnerWeight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, tr::set::loss::MSE()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
 
     std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not out.is_open()) return;
@@ -180,7 +180,7 @@ void linear_regression_test()
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, tr::set::loss::MSE()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
 
     std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not out.is_open()) return;

@@ -29,7 +29,6 @@ enum class ActivationId : std::uint8_t
     mod_relu,           ///< relu for range [0, 1]
     mod_tanh,           ///< tanh for range [0, 1]
     unstable_softmax,   ///< deprecated
-    sigmoid_            ///< maybe unused
 };
 
 enum class LossId : std::uint8_t

@@ -36,12 +36,12 @@ public:
 
 private:
     template <functional::OptimizationId id>
-    using optimizer_type_from       = train::OptimizerType::type_from<id>;
+    using optimizer_type_from = train::OptimizerType::type_from<id>;
 
 public:
     ActivationFunction get(ActivationId id) const noexcept
     {
-        return set::activation::get_activation_function<ActivationFunction, ActivationId>(id);
+        return functional::activation::get_activation_function<ActivationFunction, ActivationId>(id);
     }
 
     Container<ActivationFunction> get(const Container<ActivationId>& all_id) const noexcept
@@ -56,7 +56,7 @@ public:
 
     LossFunction get(LossId id) const noexcept
     {
-        return set::loss::get_loss_function<LossFunction, LossId>(id);
+        return functional::loss::get_loss_function<LossFunction, LossId>(id);
     }
 
     template <ActivationId id> ActivationFunction get() const noexcept

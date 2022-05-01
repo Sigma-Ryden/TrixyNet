@@ -8,7 +8,7 @@
 namespace trixy
 {
 
-namespace set
+namespace functional
 {
 
 namespace loss
@@ -348,7 +348,7 @@ TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh);
 
 } // namespace loss
 
-} // namespace set
+} // namespace functional
 
 } // namespace trixy
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Trixy LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
@@ -79,6 +79,8 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
+
+    #include/Trixy/Neuro/Network/Layer/Core.hpp
 
     include/Trixy/Neuro/Checker/Detail/MacroScope.hpp
     include/Trixy/Neuro/Checker/Detail/MacroUnscope.hpp
