@@ -10,20 +10,10 @@ struct RegressionType
     struct Polynomial { using type = Polynomial; };
 };
 
-template <class RegressionType,
-    template <typename P, typename...> class VectorType,
-    template <typename P, typename...> class MatrixType,
-    template <typename P, typename...> class LinearType,
-    typename PrecisionType,
-    typename... Pack>
+template <typename RegressionType, typename TypeSet>
 class Regression;
 
-template <class RegressionType,
-    template <typename P, typename...> class VectorType,
-    template <typename P, typename...> class MatrixType,
-    template <typename P, typename...> class LinearType,
-    typename PrecisionType,
-    typename... Pack>
+template <class RegressionType, typename TypeSet>
 struct RegressionRequire;
 
 } // namespace trixy

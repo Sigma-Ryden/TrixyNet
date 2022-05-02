@@ -22,13 +22,7 @@ namespace meta
 {
 
 template <typename> struct is_trixy_net : std::false_type {};
-template <class TrixyNetType,
-          template <typename P, typename...> class VectorType,
-          template <typename P, typename...> class MatrixType,
-          template <typename P, typename...> class LinearType,
-          template <typename T, typename...> class ContainerType,
-          typename PrecisionType,
-          typename... Pack>
+template <typename TrixyNetType, typename TypeSet>
 struct is_trixy_net<TRIXY_NET_TPL(TrixyNetType)> : std::true_type {};
 
 template <typename> struct is_feedforward_net : std::false_type {};
@@ -36,12 +30,7 @@ TRIXY_NET_TPL_DECLARATION
 struct is_feedforward_net<TRIXY_NET_TPL(TrixyNetType::FeedForward)> : std::true_type {};
 
 template <typename> struct is_regression : std::false_type {};
-template <class RegressionType,
-          template <typename P, typename...> class VectorType,
-          template <typename P, typename...> class MatrixType,
-          template <typename P, typename...> class LinearType,
-          typename PrecisionType,
-          typename... Pack>
+template <typename RegressionType, typename TypeSet>
 struct is_regression<TRIXY_REGRESSION_TPL(RegressionType)> : std::true_type {};
 
 template <typename> struct is_linear_regression : std::false_type {};

@@ -3,16 +3,7 @@
 
 #include <Trixy/Neuro/Network/Base.hpp>
 
-#include <Trixy/Require/Base.hpp>
-
-#include <Trixy/Require/Precision.hpp>
-
-#include <Trixy/Require/Vector.hpp>
-#include <Trixy/Require/Matrix.hpp>
-
-#include <Trixy/Require/Linear.hpp>
-
-#include <Trixy/Require/Container.hpp>
+#include <Trixy/Require/Core.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
 
@@ -26,24 +17,24 @@ public:
     using type = TrixyNetType::FeedForward;
 
 protected:
-    using Precision         = PrecisionType;
+    using precision_type    = typename TypeSet::precision_type;
 
-    using Vector            = VectorType<Precision, Pack...>;
-    using Matrix            = MatrixType<Precision, Pack...>;
+    using Vector            = typename TypeSet::Vector;
+    using Matrix            = typename TypeSet::Matrix;
 
-    using Linear            = LinearType<Precision>;
+    using Linear            = typename TypeSet::Linear;
 
-    using Container         = ContainerType<Precision>;
+    using Container         = typename TypeSet::template Container<precision_type>;
 
 protected:
-    using precision_require = typename PrecisionRequire<Precision>::type;
+    using require_precision = typename PrecisionRequire<precision_type>::type;
 
-    using vector_require    = typename VectorRequire<Vector>::type;
-    using matrix_require    = typename MatrixRequire<Matrix>::type;
+    using require_vector    = typename VectorRequire<Vector>::type;
+    using require_matrix    = typename MatrixRequire<Matrix>::type;
 
-    using linear_require    = typename LinearRequire<Linear>::type;
+    using require_linear    = typename LinearRequire<Linear>::type;
 
-    using container_require = typename ContainerRequire<Container>::type;
+    using require_container = typename ContainerRequire<Container>::type;
 };
 
 } // namespace trixy

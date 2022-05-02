@@ -10,13 +10,13 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-using PolynomialReg = tr::PolynomialRegression<li::Vector, li::Matrix, li::Linear, double>;
-using LinearReg     = tr::LinearRegression<li::Vector, li::Matrix, li::Linear, float>;
+using namespace utility; // TypeSet
+
+using PolynomialReg = tr::PolynomialRegression<TypeSet<double>>;
+using LinearReg     = tr::LinearRegression<TypeSet<float>>;
 
 using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
 using LinearRegTraining     = tr::train::Training<LinearReg>;
-
-using utility::operator<<;
 
 template <class Reg, class Vector = typename Reg::Vector>
 Vector get_sin_idata()

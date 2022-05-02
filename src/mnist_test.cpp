@@ -16,8 +16,9 @@ namespace tr = trixy;
 namespace li = trixy::lique;
 
 using namespace tr::functional;
+using namespace utility; // TypeSet
 
-using TrixyNet = tr::FeedForwardNet<li::Vector, li::Matrix, li::Linear, tr::Container, float>;
+using TrixyNet = tr::FeedForwardNet<TypeSet<float>>;
 
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;

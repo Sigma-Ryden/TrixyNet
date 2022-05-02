@@ -25,19 +25,19 @@ class TRIXY_REGRESSION_TPL(RegressionType::Linear) :
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
 
 public:
-    using Vector          = VectorType<PrecisionType, Pack...>;
-    using Matrix          = MatrixType<PrecisionType, Pack...>;
+    using Vector          = typename TypeSet::Vector;
+    using Matrix          = typename TypeSet::Matrix;
 
-    using precision_type  = PrecisionType;
-    using size_type       = std::size_t;
+    using Linear          = typename TypeSet::Linear;
 
-    using TensorOperation = LinearType<PrecisionType>;
+    using precision_type  = typename TypeSet::precision_type;
+    using size_type       = typename TypeSet::size_type;
 
 private:
     Vector W;             ///< Inner weight
     size_type N;          ///< Size of weight vector (same as sample size + 1)
 
-    TensorOperation linear;
+    Linear linear;
 
 public:
     explicit Regression(size_type sample_size);

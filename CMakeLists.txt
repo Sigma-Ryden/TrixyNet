@@ -48,6 +48,7 @@ set(TRIXY_LOCKER
     include/Trixy/Locker/Container.hpp
     include/Trixy/Locker/Vector.hpp
     include/Trixy/Locker/Matrix.hpp
+    include/Trixy/Locker/Core.hpp
 )
 set(TRIXY_REQUIRE
     include/Trixy/Require/Base.hpp
@@ -56,6 +57,7 @@ set(TRIXY_REQUIRE
     include/Trixy/Require/Linear.hpp
     include/Trixy/Require/Container.hpp
     include/Trixy/Require/Precision.hpp
+    include/Trixy/Require/Core.hpp
 )
 set(TRIXY_BUFFER
     include/Trixy/Buffer/Core.hpp
@@ -124,6 +126,8 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Training/LinearRegression.hpp
     include/Trixy/Neuro/Training/PolynomialRegression.hpp
     include/Trixy/Neuro/Training/Core.hpp
+
+    include/Trixy/Core.hpp
 )
 set(UTILS
     include/Utility/utility.hpp

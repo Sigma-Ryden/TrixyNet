@@ -10,9 +10,7 @@
 #include <Trixy/Neuro/Training/Base.hpp>
 #include <Trixy/Neuro/Functional/Id.hpp>
 
-#include <Trixy/Locker/Vector.hpp>
-#include <Trixy/Locker/Matrix.hpp>
-#include <Trixy/Locker/Container.hpp>
+#include <Trixy/Locker/Core.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -25,8 +23,8 @@ TRIXY_NET_TPL_DECLARATION
 using FeedForwardNet = TRIXY_NET_TPL(TrixyNetType::FeedForward);
 
 TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward) :
-    public TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
+class TRIXY_NET_TPL(TrixyNetType::FeedForward)
+    : public TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
 {
 public:
     class InnerStruct;
@@ -41,24 +39,24 @@ private:
 
 public:
     template <typename T>
-    using Container                 = ContainerType<T>;
+    using Container                 = typename TypeSet::template Container<T>;
+
+    using Vector                    = typename TypeSet::Vector;
+    using Matrix                    = typename TypeSet::Matrix;
+
+    using precision_type            = typename TypeSet::precision_type;
+    using size_type                 = typename TypeSet::size_type;
+
+    using Linear                    = typename TypeSet::Linear;
 
     template <typename T>
     using XContainer                = ContainerLocker<Container<T>>;
 
-    using Vector                    = VectorType<PrecisionType, Pack...>;
-    using Matrix                    = MatrixType<PrecisionType, Pack...>;
-
     using XVector                   = VectorLocker<Vector>;
     using XMatrix                   = MatrixLocker<Matrix>;
 
-    using precision_type            = PrecisionType;
-    using size_type                 = std::size_t;
-
-    using TensorOperation           = LinearType<PrecisionType>;
-
     using InnerBuffer               = XContainer<XVector>;
-    using InnerTopology             = ContainerType<std::size_t>;
+    using InnerTopology             = Container<size_type>;
 
     using ActivationId              = functional::ActivationId;
     using LossId                    = functional::LossId;
@@ -70,7 +68,7 @@ public:
     InnerStruct inner;              ///< Network set of bias and weight
 
     InnerFunctional function;       ///< Functional object for setup inner network function
-    TensorOperation linear;         ///< Linear class for tensor calculate
+    Linear linear;                  ///< Linear class for tensor calculate
 
 public:
     TrixyNet(const InnerTopology& topology);

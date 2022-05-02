@@ -2,20 +2,13 @@
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
 #define TRIXY_NET_TPL_DECLARATION                                                                       \
-    template <template <typename P, typename...> class VectorType,                                      \
-              template <typename P, typename...> class MatrixType,                                      \
-              template <typename P, typename...> class LinearType,                                      \
-              template <typename T, typename...> class ContainerType,                                   \
-              typename PrecisionType,                                                                   \
-              typename... Pack>
+    template <typename TypeSet>
 
 #define TRIXY_NET_TPL(trixy_net_type)                                                                   \
-    TrixyNet<trixy_net_type,                                                                            \
-             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, Pack...>
+    TrixyNet<trixy_net_type, TypeSet>
 
 #define TRIXY_NET_REQUIRE_TPL(trixy_net_type)                                                           \
-    TrixyNetRequire<trixy_net_type,                                                                     \
-             VectorType, MatrixType, LinearType, ContainerType, PrecisionType, Pack...>
+    TrixyNetRequire<trixy_net_type, TypeSet>
 
 #define TRIXY_SERIALIZER_TPL_DECLARATION                                                                \
     template <typename Serializable>
@@ -47,16 +40,10 @@
         ::trixy::meta::when<is_type<Trainable>::value>>
 
 #define TRIXY_REGRESSION_TPL_DECLARATION                                                                \
-    template <template <typename P, typename...> class VectorType,                                      \
-              template <typename P, typename...> class MatrixType,                                      \
-              template <typename P, typename...> class LinearType,                                      \
-              typename PrecisionType,                                                                   \
-              typename... Pack>
+    template <typename TypeSet>
 
 #define TRIXY_REGRESSION_TPL(regression_type)                                                           \
-    Regression<regression_type,                                                                         \
-               VectorType, MatrixType, LinearType, PrecisionType, Pack...>
+    Regression<regression_type, TypeSet>
 
 #define TRIXY_REGRESSION_REQUIRE_TPL(regression_type)                                                   \
-    RegressionRequire<regression_type,                                                                  \
-             VectorType, MatrixType, LinearType, PrecisionType, Pack...>
+    RegressionRequire<regression_type, TypeSet>

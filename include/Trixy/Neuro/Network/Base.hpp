@@ -9,22 +9,10 @@ struct TrixyNetType
     struct FeedForward { using type = FeedForward; };
 };
 
-template <class TrixyNetType,
-          template <typename P, typename...> class VectorType,
-          template <typename P, typename...> class MatrixType,
-          template <typename P, typename...> class LinearType,
-          template <typename T, typename...> class ContainerType,
-          typename PrecisionType,
-          typename... Pack>
+template <typename TrixyNetType, typename TypeSet>
 class TrixyNet;
 
-template <class TrixyNetType,
-          template <typename P, typename...> class VectorType,
-          template <typename P, typename...> class MatrixType,
-          template <typename P, typename...> class LinearType,
-          template <typename T, typename...> class ContainerType,
-          typename PrecisionType,
-          typename... Pack>
+template <typename TrixyNetType, typename TypeSet>
 struct TrixyNetRequire;
 
 } // namespace trixy

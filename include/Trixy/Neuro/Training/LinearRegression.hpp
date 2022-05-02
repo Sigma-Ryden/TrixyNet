@@ -19,8 +19,6 @@ public:
     using Vector          = typename Trainable::Vector;
     using Matrix          = typename Trainable::Matrix;
 
-    using TensorOperation = typename Trainable::TensorOperation;
-
     using precision_type  = typename Trainable::precision_type;
     using size_type       = typename Trainable::size_type;
 

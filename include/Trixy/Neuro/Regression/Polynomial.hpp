@@ -19,25 +19,25 @@ TRIXY_REGRESSION_TPL_DECLARATION
 using PolynomialRegression = TRIXY_REGRESSION_TPL(RegressionType::Polynomial);
 
 TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) :
+class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) : public TypeSet,
     public TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Polynomial)::type
 {
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)>;
 
 public:
-    using Vector          = VectorType<PrecisionType, Pack...>;
-    using Matrix          = MatrixType<PrecisionType, Pack...>;
+    using Vector          = typename TypeSet::Vector;
+    using Matrix          = typename TypeSet::Matrix;
 
-    using precision_type  = PrecisionType;
-    using size_type       = std::size_t;
+    using Linear          = typename TypeSet::Linear;
 
-    using TensorOperation = LinearType<PrecisionType>;
+    using precision_type  = typename TypeSet::precision_type;
+    using size_type       = typename TypeSet::size_type;
 
 private:
     Vector W;             ///< Inner weight
     size_type N;          ///< Size of weight vector (same as power size + 1)
 
-    TensorOperation linear;
+    Linear linear;
 
 public:
     explicit Regression(size_type power);
