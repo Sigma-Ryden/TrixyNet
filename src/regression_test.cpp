@@ -1,5 +1,6 @@
-#include <Trixy/Neuro/Core.hpp> // // Regression, Training, Serializer
-#include <Trixy/Lique/Core.hpp> // Tensor, Linear
+#include <Trixy/Core.hpp>
+// TrixyNet, Functional, Optimizer, Training
+// Serializer, Tensor, Linear, Container, Random
 
 #include <Utility/utility.hpp> // operator<<
 
@@ -10,10 +11,10 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-using namespace utility; // TypeSet
+using namespace utility; // Core
 
-using PolynomialReg = tr::PolynomialRegression<TypeSet<double>>;
-using LinearReg     = tr::LinearRegression<TypeSet<float>>;
+using PolynomialReg = tr::PolynomialRegression<tr::TypeSet<double>>;
+using LinearReg     = tr::LinearRegression<tr::TypeSet<float>>;
 
 using PolynomialRegTraining = tr::train::Training<PolynomialReg>;
 using LinearRegTraining     = tr::train::Training<LinearReg>;

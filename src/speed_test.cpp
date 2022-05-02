@@ -1,9 +1,6 @@
-#include "Trixy/Neuro/Checker/Core.hpp"
-#include <Trixy/Neuro/Core.hpp> // TrixyNet, Functional, Optimizer, Training, Serializer
-#include <Trixy/Lique/Core.hpp> // Tensor, Linear
-
-#include <Trixy/Container/Container.hpp> // Container
-#include <Trixy/Random/Core.hpp> // Random
+#include <Trixy/Core.hpp>
+// TrixyNet, Functional, Optimizer, Training
+// Serializer, Tensor, Linear, Container, Random
 
 #include <Utility/utility.hpp> // Timer, statistic
 
@@ -18,9 +15,9 @@ namespace li = trixy::lique;
 using namespace tr::functional;
 using namespace tr::train;
 
-using namespace utility; // TypeSet
+using namespace utility;
 
-using TrixyNet = tr::FeedForwardNet<TypeSet<float>>;
+using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
 
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
@@ -91,7 +88,7 @@ void speed_test()
     TrixyNetTraining teach(net);
 
     RandomFloating gen;
-    net.inner.initialize([&gen] { return gen(.0, .5); });
+    net.inner.initialize([&gen] { return gen(-.5, .5); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());

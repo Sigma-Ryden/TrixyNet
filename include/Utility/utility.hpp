@@ -7,30 +7,13 @@
 #include <utility> // declval
 #include <chrono> // chrono
 
-#include <Trixy/Container/Container.hpp>
-
 #include <Trixy/Lique/Vector.hpp>
 #include <Trixy/Lique/Matrix.hpp>
-#include <Trixy/Lique/Linear.hpp>
 
 #include <Trixy/Neuro/Checker/Core.hpp>
 
 namespace utility
 {
-
-template <typename Precision>
-struct TypeSet
-{
-    template <typename T>
-    using Container = trixy::Container<T>;
-
-    using Vector = trixy::lique::Vector<Precision>;
-    using Matrix = trixy::lique::Matrix<Precision>;
-    using Linear = trixy::lique::Linear<Precision>;
-
-    using size_type = std::size_t;
-    using precision_type = Precision;
-};
 
 class Timer
 {
