@@ -21,10 +21,10 @@ public:
     using size_type             = typename Net::size_type;
 
 private:
-    const Net& net;
+    Net& net;
 
 public:
-    explicit Accuracy(const Net& network) : net(network) {}
+    explicit Accuracy(Net& network) : net(network) {}
 
     // operator= for copy and move Accuracy object will not implicit generate
     Accuracy(const Accuracy&) = default;
@@ -32,21 +32,21 @@ public:
 
     TRIXY_ACCURACY_TPL_DECLARATION
     long double normal(const Container<Sample>& idata,
-                       const Container<Target>& odata) const noexcept;
+                       const Container<Target>& odata) noexcept;
 
     TRIXY_ACCURACY_TPL_DECLARATION
     long double full(const Container<Sample>& idata,
                      const Container<Target>& odata,
-                     precision_type range_rate) const noexcept;
+                     precision_type range_rate) noexcept;
 
     TRIXY_ACCURACY_TPL_DECLARATION
     long double global(const Container<Sample>& idata,
                        const Container<Target>& odata,
-                       precision_type range_rate) const noexcept;
+                       precision_type range_rate) noexcept;
 
     TRIXY_ACCURACY_TPL_DECLARATION
     long double operator() (const Container<Sample>& idata,
-                            const Container<Target>& odata) const noexcept
+                            const Container<Target>& odata) noexcept
     { return normal(idata, odata); }
 };
 
@@ -78,7 +78,7 @@ template <class Checkable>
 TRIXY_ACCURACY_TPL_DECLARATION
 long double Accuracy<Checkable>::normal(
     const Container<Sample>& idata,
-    const Container<Target>& odata) const noexcept
+    const Container<Target>& odata) noexcept
 {
     size_type count = 0;
 
@@ -94,7 +94,7 @@ TRIXY_ACCURACY_TPL_DECLARATION
 long double Accuracy<Checkable>::full(
     const Container<Sample>& idata,
     const Container<Target>& odata,
-    precision_type range_rate) const noexcept
+    precision_type range_rate) noexcept
 {
     size_type count = 0;
 
@@ -110,7 +110,7 @@ TRIXY_ACCURACY_TPL_DECLARATION
 long double Accuracy<Checkable>::global(
     const Container<Sample>& idata,
     const Container<Target>& odata,
-    precision_type range_rate) const noexcept
+    precision_type range_rate) noexcept
 {
     size_type count = 0;
 

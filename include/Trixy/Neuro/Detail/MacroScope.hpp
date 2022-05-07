@@ -20,9 +20,9 @@
 #define TRIXY_FUNCTIONAL_TPL_DECLARATION                                                                \
     template <typename Functionable>
 
-#define TRIXY_FUNCTIONAL_TPL(is_type...)                                                                \
+#define TRIXY_FUNCTIONAL_TPL(is_type)                                                                   \
     Functional<Functionable,                                                                            \
-        ::trixy::meta::when<::trixy::meta::has_true<Functionable, is_type>::value>>
+        ::trixy::meta::when<is_type<Functionable>::value>>
 
 #define TRIXY_OPTIMIZER_TPL_DECLARATION                                                                 \
     template <class Optimizeriable>

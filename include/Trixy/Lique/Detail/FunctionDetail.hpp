@@ -133,14 +133,14 @@ void assign(T* first, T* last, Operation operation, const T* src)
 }
 
 template <typename T, class Operation>
-void assign(T* first, T* last, Operation operation, const T& value, const T* rhs)
+void assign(T* first, T* last, Operation operation, const T& value, const T* rhs) // OVERIEW
 {
     assign(first, last, cpy(), value);
     assign(first, last, operation, rhs);
 }
 
 template <typename T, class Operation>
-void assign(T* first, T* last, Operation operation, const T* lhs, const T* rhs)
+void assign(T* first, T* last, Operation operation, const T* lhs, const T* rhs) // OVERVIEW
 {
     copy(first, last, lhs);
     assign(first, last, operation, rhs);

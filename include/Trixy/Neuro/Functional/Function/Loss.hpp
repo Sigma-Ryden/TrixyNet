@@ -338,13 +338,13 @@ LossFunction get_loss_function(LossId id)
     }
 }
 
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSE, mean_squared_error);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MAE, mean_absolute_error);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(CCE, categorical_cross_entropy);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(BCE, binary_cross_entropy);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSLE, mean_squared_log_error);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(NLL, negative_log_likelihood);
-TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSE, mean_squared_error, mean_squared_error_derived);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MAE, mean_absolute_error, mean_absolute_error_derived);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(CCE, categorical_cross_entropy, mean_squared_error_derived);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(BCE, binary_cross_entropy, binary_cross_entropy_derived_sigmoid);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSLE, mean_squared_log_error, mean_squared_log_error_derived);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(NLL, negative_log_likelihood, negative_log_likelihood_derived_softmax);
+TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh, logcosh_derived);
 
 } // namespace loss
 

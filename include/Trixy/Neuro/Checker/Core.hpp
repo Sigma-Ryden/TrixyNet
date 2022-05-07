@@ -22,14 +22,14 @@ private:
     using Guide                 = typename Accuracy::Guide;
 
 private:
-    const Checkable& net;
+    Checkable& net;
 
 public:
     Accuracy accuracy;
     Guide guide;
 
 public:
-    explicit Checker(const Net& network)
+    explicit Checker(Net& network)
     : net(network), accuracy(network), guide() {}
 
     // operator= for copy and move Checker object will not implicit generate
@@ -40,7 +40,7 @@ public:
               class Sample, class Target, class LossFunction>
     long double loss(const Container<Sample>& idata,
                      const Container<Target>& odata,
-                     LossFunction loss_function) const noexcept
+                     LossFunction loss_function) noexcept
     {
         precision_type result = 0.;
         precision_type error  = 0.;
@@ -57,7 +57,7 @@ public:
     template <class Sample, class Target, class LossFunction>
     long double loss(const Sample& sample,
                      const Target& target,
-                     LossFunction loss_function) const noexcept
+                     LossFunction loss_function) noexcept
     {
         precision_type error = 0.;
 

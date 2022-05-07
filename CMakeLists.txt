@@ -80,9 +80,10 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Base.hpp
     include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
+    include/Trixy/Neuro/Network/ExperimentalNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
 
-    #include/Trixy/Neuro/Network/Layer/Core.hpp
+    include/Trixy/Neuro/Network/Layer/Layer.hpp
 
     include/Trixy/Neuro/Checker/Detail/MacroScope.hpp
     include/Trixy/Neuro/Checker/Detail/MacroUnscope.hpp

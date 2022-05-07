@@ -7,7 +7,6 @@
 #include <fstream> // ifstream, ofstream
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
-#include <vector>
 
 namespace tr = trixy;
 namespace li = trixy::lique;

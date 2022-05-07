@@ -123,6 +123,11 @@ Precision sigmoid_derived(Precision x) noexcept
 {
     return 0.5 / (std::cosh(x) + 1.);
 }
+TRIXY_FUNCTION_TPL_DECLARATION
+Precision sigmoid_derived_self(Precision x) noexcept
+{
+    return x * (1 - x);
+}
 
 TRIXY_FUNCTION_TPL_DECLARATION
 Precision tanh(Precision x) noexcept

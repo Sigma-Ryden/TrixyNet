@@ -98,7 +98,7 @@ template <class TrixyNet,
           typename Sample = typename TrixyNet::Vector,
           typename Target = typename TrixyNet::Vector>
 void statistic(
-    const TrixyNet& network,
+    TrixyNet& network,
     const Container<Sample>& idata,
     const Container<Target>& odata)
 {
@@ -111,7 +111,7 @@ void statistic(
     std::cout << "Network normal accuracy: " << check.accuracy.normal(idata, odata)
               //<< "\nNetwork global accuracy: " << check.accuracy.global(idata, odata, 0.1)
               //<< "\nNetwork full accuracy: " << check.accuracy(idata, odata)
-              << "\nNetwork loss: " << check.loss(idata, odata, network.function.loss().f)
+              //<< "\nNetwork loss: " << check.loss(idata, odata, network.function.loss().f)
               << '\n';
 }
 

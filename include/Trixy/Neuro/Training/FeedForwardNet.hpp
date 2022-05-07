@@ -311,16 +311,14 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::feedforward(
 
     net.linear.dot(feedforward_.S[curr], sample, net.inner.W[curr]);
     net.linear.add(feedforward_.S[curr], net.inner.B[curr]);
+    net.function.activation(curr).f(feedforward_.H[curr], feedforward_.S[curr]);
 
     for(; fwd < net.inner.N; ++curr, ++fwd)
     {
-        net.function.activation(curr).f(feedforward_.H[curr], feedforward_.S[curr]);
-
         net.linear.dot(feedforward_.S[fwd], feedforward_.H[curr], net.inner.W[fwd]);
         net.linear.add(feedforward_.S[fwd], net.inner.B[fwd]);
+        net.function.activation(fwd).f(feedforward_.H[fwd], feedforward_.S[fwd]);
     }
-
-    net.function.activation(curr).f(feedforward_.H[curr], feedforward_.S[curr]);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -343,21 +341,19 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
     // current and back numbers of layer in network
     size_type curr = net.inner.N - 1;
     size_type back = curr - 1;
-
+    //
     net.function.loss().df(buff[curr], target, feedforward_.H[curr]);
+    net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
+    net.linear.mul(backprop_.gradB[curr], buff[curr]);
 
     for(; curr > 0; --curr, --back)
     {
-        net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
-        net.linear.mul(backprop_.gradB[curr], buff[curr]);
-
         net.linear.tensordot(backprop_.gradW[curr], feedforward_.H[back], backprop_.gradB[curr]);
 
         net.linear.dot(buff[back], net.inner.W[curr], backprop_.gradB[curr]);
+        net.function.activation(back).df(backprop_.gradB[back], feedforward_.S[back]);
+        net.linear.mul(backprop_.gradB[back], buff[back]);
     }
-
-    net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
-    net.linear.mul(backprop_.gradB[curr], buff[curr]);
 
     net.linear.tensordot(backprop_.gradW[curr], sample, backprop_.gradB[curr]);
 }
