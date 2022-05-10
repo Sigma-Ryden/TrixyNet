@@ -2,7 +2,6 @@
 #define TRIXY_LIQUE_TENSOR_HPP
 
 #include <cstddef> // size_t
-#include <initializer_list> // initializer_list
 
 #include <Trixy/Lique/Base.hpp>
 #include <Trixy/Lique/BaseTensor.hpp>

@@ -7,7 +7,6 @@
 #include <Trixy/Lique/BaseTensor.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
-#include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
 #include <Trixy/Lique/Detail/MacroScope.hpp>
 

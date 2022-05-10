@@ -8,9 +8,6 @@
     Tensor<Precision, tensor_type,                                                                      \
            ::trixy::meta::when<std::is_arithmetic<Precision>::value>>
 
-#define LIQUE2_TENSOR_TPL(tensor_type, tensor_mode)                                                     \
-    Tensor<Precision, TensorType::tensor_type, TensorMode::tensor_mode>
-
 #define LIQUE_BASE_TENSOR_TYPES                                                                         \
     private:                                                                                            \
         using Base = BaseTensor<Precision>;                                                             \
