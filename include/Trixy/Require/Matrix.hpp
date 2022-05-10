@@ -9,7 +9,7 @@ namespace trixy
 template <class Tensor>
 using MatrixRequire = Require<Tensor, RequireType::matrix>;
 
-template <class Tensor>
+template <class Tensor> // REPAIR
 struct Require<Tensor, RequireType::matrix> : protected Tensor
 {
 public:
