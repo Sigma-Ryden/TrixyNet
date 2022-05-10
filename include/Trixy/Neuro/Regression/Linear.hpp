@@ -95,9 +95,9 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
     TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforward(
     const Matrix& idata) const
 {
-    Matrix X(idata.shape().row(), N);
+    Matrix X(idata.shape().height, N);
 
-    for(size_type i = 0; i < X.shape().row(); ++i)
+    for(size_type i = 0; i < X.shape().height; ++i)
     {
         X(i, 0) = 1.;
         for(size_type j = 1; j < N; ++j)

@@ -149,8 +149,8 @@ public:
 
 private:
     XVector buff_;
-    XVector value_;
 
+    XVector H_;
     XVector B_;
     XMatrix W_;
 
@@ -167,10 +167,8 @@ private:
 public:
     FullyConnected(size_type in, size_type out) noexcept
         : Base()
-        , buff_(out), value_(out)
-        , B_(out), W_(in, out)
-        , gradB_(out), gradW_(in, out)
-        , delta_(in)
+        , buff_(out), H_(out), B_(out), W_(in, out)
+        , gradB_(out), gradW_(in, out), delta_(in)
         , in_(in), out_(out)
     {
         this->template initialize<FullyConnected>();
@@ -186,7 +184,7 @@ public:
         linear.add(buff_, B_);
 
         // value = F(S)
-        Activation::f(value_, buff_);
+        Activation::f(H_, buff_);
     }
 
     void backward(const Vector& input, const Vector& idelta) noexcept
@@ -214,7 +212,7 @@ public:
         linear.assign(gradB_, buff_);
     }
 
-    const Vector& value() noexcept { return value_.base(); }
+    const Vector& value() noexcept { return H_.base(); }
 
     XVector& B() noexcept { return B_; }
     XMatrix& W() noexcept { return W_; }
@@ -247,8 +245,8 @@ public:
 
 private:
     XVector buff_;
-    XVector value_;
 
+    XVector H_;
     XVector B_;
     XMatrix W_;
 
@@ -260,8 +258,7 @@ private:
 public:
     FullyConnected(size_type in, size_type out) noexcept
         : Base()
-        , buff_(out), value_(out)
-        , B_(out), W_(in, out)
+        , buff_(out), H_(out), B_(out), W_(in, out)
         , in_(in), out_(out)
     {
         this->template initialize<FullyConnected>();
@@ -277,10 +274,10 @@ public:
         linear.add(buff_, B_);
 
         // value = F(S)
-        Activation::f(value_, buff_);
+        Activation::f(H_, buff_);
     }
 
-    const Vector& value() noexcept { return value_.base(); }
+    const Vector& value() noexcept { return H_.base(); }
 
     XVector& B() noexcept { return B_; }
     XMatrix& W() noexcept { return W_; }

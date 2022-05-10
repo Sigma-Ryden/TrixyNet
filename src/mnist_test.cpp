@@ -28,8 +28,6 @@ using RandomFloating     = tr::RandomFloating<>;
 
 using size_type = std::size_t;
 
-using utility::operator<<;
-
 template <class Net, class ImageType = typename Net::Vector>
 void show_image(const ImageType& image) noexcept
 {
@@ -182,8 +180,8 @@ void mnist_test()
     TrixyNetTraining teach(net);
     TrixyNetChecker check(net);
 
-    RandomFloating gen;
-    net.inner.initialize([&gen] { return gen(-.25, .25); });
+    RandomFloating random;
+    net.inner.initialize([&] { return random(-.25, .25); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());

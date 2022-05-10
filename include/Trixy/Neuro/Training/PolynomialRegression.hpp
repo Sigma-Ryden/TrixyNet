@@ -57,11 +57,16 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
         }
     }
 
-    Matrix X_T = const_cast<const Matrix&>(X).transpose();
+    Matrix X_T = reg.linear.transpose(X);
+    Matrix X_T_X = reg.linear.dot(X_T, X);
 
     // W = (X^T . X)^(-1) . X^T . Y
-
-    reg.linear.dot(reg.W, X_T.dot(X).inverse().dot(X_T), odata);
+    reg.linear.dot(
+        reg.W,
+        // (X^T . X)^(-1) . X^T
+        reg.linear.dot(reg.linear.inverse(X_T_X), X_T),
+        odata
+    );
 }
 
 TRIXY_TRAINING_TPL_DECLARATION

@@ -67,7 +67,7 @@ Matrix get_linear_idata()
 
     precision_type arg = -1.;
 
-    for(size_type i = 0; i < x.dim().row(); ++i)
+    for(size_type i = 0; i < x.shape().height; ++i)
     {
         x(i, 0) = arg;
         arg    += .02;

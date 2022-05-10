@@ -26,33 +26,33 @@ private:
 
 public:
     template <class Vector1, class Vector2, class Matrix,
-              typename = lique::meta::when_is_vector<Vector1>,
-              typename = lique::meta::when_is_vector<Vector2>,
-              typename = lique::meta::when_is_matrix<Matrix>>
+              lique::meta::as_vector<Vector1> = 0,
+              lique::meta::as_vector<Vector2> = 0,
+              lique::meta::as_matrix<Matrix> = 0>
     void dot(
-        Vector1& buff,
+        Vector1& result,
         const Vector2& row_vector,
         const Matrix& matrix) const noexcept
     {
-        self().dot(buff, row_vector, matrix);
+        self().dot(result, row_vector, matrix);
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              typename = lique::meta::when_is_vector<Vector1>,
-              typename = lique::meta::when_is_vector<Vector2>,
-              typename = lique::meta::when_is_matrix<Matrix>>
+              lique::meta::as_vector<Vector1> = 0,
+              lique::meta::as_vector<Vector2> = 0,
+              lique::meta::as_matrix<Matrix> = 0>
     void dot(
-        Vector1& buff,
+        Vector1& result,
         const Matrix& matrix,
         const Vector2& col_vector) const noexcept
     {
-        self().dot(buff, matrix, col_vector);
+        self().dot(result, matrix, col_vector);
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              typename = lique::meta::when_is_vector<Vector1>,
-              typename = lique::meta::when_is_vector<Vector2>,
-              typename = lique::meta::when_is_matrix<Matrix>>
+              lique::meta::as_vector<Vector1> = 0,
+              lique::meta::as_vector<Vector2> = 0,
+              lique::meta::as_matrix<Matrix> = 0>
     void tensordot(
         Matrix& buff2,
         const Vector1& col_vector,
@@ -61,115 +61,147 @@ public:
         self().tensordot(buff2, col_vector, row_vector);
     }
 
+    template <class Matrix1, class Matrix2, class Matrix3,
+              lique::meta::as_matrix<Matrix1> = 0,
+              lique::meta::as_matrix<Matrix2> = 0,
+              lique::meta::as_matrix<Matrix3> = 0>
+    void dot(
+        Matrix1& result,
+        const Matrix2& lhs,
+        const Matrix3& rhs) const noexcept
+    {
+        self().dot(result, lhs, rhs);
+    }
+
+    template <class Matrix1, class Matrix2,
+              lique::meta::as_matrix<Matrix1> = 0,
+              lique::meta::as_matrix<Matrix2> = 0>
+    void transpose(
+        Matrix1& result,
+        const Matrix2& matrix) const noexcept
+    {
+        self().transpose(result, matrix);
+    }
+
+    template <class Matrix1, class Matrix2,
+              lique::meta::as_matrix<Matrix1> = 0,
+              lique::meta::as_matrix<Matrix2> = 0>
+    void inverse(
+        Matrix1& result,
+        Matrix2& matrix) const noexcept
+    {
+        self().inverse(result, matrix);
+    }
+
     template <class Tensor1, class Tensor2,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void add(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& tensor) const noexcept
     {
-        self().add(buff, tensor);
+        self().add(result, tensor);
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>,
-              typename = lique::meta::when_is_tensor<Tensor3>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0,
+              lique::meta::as_tensor<Tensor3> = 0>
     void add(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        self().add(buff, lhs, rhs);
+        self().add(result, lhs, rhs);
     }
 
     template <class Tensor1, class Tensor2,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void sub(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& tensor) const noexcept
     {
-        self().sub(buff, tensor);
+        self().sub(result, tensor);
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>,
-              typename = lique::meta::when_is_tensor<Tensor3>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0,
+              lique::meta::as_tensor<Tensor3> = 0>
     void sub(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        self().sub(buff, lhs, rhs);
+        self().sub(result, lhs, rhs);
     }
 
     template <class Tensor1, class Tensor2,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void mul(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& tensor) const noexcept
     {
-        self().mul(buff, tensor);
+        self().mul(result, tensor);
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>,
-              typename = lique::meta::when_is_tensor<Tensor3>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0,
+              lique::meta::as_tensor<Tensor3> = 0>
     void mul(
-        Tensor1& buff,
+        Tensor1& result,
         const Tensor2& lhs,
         const Tensor3& rhs) const noexcept
     {
-        self().mul(buff, lhs, rhs);
+        self().mul(result, lhs, rhs);
     }
 
     template <class Tensor1,
-              typename = lique::meta::when_is_tensor<Tensor1>>
+              lique::meta::as_tensor<Tensor1> = 0>
     void join(
-        Tensor1& buff,
+        Tensor1& result,
         precision_type value) const noexcept
     {
-        self().join(buff, value);
+        self().join(result, value);
     }
 
     template <class Tensor1, class Tensor2,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void join(
-        Tensor1& buff,
+        Tensor1& result,
         precision_type value,
         const Tensor2& tensor) const noexcept
     {
-        self().join(buff, value, tensor);
+        self().join(result, value, tensor);
     }
 
     template <class Tensor, class Function,
-              typename = lique::meta::when_is_tensor<Tensor>>
+              lique::meta::as_tensor<Tensor> = 0>
     void apply(
-        Tensor& buff,
+        Tensor& result,
         Function func) const noexcept
     {
-        self().apply(buff, func);
+        self().apply(result, func);
     }
 
     template <class Tensor1, class Tensor2, class Function,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void apply(
-        Tensor1& buff,
+        Tensor1& result,
         Function func,
         const Tensor2& tensor) const noexcept
     {
-        self().apply(buff, func, tensor);
+        self().apply(result, func, tensor);
     }
 
     template <class Tensor1, class Tensor2,
-              typename = lique::meta::when_is_tensor<Tensor1>,
-              typename = lique::meta::when_is_tensor<Tensor2>>
+              lique::meta::as_tensor<Tensor1> = 0,
+              lique::meta::as_tensor<Tensor2> = 0>
     void assign(
         Tensor1& lhs,
         const Tensor2& rhs) const noexcept
@@ -178,7 +210,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              typename = lique::meta::when_is_tensor<Tensor>>
+              lique::meta::as_tensor<Tensor> = 0>
     void for_each(
         Tensor& tensor,
         Function func) const noexcept

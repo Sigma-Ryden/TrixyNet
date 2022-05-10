@@ -7,7 +7,7 @@
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
-#include <Trixy/Lique/BaseTensor.hpp>
+#include <Trixy/Lique/Base.hpp>
 #include <Trixy/Locker/Base.hpp>
 
 #include <Trixy/Locker/Detail/LockerMeta.hpp>
@@ -34,15 +34,16 @@ template <typename Precision>
 struct is_lmatrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
 
 template <class Tensor>
-struct is_vector : std::is_same<typename Tensor::type, TensorType::vector> {};
+struct is_vector : std::is_base_of<lique::TensorType::vector, Tensor> {};
 
 template <class Tensor>
-struct is_matrix : std::is_same<typename Tensor::type, TensorType::matrix> {};
+struct is_matrix : std::is_base_of<lique::TensorType::matrix, Tensor> {};
 
 template <class Tensor>
 struct is_tensor : trixy::meta::disjunction<
-    std::is_same<typename Tensor::type, TensorType::vector>,
-    std::is_same<typename Tensor::type, TensorType::matrix>> {};
+    is_vector<Tensor>,
+    is_matrix<Tensor>,
+    std::is_base_of<lique::TensorType::tensor, Tensor>> {};
 
 template <typename T>
 using as_vector = trixy::meta::as<is_vector<T>::value>;

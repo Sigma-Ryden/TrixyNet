@@ -107,15 +107,11 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Net& net)
 
     for(size_type i = 0; i < N; ++i)
     {
-        B[i].resize(
-            net.inner.B[i].size(),
-            net.inner.B[i].data()
-        );
+        B[i].resize(net.inner.B[i].shape());
+        B[i].copy(net.inner.B[i].data());
 
-        W[i].resize(
-            net.inner.W[i].shape(),
-            net.inner.W[i].data()
-        );
+        W[i].resize(net.inner.W[i].shape());
+        B[i].copy(net.inner.W[i].data());
     }
 
     activationId = net.function.activationIdSet();

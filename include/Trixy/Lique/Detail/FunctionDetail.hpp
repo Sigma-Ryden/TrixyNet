@@ -2,10 +2,10 @@
 #define TRIXY_LIQUE_FUNCTION_DETAIL_HPP
 
 #include <cstddef> // size_t
-#include <functional> // mem_fn
-#include <iterator> // distance
-#include <thread> // thread
-#include <vector> // vector
+//#include <functional> // mem_fn
+//#include <iterator> // distance
+//#include <thread> // thread
+//#include <vector> // vector
 
 #include <Trixy/Detail/FunctionDetail.hpp>
 
@@ -135,15 +135,26 @@ void assign(T* first, T* last, Operation operation, const T* src)
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T& value, const T* rhs) // OVERIEW
 {
-    assign(first, last, cpy(), value);
-    assign(first, last, operation, rhs);
+    while(first != last)
+    {
+        operation(*first, value, *rhs);
+
+        ++first;
+        ++rhs;
+    }
 }
 
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T* lhs, const T* rhs) // OVERVIEW
 {
-    copy(first, last, lhs);
-    assign(first, last, operation, rhs);
+    while(first != last)
+    {
+        operation(*first, *lhs, *rhs);
+
+        ++first;
+        ++lhs;
+        ++rhs;
+    }
 }
 
 template <typename FwdIt, class Function>
@@ -172,18 +183,27 @@ struct add
 {
     template <typename T>
     void operator() (T& dst, const T& rhs) noexcept { dst += rhs; }
+
+    template <typename T>
+    void operator() (T& dst, const T& lhs, const T& rhs) noexcept { dst = lhs + rhs; }
 };
 
 struct sub
 {
     template <typename T>
     void operator() (T& dst, const T& rhs) noexcept { dst -= rhs; }
+
+    template <typename T>
+    void operator() (T& dst, const T& lhs, const T& rhs) noexcept { dst = lhs - rhs; }
 };
 
 struct mul
 {
     template <typename T>
     void operator() (T& dst, const T& rhs) noexcept { dst *= rhs; }
+
+    template <typename T>
+    void operator() (T& dst, const T& lhs, const T& rhs) noexcept { dst = lhs * rhs; }
 };
 
 } // namespace detail

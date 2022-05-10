@@ -19,7 +19,7 @@ protected:
     using require = Tensor;
 
 protected:
-    using typename require::Shape;
+    //using typename require::Shape; // deprecated
 
 protected:
     using typename require::size_type;
@@ -36,7 +36,7 @@ protected:
 
     using require::shape;
     using require::size;
-    using require::dim;
+    //using require::dim; // deprecated
 
     using require::resize;
     using require::reshape;
@@ -46,14 +46,14 @@ protected:
 
     using require::operator();
 
-    using require::dot;
+    //using require::dot; // deprecated
     using require::add;
     using require::sub;
     using require::mul;
     using require::join;
 
-    using require::transpose;
-    using require::inverse;
+    //using require::transpose; // deprecated
+    //using require::inverse; // deprecated
 
     using require::data;
 };

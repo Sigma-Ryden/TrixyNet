@@ -7,8 +7,8 @@
 #include <utility> // declval
 #include <chrono> // chrono
 
-#include <Trixy/Lique/Vector.hpp>
-#include <Trixy/Lique/Matrix.hpp>
+#include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
 #include <Trixy/Neuro/Checker/Core.hpp>
 
@@ -55,9 +55,8 @@ void network_size(const Collection<std::size_t>& topology) // deprecated & repai
               << count % 1024 << " Byte(s)\n";
 }
 
-template <typename Precision>
-std::ostream& operator<< (
-    std::ostream& out, const trixy::lique::Vector<Precision>& vector)
+template <class Vector, trixy::lique::meta::as_vector<Vector> = 0>
+std::ostream& operator<< (std::ostream& out, const Vector& vector)
 {
     if(vector.size() == 0) return out;
 
@@ -70,23 +69,22 @@ std::ostream& operator<< (
     return out;
 }
 
-template <typename Precision>
-std::ostream& operator<< (
-    std::ostream& out, const trixy::lique::Matrix<Precision>& matrix)
+template <class Matrix, trixy::lique::meta::as_matrix<Matrix> = 0>
+std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 {
     out << '[';
-    for(std::size_t i = 0; i < matrix.dim().row() - 1; ++i)
+    for(std::size_t i = 0; i < matrix.shape().height - 1; ++i)
     {
         out << '[';
-        for(std::size_t j = 0; j < matrix.dim().col() - 1; ++j)
+        for(std::size_t j = 0; j < matrix.shape().width - 1; ++j)
             out << matrix(i, j) << ", ";
 
-        out << matrix(i, matrix.dim().col() - 1) << "],\n";
+        out << matrix(i, matrix.shape().width - 1) << "],\n";
     }
 
     out << '[';
-    for(std::size_t j = 0; j < matrix.dim().col() - 1; ++j)
-        out << matrix(matrix.dim().row() - 1, j) << ", ";
+    for(std::size_t j = 0; j < matrix.shape().width - 1; ++j)
+        out << matrix(matrix.shape().height - 1, j) << ", ";
 
     out << matrix(matrix.size() - 1) << "]]";
 

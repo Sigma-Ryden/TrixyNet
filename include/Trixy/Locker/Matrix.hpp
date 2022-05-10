@@ -21,15 +21,13 @@ protected:
     using require = Tensor;
 
 public:
-    using typename require::type;
-
     using typename require::size_type;
     using typename require::precision_type;
 
     using typename require::pointer;
     using typename require::const_pointer;
 
-    using typename require::Shape;
+    //using typename require::Shape; // deprecated
 
 public:
     template <typename U = Tensor,
@@ -60,23 +58,23 @@ public:
     using require::operator();
 
     using require::copy;
-    using require::size;
-    using require::dim;
 
+    using require::size;
+    //using require::dim; deprecated
     using require::shape;
 
     using require::fill;
     using require::apply;
 
-    using require::dot;
+    //using require::dot; deprecated
 
     using require::add;
     using require::sub;
     using require::mul;
     using require::join;
 
-    using require::transpose;
-    using require::inverse;
+    //using require::transpose; deprecated
+    //using require::inverse; deprecated
 
     using require::data;
 };

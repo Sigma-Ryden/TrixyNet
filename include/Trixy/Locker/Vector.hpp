@@ -21,8 +21,6 @@ protected:
     using require = Tensor;
 
 public:
-    using typename require::type;
-
     using typename require::size_type;
     using typename require::precision_type;
 
@@ -58,12 +56,14 @@ public:
     using require::operator();
 
     using require::copy;
+
     using require::size;
+    using require::shape;
 
     using require::fill;
     using require::apply;
 
-    using require::dot;
+    //using require::dot; deprecated
 
     using require::add;
     using require::sub;

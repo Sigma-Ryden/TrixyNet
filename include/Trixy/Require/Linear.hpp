@@ -28,6 +28,8 @@ protected:
 
     using require::dot;
     using require::tensordot;
+    using require::transpose;
+    using require::inverse;
 
     using require::add;
     using require::sub;

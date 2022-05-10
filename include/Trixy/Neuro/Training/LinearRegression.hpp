@@ -40,20 +40,25 @@ void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
     const Matrix& idata,
     const Vector& odata)
 {
-    Matrix X(idata.shape().row(), reg.N);
+    Matrix X(idata.shape().height, reg.N);
 
-    for(size_type i = 0; i < X.shape().row(); ++i)
+    for(size_type i = 0; i < X.shape().height; ++i)
     {
         X(i, 0) = 1.;
         for(size_type j = 1; j < reg.N; ++j)
             X(i, j) = idata(i, j - 1);
     }
 
-    Matrix X_T = const_cast<const Matrix&>(X).transpose();
+    Matrix X_T = reg.linear.transpose(X);
+    Matrix X_T_X = reg.linear.dot(X_T, X);
 
     // W = (X^T . X)^(-1) . X^T . Y
-
-    reg.linear.dot(reg.W, X_T.dot(X).inverse().dot(X_T), odata);
+    reg.linear.dot(
+        reg.W,
+        // (X^T . X)^(-1) . X^T
+        reg.linear.dot(reg.linear.inverse(X_T_X), X_T),
+        odata
+    );
 }
 
 TRIXY_TRAINING_TPL_DECLARATION

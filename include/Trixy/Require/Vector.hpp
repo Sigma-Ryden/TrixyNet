@@ -31,15 +31,18 @@ protected:
 protected:
     using require::copy;
 
+    using require::shape;
     using require::size;
-    using require::resize;
 
-    using require::operator();
+    using require::resize;
+    using require::reshape;
 
     using require::fill;
     using require::apply;
 
-    using require::dot;
+    using require::operator();
+
+    //using require::dot; deprecated
     using require::add;
     using require::sub;
     using require::mul;

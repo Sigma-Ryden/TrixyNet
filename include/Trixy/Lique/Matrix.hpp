@@ -2,9 +2,8 @@
 #define TRIXY_LIQUE_MATRIX_HPP
 
 #include <cstddef> // size_t
-#include <cmath> // fabs
-#include <initializer_list> // initializer_list
 
+#include <Trixy/Lique/Base.hpp>
 #include <Trixy/Lique/BaseTensor.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
@@ -18,682 +17,306 @@ namespace trixy
 namespace lique
 {
 
-LIQUE_TENSOR_TPL_DECLARATION
-using Matrix = LIQUE_TENSOR_TPL(TensorType::matrix);
+template <typename Precision, typename TensorMode = TensorMode::own>
+using Matrix = Tensor<Precision, TensorType::matrix, TensorMode>;
 
-LIQUE_TENSOR_TPL_DECLARATION
-class LIQUE_TENSOR_TPL(TensorType::matrix) : public TensorType::matrix
+template <typename Precision>
+using MatrixView = Matrix<Precision, TensorMode::view>;
+
+template <typename Precision>
+class Tensor<Precision, TensorType::matrix, TensorMode::own>
+    : public BaseTensor<Precision>
+    , public TensorType::matrix
 {
-public:
-    class Shape;
+    LIQUE_BASE_TENSOR_BODY
 
 public:
-    using size_type         = std::size_t;
-    using precision_type    = Precision;
-
-    using pointer           = Precision*;
-    using const_pointer     = const Precision*;
-
-    using reference         = Precision&;
-    using const_reference   = const Precision&;
-
-protected:
-    pointer data_;
-    Shape  shape_;
-
-public:
-    Tensor() noexcept;
+    Tensor() noexcept = default;
     ~Tensor();
 
-    explicit Tensor(size_type size);
-    explicit Tensor(const_pointer first, const_pointer last);
-
-    explicit Tensor(size_type m, size_type n);
-    Tensor(size_type m, size_type n, precision_type value);
-    Tensor(size_type m, size_type n, const_pointer src);
-
+    explicit Tensor(const Shape& shape, const_pointer data);
+    explicit Tensor(const Shape& shape, precision_type value);
     explicit Tensor(const Shape& shape);
-    Tensor(const Shape& shape, precision_type value);
-    Tensor(const Shape& shape, const_pointer src);
 
-    Tensor(const Tensor&);
-    Tensor(Tensor&&) noexcept;
+    Tensor(size_type height, size_type width, const_pointer data);
+    Tensor(size_type height, size_type width, precision_type value);
+    Tensor(size_type height, size_type width);
 
-    Tensor& operator= (const Tensor&);
-    Tensor& operator= (Tensor&&) noexcept;
+    Tensor(const_pointer first, const_pointer last);
 
-    Tensor& copy(const_pointer ptr) noexcept;
-    Tensor& copy(const Tensor&) noexcept;
-    Tensor& copy(std::initializer_list<precision_type>) noexcept;
+    Tensor(const Tensor& tensor);
+    Tensor(Tensor&& tensor) noexcept;
 
-    const Shape& shape() const noexcept;
-    size_type size() const noexcept;
-
-    const Shape& dim() const noexcept;
-
-    void resize(size_type size);
-    void resize(size_type m, size_type n);
-    void resize(const Shape& shape);
-
-    void resize(size_type m, size_type n, precision_type value);
-    void resize(const Shape& shape, precision_type value);
-
-    void resize(size_type m, size_type n, const_pointer src);
-    void resize(const Shape& shape, const_pointer src);
-
-    void reshape(size_type m, size_type n) noexcept;
-    void reshape(const Shape& shape) noexcept;
-
-    template <class Generator,
-              meta::as<meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator gen) noexcept;
-
-    Tensor& fill(precision_type value) noexcept;
-
-    template <class Function>
-    Tensor apply(Function func) const;
-
-    template <class Function>
-    Tensor& apply(Function func) noexcept;
-
-    template <class Function>
-    Tensor& apply(Function func, const_pointer src) noexcept;
-
-    template <class Function>
-    Tensor& apply(Function func, const Tensor&) noexcept;
+    Tensor& operator= (const Tensor& tensor);
+    Tensor& operator= (Tensor&& tensor) noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
+    void resize(const Shape& shape);
+    void resize(size_type height, size_type width);
 
-    Tensor dot(const Tensor&) const;
-
-    Tensor add(const Tensor&) const;
-    Tensor& add(const Tensor&) noexcept;
-    Tensor& add(const Tensor&, const Tensor&) noexcept;
-
-    Tensor sub(const Tensor&) const;
-    Tensor& sub(const Tensor&) noexcept;
-    Tensor& sub(const Tensor&, const Tensor&) noexcept;
-
-    Tensor mul(const Tensor&) const;
-    Tensor& mul(const Tensor&) noexcept;
-    Tensor& mul(const Tensor&, const Tensor&) noexcept;
-
-    Tensor join(precision_type value) const;
-    Tensor& join(precision_type value) noexcept;
-    Tensor& join(precision_type value, const Tensor&) noexcept;
-
-    Tensor transpose() const;
-
-    Tensor inverse() const;
-    Tensor& inverse();
-
-    pointer data() noexcept;
-    const_pointer data() const noexcept;
+    void reshape(size_type height, size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
-class Matrix<Precision>::Shape
+class Tensor<Precision, TensorType::matrix, TensorMode::view>
+    : public BaseTensor<Precision>
+    , public TensorType::matrix
 {
-friend Matrix<Precision>;
-
-protected:
-    size_type size_;
-
-    size_type row_;
-    size_type col_;
+    LIQUE_BASE_TENSOR_BODY
 
 public:
-    explicit Shape(size_type m, size_type n) noexcept
-    : size_(m * n), row_(m), col_(n) {}
+    Tensor() noexcept = default;
+    ~Tensor() = default;
 
-    Shape(const Shape& shape) noexcept
-    : size_(shape.size_), row_(shape.row_), col_(shape.col_) {}
+    Tensor(const Shape& shape, pointer data) noexcept;
+    Tensor(size_type height, size_type width, pointer data) noexcept;
+    Tensor(pointer first, pointer last) noexcept;
 
-    size_type row() const noexcept { return row_; }
-    size_type col() const noexcept { return col_; }
+    Tensor(const Tensor& tensor) noexcept = default;
+    Tensor(Tensor&& tensor) noexcept = default;
 
-protected:
-    Shape& operator= (const Shape& shape) = default;
+    Tensor& operator= (const Tensor& tensor) noexcept;
+    Tensor& operator= (Tensor&& tensor) noexcept;
+
+    reference operator() (size_type i, size_type j) noexcept;
+    const_reference operator() (size_type i, size_type j) const noexcept;
+
+    void reshape(size_type height, size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::Tensor() noexcept : data_(nullptr), shape_(0, 0)
+Matrix<Precision>::~Tensor()
 {
+    delete[] this->data_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::~Tensor()
+Matrix<Precision>::Tensor(const Shape& shape, const_pointer data)
+    : Base(shape.depth * shape.height, shape.width)
 {
-    delete[] data_;
-}
+    this->data_ = new precision_type [this->shape_.size];
 
-LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::Tensor(size_type size)
-    : data_(new precision_type [size]), shape_(1, size)
-{
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const_pointer first, const_pointer last)
-    : data_(new precision_type [last - first]), shape_(1, last - first)
-{
-     detail::copy(data_, data_ + shape_.size_, first);
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::Tensor(size_type m, size_type n)
-    : data_(new precision_type [m * n]), shape_(m, n)
-{
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(size_type m, size_type n, precision_type value)
-    : data_(new precision_type [m * n]), shape_(m, n)
-{
-    fill(value);
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(size_type m, size_type n, const_pointer src)
-    : data_(new precision_type [m * n]), shape_(m, n)
-{
-     detail::copy(data_, data_ + shape_.size_, src);
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::Tensor(const Shape& shape)
-    : data_(new precision_type [shape.size_]), shape_(shape)
-{
+    this->copy(data);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Matrix<Precision>::Tensor(const Shape& shape, precision_type value)
-    : data_(new precision_type [shape.size_]), shape_(shape)
+    : Base(shape.depth * shape.height, shape.width)
 {
-    fill(value);
+    this->data_ = new precision_type [this->shape_.size];
+
+    this->fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Shape& shape, const_pointer src)
-    : data_(new precision_type [shape.size_]), shape_(shape)
+Matrix<Precision>::Tensor(const Shape& shape)
+    : Base(shape.depth * shape.height, shape.width)
 {
-     detail::copy(data_, data_ + shape_.size_, src);
+    this->data_ = new precision_type [this->shape_.size];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Tensor& matrix)
-    : data_(new precision_type [matrix.shape_.size_]), shape_(matrix.shape_)
+Matrix<Precision>::Tensor(size_type height, size_type width, const_pointer data)
+    : Base(height, width)
 {
-     detail::copy(data_, data_ + shape_.size_, matrix.data_);
+    this->data_ = new precision_type [this->shape_.size];
+
+    this->copy(data);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline Matrix<Precision>::Tensor(Tensor&& matrix) noexcept
-    : data_(matrix.data_), shape_(matrix.shape_)
+Matrix<Precision>::Tensor(size_type height, size_type width, precision_type value)
+    : Base(height, width)
 {
-    matrix.data_ = nullptr;
+    this->data_ = new precision_type [this->shape_.size];
+
+    this->fill(value);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::operator= (const Tensor& matrix)
+Matrix<Precision>::Tensor(size_type height, size_type width)
+    : Base(height, width)
 {
-    if(this != &matrix)
+    this->data_ = new precision_type [this->shape_.size];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const_pointer first, const_pointer last)
+    : Base(1, last - first)
+{
+    this->data_ = new precision_type [this->shape_.size];
+
+    this->copy(first);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(const Tensor& tensor)
+    : Base(tensor.shape_.depth * tensor.shape_.height, tensor.shape_.width)
+{
+    this->data_ = new precision_type [tensor.shape_.size];
+
+    this->copy(tensor.data_);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>::Tensor(Tensor&& tensor) noexcept
+    : Base(std::move(tensor))
+{
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Matrix<Precision>& Matrix<Precision>::operator= (const Tensor& tensor)
+{
+    if (this != &tensor)
     {
-        delete[] data_;
+        delete[] this->data_;
 
-        shape_ = matrix.shape_;
-        data_  = new precision_type [shape_.size_];
+        this->data_ = new precision_type [tensor.shape_.size];
 
-        detail::copy(data_, data_ + shape_.size_, matrix.data_);
+        this->copy(tensor.data_);
+
+        this->shape_.height = tensor.shape_.height;
+        this->shape_.width = tensor.shape_.width;
+
+        this->shape_.size = tensor.shape_.size;
     }
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& matrix) noexcept
+Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& tensor) noexcept
 {
-    if(this != &matrix)
+    if (this != &tensor)
     {
-        delete[] data_;
+        delete[] this->data_;
 
-        data_  = matrix.data_;
-        shape_ = matrix.shape_;
+        this->data_ = tensor.data_;
 
-        matrix.data_ = nullptr;
+        this->shape_.height = tensor.shape_.height;
+        this->shape_.width = tensor.shape_.width;
+
+        this->shape_.size = tensor.shape_.size;
+
+        tensor.data_ = nullptr;
     }
 
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::copy(const_pointer src) noexcept
+typename Matrix<Precision>::reference
+    Matrix<Precision>::operator() (size_type i, size_type j) noexcept
 {
-    detail::copy(data_, data_ + shape_.size_, src);
-
-    return *this;
+    return this->data_[i * this->shape_.width + j];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::copy(const Tensor& matrix) noexcept
+typename Matrix<Precision>::const_reference
+    Matrix<Precision>::operator() (size_type i, size_type j) const noexcept
 {
-    if(this != &matrix)
-         detail::copy(data_, data_ + shape_.size_, matrix.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::copy(
-    std::initializer_list<precision_type> data) noexcept
-{
-     detail::copy(data_, data_ + shape_.size_, data.begin());
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline const typename Matrix<Precision>::Shape& Matrix<Precision>::shape() const noexcept
-{
-    return shape_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::size_type Matrix<Precision>::size() const noexcept
-{
-    return shape_.size_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline const typename Matrix<Precision>::Shape& Matrix<Precision>::dim() const noexcept
-{
-    return shape_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type size)
-{
-    delete[] data_;
-
-    shape_.row_  = 1; // default value
-    shape_.col_  = size;
-    shape_.size_ = size;
-
-    data_ = new precision_type [shape_.size_];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type m, size_type n)
-{
-    delete[] data_;
-
-    shape_.row_  = m;
-    shape_.col_  = n;
-    shape_.size_ = m * n;
-
-    data_ = new precision_type [shape_.size_];
+    return this->data_[i * this->shape_.width + j];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 void Matrix<Precision>::resize(const Shape& shape)
 {
-    delete[] data_;
-
-    shape_ = shape;
-    data_  = new precision_type [shape_.size_];
+    resize(shape.height, shape.width);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type m, size_type n, precision_type value)
+void Matrix<Precision>::resize(size_type height, size_type width)
 {
-    resize(m, n);
-    fill(value);
+    delete[] this->data_;
+
+    this->shape_.height = height;
+    this->shape_.width = width;
+
+    this->shape_.size = height * width;
+
+    this->data_ = new precision_type [this->shape_.size];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(const Shape& shape, precision_type value)
+void Matrix<Precision>::reshape(size_type height, size_type width) noexcept
 {
-    resize(shape);
-    fill(value);
+    this->shape_.height = height;
+    this->shape_.width = width;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(size_type m, size_type n, const_pointer src)
+MatrixView<Precision>::Tensor(const Shape& shape, pointer data) noexcept
+    : Base(shape.depth * shape.height, shape.width, data)
 {
-    resize(m, n);
-
-    detail::copy(data_, data_ + shape_.size_, src);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(const Shape& shape, const_pointer src)
+MatrixView<Precision>::Tensor(size_type height, size_type width, pointer data) noexcept
+    : Base(height, width, data)
 {
-    resize(shape);
-
-    detail::copy(data_, data_ + shape_.size_, src);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::reshape(size_type m, size_type n) noexcept
+MatrixView<Precision>::Tensor(pointer first, pointer last) noexcept
+    : Base(1, last - first, first)
 {
-    shape_.row_ = m;
-    shape_.col_ = n;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::reshape(const Shape& shape) noexcept
+MatrixView<Precision>& MatrixView<Precision>::operator= (const Tensor& tensor) noexcept
 {
-    shape_.row_ = shape.row_;
-    shape_.col_ = shape.col_;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-template <class Generator, meta::as<meta::is_callable<Generator>::value>>
-Matrix<Precision>& Matrix<Precision>::fill(Generator gen) noexcept
-{
-    detail::fill(data_, data_ + shape_.size_, gen);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::fill(precision_type value) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::cpy(), value);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-template <class Function>
-Matrix<Precision> Matrix<Precision>::apply(Function func) const
-{
-    Tensor matrix(shape_);
-
-    matrix.apply(func, data_);
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-template <class Function>
-Matrix<Precision>& Matrix<Precision>::apply(Function func) noexcept
-{
-    detail::apply(data_, data_ + shape_.size_, func);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-template <class Function>
-Matrix<Precision>& Matrix<Precision>::apply(Function func, const_pointer src) noexcept
-{
-    detail::apply(data_, data_ + shape_.size_, func, src);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-template <class Function>
-Matrix<Precision>& Matrix<Precision>::apply(Function func, const Tensor& matrix) noexcept
-{
-    return apply(func, matrix.data_);
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::reference
-    Matrix<Precision>::operator() (size_type i, size_type j) noexcept
-{
-    return data_[i * shape_.col_ + j];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::const_reference
-    Matrix<Precision>::operator() (size_type i, size_type j) const noexcept
-{
-    return data_[i * shape_.col_ + j];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::reference
-    Matrix<Precision>::operator() (size_type i) noexcept
-{
-    return data_[i];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::const_reference
-    Matrix<Precision>::operator() (size_type i) const noexcept
-{
-    return data_[i];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::dot(const Tensor& rhs) const
-{
-    size_type col = rhs.shape_.col_;
-
-    Tensor matrix(shape_.row_, col, 0.);
-
-    precision_type buff;
-    for(size_type i = 0; i < shape_.row_; ++i)
+    if (this != &tensor)
     {
-        for(size_type r = 0; r < shape_.col_; ++r)
-        {
-            buff = data_[i * shape_.col_ + r];
+        this->data_ = tensor.data_;
 
-            for(size_type j = 0; j <  col; ++j)
-                matrix.data_[i * col + j] += buff * rhs.data_[r *col + j];
-        }
+        this->shape_.height = tensor.shape_.height;
+        this->shape_.width = tensor.shape_.width;
+
+        this->shape_.size = tensor.shape_.size;
     }
 
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::add(const Tensor& rhs) const
-{
-    Tensor matrix(shape_);
-
-    matrix.add(*this, rhs);
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::add(const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::add(), rhs.data_);
-
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
+MatrixView<Precision>& MatrixView<Precision>::operator= (Tensor&& tensor) noexcept
 {
-    detail::assign(data_, data_ + shape_.size_, detail::add(), lhs.data_, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::sub(const Tensor& rhs) const
-{
-    Tensor matrix(shape_);
-
-    matrix.sub(*this, rhs);
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::sub(const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::sub(), rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::sub(), lhs.data_, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::mul(const Tensor& rhs) const
-{
-    Tensor matrix(shape_);
-
-    matrix.mul(*this, rhs);
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::mul(const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::mul(), rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::mul(const Tensor& lhs, const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::mul(), lhs.data_, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::join(precision_type value) const
-{
-    Tensor matrix(shape_);
-
-    matrix.join(value, *this);
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::join(precision_type value) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::mul(), value);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::join(precision_type value, const Tensor& rhs) noexcept
-{
-    detail::assign(data_, data_ + shape_.size_, detail::mul(), value, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::transpose() const
-{
-    Tensor matrix(shape_.col_, shape_.row_);
-
-    for(size_type i = 0; i < shape_.col_; ++i)
-        for(size_type j = 0; j < shape_.row_; ++j)
-            matrix.data_[i * shape_.row_ + j] = data_[j * shape_.col_ + i];
-
-    return matrix;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision> Matrix<Precision>::inverse() const
-{
-    Tensor A(*this);
-
-    A.inverse();
-
-    return A;
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>& Matrix<Precision>::inverse()
-{
-    size_type N = shape_.row_;
-
-    size_type i;
-    size_type j;
-
-    precision_type buff;
-
-    Tensor I(shape_);
-
-    for(i = 0; i < N; ++i)
-        for(j = 0; j < N; ++j)
-            I.data_[i * N + j] = (i == j) ? 1. : 0.;
-
-    for(size_type k = 0, p; k < N; ++k)
+    if (this != &tensor)
     {
-        p = k;
-        for(i = k + 1; i < N; ++i)
-            if(std::fabs(data_[p * N + k]) < std::fabs(data_[i * N + k]))
-                p = i;
+        this->data_ = tensor.data_;
 
-        if(p != k)
-        {
-            for(j = k; j < N; ++j)
-            {
-                buff = data_[k * N + j];
-                data_[k * N + j] = data_[p * N + j];
-                data_[p * N + j] = buff;
-            }
+        this->shape_.height = tensor.shape_.height;
+        this->shape_.width = tensor.shape_.width;
 
-            for(j = 0; j < N; ++j)
-            {
-                buff = I.data_[k * N + j];
-                I.data_[k * N + j] = I.data_[p * N + j];
-                I.data_[p * N + j] = buff;
-            }
-        }
+        this->shape_.size = tensor.shape_.size;
 
-        buff = 1. / data_[k * N + k];
-
-        for(j = k; j < N; ++j)   data_[k * N + j] *= buff;
-        for(j = 0; j < N; ++j) I.data_[k * N + j] *= buff;
-
-        for(i = 0; i < N; ++i)
-        {
-            if(i == k) continue;
-
-            buff = data_[i * N + k];
-
-            for(j = k; j < N; ++j)   data_[i * N + j] -=   data_[k * N + j] * buff;
-            for(j = 0; j < N; ++j) I.data_[i * N + j] -= I.data_[k * N + j] * buff;
-        }
+        tensor.data_ = nullptr;
     }
 
-    delete[] data_;
-
-    data_   = I.data_;
-    I.data_ = nullptr;
-
     return *this;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::pointer Matrix<Precision>::data() noexcept
+typename MatrixView<Precision>::reference
+    MatrixView<Precision>::operator() (size_type i, size_type j) noexcept
 {
-    return data_;
+    return this->data_[i * this->shape_.width + j];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename Matrix<Precision>::const_pointer Matrix<Precision>::data() const noexcept
+typename MatrixView<Precision>::const_reference
+    MatrixView<Precision>::operator() (size_type i, size_type j) const noexcept
 {
-    return data_;
+    return this->data_[i * this->shape_.width + j];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+void MatrixView<Precision>::reshape(size_type height, size_type width) noexcept
+{
+    this->shape_.height = height;
+    this->shape_.width = width;
 }
 
 } // namespace lique

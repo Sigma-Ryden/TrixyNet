@@ -32,7 +32,7 @@ public:
     using LossFunction              = typename Functionable::LossFunction;
 
     template <class optimizer_type>
-    using OptimizationFunction      = typename train::Optimizer<Functionable, optimizer_type>;
+    using Optimizer = typename train::Optimizer<Functionable, optimizer_type>;
 
 private:
     template <functional::OptimizationId id>
@@ -66,9 +66,9 @@ public:
     { return get(id); }
 
     template <functional::OptimizationId id, typename... Args>
-    OptimizationFunction<optimizer_type_from<id>> get(Args&&... args) const
+    Optimizer<optimizer_type_from<id>> get(Args&&... args) const
     {
-        return OptimizationFunction<optimizer_type_from<id>>(std::forward<Args>(args)...);
+        return Optimizer<optimizer_type_from<id>>(std::forward<Args>(args)...);
     }
 };
 

@@ -58,8 +58,8 @@ public:
     {
         layer_.emplace_back(layer);
 
-        deltaB.emplace_back(layer->B().size());
-        deltaW.emplace_back(layer->W().shape());
+        deltaB.emplace_back(layer->in());
+        deltaW.emplace_back(layer->in(), layer->out());
 
         delta.resize(layer->out());
 

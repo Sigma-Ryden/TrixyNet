@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Trixy LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
@@ -24,8 +24,10 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/Detail/MacroScope.hpp
     include/Trixy/Lique/Detail/MacroUnscope.hpp
 
+    include/Trixy/Lique/Base.hpp
     include/Trixy/Lique/BaseTensor.hpp
     include/Trixy/Lique/Linear.hpp
+    include/Trixy/Lique/Tensor.hpp
     include/Trixy/Lique/Matrix.hpp
     include/Trixy/Lique/Vector.hpp
     include/Trixy/Lique/Tool.hpp

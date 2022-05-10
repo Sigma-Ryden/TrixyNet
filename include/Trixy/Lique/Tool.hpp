@@ -21,7 +21,7 @@ namespace trixy
 namespace lique
 {
 
-enum class Axis { X, Y };
+enum class Axis { X, Y, Z };
 
 namespace comp
 {
@@ -102,22 +102,23 @@ Vector<std::size_t> search(const Matrix<Precision>& matrix, Axis axis, Binary co
 {
     using size_type = std::size_t;
 
-    const size_type block_size = matrix.dim().col();
-    const size_type number_of_blocks = matrix.dim().row();
+    const size_type block_size = matrix.shape().width;
+    const size_type number_of_blocks = matrix.shape().height;
 
     Vector<size_type> vector;
     size_type arg;
 
-    if(axis == Axis::X)
+    if (axis == Axis::X)
     {
-        vector.resize(block_size, size_type(0));
+        vector.resize(block_size);
+        vector.fill(size_type(0));
 
         for(size_type i = 1; i < number_of_blocks; ++i)
             for(size_type n = 0; n < vector.size(); ++n)
                 if(compare(matrix(vector(n), n), matrix(i, n)))
                     vector(n) = i;
     }
-    else
+    else if (axis == Axis::Y)
     {
         vector.resize(number_of_blocks);
 
@@ -243,8 +244,8 @@ Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
 {
     using size_type = typename Matrix<Precision>::size_type;
 
-    const size_type block_size = matrix.dim().col();
-    const size_type number_of_blocks = matrix.dim().row();
+    const size_type block_size = matrix.shape().width;
+    const size_type number_of_blocks = matrix.shape().height;
 
     auto m_first = first(matrix);
     auto m_last  = last(matrix);
@@ -266,7 +267,7 @@ Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
 
         vector.join( 1. / static_cast<double>(number_of_blocks));
     }
-    else
+    else if (axis == Axis::Y)
     {
         vector.resize(number_of_blocks);
 
@@ -292,8 +293,8 @@ Vector<double> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = f
 {
     using size_type = typename Matrix<Precision>::size_type;
 
-    const size_type block_size = matrix.dim().col();
-    const size_type number_of_blocks = matrix.dim().row();
+    const size_type block_size = matrix.shape().width;
+    const size_type number_of_blocks = matrix.shape().height;
 
     Vector<double> vector = mean(matrix, axis);
 
