@@ -1,8 +1,6 @@
 #ifndef TRIXY_TRAINING_FEED_FORWARD_NET_HPP
 #define TRIXY_TRAINING_FEED_FORWARD_NET_HPP
 
-#include <cmath> // fabs
-
 #include <Trixy/Neuro/Training/Base.hpp>
 
 #include <Trixy/Neuro/Functional/Optimizer/Base.hpp>

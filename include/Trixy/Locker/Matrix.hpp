@@ -27,8 +27,6 @@ public:
     using typename require::pointer;
     using typename require::const_pointer;
 
-    //using typename require::Shape; // deprecated
-
 public:
     template <typename U = Tensor,
               typename = meta::when<std::is_constructible<U>::value>>
@@ -37,10 +35,10 @@ public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        typename = meta::when<not std::is_base_of<meta::decay_t<T>, Locker>::value>,
-        typename = meta::when<std::is_constructible<Tensor, T, Tn...>::value>>
+        meta::as<not std::is_base_of<meta::decay_t<T>, Locker>::value> = 0,
+        meta::as<std::is_constructible<Tensor, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
-    : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
+        : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& matrix) : Tensor(matrix) {}
@@ -60,21 +58,15 @@ public:
     using require::copy;
 
     using require::size;
-    //using require::dim; deprecated
     using require::shape;
 
     using require::fill;
     using require::apply;
 
-    //using require::dot; deprecated
-
     using require::add;
     using require::sub;
     using require::mul;
     using require::join;
-
-    //using require::transpose; deprecated
-    //using require::inverse; deprecated
 
     using require::data;
 };

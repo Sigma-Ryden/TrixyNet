@@ -1,5 +1,5 @@
-#ifndef TRIXY_REQUIRE_MATRIX_HPP
-#define TRIXY_REQUIRE_MATRIX_HPP
+#ifndef TRIXY_REQUIRE_TENSOR_HPP
+#define TRIXY_REQUIRE_TENSOR_HPP
 
 #include <Trixy/Require/Base.hpp>
 
@@ -9,19 +9,19 @@ namespace trixy
 {
 
 template <class Tensor>
-using MatrixRequire = Require<Tensor, RequireType::matrix>;
+using TensorRequire = Require<Tensor, RequireType::tensor>;
 
 template <class Tensor>
 struct Require<Tensor, RequireType::matrix> : protected Tensor
 {
 public:
-    using type = RequireType::matrix;
+    using type = RequireType::tensor;
 
 protected:
-    static constexpr bool matrix_require =
-        std::is_base_of<lique::TensorType::matrix, Tensor>::value;
+    static constexpr bool tensor_require =
+        std::is_base_of<lique::TensorType::tensor, Tensor>::value;
 
-    static_assert(matrix_require, "'Tensor' is not base of trixy::lique::TensorType::matrix.");
+    static_assert(tensor_require, "'Tensor' is not base of trixy::lique::TensorType::tensor.");
 
     using require = Tensor;
 
@@ -61,4 +61,4 @@ protected:
 
 } // namespace trixy
 
-#endif // TRIXY_REQUIRE_MATRIX_HPP
+#endif // TRIXY_REQUIRE_TENSOR_HPP

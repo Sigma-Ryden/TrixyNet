@@ -36,10 +36,10 @@ public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        typename = meta::when<not std::is_base_of<meta::decay_t<T>, Locker>::value>,
-        typename = meta::when<std::is_constructible<Container, T, Tn...>::value>>
+        meta::as<not std::is_base_of<meta::decay_t<T>, Locker>::value> = 0,
+        meta::as<std::is_constructible<Container, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
-    : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}
+        : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
     Locker(const Locker& container) : Container(container) {}

@@ -6,11 +6,13 @@
 #include <Trixy/Neuro/Functional/Function/Loss.hpp>
 #include <Trixy/Locker/Core.hpp>
 
+#include <Trixy/Neuro/Network/Require.hpp>
+
 namespace trixy
 {
 
 template <typename TypeSet>
-class Ex
+class Ex : public TrixyNetRequire<TrixyNetType::FeedForward, TypeSet>
 {
 public:
     template <typename T>

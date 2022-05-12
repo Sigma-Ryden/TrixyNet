@@ -2,6 +2,8 @@
 #ifndef TRIXY_NETWORK_LAYER_HPP
 #define TRIXY_NETWORK_LAYER_HPP
 
+#include <Trixy/Base.hpp> // LayerMode
+
 #define DERIVED (*static_cast<Derived*>(self))
 
 namespace trixy
@@ -9,12 +11,6 @@ namespace trixy
 
 namespace layer
 {
-
-struct LayerMode
-{
-    struct Normal { using type = Normal; };
-    struct Train { using type = Train; };
-};
 
 template <class Net>
 class ILayer

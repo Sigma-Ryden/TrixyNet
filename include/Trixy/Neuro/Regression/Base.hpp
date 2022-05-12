@@ -1,14 +1,10 @@
 #ifndef TRIXY_REGRESSION_BASE_HPP
 #define TRIXY_REGRESSION_BASE_HPP
 
+#include <Trixy/Base.hpp> // RegressionType
+
 namespace trixy
 {
-
-struct RegressionType
-{
-    struct Linear { using type = Linear; };
-    struct Polynomial { using type = Polynomial; };
-};
 
 template <typename RegressionType, typename TypeSet>
 class Regression;

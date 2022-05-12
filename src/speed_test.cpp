@@ -117,58 +117,6 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-#include <Trixy/Neuro/Network/ExperimentalNet.hpp>
-
-using namespace tr::functional::activation;
-
-using Net = tr::Ex<tr::TypeSet<float>>;
-
-template <class Activation>
-using FullyConnected = tr::layer::FullyConnected<Net, Activation>;
-
-void experimental()
-{
-    auto idata = get_speed_test_idata<TrixyNet>();
-    auto odata = get_speed_test_odata<TrixyNet>();
-
-    TrixyNet net1({4, 4, 5, 4, 3});
-
-    Net net2;
-    net2.add(new FullyConnected<ReLU>(4, 4));
-    net2.add(new FullyConnected<ReLU>(4, 5));
-    net2.add(new FullyConnected<ReLU>(5, 4));
-    net2.add(new FullyConnected<SoftMax>(4, 3));
-
-    TrixyNetFunctional manage;
-    TrixyNetTraining teach(net1);
-
-    RandomFloating random;
-    net1.inner.initialize([&] { return random(-.5, .5); });
-
-    net2.init(net1.inner.B.base(), net1.inner.W.base());
-
-    net1.function.activation(manage.get<ActivationId::relu>());
-    net1.function.normalization(manage.get<ActivationId::softmax>());
-    net1.function.loss(manage.get<LossId::CCE>());
-
-    auto grad = GradDescentOptimizer(net1, 0.1); // new style
-
-    utility::statistic(net1, idata, odata);
-    utility::statistic(net2, idata, odata);
-
-    constexpr int epoch = 100000;
-
-    utility::Timer t;
-
-    teach.trainBatch(idata, odata, grad, epoch);
-    std::cout << "Train net1 time: " << t.elapsed() << '\n';
-
-    net2.train(idata, odata, epoch, 0.1);
-    std::cout << "Train net2 time: " << t.elapsed() << '\n';
-
-    utility::statistic(net1, idata, odata);
-    utility::statistic(net2, idata, odata);
-}
 //
 int main()
 {

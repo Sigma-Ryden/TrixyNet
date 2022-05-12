@@ -1,14 +1,10 @@
 #ifndef TRIXY_NETWORK_BASE_HPP
 #define TRIXY_NETWORK_BASE_HPP
 
+#include <Trixy/Base.hpp> // TrixyNetType
+
 namespace trixy
 {
-
-struct TrixyNetType
-{
-    struct FeedForward { using type = FeedForward; };
-};
-
 
 template <typename TrixyNetType, typename TypeSet>
 class TrixyNet;

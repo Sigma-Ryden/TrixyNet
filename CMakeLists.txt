@@ -12,6 +12,7 @@ set(TESTING
     src/mnist_test.cpp
     src/speed_test.cpp
     src/regression_test.cpp
+    src/experimental_test.cpp
 )
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
@@ -50,12 +51,14 @@ set(TRIXY_LOCKER
     include/Trixy/Locker/Container.hpp
     include/Trixy/Locker/Vector.hpp
     include/Trixy/Locker/Matrix.hpp
+    include/Trixy/Locker/Tensor.hpp
     include/Trixy/Locker/Core.hpp
 )
 set(TRIXY_REQUIRE
     include/Trixy/Require/Base.hpp
     include/Trixy/Require/Vector.hpp
     include/Trixy/Require/Matrix.hpp
+    include/Trixy/Require/Tensor.hpp
     include/Trixy/Require/Linear.hpp
     include/Trixy/Require/Container.hpp
     include/Trixy/Require/Precision.hpp
@@ -70,6 +73,9 @@ set(TRIXY_RANDOM
     include/Trixy/Random/Core.hpp
 )
 set(TRIXY_NEURO
+    include/Trixy/Base.hpp
+    include/Trixy/Core.hpp
+
     include/Trixy/Detail/TrixyMeta.hpp
     include/Trixy/Detail/FunctionDetail.hpp
     include/Trixy/Detail/MacroScope.hpp
@@ -129,8 +135,6 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Training/LinearRegression.hpp
     include/Trixy/Neuro/Training/PolynomialRegression.hpp
     include/Trixy/Neuro/Training/Core.hpp
-
-    include/Trixy/Core.hpp
 )
 set(UTILS
     include/Utility/utility.hpp

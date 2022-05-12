@@ -1,26 +1,13 @@
 #ifndef TRIXY_LIQUE_BASE_HPP
 #define TRIXY_LIQUE_BASE_HPP
 
+#include <Trixy/Base.hpp> // TensorType, TensorMode
+
 namespace trixy
 {
 
 namespace lique
 {
-
-struct TensorType
-{
-    struct base {};
-
-    struct vector {};
-    struct matrix {};
-    struct tensor {};
-};
-
-struct TensorMode
-{
-    struct view {};
-    struct own {};
-};
 
 template <typename Precision,
           typename TensorType = TensorType::tensor,

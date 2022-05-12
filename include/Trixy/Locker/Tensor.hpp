@@ -1,5 +1,5 @@
-#ifndef TRIXY_LOCKER_VECTOR_HPP
-#define TRIXY_LOCKER_VECTOR_HPP
+#ifndef TRIXY_LOCKER_TENSOR_HPP
+#define TRIXY_LOCKER_TENSOR_HPP
 
 #include <utility> // move, forward
 
@@ -12,10 +12,10 @@ namespace trixy
 {
 
 template <class Tensor>
-using VectorLocker = Locker<Tensor, LockerType::vector>;
+using TensorLocker = Locker<Tensor, LockerType::tensor>;
 
 template <class Tensor>
-class Locker<Tensor, LockerType::vector> : protected Tensor
+class Locker<Tensor, LockerType::tensor> : protected Tensor
 {
 protected:
     using require = Tensor;
@@ -26,6 +26,8 @@ public:
 
     using typename require::pointer;
     using typename require::const_pointer;
+
+    //using typename require::Shape; // deprecated
 
 public:
     template <typename U = Tensor,
@@ -41,11 +43,11 @@ public:
         : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
     // operator= for copy and move Locker object will not implicit generate
-    Locker(const Locker& vector) : Tensor(vector) {}
-    Locker(Locker&& vector) noexcept : Tensor(std::move(vector)) {}
+    Locker(const Locker& tensor) : Tensor(tensor) {}
+    Locker(Locker&& tensor) noexcept : Tensor(std::move(tensor)) {}
 
-    Locker(const Tensor& vector) : Tensor(vector) {}
-    Locker(Tensor&& vector) noexcept : Tensor(std::move(vector)) {}
+    Locker(const Tensor& tensor) : Tensor(tensor) {}
+    Locker(Tensor&& tensor) noexcept : Tensor(std::move(tensor)) {}
 
     ~Locker() = default;
 
@@ -63,8 +65,6 @@ public:
     using require::fill;
     using require::apply;
 
-    //using require::dot; deprecated
-
     using require::add;
     using require::sub;
     using require::mul;
@@ -77,4 +77,4 @@ public:
 
 #include <Trixy/Detail/MacroUnscope.hpp>
 
-#endif // TRIXY_LOCKER_VECTOR_HPP
+#endif // TRIXY_LOCKER_TENSOR_HPP

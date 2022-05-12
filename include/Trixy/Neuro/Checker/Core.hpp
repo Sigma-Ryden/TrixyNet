@@ -1,8 +1,6 @@
 #ifndef TRIXY_NEURO_CHECKER_HPP
 #define TRIXY_NEURO_CHECKER_HPP
 
-#include <cmath> // fabs
-
 #include <Trixy/Neuro/Checker/Accuracy.hpp>
 
 namespace trixy
