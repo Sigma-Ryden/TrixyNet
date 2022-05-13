@@ -5,7 +5,7 @@
 #include <initializer_list> // initializer_list
 
 #include <Trixy/Lique/Base.hpp>
-#include <Trixy/Lique/BaseTensor.hpp>
+#include <Trixy/Lique/TensorBase.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -25,18 +25,18 @@ using VectorView = Vector<Precision, TensorMode::view>;
 
 template <typename Precision>
 class Tensor<Precision, TensorType::vector, TensorMode::own>
-    : public BaseTensor<Precision>
+    : public TensorBase<Precision>
     , public TensorType::vector
 {
-    LIQUE_BASE_TENSOR_BODY
+    LIQUE_TENSOR_BASE_BODY
 
 public:
     Tensor() noexcept = default;
     ~Tensor();
 
-    explicit Tensor(const Shape& shape, const_pointer data);
-    explicit Tensor(const Shape& shape, precision_type value);
-    explicit Tensor(const Shape& shape);
+    explicit Tensor(const shape_type& shape, const_pointer data);
+    explicit Tensor(const shape_type& shape, precision_type value);
+    explicit Tensor(const shape_type& shape);
 
     Tensor(std::initializer_list<precision_type> init);
 
@@ -52,7 +52,7 @@ public:
     Tensor& operator= (const Tensor& tensor);
     Tensor& operator= (Tensor&& tensor) noexcept;
 
-    void resize(const Shape& shape);
+    void resize(const shape_type& shape);
     void resize(size_type width);
 
     void reshape(size_type width) noexcept;
@@ -60,16 +60,16 @@ public:
 
 template <typename Precision>
 class Tensor<Precision, TensorType::vector, TensorMode::view>
-    : public BaseTensor<Precision>
+    : public TensorBase<Precision>
     , public TensorType::vector
 {
-    LIQUE_BASE_TENSOR_BODY
+    LIQUE_TENSOR_BASE_BODY
 
 public:
     Tensor() noexcept = default;
     ~Tensor() = default;
 
-    Tensor(const Shape& shape, pointer data) noexcept;
+    Tensor(const shape_type& shape, pointer data) noexcept;
     Tensor(size_type width, pointer data) noexcept;
     Tensor(pointer first, pointer last) noexcept;
 
@@ -89,7 +89,7 @@ Vector<Precision>::~Tensor()
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>::Tensor(const Shape& shape, const_pointer data)
+Vector<Precision>::Tensor(const shape_type& shape, const_pointer data)
     : Base(shape.width)
 {
     this->data = new precision_type [shape.size];
@@ -98,7 +98,7 @@ Vector<Precision>::Tensor(const Shape& shape, const_pointer data)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>::Tensor(const Shape& shape, precision_type value)
+Vector<Precision>::Tensor(const shape_type& shape, precision_type value)
     : Base(shape.width)
 {
     this->data = new precision_type [shape.size];
@@ -107,7 +107,7 @@ Vector<Precision>::Tensor(const Shape& shape, precision_type value)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Vector<Precision>::Tensor(const Shape& shape)
+Vector<Precision>::Tensor(const shape_type& shape)
     : Base(shape.width)
 {
     this->data = new precision_type [shape.size];
@@ -207,7 +207,7 @@ Vector<Precision>& Vector<Precision>::operator= (Tensor&& tensor) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Vector<Precision>::resize(const Shape& shape)
+void Vector<Precision>::resize(const shape_type& shape)
 {
     resize(shape.width);
 }
@@ -230,7 +230,7 @@ void Vector<Precision>::reshape(size_type width) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-VectorView<Precision>::Tensor(const Shape& shape, pointer data) noexcept
+VectorView<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
     : Base(shape.width, data)
 {
 }

@@ -4,7 +4,7 @@
 #include <cstddef> // size_t
 
 #include <Trixy/Lique/Base.hpp>
-#include <Trixy/Lique/BaseTensor.hpp>
+#include <Trixy/Lique/TensorBase.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -24,18 +24,18 @@ using MatrixView = Matrix<Precision, TensorMode::view>;
 
 template <typename Precision>
 class Tensor<Precision, TensorType::matrix, TensorMode::own>
-    : public BaseTensor<Precision>
+    : public TensorBase<Precision>
     , public TensorType::matrix
 {
-    LIQUE_BASE_TENSOR_BODY
+    LIQUE_TENSOR_BASE_BODY
 
 public:
     Tensor() noexcept = default;
     ~Tensor();
 
-    explicit Tensor(const Shape& shape, const_pointer data);
-    explicit Tensor(const Shape& shape, precision_type value);
-    explicit Tensor(const Shape& shape);
+    explicit Tensor(const shape_type& shape, const_pointer data);
+    explicit Tensor(const shape_type& shape, precision_type value);
+    explicit Tensor(const shape_type& shape);
 
     Tensor(size_type height, size_type width, const_pointer data);
     Tensor(size_type height, size_type width, precision_type value);
@@ -52,7 +52,7 @@ public:
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
-    void resize(const Shape& shape);
+    void resize(const shape_type& shape);
     void resize(size_type height, size_type width);
 
     void reshape(size_type height, size_type width) noexcept;
@@ -60,16 +60,16 @@ public:
 
 LIQUE_TENSOR_TPL_DECLARATION
 class Tensor<Precision, TensorType::matrix, TensorMode::view>
-    : public BaseTensor<Precision>
+    : public TensorBase<Precision>
     , public TensorType::matrix
 {
-    LIQUE_BASE_TENSOR_BODY
+    LIQUE_TENSOR_BASE_BODY
 
 public:
     Tensor() noexcept = default;
     ~Tensor() = default;
 
-    Tensor(const Shape& shape, pointer data) noexcept;
+    Tensor(const shape_type& shape, pointer data) noexcept;
     Tensor(size_type height, size_type width, pointer data) noexcept;
     Tensor(pointer first, pointer last) noexcept;
 
@@ -92,7 +92,7 @@ Matrix<Precision>::~Tensor()
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Shape& shape, const_pointer data)
+Matrix<Precision>::Tensor(const shape_type& shape, const_pointer data)
     : Base(shape.depth * shape.height, shape.width)
 {
     this->data_ = new precision_type [this->shape_.size];
@@ -101,7 +101,7 @@ Matrix<Precision>::Tensor(const Shape& shape, const_pointer data)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Shape& shape, precision_type value)
+Matrix<Precision>::Tensor(const shape_type& shape, precision_type value)
     : Base(shape.depth * shape.height, shape.width)
 {
     this->data_ = new precision_type [this->shape_.size];
@@ -110,7 +110,7 @@ Matrix<Precision>::Tensor(const Shape& shape, precision_type value)
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-Matrix<Precision>::Tensor(const Shape& shape)
+Matrix<Precision>::Tensor(const shape_type& shape)
     : Base(shape.depth * shape.height, shape.width)
 {
     this->data_ = new precision_type [this->shape_.size];
@@ -220,7 +220,7 @@ typename Matrix<Precision>::const_reference
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-void Matrix<Precision>::resize(const Shape& shape)
+void Matrix<Precision>::resize(const shape_type& shape)
 {
     resize(shape.height, shape.width);
 }
@@ -246,7 +246,7 @@ void Matrix<Precision>::reshape(size_type height, size_type width) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-MatrixView<Precision>::Tensor(const Shape& shape, pointer data) noexcept
+MatrixView<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
     : Base(shape.depth * shape.height, shape.width, data)
 {
 }

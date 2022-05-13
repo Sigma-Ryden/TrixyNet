@@ -3,6 +3,9 @@
 
 #include <cstddef> // size_t
 
+#include <Trixy/Base.hpp> // TensorType
+#include <Trixy/Lique/Shape.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 
 namespace trixy
@@ -18,7 +21,7 @@ class ITensor;
 
 template <template <typename, typename...> class Derived,
           typename Precision, typename... Pack>
-class ITensorBase
+class ITensorBase : public lique::TensorType::base
 {
 public:
     using Tensor            = Derived<Precision, Pack...>;
@@ -26,6 +29,7 @@ public:
 public:
     using size_type         = std::size_t;
     using precision_type    = Precision;
+    using shape_type        = lique::Shape;
 
     using pointer           = Precision*;
     using const_pointer     = const Precision*;
@@ -47,8 +51,6 @@ public:
 
     template <class Generator, trixy::meta::as<meta::is_callable<Generator>::value> = 0>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
-
-    size_type size() const noexcept { return self().size(); }
 
     template <class Function>
     Tensor  apply(Function func) const { return self().apply(func); }
@@ -90,6 +92,15 @@ public:
 
     pointer data() noexcept { return self().data(); }
     const_pointer data() const noexcept { return self().data(); }
+
+    size_type size() const noexcept { return self().size(); }
+    const shape_type& shape() const noexcept { return self().shape(); }
+
+    void swap(Tensor& tensor) noexcept
+    { self().swap(tensor); }
+
+    reference operator() (size_type i) noexcept { return self().operator()(i); }
+    const_reference operator() (size_type i) const noexcept { return self().operator()(i); }
 };
 
 } // namespace ilique

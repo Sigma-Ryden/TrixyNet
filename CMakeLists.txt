@@ -26,11 +26,12 @@ set(TRIXY_LIQUE
     include/Trixy/Lique/Detail/MacroUnscope.hpp
 
     include/Trixy/Lique/Base.hpp
-    include/Trixy/Lique/BaseTensor.hpp
+    include/Trixy/Lique/TensorBase.hpp
     include/Trixy/Lique/Linear.hpp
     include/Trixy/Lique/Tensor.hpp
     include/Trixy/Lique/Matrix.hpp
     include/Trixy/Lique/Vector.hpp
+    include/Trixy/Lique/Shape.hpp
     include/Trixy/Lique/Tool.hpp
     include/Trixy/Lique/Core.hpp
 )
@@ -40,6 +41,7 @@ set(TRIXY_ILIQUE
 
     include/Trixy/ILique/Base.hpp
     include/Trixy/ILique/Linear.hpp
+    include/Trixy/ILique/Tensor.hpp
     include/Trixy/ILique/Matrix.hpp
     include/Trixy/ILique/Vector.hpp
     include/Trixy/ILique/Core.hpp

@@ -29,7 +29,7 @@ public:
 
 public:
     template <typename U = Tensor,
-              typename = meta::when<std::is_constructible<U>::value>>
+              meta::as<std::is_constructible<U>::value> = 0>
     Locker() : Tensor() {}
 
     // We MUST define explicit copy and move constructors

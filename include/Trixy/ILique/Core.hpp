@@ -5,6 +5,7 @@
 
 #include <Trixy/ILique/Vector.hpp>
 #include <Trixy/ILique/Matrix.hpp>
+#include <Trixy/ILique/Tensor.hpp>
 
 #include <Trixy/ILique/Linear.hpp>
 
