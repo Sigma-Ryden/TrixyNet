@@ -29,7 +29,7 @@ Vector get_sin_idata()
 
     precision_type arg = -3.;
 
-    for(size_type i = 0; i < x.size(); ++i)
+    for (size_type i = 0; i < x.size(); ++i)
     {
         x(i) = arg;
         arg += .1;
@@ -48,7 +48,7 @@ Vector get_sin_odata()
 
     precision_type arg = -3.;
 
-    for(size_type i = 0; i < y.size(); ++i)
+    for (size_type i = 0; i < y.size(); ++i)
     {
         y(i) = std::sin(arg);
         arg += .1;
@@ -67,7 +67,7 @@ Matrix get_linear_idata()
 
     precision_type arg = -1.;
 
-    for(size_type i = 0; i < x.shape().height; ++i)
+    for (size_type i = 0; i < x.shape().height; ++i)
     {
         x(i, 0) = arg;
         arg    += .02;
@@ -86,7 +86,7 @@ Vector get_linear_odata()
 
     precision_type arg = -1.;
 
-    for(size_type i = 0; i < y.size(); ++i)
+    for (size_type i = 0; i < y.size(); ++i)
     {
         y(i) = arg * 8. + 2.;
         arg += .02;

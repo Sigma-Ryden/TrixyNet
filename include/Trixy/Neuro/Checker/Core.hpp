@@ -43,7 +43,7 @@ public:
         precision_type result = 0.;
         precision_type error  = 0.;
 
-        for(size_type i = 0; i < odata.size(); ++i)
+        for (size_type i = 0; i < odata.size(); ++i)
         {
             loss_function(error, odata[i], net.feedforward(idata[i]));
             result += error;

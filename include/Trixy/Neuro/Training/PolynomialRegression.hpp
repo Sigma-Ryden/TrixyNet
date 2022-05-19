@@ -45,12 +45,12 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
     precision_type sample;
     precision_type power;
 
-    for(size_type i = 0; i < idata.size(); ++i)
+    for (size_type i = 0; i < idata.size(); ++i)
     {
         sample = idata(i);
         power  = 1.;
 
-        for(size_type j = 0; j < reg.N; ++j)
+        for (size_type j = 0; j < reg.N; ++j)
         {
             X(i, j) = power;
             power  *= sample;

@@ -111,14 +111,14 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserialize(InStream&
     bool buffering;
 
     buffering = (sizeof(size_type) != meta_size_type);
-    if(buffering) buff.set(BaseId::Unsigned, meta_size_type);
+    if (buffering) buff.set(BaseId::Unsigned, meta_size_type);
 
     deserializeData(in, &N, 1, buffering);
 
     W.resize(N + 1);
 
     buffering = (sizeof(precision_type) != meta_precision_type);
-    if(buffering) buff.set(BaseId::Float, meta_precision_type);
+    if (buffering) buff.set(BaseId::Float, meta_precision_type);
 
     deserializeData(in, W.data(), W.size(), buffering);
 }
@@ -140,7 +140,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserializeData(
 {
     using Data = meta::deref<OutData>; // dereferencing OutData type
 
-    if(buffering)
+    if (buffering)
     {
         // you MUST pre-define offset for buffer before
         size_type memory_size = n * buff.offset();

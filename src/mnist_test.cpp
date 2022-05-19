@@ -31,9 +31,9 @@ using size_type = std::size_t;
 template <class Net, class ImageType = typename Net::Vector>
 void show_image(const ImageType& image) noexcept
 {
-    for(size_type i = 0; i < image.size(); ++i)
+    for (size_type i = 0; i < image.size(); ++i)
     {
-        if(i % 28 == 0) std::cout << '\n';
+        if (i % 28 == 0) std::cout << '\n';
         std::cout << (image(i) > 0.5 ? '#' : image(i) > 0.05 ? '*' : '.') << ' ';
     }
 }
@@ -41,7 +41,7 @@ void show_image(const ImageType& image) noexcept
 template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
 void show_image_batch(const ImageDataType& data) noexcept
 {
-    for(const auto& image : data)
+    for (const auto& image : data)
     {
         show_image(image);
         std::cout << '\n';
@@ -53,7 +53,7 @@ void test_image_batch(const Net& net, const ImageDataType& data, const ImageData
 {
     typename Net::Vector prediction(net.inner.topology.back());
 
-    for(size_type i = 0; i < data.size(); ++i)
+    for (size_type i = 0; i < data.size(); ++i)
     {
         show_image<Net>(data[i]);
 
@@ -73,11 +73,11 @@ ImageDataType get_idata(
     ImageDataType input_batch;
     input_batch.reserve(batch_size);
 
-    for(size_type i = 0; i < batch_size; ++i)
+    for (size_type i = 0; i < batch_size; ++i)
         input_batch.emplace_back(input_size);
 
-    for(size_type i = 0; i < batch_size; ++i)
-        for(size_type j = 0; j < input_size; ++j)
+    for (size_type i = 0; i < batch_size; ++i)
+        for (size_type j = 0; j < input_size; ++j)
             input_batch[i](j) = data[i][j] / 255.0;
 
     return input_batch;
@@ -93,8 +93,8 @@ ImageDataType get_odata(
     for(size_type i = 0; i < batch_size; ++i)
         output_batch.emplace_back(output_size);
 
-    for(size_type i = 0; i < batch_size; ++i)
-        for(size_type j = 0; j < output_size; ++j)
+    for (size_type i = 0; i < batch_size; ++i)
+        for (size_type j = 0; j < output_size; ++j)
             output_batch[i](j) = (data[i] == j) ? 1.0 : 0.0;
 
     return output_batch;

@@ -163,7 +163,7 @@ Container<Type>::Container(size_type size)
     , size_(size)
     , capacity_(size)
 {
-    for(size_type i = 0; i < size_; ++i)
+    for (size_type i = 0; i < size_; ++i)
         new (data_ + i) value_type();
 }
 
@@ -173,7 +173,7 @@ Container<Type>::Container(const Container& container)
     , size_(container.size_)
     , capacity_(container.capacity_)
 {
-    for(std::size_t i = 0; i < size_; ++i)
+    for (std::size_t i = 0; i < size_; ++i)
         new (data_ + i) value_type(container.data_[i]);
 }
 
@@ -195,7 +195,7 @@ Container<Type>::Container(std::initializer_list<value_type> list)
     , capacity_(list.size())
 {
     size_type i = 0;
-    for(const auto& arg: list)
+    for (const auto& arg: list)
     {
         new (data_ + i) value_type(arg);
         ++i;
@@ -215,7 +215,7 @@ Container<Type>& Container<Type>::operator= (const Container& container)
     size_ = container.size_;
     data_ = Container::allocate(capacity_);
 
-    for(size_type i = 0; i < size_; ++i)
+    for (size_type i = 0; i < size_; ++i)
         new (data_ + i) value_type(container.data_[i]);
 
     return *this;
@@ -244,11 +244,11 @@ template <typename... Args>
 void Container<Type>::resize(size_type n, Args&&... args)
 {
     // capacity is always more than or equal to size
-    if(n > capacity_)
+    if (n > capacity_)
     {
         reserve(n);
 
-        for(; size_ < n; ++size_)
+        for (; size_ < n; ++size_)
             new (data_ + size_) value_type(std::forward<Args>(args)...);
 
         capacity_ = n;
@@ -256,14 +256,14 @@ void Container<Type>::resize(size_type n, Args&&... args)
         return;
     }
 
-    if(n < size_)
+    if (n < size_)
     {
         Container::destroy(data_ + n, data_ + size_);
         size_ = n;
     }
     else
     {
-        for(; size_ < n; ++size_)
+        for (; size_ < n; ++size_)
             new (data_ + size_) value_type(std::forward<Args>(args)...);
     }
 }
@@ -271,11 +271,11 @@ void Container<Type>::resize(size_type n, Args&&... args)
 template <typename Type>
 void Container<Type>::reserve(size_type n)
 {
-    if(n > capacity_)
+    if (n > capacity_)
     {
         pointer buff = Container::allocate(n);
 
-        for(size_type i = 0; i < size_; ++i)
+        for (size_type i = 0; i < size_; ++i)
             new (buff + i) value_type(std::move(data_[i]));
 
         std::swap(buff, data_);
@@ -292,7 +292,7 @@ template <typename... Args>
 void Container<Type>::emplace_back(Args&&... args)
 {
     // size is always less than or equal to capacity
-    if(size_ == capacity_)
+    if (size_ == capacity_)
         reserve(capacity_ * 2 + 1);
 
     new (data_ + size_) value_type(std::forward<Args>(args)...);
@@ -304,7 +304,7 @@ void Container<Type>::pop_back()
 {
     // call destructor of last element in Container
     --size_;
-    (data_ + size_)->~value_type();
+    data_[size_].~value_type();
 }
 
 template <typename Type>
@@ -325,9 +325,9 @@ inline void Container<Type>::deallocate(pointer ptr)
 template <typename Type>
 void Container<Type>::destroy(pointer first, pointer last)
 {
-    if(first == nullptr) return;
+    if (first == nullptr) return;
 
-    while(first != last)
+    while (first != last)
     {
         first->~value_type();
         ++first;

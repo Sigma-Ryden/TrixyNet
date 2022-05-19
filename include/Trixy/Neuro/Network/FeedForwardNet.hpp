@@ -230,7 +230,7 @@ template <class FloatGenerator,
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     FloatGenerator generator_all) noexcept
 {
-    for(size_type i = 0; i < N; ++i)
+    for (size_type i = 0; i < N; ++i)
     {
         B[i].fill(generator_all);
         W[i].fill(generator_all);
@@ -245,7 +245,7 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     BiasGenerator genB,
     WeightGenerator genW) noexcept
 {
-    for(size_type i = 0; i < N; ++i)
+    for (size_type i = 0; i < N; ++i)
     {
         B[i].fill(genB);
         W[i].fill(genW);
@@ -257,7 +257,7 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     const Container<Vector>& bias,
     const Container<Matrix>& weight) noexcept
 {
-    for(size_type i = 0; i < N; ++i)
+    for (size_type i = 0; i < N; ++i)
     {
         B[i].copy(bias[i]);
         W[i].copy(weight[i]);
@@ -272,7 +272,7 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get1d(
     Init data;
 
     data.reserve(topology.size() - 1);
-    for(size_type i = 1; i < topology.size(); ++i)
+    for (size_type i = 1; i < topology.size(); ++i)
         data.emplace_back(topology[i], std::forward<Args>(args)...);
 
     return data;
@@ -294,7 +294,7 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get2d(
     Init data;
 
     data.reserve(topology.size() - 1);
-    for(size_type i = 1; i < topology.size(); ++i)
+    for (size_type i = 1; i < topology.size(); ++i)
         data.emplace_back(topology[i - 1], topology[i], std::forward<Args>(args)...);
 
     return data;
@@ -312,7 +312,7 @@ TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activation(
     const TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction& f)
 {
-    for(size_type i = 0; i < activation_.size() - 1; ++i)
+    for (size_type i = 0; i < activation_.size() - 1; ++i)
     {
         activation_  [i] = f;
         activationId_[i] = f.id;
@@ -323,7 +323,7 @@ TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activationSet(
     const Container<ActivationFunction>& fs)
 {
-    for(size_type i = 0; i < activation_.size(); ++i)
+    for (size_type i = 0; i < activation_.size(); ++i)
     {
         activation_  [i] = fs[i];
         activationId_[i] = fs[i].id;
@@ -382,7 +382,7 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     linear.add(buff[0], inner.B[0]);
     function.activation(0).f(buff[0], buff[0]);
 
-    for(size_type i = 1; i < inner.N; ++i)
+    for (size_type i = 1; i < inner.N; ++i)
     {
         linear.dot(buff[i], buff[i - 1], inner.W[i]);
         linear.add(buff[i], inner.B[i]);

@@ -52,7 +52,7 @@ public:
     Ex() : size(0) {}
     ~Ex()
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
             delete layer_[i];
     }
 
@@ -77,7 +77,7 @@ public:
     {
         layer(0).forward(sample);
 
-        for(size_type i = 1; i < size; ++i)
+        for (size_type i = 1; i < size; ++i)
             layer(i).forward(layer(i - 1).value());
 
         return layer(size - 1).value();
@@ -87,7 +87,7 @@ public:
           meta::as<meta::is_callable<FloatGenerator>::value> = 0>
     void init(FloatGenerator gen) noexcept
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
         {
             layer(i).B().fill(gen);
             layer(i).W().fill(gen);
@@ -96,7 +96,7 @@ public:
     template <class Bias, class Weight>
     void init(const Container<Bias>& bias, const Container<Weight>& weight) noexcept
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
         {
             linear.assign(layer(i).B(), bias[i]);
             linear.assign(layer(i).W(), weight[i]);
@@ -109,7 +109,7 @@ private:
 
         layer(size - 1).backward(layer(size - 2).value(), delta);
 
-        for(int i = size - 2; i > 0; --i)
+        for (int i = size - 2; i > 0; --i)
             layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
 
         layer(0).backward0(sample, layer(1).delta().base());
@@ -124,11 +124,11 @@ public:
     {
         precision_type alpha = 1. / static_cast<precision_type>(idata.size());
 
-        for(size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
+        for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
         {
             resetDelta();
 
-            for(sample = 0; sample < idata.size(); ++sample)
+            for (sample = 0; sample < idata.size(); ++sample)
             {
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
@@ -137,7 +137,7 @@ public:
             // averaging deltas for one full-batch
             normalizeDelta(alpha);
             // B = B - learning_rate * gradB
-            for(size_type i = 0; i < size; ++i)
+            for (size_type i = 0; i < size; ++i)
             {
                 linear.join(deltaB[i], learning_rate);
                 linear.sub(layer(i).B(), deltaB[i]);
@@ -153,7 +153,7 @@ public:
 private:
     void resetDelta() noexcept
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
         {
             deltaB[i].fill(0.0);
             deltaW[i].fill(0.0);
@@ -162,7 +162,7 @@ private:
 
     void updateDelta() noexcept
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
         {
             linear.add(deltaB[i], layer(i).gradB());
             linear.add(deltaW[i], layer(i).gradW());
@@ -172,7 +172,7 @@ private:
     void normalizeDelta(
         precision_type alpha) noexcept
     {
-        for(size_type i = 0; i < size; ++i)
+        for (size_type i = 0; i < size; ++i)
         {
             deltaB[i].join(alpha);
             deltaW[i].join(alpha);

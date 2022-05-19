@@ -48,7 +48,7 @@ public:
     {
         Container<ActivationFunction> all_activation(all_id.size());
 
-        for(size_type i = 0; i < all_id.size(); ++i)
+        for (size_type i = 0; i < all_id.size(); ++i)
             all_activation[i] = get(all_id[i]);
 
         return all_activation;

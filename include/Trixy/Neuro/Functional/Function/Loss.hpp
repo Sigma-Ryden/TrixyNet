@@ -25,7 +25,7 @@ void categorical_cross_entropy(Precision& result, const Target& y_true, const Pr
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         result -= (*target) * std::log(*pred + epsilon);
 
@@ -45,7 +45,7 @@ void categorical_cross_entropy_derived(Buffer& buff, const Target& y_true, const
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = -(*target) / (*pred + epsilon);
 
@@ -65,7 +65,7 @@ void mean_squared_error(Precision& result, const Target& y_true, const Predictio
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         f = *target - *pred;
         result += f * f;
@@ -86,7 +86,7 @@ void mean_squared_error_derived(Buffer& buff, const Target& y_true, const Predic
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = *pred - *target;
 
@@ -104,7 +104,7 @@ void mean_absolute_error(Precision& result, const Target& y_true, const Predicti
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         result += std::fabs(*pred - *target);
 
@@ -122,7 +122,7 @@ void mean_absolute_error_derived(Buffer& buff, const Target& y_true, const Predi
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first = *target - *pred;
         *first = *first < 0.
@@ -146,7 +146,7 @@ void mean_squared_log_error(Precision& result, const Target& y_true, const Predi
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         f = (*pred + 1.) / (*target + 1.);
         f = std::log(f);
@@ -169,7 +169,7 @@ void mean_squared_log_error_derived(Buffer& buff, const Target& y_true, const Pr
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first = *pred + 1.;
         *first = std::log(*first / (*target + 1.)) / (*first);
@@ -191,7 +191,7 @@ void binary_cross_entropy(Precision& result, const Target& y_true, const Predict
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         result -= (*target) * std::log(*pred + epsilon) +  (1. - *target) * std::log1p(epsilon - *pred);
 
@@ -212,7 +212,7 @@ void binary_cross_entropy_derived(Buffer& buff, const Target& y_true, const Pred
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = (*target - 1.) / (*pred + alpha) - (*target) / (*pred + epsilon);
 
@@ -230,7 +230,7 @@ void binary_cross_entropy_derived_sigmoid(Buffer& buff, const Target& y_true, co
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = (*target) * (*pred - 1.) + (*pred) * (1. - *target);
 
@@ -248,7 +248,7 @@ void negative_log_likelihood(Precision& result, const Target& y_true, const Pred
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         result += (*target) * (*pred);
 
@@ -268,7 +268,7 @@ void negative_log_likelihood_derived_softmax(Buffer& buff, const Target& y_true,
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = *pred - *target;
 
@@ -286,7 +286,7 @@ void logcosh(Precision& result, const Target& y_true, const Prediction& y_pred) 
     auto pred   = y_pred.data();
 
     result = Precision{};
-    while(target != end)
+    while (target != end)
     {
         result += std::log(std::cosh(*pred - *target));
 
@@ -304,7 +304,7 @@ void logcosh_derived(Buffer& buff, const Target& y_true, const Prediction& y_pre
     auto target = y_true.data();
     auto pred   = y_pred.data();
 
-    while(first != last)
+    while (first != last)
     {
         *first++ = std::tanh(*pred - *target);
 

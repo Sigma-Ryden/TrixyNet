@@ -166,7 +166,7 @@ TensorBase<Precision>::Tensor(Tensor&& tensor) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 TensorBase<Precision>& TensorBase<Precision>::operator= (const Tensor& tensor) noexcept
 {
-    if(this != &tensor)
+    if (this != &tensor)
     {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
@@ -178,7 +178,7 @@ TensorBase<Precision>& TensorBase<Precision>::operator= (const Tensor& tensor) n
 LIQUE_TENSOR_TPL_DECLARATION
 TensorBase<Precision>& TensorBase<Precision>::operator= (Tensor&& tensor) noexcept
 {
-    if(this != &tensor)
+    if (this != &tensor)
     {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
@@ -200,7 +200,7 @@ TensorBase<Precision>& TensorBase<Precision>::copy(const_pointer src) noexcept
 LIQUE_TENSOR_TPL_DECLARATION
 TensorBase<Precision>& TensorBase<Precision>::copy(const Tensor& vector) noexcept
 {
-    if(this != &vector)
+    if (this != &vector)
         lique::detail::copy(data_, data_ + shape_.size, vector.data_);
 
     return *this;

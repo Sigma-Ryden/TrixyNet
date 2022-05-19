@@ -42,16 +42,16 @@ void unstable_softmax(Tensor& buff, const Tensor& vector) noexcept
     using size_type      = typename Tensor::size_type;
     using precision_type = typename Tensor::precision_type;
 
-    for(size_type i = 0; i < buff.size(); ++i)
+    for (size_type i = 0; i < buff.size(); ++i)
         buff(i) = std::exp(vector(i));
 
     precision_type denominator = 0.;
-    for(size_type i = 0; i < buff.size(); ++i)
+    for (size_type i = 0; i < buff.size(); ++i)
         denominator += buff(i);
 
     denominator = 1. / denominator;
 
-    for(size_type i = 0; i < buff.size(); ++i)
+    for (size_type i = 0; i < buff.size(); ++i)
         buff(i) *= denominator;
 }
 
@@ -65,10 +65,10 @@ void softmax(Tensor& buff, const Tensor& vector) noexcept
     precision_type denominator;
 
     max = vector(0);
-    for(size_type i = 1; i < buff.size(); ++i)
-        if(max < vector(i)) max = vector(i);
+    for (size_type i = 1; i < buff.size(); ++i)
+        if (max < vector(i)) max = vector(i);
 
-    for(size_type i = 0; i < buff.size(); ++i)
+    for (size_type i = 0; i < buff.size(); ++i)
         buff(i) = std::exp(vector(i) - max);
 
     denominator = 0.;
@@ -77,7 +77,7 @@ void softmax(Tensor& buff, const Tensor& vector) noexcept
 
     denominator = 1. / denominator;
 
-    for(size_type i = 0; i < buff.size(); ++i)
+    for (size_type i = 0; i < buff.size(); ++i)
         buff(i) *= denominator;
 }
 

@@ -85,7 +85,7 @@ void GradDescent<Optimizeriable>::update(
 {
     // w = w - learning_rate * g
 
-    for(size_type i = 0; i < net.inner.N; ++i)
+    for (size_type i = 0; i < net.inner.N; ++i)
     {
         net.linear.join(buff1[i], learning_rate_, gradB[i]);
         net.linear.sub(net.inner.B[i], buff1[i]);

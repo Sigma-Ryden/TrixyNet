@@ -208,7 +208,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
     size_type iteration_scale,
     GeneratorInteger generator) noexcept
 {
-    for(size_type iteration = 0, sample; iteration < iteration_scale; ++iteration)
+    for (size_type iteration = 0, sample; iteration < iteration_scale; ++iteration)
     {
         sample = generator() % idata.size();
 
@@ -229,11 +229,11 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 {
     precision_type alpha = 1. / static_cast<precision_type>(idata.size());
 
-    for(size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
+    for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
     {
         backprop_.resetDelta();
 
-        for(sample = 0; sample < idata.size(); ++sample)
+        for (sample = 0; sample < idata.size(); ++sample)
         {
             feedforward(idata[sample]);
             backprop(idata[sample], odata[sample]);
@@ -263,19 +263,19 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
     size_type sample;
     size_type sample_limit;
 
-    for(size_type epoch = 0, iteration; epoch < number_of_epochs; ++epoch)
+    for (size_type epoch = 0, iteration; epoch < number_of_epochs; ++epoch)
     {
         sample = 0;
         sample_limit = 0;
 
-        for(iteration = 0; iteration < iteration_scale; ++iteration)
+        for (iteration = 0; iteration < iteration_scale; ++iteration)
         {
             sample_limit += mini_batch_size;
 
             backprop_.resetDelta();
 
             // accumulating deltas for one mini-batch
-            while(sample < sample_limit)
+            while (sample < sample_limit)
             {
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
@@ -311,7 +311,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::feedforward(
     net.linear.add(feedforward_.S[curr], net.inner.B[curr]);
     net.function.activation(curr).f(feedforward_.H[curr], feedforward_.S[curr]);
 
-    for(; fwd < net.inner.N; ++curr, ++fwd)
+    for (; fwd < net.inner.N; ++curr, ++fwd)
     {
         net.linear.dot(feedforward_.S[fwd], feedforward_.H[curr], net.inner.W[fwd]);
         net.linear.add(feedforward_.S[fwd], net.inner.B[fwd]);
@@ -344,7 +344,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
     net.function.activation(curr).df(backprop_.gradB[curr], feedforward_.S[curr]);
     net.linear.mul(backprop_.gradB[curr], buff[curr]);
 
-    for(; curr > 0; --curr, --back)
+    for (; curr > 0; --curr, --back)
     {
         net.linear.tensordot(backprop_.gradW[curr], feedforward_.H[back], backprop_.gradB[curr]);
 
@@ -364,7 +364,7 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
     precision_type result = 0.;
     precision_type error  = 0.;
 
-    for(size_type i = 0; i < odata.size(); ++i)
+    for (size_type i = 0; i < odata.size(); ++i)
     {
         net.function.loss().f(error, odata[i], net.feedforward(idata[i]));
         result += error;

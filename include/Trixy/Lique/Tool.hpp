@@ -75,14 +75,14 @@ T accumulate(InIt first, InIt last, T init)
 template <class FwdIt, class Binary>
 FwdIt search(FwdIt first, FwdIt last, Binary compare) noexcept
 {
-    if(first == last) return first;
+    if (first == last) return first;
 
     auto hold = first;
     auto it = ++first;
 
-    while(it != last)
+    while (it != last)
     {
-        if(compare(*hold, *it)) hold = it;
+        if (compare(*hold, *it)) hold = it;
 
         ++it;
     }
@@ -113,19 +113,19 @@ Vector<std::size_t> search(const Matrix<Precision>& matrix, Axis axis, Binary co
         vector.resize(block_size);
         vector.fill(size_type(0));
 
-        for(size_type i = 1; i < number_of_blocks; ++i)
-            for(size_type n = 0; n < vector.size(); ++n)
-                if(compare(matrix(vector(n), n), matrix(i, n)))
+        for (size_type i = 1; i < number_of_blocks; ++i)
+            for (size_type n = 0; n < vector.size(); ++n)
+                if (compare(matrix(vector(n), n), matrix(i, n)))
                     vector(n) = i;
     }
     else if (axis == Axis::Y)
     {
         vector.resize(number_of_blocks);
 
-        for(size_type n = 0; n < vector.size(); ++n)
+        for (size_type n = 0; n < vector.size(); ++n)
         {
-            for(size_type i = 1; i < block_size; ++i)
-                if(compare(matrix(n, arg), matrix(n, i)))
+            for (size_type i = 1; i < block_size; ++i)
+                if (compare(matrix(n, arg), matrix(n, i)))
                     arg = i;
 
             vector(n) = arg;
@@ -219,7 +219,7 @@ T std(InIt first, InIt last, T init, bool unbiased = false)
 
     auto it = first;
 
-    while(it != last)
+    while (it != last)
     {
         init = *it - mean_value;
         std_value += init * init;
@@ -252,14 +252,14 @@ Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
 
     Vector<double> vector;
 
-    if(axis == Axis::X)
+    if (axis == Axis::X)
     {
         vector.resize(block_size, Precision(0.));
 
         auto v_first = first(vector);
         auto v_last = last(vector);
 
-        while(m_first != m_last)
+        while (m_first != m_last)
         {
             detail::assign(v_first, v_last, detail::add(), m_first);
             m_first += vector.size();
@@ -274,7 +274,7 @@ Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
         auto v_first = first(vector);
         auto v_last = last(vector);
 
-        while(v_first != v_last)
+        while (v_first != v_last)
         {
             *v_first = lique::accumulate(m_first, m_first + block_size, Precision(0.));
 
@@ -303,19 +303,18 @@ Vector<double> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = f
 
     double buff;
 
-    auto accumulate_std =
-    [buff](double mean, double value, double& accumulate) mutable
+    auto accumulate_std = [buff](double mean, double value, double& accumulate) mutable
     {
         buff = mean - value;
         accumulate += buff * buff;
     };
 
-    if(axis == Axis::X)
+    if (axis == Axis::X)
     {
-        for(size_type i = 0; i < vector.size(); ++i)
+        for (size_type i = 0; i < vector.size(); ++i)
         {
             std_value = 0.;
-            for(size_type n = 0; n < number_of_blocks; ++n)
+            for (size_type n = 0; n < number_of_blocks; ++n)
                 accumulate_std(vector(i), matrix(n, i), std_value);
 
             vector(i) = std_value;
@@ -331,7 +330,7 @@ Vector<double> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = f
 
         auto m_first = first(matrix);
 
-        while(v_first != v_last)
+        while (v_first != v_last)
         {
             std_value = 0.;
 
@@ -394,12 +393,12 @@ Tensor concat(const Container<Tensor>& list)
 
     size_type accumulate_size = 0;
 
-    for(const auto& it : list) accumulate_size += it.size();
+    for (const auto& it : list) accumulate_size += it.size();
 
     Tensor tensor(accumulate_size);
 
     size_type at = 0;
-    for(const auto& it : list)
+    for (const auto& it : list)
     {
         detail::copy(tensor.data() + at, tensor.data() + at + it.size(), it.data());
         at += it.size();
@@ -415,7 +414,7 @@ T concat(const T& tensor, const Tn&... tensor_n)
 {
     using size_type = typename T::size_type;
 
-    T out(sum(tensor.size(), tensor_n.size()...));
+    T out = sum(tensor.size(), tensor_n.size()...);
 
     size_type position = 0;
     detail::concat(out, position, tensor, tensor_n...);
@@ -435,11 +434,11 @@ std::size_t multinomial(FwdIt first, FwdIt last, Generator generator, std::size_
 
     auto it = first;
 
-    while(it != last)
+    while (it != last)
     {
         accumulate += *it;
 
-        if(random_value < accumulate) return std::size_t(it - first);
+        if (random_value < accumulate) return std::size_t(it - first);
 
         ++it;
     }

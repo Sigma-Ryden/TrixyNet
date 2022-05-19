@@ -98,7 +98,7 @@ void AdaGrad<Optimizeriable>::update(
     const Container<BiasGrad>& gradB,
     const Container<WeightGrad>& gradW) noexcept
 {
-    for(size_type i = 0; i < net.inner.N; ++i)
+    for (size_type i = 0; i < net.inner.N; ++i)
     {
         update(buff1[i], optimizedB[i], net.inner.B[i], gradB[i]);
         update(buff2[i], optimizedW[i], net.inner.W[i], gradW[i]);
@@ -129,7 +129,7 @@ void AdaGrad<Optimizeriable>::update(
 TRIXY_OPTIMIZER_TPL_DECLARATION
 AdaGrad<Optimizeriable>& AdaGrad<Optimizeriable>::reset() noexcept
 {
-    for(size_type i = 0; i < net.inner.N; ++i)
+    for (size_type i = 0; i < net.inner.N; ++i)
     {
         optimizedB[i].fill(0.);
         optimizedW[i].fill(0.);

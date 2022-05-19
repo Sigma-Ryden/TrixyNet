@@ -43,7 +43,7 @@ template <template <typename...> class Collection>
 void network_size(const Collection<std::size_t>& topology) // deprecated & repair
 {
     std::size_t count = 0;
-    for(std::size_t i = 1; i < topology.size(); ++i)
+    for (std::size_t i = 1; i < topology.size(); ++i)
        count += (topology[i - 1] + 1) * topology[i];
 
     count += topology.size();
@@ -58,10 +58,10 @@ void network_size(const Collection<std::size_t>& topology) // deprecated & repai
 template <class Vector, trixy::lique::meta::as_vector<Vector> = 0>
 std::ostream& operator<< (std::ostream& out, const Vector& vector)
 {
-    if(vector.size() == 0) return out;
+    if (vector.size() == 0) return out;
 
     out << '[';
-    for(std::size_t i = 0; i < vector.size() - 1; ++i)
+    for (std::size_t i = 0; i < vector.size() - 1; ++i)
         out << vector(i) << ", ";
 
     out << vector(vector.size() - 1) << ']';
@@ -73,17 +73,17 @@ template <class Matrix, trixy::lique::meta::as_matrix<Matrix> = 0>
 std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 {
     out << '[';
-    for(std::size_t i = 0; i < matrix.shape().height - 1; ++i)
+    for (std::size_t i = 0; i < matrix.shape().height - 1; ++i)
     {
         out << '[';
-        for(std::size_t j = 0; j < matrix.shape().width - 1; ++j)
+        for (std::size_t j = 0; j < matrix.shape().width - 1; ++j)
             out << matrix(i, j) << ", ";
 
         out << matrix(i, matrix.shape().width - 1) << "],\n";
     }
 
     out << '[';
-    for(std::size_t j = 0; j < matrix.shape().width - 1; ++j)
+    for (std::size_t j = 0; j < matrix.shape().width - 1; ++j)
         out << matrix(matrix.shape().height - 1, j) << ", ";
 
     out << matrix(matrix.size() - 1) << "]]";
@@ -102,7 +102,7 @@ void statistic(
 {
     trixy::Checker<TrixyNet> check(network);
 
-    for(std::size_t i = 0; i < idata.size(); ++i)
+    for (std::size_t i = 0; i < idata.size(); ++i)
         std::cout << "<" << i << "> "
             << network(idata[i]) << " : " << odata[i] << '\n';
 

@@ -82,7 +82,7 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::precision_type
 {
     precision_type result = W(0);
 
-    for(size_type i = 1; i < N; ++i)
+    for (size_type i = 1; i < N; ++i)
     {
         result += sample(i - 1) * W(i);
     }
@@ -97,10 +97,10 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
 {
     Matrix X(idata.shape().height, N);
 
-    for(size_type i = 0; i < X.shape().height; ++i)
+    for (size_type i = 0; i < X.shape().height; ++i)
     {
         X(i, 0) = 1.;
-        for(size_type j = 1; j < N; ++j)
+        for (size_type j = 1; j < N; ++j)
             X(i, j) = idata(i, j - 1);
     }
 

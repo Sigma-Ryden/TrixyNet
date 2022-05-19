@@ -42,10 +42,10 @@ void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
 {
     Matrix X(idata.shape().height, reg.N);
 
-    for(size_type i = 0; i < X.shape().height; ++i)
+    for (size_type i = 0; i < X.shape().height; ++i)
     {
         X(i, 0) = 1.;
-        for(size_type j = 1; j < reg.N; ++j)
+        for (size_type j = 1; j < reg.N; ++j)
             X(i, j) = idata(i, j - 1);
     }
 

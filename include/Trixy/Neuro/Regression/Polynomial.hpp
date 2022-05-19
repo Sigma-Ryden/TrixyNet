@@ -85,7 +85,7 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::precision_type
     precision_type result = W(0);
     precision_type power  = 1.;
 
-    for(size_type i = 1; i < N; ++i)
+    for (size_type i = 1; i < N; ++i)
     {
         power  *= sample;
         result += power * W(i);
@@ -104,13 +104,13 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::Vector
     precision_type sample;
     precision_type power;
 
-    for(size_type i = 0; i < idata.size(); ++i)
+    for (size_type i = 0; i < idata.size(); ++i)
     {
         sample  = idata(i);
         power   = 1.;
 
         X(i, 0) = 1.;
-        for(size_type j = 1; j < N; ++j)
+        for (size_type j = 1; j < N; ++j)
         {
             power  *= sample;
             X(i, j) = power;

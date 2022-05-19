@@ -46,11 +46,11 @@ public:
 
         detail::assign(first(result), last(result), detail::cpy(), precision_type(0.));
 
-        for(size_type i = 0; i < row_vector.size(); ++i)
+        for (size_type i = 0; i < row_vector.size(); ++i)
         {
             temp = row_vector(i);
-            for(size_type j = 0; j < result.size(); ++j)
-               result(j) += temp * matrix(i, j);
+            for (size_type j = 0; j < result.size(); ++j)
+                result(j) += temp * matrix(i, j);
         }
     }
 
@@ -65,8 +65,8 @@ public:
     {
         detail::assign(first(result), last(result), detail::cpy(), precision_type(0.));
 
-        for(size_type i = 0; i < result.size(); ++i)
-            for(size_type j = 0; j < col_vector.size(); ++j)
+        for (size_type i = 0; i < result.size(); ++i)
+            for (size_type j = 0; j < col_vector.size(); ++j)
                 result(i) += matrix(i, j) * col_vector(j);
     }
 
@@ -80,13 +80,13 @@ public:
         const Matrix3& rhs) const noexcept
     {
         precision_type buff;
-        for(size_type i = 0; i < lhs.shape().height; ++i)
+        for (size_type i = 0; i < lhs.shape().height; ++i)
         {
-            for(size_type r = 0; r < lhs.shape().width; ++r)
+            for (size_type r = 0; r < lhs.shape().width; ++r)
             {
                 buff = lhs(i, r);
 
-                for(size_type j = 0; j < rhs.shape().width; ++j)
+                for (size_type j = 0; j < rhs.shape().width; ++j)
                     result(i, j) += buff * rhs(r, j);
             }
         }
@@ -120,7 +120,7 @@ public:
 
         auto r_first = first(row_vector);
 
-        while(c_first != c_last)
+        while (c_first != c_last)
         {
             detail::assign(dst, dst + block_size, detail::mul(), *c_first, r_first);
 
@@ -136,8 +136,8 @@ public:
         Matrix1& result,
         const Matrix2& matrix) const noexcept
     {
-        for(size_type i = 0; i < result.shape().height; ++i)
-            for(size_type j = 0; j < result.shape().width; ++j)
+        for (size_type i = 0; i < result.shape().height; ++i)
+            for (size_type j = 0; j < result.shape().width; ++j)
                 result(i, j) = matrix(j, i);
     }
 
@@ -155,27 +155,27 @@ public:
 
         precision_type buff;
 
-        for(i = 0; i < N; ++i)
-            for(j = 0; j < N; ++j)
+        for (i = 0; i < N; ++i)
+            for (j = 0; j < N; ++j)
                 result(i, j) = (i == j) ? 1. : 0.;
 
-        for(size_type k = 0, p; k < N; ++k)
+        for (size_type k = 0, p; k < N; ++k)
         {
             p = k;
-            for(i = k + 1; i < N; ++i)
-                if(std::fabs(matrix(p, k)) < std::fabs(matrix(i, k)))
+            for (i = k + 1; i < N; ++i)
+                if (std::fabs(matrix(p, k)) < std::fabs(matrix(i, k)))
                     p = i;
 
-            if(p != k)
+            if (p != k)
             {
-                for(j = k; j < N; ++j)
+                for (j = k; j < N; ++j)
                 {
                     buff = matrix(k, j);
                     matrix(k, j) = matrix(p, j);
                     matrix(p, j) = buff;
                 }
 
-                for(j = 0; j < N; ++j)
+                for (j = 0; j < N; ++j)
                 {
                     buff = result(k, j);
                     result(k, j) = result(p, j);
@@ -185,17 +185,17 @@ public:
 
             buff = 1. / matrix(k, k);
 
-            for(j = k; j < N; ++j) matrix(k, j) *= buff;
-            for(j = 0; j < N; ++j) result(k, j) *= buff;
+            for (j = k; j < N; ++j) matrix(k, j) *= buff;
+            for (j = 0; j < N; ++j) result(k, j) *= buff;
 
-            for(i = 0; i < N; ++i)
+            for (i = 0; i < N; ++i)
             {
-                if(i == k) continue;
+                if (i == k) continue;
 
                 buff = matrix(i, k);
 
-                for(j = k; j < N; ++j) matrix(i, j) -= matrix(k, j) * buff;
-                for(j = 0; j < N; ++j) result(i, j) -= result(k, j) * buff;
+                for (j = k; j < N; ++j) matrix(i, j) -= matrix(k, j) * buff;
+                for (j = 0; j < N; ++j) result(i, j) -= result(k, j) * buff;
             }
         }
     }
@@ -214,7 +214,7 @@ public:
 
         auto data = rhs.data();
 
-        while(first != last)
+        while (first != last)
         {
             result += (*first) * (*data);
 

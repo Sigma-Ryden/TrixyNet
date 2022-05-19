@@ -41,9 +41,9 @@ struct is_matrix : std::is_base_of<lique::TensorType::matrix, Tensor> {};
 
 template <class Tensor>
 struct is_tensor : trixy::meta::disjunction<
+    std::is_base_of<lique::TensorType::tensor, Tensor>,
     is_vector<Tensor>,
-    is_matrix<Tensor>,
-    std::is_base_of<lique::TensorType::tensor, Tensor>> {};
+    is_matrix<Tensor>> {};
 
 template <typename T>
 using as_vector = trixy::meta::as<is_vector<T>::value>;

@@ -105,7 +105,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Net& net)
     B.resize(N);
     W.resize(N);
 
-    for(size_type i = 0; i < N; ++i)
+    for (size_type i = 0; i < N; ++i)
     {
         B[i].resize(net.inner.B[i].shape());
         B[i].copy(net.inner.B[i].data());
@@ -133,10 +133,10 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(OutStream& out) c
     serializeData(out, activationId.data(), activationId.size());
     serializeData(out, &lossId, 1);
 
-    for(auto& tensor : B)
+    for (auto& tensor : B)
         serializeData(out, tensor.data(), tensor.size());
 
-    for(auto& tensor : W)
+    for (auto& tensor : W)
         serializeData(out, tensor.data(), tensor.size());
 }
 
@@ -165,10 +165,10 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(
 
     serializeData(out, &net.function.lossId(), 1);
 
-    for(auto& tensor : net.inner.B)
+    for (auto& tensor : net.inner.B)
         serializeData(out, tensor.data(), tensor.size());
 
-    for(auto& tensor : net.inner.W)
+    for (auto& tensor : net.inner.W)
         serializeData(out, tensor.data(), tensor.size());
 }
 
@@ -203,22 +203,22 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(InStream& in)
     W = Net::Builder::get2d(topology);
 
     buffering = (sizeof(ActivationId) != meta_activation_id);
-    if(buffering) buff.set(BaseId::Unsigned, meta_activation_id);
+    if (buffering) buff.set(BaseId::Unsigned, meta_activation_id);
 
     deserializeData(in, activationId.data(), activationId.size(), buffering);
 
     buffering = (sizeof(LossId) != meta_loss_id);
-    if(buffering) buff.set(BaseId::Unsigned, meta_loss_id);
+    if (buffering) buff.set(BaseId::Unsigned, meta_loss_id);
 
     deserializeData(in, &lossId, 1, buffering);
 
     buffering = (sizeof(precision_type) != meta_precision_type);
-    if(buffering) buff.set(BaseId::Float, meta_precision_type);
+    if (buffering) buff.set(BaseId::Float, meta_precision_type);
 
-    for(auto& tensor : B)
+    for (auto& tensor : B)
         deserializeData(in, tensor.data(), tensor.size(), buffering);
 
-    for(auto& tensor : W)
+    for (auto& tensor : W)
         deserializeData(in, tensor.data(), tensor.size(), buffering);
 }
 
@@ -252,7 +252,7 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
 {
     using Data = meta::deref<OutData>; // dereferencing OutData type
 
-    if(buffering)
+    if (buffering)
     {
         // you MUST pre-define offset for buffer before
         size_type memory_size = n * buff.offset();

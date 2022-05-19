@@ -21,7 +21,7 @@ std::pair<std::size_t, std::size_t> parallel_info(std::size_t size)
     constexpr std::size_t default_number_of_threads = 2;
 
     // even if size of data is equal to zero, number_of_threads should be 1
-    if(size == 0) return { 1, 0 };
+    if (size == 0) return { 1, 0 };
 
     const std::size_t hardware_threads = std::thread::hardware_concurrency();
     const std::size_t max_threads = (size - 1) / min_per_thread + 1;

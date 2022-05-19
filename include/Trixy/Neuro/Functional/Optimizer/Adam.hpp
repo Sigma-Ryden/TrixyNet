@@ -128,7 +128,7 @@ void Adam<Optimizeriable>::update(
     alpha1 = learning_rate_ / (1. - tbeta1);
     alpha2 = 1. / (1. - tbeta2);
 
-    for(size_type i = 0; i < net.inner.N; ++i)
+    for (size_type i = 0; i < net.inner.N; ++i)
     {
         update(buff1[i], optimizedB1[i], optimizedB2[i], net.inner.B[i], gradB[i]);
         update(buff2[i], optimizedW1[i], optimizedW2[i], net.inner.W[i], gradW[i]);
@@ -177,7 +177,7 @@ Adam<Optimizeriable>& Adam<Optimizeriable>::reset() noexcept
     tbeta1 = 1.;
     tbeta2 = 1.;
 
-    for(size_type i = 0; i < net.inner.N; ++i)
+    for (size_type i = 0; i < net.inner.N; ++i)
     {
         optimizedB1[i].fill(0.);
         optimizedW1[i].fill(0.);

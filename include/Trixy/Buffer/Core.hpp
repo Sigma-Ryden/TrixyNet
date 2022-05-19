@@ -185,7 +185,7 @@ Buff<T>::Buff(Buff&& buff) noexcept
 template <typename T>
 Buff<T>& Buff<T>::operator= (Buff&& buff) noexcept
 {
-    if(this != &buff)
+    if (this != &buff)
     {
         delete[] data_;
 
@@ -204,7 +204,7 @@ Buff<T>& Buff<T>::operator= (Buff&& buff) noexcept
 template <typename T>
 Buff<T>& Buff<T>::operator= (const Buff& buff)
 {
-    if(this != &buff)
+    if (this != &buff)
     {
         delete[] data_;
         data_ = new char [buff.size_];
@@ -223,7 +223,7 @@ template <typename T>
 template <typename OutData>
 void Buff<T>::read(OutData first, OutData last) noexcept
 {
-    if(offset_ * (last - first) > size_) return;
+    if (offset_ * (last - first) > size_) return;
 
     switch (id_)
     {
@@ -274,11 +274,11 @@ void Buff<T>::write(InData first, InData last, bool is_mutable) noexcept
 
     SupportTypeId type_id = detect_data_type_id<Data>();
 
-    if(type_id == SupportTypeId::null) return;
+    if (type_id == SupportTypeId::null) return;
 
-    if(sizeof(Data) * (last - first) > size_)
+    if (sizeof(Data) * (last - first) > size_)
     {
-        if(is_mutable) resize(sizeof(Data) * (last - first));
+        if (is_mutable) resize(sizeof(Data) * (last - first));
         else return;
     }
 
@@ -286,7 +286,7 @@ void Buff<T>::write(InData first, InData last, bool is_mutable) noexcept
     offset_ = sizeof(Data);
 
     auto it = data_;
-    while(first != last)
+    while (first != last)
     {
         *reinterpret_cast<Data*>(it) = *first;
         it += offset_;
@@ -306,7 +306,7 @@ void Buff<T>::write(InData idata, memory_size n, bool is_mutable) noexcept
 template <typename T>
 void Buff<T>::reserve(memory_size n)
 {
-    if(n > size_) resize(n);
+    if (n > size_) resize(n);
 }
 
 template <typename T>
@@ -337,7 +337,7 @@ void Buff<T>::clear() noexcept
     auto first = data_;
     auto last = data_ + size_;
 
-    while(first != last) *first++ = 0;
+    while (first != last) *first++ = 0;
 }
 
 template <typename T>
@@ -346,10 +346,7 @@ bool Buff<T>::empty() const noexcept
     auto first = data_;
     auto last = data_ + size_;
 
-    while(first != last and *first == 0)
-    {
-        ++first;
-    }
+    while (first != last and *first == 0) ++first;
 
     return first == last;
 }
@@ -357,16 +354,16 @@ bool Buff<T>::empty() const noexcept
 template <typename T>
 void Buff<T>::set_integer(size_type sizeof_type) noexcept
 {
-    if(sizeof_type == 1)
+    if (sizeof_type == 1)
         id_ = SupportTypeId::i8;
 
-    else if(sizeof_type == 2)
+    else if (sizeof_type == 2)
         id_ = SupportTypeId::i16;
 
-    else if(sizeof_type == 4)
+    else if (sizeof_type == 4)
         id_ = SupportTypeId::i32;
 
-    else if(sizeof_type == 8)
+    else if (sizeof_type == 8)
         id_ = SupportTypeId::i64;
 
     else
@@ -381,16 +378,16 @@ void Buff<T>::set_integer(size_type sizeof_type) noexcept
 template <typename T>
 void Buff<T>::set_unsigned(size_type sizeof_type) noexcept
 {
-    if(sizeof_type == 1)
+    if (sizeof_type == 1)
         id_ = SupportTypeId::u8;
 
-    else if(sizeof_type == 2)
+    else if (sizeof_type == 2)
         id_ = SupportTypeId::u16;
 
-    else if(sizeof_type == 4)
+    else if (sizeof_type == 4)
         id_ = SupportTypeId::u32;
 
-    else if(sizeof_type == 8)
+    else if (sizeof_type == 8)
         id_ = SupportTypeId::u64;
 
     else
@@ -405,13 +402,13 @@ void Buff<T>::set_unsigned(size_type sizeof_type) noexcept
 template <typename T>
 void Buff<T>::set_float(size_type sizeof_type) noexcept
 {
-    if(sizeof_type == 4)
+    if (sizeof_type == 4)
         id_ = SupportTypeId::f32;
 
-    else if(sizeof_type == 8)
+    else if (sizeof_type == 8)
         id_ = SupportTypeId::f64;
 
-    else if(sizeof_type == 16)
+    else if (sizeof_type == 16)
         id_ = SupportTypeId::f128;
 
     else
@@ -426,7 +423,7 @@ void Buff<T>::set_float(size_type sizeof_type) noexcept
 template <typename T>
 void Buff<T>::set_user(size_type sizeof_type) noexcept
 {
-    if(sizeof_type == sizeof(T))
+    if (sizeof_type == sizeof(T))
     {
         id_ = SupportTypeId::user;
         offset_ = sizeof(T);
@@ -491,7 +488,7 @@ void Buff<T>::read_buff(OutData first, OutData last)
     using Data = meta::deref<OutData>; // dereferencing OutData type
 
     auto it = data_;
-    while(first != last)
+    while (first != last)
     {
         *first = static_cast<Data>(*reinterpret_cast<CastType*>(it));
         it += offset_;

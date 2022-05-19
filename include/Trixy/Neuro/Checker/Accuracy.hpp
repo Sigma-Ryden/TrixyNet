@@ -82,8 +82,8 @@ long double Accuracy<Checkable>::normal(
 {
     size_type count = 0;
 
-    for(size_type i = 0; i < odata.size(); ++i)
-        if(Guide::normal(odata[i], net.feedforward(idata[i])))
+    for (size_type i = 0; i < odata.size(); ++i)
+        if (Guide::normal(odata[i], net.feedforward(idata[i])))
             ++count;
 
     return static_cast<long double>(count) / odata.size();
@@ -98,8 +98,8 @@ long double Accuracy<Checkable>::full(
 {
     size_type count = 0;
 
-    for(size_type i = 0; i < odata.size(); ++i)
-        if(Guide::full(odata[i], net.feedforward(idata[i]), range_rate))
+    for (size_type i = 0; i < odata.size(); ++i)
+        if (Guide::full(odata[i], net.feedforward(idata[i]), range_rate))
             ++count;
 
     return static_cast<long double>(count) / odata.size();
@@ -114,7 +114,7 @@ long double Accuracy<Checkable>::global(
 {
     size_type count = 0;
 
-    for(size_type i = 0; i < odata.size(); ++i)
+    for (size_type i = 0; i < odata.size(); ++i)
         count += Guide::global(odata[i], net.feedforward(idata[i]), range_rate);
 
     return static_cast<long double>(count) / (odata.size() * odata.front().size());
@@ -132,12 +132,12 @@ bool Accuracy<Checkable>::Guide::normal(
     max_true_out = 0;
     max_pred_out = 0;
 
-    for(size_type j = 1; j < target.size(); ++j)
-        if(target(max_true_out) < target(j))
+    for (size_type j = 1; j < target.size(); ++j)
+        if (target(max_true_out) < target(j))
             max_true_out = j;
 
-    for(size_type j = 1; j < target.size(); ++j)
-        if(prediction(max_pred_out) < prediction(j))
+    for (size_type j = 1; j < target.size(); ++j)
+        if (prediction(max_pred_out) < prediction(j))
             max_pred_out = j;
 
     return max_true_out == max_pred_out;
@@ -150,8 +150,8 @@ bool Accuracy<Checkable>::Accuracy::Guide::full(
     const Prediction& prediction,
     precision_type range_rate) noexcept
 {
-    for(size_type j = 0; j < target.size(); ++j)
-        if(std::fabs(target(j) - prediction(j)) > range_rate)
+    for (size_type j = 0; j < target.size(); ++j)
+        if (std::fabs(target(j) - prediction(j)) > range_rate)
             return false;
 
     return true;
@@ -165,8 +165,8 @@ typename Accuracy<Checkable>::size_type Accuracy<Checkable>::Guide::global(
     precision_type range_rate) noexcept
 {
     size_type count = 0;
-    for(size_type i = 0; i < target.size(); ++i)
-        if(std::fabs(target(i) - prediction(i)) < range_rate)
+    for (size_type i = 0; i < target.size(); ++i)
+        if (std::fabs(target(i) - prediction(i)) < range_rate)
             ++count;
 
     return count;

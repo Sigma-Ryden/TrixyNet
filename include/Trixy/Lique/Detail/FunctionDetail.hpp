@@ -29,7 +29,7 @@ struct cpy
 template <typename FwdIt, class Function>
 void for_each(FwdIt first, FwdIt last, Function function)
 {
-    while(first != last)
+    while (first != last)
     {
         function(*first);
         ++first;
@@ -39,7 +39,7 @@ void for_each(FwdIt first, FwdIt last, Function function)
 template <typename FwdIt, typename InIt>
 void copy(FwdIt first, FwdIt last, InIt src)
 {
-    while(first != last) *first++ = *src++;
+    while (first != last) *first++ = *src++;
 }
 
 // __EXPERIMENTAL__ maybe unstable
@@ -51,7 +51,7 @@ void parrallel_copy(FwdIt first, FwdIt last, InIt src)
 
     const std::size_t length = last - first;
 
-    if(length <= min_elements_per_thread) return copy(first, last, src);
+    if (length <= min_elements_per_thread) return copy(first, last, src);
 
     auto info = trixy::detail::parallel_info<min_elements_per_thread>(length);
 
@@ -61,7 +61,7 @@ void parrallel_copy(FwdIt first, FwdIt last, InIt src)
     std::vector<std::thread> threads;
     threads.reserve(number_of_threads - 1);
 
-    for(std::size_t i = 0; i < number_of_threads - 1; ++i)
+    for (std::size_t i = 0; i < number_of_threads - 1; ++i)
     {
         threads.emplace_back(copy<FwdIt, InIt>, first, first + block_size, src);
 
@@ -89,7 +89,7 @@ void parallel_fill(FwdIt first, FwdIt last, Generator gen)
 
     const std::size_t length = last - first;
 
-    if(length <= min_elements_per_thread) return fill(first, last, gen);
+    if (length <= min_elements_per_thread) return fill(first, last, gen);
 
     auto info = trixy::detail::parallel_info<min_elements_per_thread>(length);
 
@@ -99,7 +99,7 @@ void parallel_fill(FwdIt first, FwdIt last, Generator gen)
     std::vector<std::thread> threads;
     threads.reserve(number_of_threads - 1);
 
-    for(std::size_t i = 0; i < number_of_threads - 1; ++i)
+    for (std::size_t i = 0; i < number_of_threads - 1; ++i)
     {
         threads.emplace_back(fill<FwdIt, Generator>, first, first + block_size, gen);
         first += block_size;
@@ -113,7 +113,7 @@ void parallel_fill(FwdIt first, FwdIt last, Generator gen)
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T& value)
 {
-    while(first != last)
+    while (first != last)
     {
         operation(*first, value);
         ++first;
@@ -123,7 +123,7 @@ void assign(T* first, T* last, Operation operation, const T& value)
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T* src)
 {
-    while(first != last)
+    while (first != last)
     {
         operation(*first, *src);
 
@@ -135,7 +135,7 @@ void assign(T* first, T* last, Operation operation, const T* src)
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T& value, const T* rhs) // OVERIEW
 {
-    while(first != last)
+    while (first != last)
     {
         operation(*first, value, *rhs);
 
@@ -147,7 +147,7 @@ void assign(T* first, T* last, Operation operation, const T& value, const T* rhs
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T* lhs, const T* rhs) // OVERVIEW
 {
-    while(first != last)
+    while (first != last)
     {
         operation(*first, *lhs, *rhs);
 
@@ -160,7 +160,7 @@ void assign(T* first, T* last, Operation operation, const T* lhs, const T* rhs) 
 template <typename FwdIt, class Function>
 void apply(FwdIt first, FwdIt last, Function function)
 {
-    while(first != last)
+    while (first != last)
     {
         *first = function(*first);
         ++first;
@@ -170,7 +170,7 @@ void apply(FwdIt first, FwdIt last, Function function)
 template <typename FwdIt, class Function, typename InIt>
 void apply(FwdIt first, FwdIt last, Function function, InIt src)
 {
-    while(first != last)
+    while (first != last)
     {
         *first = function(*src);
 
