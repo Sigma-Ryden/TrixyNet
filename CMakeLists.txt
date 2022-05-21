@@ -120,11 +120,11 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Functional/FeedForwardNet.hpp
     include/Trixy/Neuro/Functional/Core.hpp
 
-    include/Trixy/Neuro/Serialization/Base.hpp
-    include/Trixy/Neuro/Serialization/FeedForwardNet.hpp
-    include/Trixy/Neuro/Serialization/PolynomialRegression.hpp
-    include/Trixy/Neuro/Serialization/LinearRegression.hpp
-    include/Trixy/Neuro/Serialization/Core.hpp
+    include/Trixy/Neuro/Serializer/Base.hpp
+    include/Trixy/Neuro/Serializer/FeedForwardNet.hpp
+    include/Trixy/Neuro/Serializer/PolynomialRegression.hpp
+    include/Trixy/Neuro/Serializer/LinearRegression.hpp
+    include/Trixy/Neuro/Serializer/Core.hpp
 
     include/Trixy/Neuro/Regression/Base.hpp
     include/Trixy/Neuro/Regression/Require.hpp

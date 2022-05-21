@@ -64,7 +64,7 @@ struct name {                                                                   
 
 #define TRIXY_FUNCTION_TPL_DECLARATION                                                                  \
     template <typename Precision,                                                                       \
-        ::trixy::meta::as<std::is_arithmetic<Precision>::value> = 0>
+        ::trixy::meta::require<std::is_arithmetic<Precision>::value> = 0>
 
 #define TRIXY_BASE_CLASS_TPL_DECLARATION(class_name)                                                    \
     template <typename Class, typename enable = void>                                                   \
@@ -78,7 +78,7 @@ struct name {                                                                   
         ::trixy::meta::when<::trixy::meta::has_true<Class, is_type>::value>>
 
 #define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
-    template <typename T = Class, ::trixy::meta::as<is_type<T>::value> = 0>
+    template <typename T = Class, ::trixy::meta::require<is_type<T>::value> = 0>
 
 #define TRIXY_DEF_OPT_HELPER(id_type, T)                                                                \
     struct T {                                                                                          \

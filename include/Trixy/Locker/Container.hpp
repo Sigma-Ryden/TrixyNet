@@ -30,14 +30,14 @@ public:
 
 public:
     template <typename U = Container,
-              meta::as<std::is_constructible<U>::value> = 0>
+              meta::require<std::is_constructible<U>::value> = 0>
     Locker() : Container() {}
 
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        meta::as<not std::is_base_of<meta::decay_t<T>, Locker>::value> = 0,
-        meta::as<std::is_constructible<Container, T, Tn...>::value> = 0>
+        meta::require<not std::is_base_of<meta::decay_t<T>, Locker>::value and
+                      std::is_constructible<Container, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
         : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 

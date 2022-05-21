@@ -1,9 +1,9 @@
-#ifndef TRIXY_SERIALIZATION_FEED_FORWARD_NET_HPP
-#define TRIXY_SERIALIZATION_FEED_FORWARD_NET_HPP
+#ifndef TRIXY_SERIALIZER_FEED_FORWARD_NET_HPP
+#define TRIXY_SERIALIZER_FEED_FORWARD_NET_HPP
 
 #include <cstdint> // int8_t, int32_t
 
-#include <Trixy/Neuro/Serialization/Base.hpp>
+#include <Trixy/Neuro/Serializer/Base.hpp>
 
 #include <Trixy/Buffer/Core.hpp>
 
@@ -272,4 +272,4 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
 
 #include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
-#endif // TRIXY_SERIALIZATION_FEED_FORWARD_NET_HPP
+#endif // TRIXY_SERIALIZER_FEED_FORWARD_NET_HPP

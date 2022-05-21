@@ -44,7 +44,7 @@ template <class T>
 inline T sum(T&& t) noexcept { return t; }
 
 template <class T, class... Tn,
-          trixy::meta::as<trixy::meta::is_same_all<T, Tn...>::value> = 0>
+          trixy::meta::require<trixy::meta::is_same_all<T, Tn...>::value> = 0>
 inline T sum(T&& t, Tn&&... tn)
 {
     return t + sum(std::forward<T>(tn)...);
@@ -409,7 +409,7 @@ Tensor concat(const Container<Tensor>& list)
 
 template <class T, class... Tn,
           lique::meta::as_tensor<T> = 0,
-          trixy::meta::as<trixy::meta::is_same_all<T, Tn...>::value> = 0>
+          trixy::meta::require<trixy::meta::is_same_all<T, Tn...>::value> = 0>
 T concat(const T& tensor, const Tn&... tensor_n)
 {
     using size_type = typename T::size_type;

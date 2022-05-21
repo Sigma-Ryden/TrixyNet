@@ -46,13 +46,13 @@ struct is_tensor : trixy::meta::disjunction<
     is_matrix<Tensor>> {};
 
 template <typename T>
-using as_vector = trixy::meta::as<is_vector<T>::value>;
+using as_vector = trixy::meta::require<is_vector<T>::value>;
 
 template <typename T>
-using as_matrix = trixy::meta::as<is_matrix<T>::value>;
+using as_matrix = trixy::meta::require<is_matrix<T>::value>;
 
 template <typename T>
-using as_tensor = trixy::meta::as<is_tensor<T>::value>;
+using as_tensor = trixy::meta::require<is_tensor<T>::value>;
 
 template <typename T>
 using when_is_vector = trixy::meta::when<is_vector<T>::value>;

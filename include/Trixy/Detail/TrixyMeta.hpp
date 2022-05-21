@@ -15,7 +15,7 @@ template <bool condition>
 using when = typename std::enable_if<condition, void>::type;
 
 template <bool condition>
-using as = typename std::enable_if<condition, int>::type;
+using require = typename std::enable_if<condition, int>::type;
 
 template <typename...>
 using void_t = void;
@@ -43,7 +43,7 @@ struct scope<T, Tn...>
 private:
     template <int I, typename overload = void> struct as_impl
     {
-        using type = typename scope<Tn...>::template as<I - 1>::type;
+        using type = typename scope<Tn...>::template as_impl<I - 1>::type;
     };
 
     template <typename overload> struct as_impl<0, overload>

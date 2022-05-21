@@ -31,10 +31,10 @@ template <typename T>
 using is_own_tensor_mode = std::is_same<T, TensorMode::own>;
 
 template <typename T>
-using as_view_tensor_mode = trixy::meta::as<is_view_tensor_mode<T>::value>;
+using as_view_tensor_mode = trixy::meta::require<is_view_tensor_mode<T>::value>;
 
 template <typename T>
-using as_own_tensor_mode = trixy::meta::as<is_own_tensor_mode<T>::value>;
+using as_own_tensor_mode = trixy::meta::require<is_own_tensor_mode<T>::value>;
 
 } // namespace meta
 
@@ -80,7 +80,7 @@ public:
     Tensor& copy(std::initializer_list<precision_type>) noexcept;
 
     template <class Generator,
-              trixy::meta::as<trixy::meta::is_callable<Generator>::value> = 0>
+              trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
     Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
@@ -216,7 +216,7 @@ TensorBase<Precision>& TensorBase<Precision>::copy(
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-template <class Generator, trixy::meta::as<trixy::meta::is_callable<Generator>::value>>
+template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
 TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen) noexcept
 {
     lique::detail::fill(data_, data_ + shape_.size, gen);

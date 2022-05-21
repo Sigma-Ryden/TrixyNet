@@ -49,7 +49,7 @@ public:
 
     Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    template <class Generator, trixy::meta::as<meta::is_callable<Generator>::value> = 0>
+    template <class Generator, trixy::meta::require<meta::is_callable<Generator>::value> = 0>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
 
     template <class Function>

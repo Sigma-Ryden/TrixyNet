@@ -101,11 +101,11 @@ public:
 
 private:
     template <typename CastType, typename OutData,
-    meta::as<std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
+    meta::require<std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
     void read_buff(OutData first, OutData last);
 
     template <typename CastType, typename OutData,
-    meta::as<not std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
+    meta::require<not std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
     void read_buff(OutData first, OutData last) {}
 
     template <typename DetectionDataType>
@@ -482,7 +482,7 @@ void Buff<T>::set(size_type offset) noexcept
 
 template <typename T>
 template <typename CastType, typename OutData,
-meta::as<std::is_convertible<meta::deref<OutData>, CastType>::value>>
+meta::require<std::is_convertible<meta::deref<OutData>, CastType>::value>>
 void Buff<T>::read_buff(OutData first, OutData last)
 {
     using Data = meta::deref<OutData>; // dereferencing OutData type

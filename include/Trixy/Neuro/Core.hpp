@@ -13,6 +13,6 @@
 
 #include <Trixy/Neuro/Functional/Core.hpp>
 
-#include <Trixy/Neuro/Serialization/Core.hpp>
+#include <Trixy/Neuro/Serializer/Core.hpp>
 
 #endif // TRIXY_NEURO_CORE_HPP

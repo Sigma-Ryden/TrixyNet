@@ -8,10 +8,13 @@
 
 #include <Trixy/Neuro/Network/Base.hpp>
 #include <Trixy/Neuro/Regression/Base.hpp>
-#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+
 #include <Trixy/Neuro/Functional/Base.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
+
 #include <Trixy/Neuro/Training/Base.hpp>
-#include <Trixy/Neuro/Serialization/Base.hpp>
+
+#include <Trixy/Neuro/Serializer/Base.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
 

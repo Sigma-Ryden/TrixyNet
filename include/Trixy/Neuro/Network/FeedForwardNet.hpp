@@ -102,12 +102,12 @@ public:
     InnerStruct(InnerStruct&&) noexcept = default;
 
     template <class FloatGenerator,
-              meta::as<meta::is_callable<FloatGenerator>::value> = 0>
+              meta::require<meta::is_callable<FloatGenerator>::value> = 0>
     void initialize(FloatGenerator gen) noexcept;
 
     template <class BiasGenerator, class WeightGenerator,
-              meta::as<meta::is_callable<BiasGenerator>::value> = 0,
-              meta::as<meta::is_callable<WeightGenerator>::value> = 0>
+              meta::require<meta::is_callable<BiasGenerator>::value and
+                            meta::is_callable<WeightGenerator>::value> = 0>
     void initialize(BiasGenerator genB,
                     WeightGenerator genW) noexcept;
 
@@ -226,7 +226,7 @@ public:
 
 TRIXY_NET_TPL_DECLARATION
 template <class FloatGenerator,
-          meta::as<meta::is_callable<FloatGenerator>::value>>
+          meta::require<meta::is_callable<FloatGenerator>::value>>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     FloatGenerator generator_all) noexcept
 {
@@ -239,8 +239,8 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
 
 TRIXY_NET_TPL_DECLARATION
 template <class BiasGenerator, class WeightGenerator,
-          meta::as<meta::is_callable<BiasGenerator>::value>,
-          meta::as<meta::is_callable<WeightGenerator>::value>>
+          meta::require<meta::is_callable<BiasGenerator>::value and
+                        meta::is_callable<WeightGenerator>::value>>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     BiasGenerator genB,
     WeightGenerator genW) noexcept

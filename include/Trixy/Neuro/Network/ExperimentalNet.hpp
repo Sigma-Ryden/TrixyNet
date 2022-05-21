@@ -84,7 +84,7 @@ public:
     }
 
     template <class FloatGenerator,
-          meta::as<meta::is_callable<FloatGenerator>::value> = 0>
+          meta::require<meta::is_callable<FloatGenerator>::value> = 0>
     void init(FloatGenerator gen) noexcept
     {
         for (size_type i = 0; i < size; ++i)
