@@ -11,6 +11,9 @@
 namespace trixy
 {
 
+namespace memory
+{
+
 template <class Tensor>
 using MatrixLocker = Locker<Tensor, LockerType::matrix>;
 
@@ -29,14 +32,14 @@ public:
 
 public:
     template <typename U = Tensor,
-              meta::require<std::is_constructible<U>::value> = 0>
+              trixy::meta::require<std::is_constructible<U>::value> = 0>
     Locker() : Tensor() {}
 
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        meta::require<not std::is_base_of<meta::decay_t<T>, Locker>::value and
-                      std::is_constructible<Tensor, T, Tn...>::value> = 0>
+        trixy::meta::require<not std::is_base_of<trixy::meta::decay_t<T>, Locker>::value and
+                             std::is_constructible<Tensor, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
         : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
@@ -70,6 +73,8 @@ public:
 
     using require::data;
 };
+
+} // namespace memory
 
 } // namespace trixy
 

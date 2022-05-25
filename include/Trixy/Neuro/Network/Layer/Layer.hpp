@@ -289,6 +289,7 @@ using XFullyConected = FullyConnected<Net, Activation, LayerMode::Normal>;
 
 } // namespace trixy
 
+// clean up
 #undef DERIVED
 
 #endif // TRIXY_NETWORK_LAYER_HPP

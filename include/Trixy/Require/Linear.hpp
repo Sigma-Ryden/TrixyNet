@@ -6,6 +6,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 template <class Linear>
 using LinearRequire = Require<Linear, RequireType::linear>;
 
@@ -40,6 +43,9 @@ protected:
 
     using require::for_each;
 };
+
+
+} // namespace guard
 
 } // namespace trixy
 

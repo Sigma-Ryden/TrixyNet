@@ -90,7 +90,7 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Base.hpp
     include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
-    include/Trixy/Neuro/Network/ExperimentalNet.hpp
+    include/Trixy/Neuro/Network/ConvolutionalNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
 
     include/Trixy/Neuro/Network/Layer/Layer.hpp

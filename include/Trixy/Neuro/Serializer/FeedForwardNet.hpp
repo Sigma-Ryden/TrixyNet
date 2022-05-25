@@ -43,10 +43,11 @@ private:
     using meta_data_type            = std::int32_t;
     using byte_type                 = std::int8_t;
 
-    using BaseId                    = Buffer::BaseTypeId;
+    using BaseBuffer                = utility::Buffer;
+    using BaseId                    = utility::Buffer::BaseTypeId;
 
 private:
-    Buffer buff;                    ///< Specialized Buffer for casting stream data
+    BaseBuffer buff;                ///< Specialized Buffer for casting stream data
 
     InnerTopology topology;         ///< Network topology (main meta data for construction)
 

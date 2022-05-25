@@ -7,8 +7,6 @@
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 
-#include <Trixy/Neuro/Network/ExperimentalNet.hpp> // Ex
-
 namespace tr = trixy;
 namespace li = trixy::lique;
 
@@ -19,17 +17,17 @@ using namespace tr::train;
 using namespace utility;
 
 using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
-using ExNet = tr::Ex<tr::TypeSet<float>>;
+using ConvNet = tr::ConvolutionalNet<tr::TypeSet<float>>;
 
 using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
-using RandomIntegral     = tr::RandomIntegral<>;
-using RandomFloating     = tr::RandomFloating<>;
+using RandomIntegral     = tr::utility::RandomIntegral<>;
+using RandomFloating     = tr::utility::RandomFloating<>;
 
 template <class Activation>
-using FullyConnected = tr::layer::FullyConnected<ExNet, Activation>;
+using FullyConnected = tr::layer::FullyConnected<ConvNet, Activation>;
 
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_speed_test_idata()
@@ -65,7 +63,7 @@ void experimental_test()
     auto odata = get_speed_test_odata<TrixyNet>();
 
     TrixyNet net1({4, 4, 5, 4, 3});
-    ExNet net2;
+    ConvNet net2;
 
     net2.add(new FullyConnected<ReLU>(4, 4));
     net2.add(new FullyConnected<ReLU>(4, 5));

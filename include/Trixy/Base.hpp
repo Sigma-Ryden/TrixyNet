@@ -6,6 +6,24 @@
 namespace trixy
 {
 
+struct TrixyNetType
+{
+    struct FeedForward {};
+    struct Convolutional {};
+};
+
+struct RegressionType
+{
+    struct Linear {};
+    struct Polynomial {};
+};
+
+struct LayerMode
+{
+    struct Normal {};
+    struct Train {};
+};
+
 namespace lique
 {
 
@@ -26,22 +44,8 @@ struct TensorMode
 
 } // namespace lique
 
-struct TrixyNetType
+namespace memory
 {
-    struct FeedForward {};
-};
-
-struct RegressionType
-{
-    struct Linear {};
-    struct Polynomial {};
-};
-
-struct LayerMode
-{
-    struct Normal {};
-    struct Train {};
-};
 
 struct LockerType
 {
@@ -50,6 +54,11 @@ struct LockerType
     struct matrix {};
     struct tensor {};
 };
+
+} // namespace memory
+
+namespace guard
+{
 
 struct RequireType
 {
@@ -63,6 +72,8 @@ struct RequireType
 
     struct container {};
 };
+
+} // namespace guard
 
 } // namespace trixy
 

@@ -9,8 +9,13 @@ namespace trixy
 template <typename TrixyNetType, typename TypeSet>
 class TrixyNet;
 
+namespace guard
+{
+
 template <typename TrixyNetType, typename TypeSet>
 struct TrixyNetRequire;
+
+} // namespace guard
 
 } // namespace trixy
 

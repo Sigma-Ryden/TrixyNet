@@ -30,10 +30,11 @@ private:
     using meta_data_type    = std::int16_t;
     using byte_type         = std::int8_t;
 
-    using BaseId            = Buffer::BaseTypeId;
+    using BaseBuffer        = utility::Buffer;
+    using BaseId            = utility::Buffer::BaseTypeId;
 
 private:
-    Buffer buff;            ///< Specialized Buffer for casting stream data
+    BaseBuffer buff;        ///< Specialized Buffer for casting stream data
 
     Vector W;               ///< Inner weight
     size_type N;            ///< Size of weight vector (same as sample size + 1)

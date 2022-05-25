@@ -8,6 +8,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 template <class Tensor>
 using TensorRequire = Require<Tensor, RequireType::tensor>;
 
@@ -58,6 +61,8 @@ protected:
 
     using require::data;
 };
+
+} // namespace guard
 
 } // namespace trixy
 

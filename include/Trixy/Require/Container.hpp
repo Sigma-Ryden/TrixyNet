@@ -6,6 +6,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 template <class Container>
 using ContainerRequire = Require<Container, RequireType::container>;
 
@@ -58,6 +61,8 @@ protected:
 
     using require::operator[];
 };
+
+} // namespace guard
 
 } // namespace trixy
 

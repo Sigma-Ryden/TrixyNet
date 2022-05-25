@@ -10,6 +10,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 TRIXY_REGRESSION_TPL_DECLARATION
 struct TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)
 {
@@ -55,6 +58,8 @@ protected:
 
     using require_linear    = typename LinearRequire<Linear>::type;
 };
+
+} // namespace guard
 
 } // namespace trixy
 

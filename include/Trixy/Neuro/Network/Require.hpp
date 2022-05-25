@@ -10,6 +10,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 TRIXY_NET_TPL_DECLARATION
 struct TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)
 {
@@ -36,6 +39,8 @@ protected:
 
     using require_container = typename ContainerRequire<Container>::type;
 };
+
+} // namespace guard
 
 } // namespace trixy
 

@@ -20,7 +20,7 @@ using LinearRegression = TRIXY_REGRESSION_TPL(RegressionType::Linear);
 
 TRIXY_REGRESSION_TPL_DECLARATION
 class TRIXY_REGRESSION_TPL(RegressionType::Linear) :
-    public TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)::type
+    public guard::TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)::type
 {
 friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
 

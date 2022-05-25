@@ -7,6 +7,9 @@
 namespace trixy
 {
 
+namespace utility
+{
+
 template <template <typename, typename...> class Derived, typename Type, typename... Pack>
 class IContainer
 {
@@ -132,5 +135,7 @@ public:
 };
 
 } // namespace trixy
+
+} // namespace utility
 
 #endif // TRIXY_ICONTAINER_HPP

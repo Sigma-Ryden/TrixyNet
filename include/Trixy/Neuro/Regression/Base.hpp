@@ -9,8 +9,13 @@ namespace trixy
 template <typename RegressionType, typename TypeSet>
 class Regression;
 
+namespace guard
+{
+
 template <class RegressionType, typename TypeSet>
 struct RegressionRequire;
+
+} // namespace guard
 
 } // namespace trixy
 

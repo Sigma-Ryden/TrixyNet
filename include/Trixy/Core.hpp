@@ -49,14 +49,14 @@ template <typename Precision>
 struct TypeSet
 {
     template <typename T>
-    using Container      = Container<T>;
+    using Container         = utility::Container<T>;
 
-    using Vector         = lique::Vector<Precision>;
-    using Matrix         = lique::Matrix<Precision>;
-    using Linear         = lique::Linear<Precision>;
+    using Vector            = lique::Vector<Precision>;
+    using Matrix            = lique::Matrix<Precision>;
+    using Linear            = lique::Linear<Precision>;
 
-    using precision_type = Precision;
-    using size_type      = std::size_t;
+    using precision_type    = Precision;
+    using size_type         = std::size_t;
 };
 
 } // namespace trixy

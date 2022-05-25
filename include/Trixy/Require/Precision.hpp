@@ -8,6 +8,9 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 template <typename Precision>
 using PrecisionRequire = Require<Precision, RequireType::precision>;
 
@@ -25,6 +28,8 @@ protected:
 
     static_assert(precision_require, "'Precision' is not a floating point type.");
 };
+
+} // namespace guard
 
 } // namespace trixy
 

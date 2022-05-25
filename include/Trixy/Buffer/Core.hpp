@@ -13,6 +13,9 @@
 namespace trixy
 {
 
+namespace utility
+{
+
 template <typename T>
 class Buff
 {
@@ -520,6 +523,8 @@ typename Buff<T>::SupportTypeId Buff<T>::detect_data_type_id()
 }
 
 using Buffer = Buff<char>;
+
+} // namespace utility
 
 } // namespace trixy
 

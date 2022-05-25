@@ -9,6 +9,9 @@
 namespace trixy
 {
 
+namespace utility
+{
+
 template <typename Type>
 class Container
 {
@@ -335,5 +338,7 @@ void Container<Type>::destroy(pointer first, pointer last)
 }
 
 } // namespace trixy
+
+} // namepace utility
 
 #endif // TRIXY_CONTAINER_HPP

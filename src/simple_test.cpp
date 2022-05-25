@@ -21,8 +21,8 @@ using TrixyNetFunctional = tr::Functional<TrixyNet>;
 using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 
-using RandomIntegral     = tr::RandomIntegral<>;
-using RandomFloating     = tr::RandomFloating<>;
+using RandomIntegral     = tr::utility::RandomIntegral<>;
+using RandomFloating     = tr::utility::RandomFloating<>;
 
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_simple_test_idata()

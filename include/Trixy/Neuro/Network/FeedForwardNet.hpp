@@ -24,7 +24,7 @@ using FeedForwardNet = TRIXY_NET_TPL(TrixyNetType::FeedForward);
 
 TRIXY_NET_TPL_DECLARATION
 class TRIXY_NET_TPL(TrixyNetType::FeedForward)
-    : public TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
+    : public guard::TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
 {
 public:
     class InnerStruct;
@@ -50,10 +50,10 @@ public:
     using Linear                    = typename TypeSet::Linear;
 
     template <typename T>
-    using XContainer                = ContainerLocker<Container<T>>;
+    using XContainer                = memory::ContainerLocker<Container<T>>;
 
-    using XVector                   = VectorLocker<Vector>;
-    using XMatrix                   = MatrixLocker<Matrix>;
+    using XVector                   = memory::VectorLocker<Vector>;
+    using XMatrix                   = memory::MatrixLocker<Matrix>;
 
     using InnerBuffer               = XContainer<XVector>;
     using InnerTopology             = Container<size_type>;

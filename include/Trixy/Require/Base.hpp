@@ -6,8 +6,13 @@
 namespace trixy
 {
 
+namespace guard
+{
+
 template <class Requirable, typename RequireType>
 struct Require;
+
+} // namespace guard
 
 } // namespace trixy
 

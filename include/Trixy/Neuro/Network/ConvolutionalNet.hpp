@@ -1,18 +1,27 @@
 // __EXPERIMENTAL__
-#ifndef TRIXY_NETWORK_EXPERIMENTAL_NET_HPP
-#define TRIXY_NETWORK_EXPERIMENTAL_NET_HPP
+#ifndef TRIXY_NETWORK_CONVOLUTIONAL_NET_HPP
+#define TRIXY_NETWORK_CONVOLUTIONAL_NET_HPP
+
+#include <Trixy/Base.hpp>
 
 #include <Trixy/Neuro/Network/Layer/Layer.hpp>
+#include <Trixy/Neuro/Network/Require.hpp>
 #include <Trixy/Neuro/Functional/Function/Loss.hpp>
+
 #include <Trixy/Locker/Core.hpp>
 
-#include <Trixy/Neuro/Network/Require.hpp>
+#include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
 {
 
-template <typename TypeSet>
-class Ex : public TrixyNetRequire<TrixyNetType::FeedForward, TypeSet>
+TRIXY_NET_TPL_DECLARATION
+using ConvolutionalNet = TRIXY_NET_TPL(TrixyNetType::Convolutional);
+
+TRIXY_NET_TPL_DECLARATION
+class TRIXY_NET_TPL(TrixyNetType::Convolutional)
+    // __EXPERIMENTAL__
+    : public guard::TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
 {
 public:
     template <typename T>
@@ -27,15 +36,15 @@ public:
     using Linear                    = typename TypeSet::Linear;
 
     template <typename T>
-    using XContainer                = ContainerLocker<Container<T>>;
+    using XContainer                = memory::ContainerLocker<Container<T>>;
 
-    using XVector                   = VectorLocker<Vector>;
-    using XMatrix                   = MatrixLocker<Matrix>;
+    using XVector                   = memory::VectorLocker<Vector>;
+    using XMatrix                   = memory::MatrixLocker<Matrix>;
 
     using InnerBuffer               = XContainer<XVector>;
     using InnerTopology             = Container<size_type>;
 
-    using Layer                     = layer::ITrainLayer<Ex>;
+    using Layer                     = layer::ITrainLayer<TrixyNet>;
 
 private:
     Container<Layer*> layer_;
@@ -49,8 +58,8 @@ private:
     size_type size;
 
 public:
-    Ex() : size(0) {}
-    ~Ex()
+    TrixyNet() : size(0) {}
+    ~TrixyNet()
     {
         for (size_type i = 0; i < size; ++i)
             delete layer_[i];
@@ -85,35 +94,25 @@ public:
 
     template <class FloatGenerator,
           meta::require<meta::is_callable<FloatGenerator>::value> = 0>
-    void init(FloatGenerator gen) noexcept
+    void init(FloatGenerator generator) noexcept
     {
         for (size_type i = 0; i < size; ++i)
         {
-            layer(i).B().fill(gen);
-            layer(i).W().fill(gen);
+            layer(i).B().fill(generator);
+            layer(i).W().fill(generator);
         }
     }
+
     template <class Bias, class Weight>
-    void init(const Container<Bias>& bias, const Container<Weight>& weight) noexcept
+    void init(const Container<Bias>& B, const Container<Weight>& W) noexcept
     {
         for (size_type i = 0; i < size; ++i)
         {
-            linear.assign(layer(i).B(), bias[i]);
-            linear.assign(layer(i).W(), weight[i]);
+            linear.assign(layer(i).B(), B[i]);
+            linear.assign(layer(i).W(), W[i]);
         }
     }
-private:
-    void backprop(const Vector& sample, const Vector& target) noexcept
-    {
-        trixy::functional::loss::CCE::df(delta, target, layer(size - 1).value());
 
-        layer(size - 1).backward(layer(size - 2).value(), delta);
-
-        for (int i = size - 2; i > 0; --i)
-            layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
-
-        layer(0).backward0(sample, layer(1).delta().base());
-    }
 public:
     //
     void train(
@@ -151,6 +150,18 @@ public:
     //
     //
 private:
+    void backprop(const Vector& sample, const Vector& target) noexcept
+    {
+        trixy::functional::loss::CCE::df(delta, target, layer(size - 1).value());
+
+        layer(size - 1).backward(layer(size - 2).value(), delta);
+
+        for (int i = size - 2; i > 0; --i)
+            layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
+
+        layer(0).backward0(sample, layer(1).delta().base());
+    }
+
     void resetDelta() noexcept
     {
         for (size_type i = 0; i < size; ++i)
@@ -183,4 +194,6 @@ private:
 
 } // namespace trixy
 
-#endif // TRIXY_NETWORK_EXPERIMENTAL_NET_HPP
+#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
+
+#endif // TRIXY_NETWORK_CONVOLUTIONAL_NET_HPP

@@ -23,8 +23,8 @@ using TrixyNetTraining   = tr::train::Training<TrixyNet>;
 using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 using TrixyNetChecker    = tr::Checker<TrixyNet>;
 
-using RandomIntegral     = tr::RandomIntegral<>;
-using RandomFloating     = tr::RandomFloating<>;
+using RandomIntegral     = tr::utility::RandomIntegral<>;
+using RandomFloating     = tr::utility::RandomFloating<>;
 
 using size_type = std::size_t;
 

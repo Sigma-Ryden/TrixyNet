@@ -10,6 +10,9 @@
 namespace trixy
 {
 
+namespace utility
+{
+
 struct RandomType
 {
     template <typename T = long long,
@@ -21,16 +24,25 @@ struct RandomType
     struct Floating { using type = T; };
 };
 
+} // namespace utility
+
 namespace meta
 {
 
-template <typename> struct is_integral_random_type : std::false_type {};
-template <typename T> struct is_integral_random_type<RandomType::Integral<T>> : std::true_type {};
+template <typename>
+struct is_integral_random_type : std::false_type {};
+template <typename T>
+struct is_integral_random_type<utility::RandomType::Integral<T>> : std::true_type {};
 
-template <typename> struct is_floating_random_type : std::false_type {};
-template <typename T> struct is_floating_random_type<RandomType::Floating<T>> : std::true_type {};
+template <typename>
+struct is_floating_random_type : std::false_type {};
+template <typename T>
+struct is_floating_random_type<utility::RandomType::Floating<T>> : std::true_type {};
 
 } // namespace meta
+
+namespace utility
+{
 
 class DefaultGenerator
 {
@@ -64,8 +76,8 @@ class Random;
 
 template <typename RandomType, class Generator>
 class Random<RandomType, Generator,
-    meta::when<meta::is_integral_random_type<RandomType>::value and
-               meta::is_callable<Generator>::value>>
+    trixy::meta::when<meta::is_integral_random_type<RandomType>::value and
+               trixy::meta::is_callable<Generator>::value>>
 {
 public:
     using integral_type = typename RandomType::type;
@@ -93,8 +105,8 @@ public:
 
 template <typename RandomType, class Generator>
 class Random<RandomType, Generator,
-    meta::when<meta::is_floating_random_type<RandomType>::value and
-               meta::is_callable<Generator>::value>>
+    trixy::meta::when<meta::is_floating_random_type<RandomType>::value and
+               trixy::meta::is_callable<Generator>::value>>
 {
 public:
     using floating_type = typename RandomType::type;
@@ -125,6 +137,8 @@ using RandomIntegral = Random<RandomType::Integral<T>, Generator>;
 
 template <typename T = RandomType::Floating<>::type, class Generator = DefaultGenerator>
 using RandomFloating = Random<RandomType::Floating<T>, Generator>;
+
+} // namespace utility
 
 } // namespace trixy
 

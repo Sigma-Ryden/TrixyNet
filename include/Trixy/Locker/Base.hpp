@@ -6,8 +6,13 @@
 namespace trixy
 {
 
+namespace memory
+{
+
 template <class Lockable, typename LockerType>
 class Locker;
+
+} // namespace memory
 
 } // namespace trixy
 

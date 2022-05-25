@@ -12,6 +12,9 @@
 namespace trixy
 {
 
+namespace memory
+{
+
 template <class Container>
 using ContainerLocker = Locker<Container, LockerType::container>;
 
@@ -30,14 +33,14 @@ public:
 
 public:
     template <typename U = Container,
-              meta::require<std::is_constructible<U>::value> = 0>
+              trixy::meta::require<std::is_constructible<U>::value> = 0>
     Locker() : Container() {}
 
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        meta::require<not std::is_base_of<meta::decay_t<T>, Locker>::value and
-                      std::is_constructible<Container, T, Tn...>::value> = 0>
+        trixy::meta::require<not std::is_base_of<trixy::meta::decay_t<T>, Locker>::value and
+                             std::is_constructible<Container, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
         : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
@@ -73,6 +76,8 @@ public:
 
     using require::operator[];
 };
+
+} // namespace memory
 
 } // namespace trixy
 
