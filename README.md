@@ -43,15 +43,15 @@ Is a header-only library implemented purely in C++11.
   - Buffer storage for adaptive data transfer
   
 # Features:
-* ```Modularity```: Each class does only the tasks for which it is specialized. No Swiss knives!
+```Modularity```: Each class does only the tasks for which it is specialized. No Swiss knives!
 
-* ```Flexibility```: Most of the functionality can be built in by the user, without affecting the library code. Thanks to template metaprogramming!
+```Flexibility```: Most of the functionality can be built in by the user, without affecting the library code. Thanks to template metaprogramming!
 
-* ```Simplicity```: The friendly interface of the library will allow you to quickly and easily use this. Just play with it a little!
+```Simplicity```: The friendly interface of the library will allow you to quickly and easily use this. Just play with it a little!
 
-* ```Extensibility```: Do you want a new feature? Spill it! No more rewriting old code, just write a new one!
+```Extensibility```: Do you want a new feature? Spill it! No more rewriting old code, just write a new one!
 
-* ```Performance```: We use the best solutions available. Do you want more perfomance? Please refer to item with Flexibility!
+```Performance```: We use the best solutions available. Do you want more perfomance? Please refer to item with Flexibility!
 
 # Quick start:
 Warning! This is a simple minimal example. You can see real applied examples [here](https://github.com/Sigma-Ryden/TrixyNet/tree/master/src).
@@ -62,7 +62,7 @@ Including of common headers for library use:
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/utility.hpp> // Timer, test_neuro, check_neuro
+#include <Utility/utility.hpp> // Timer, statistic
 
 namespace tr = trixy;
 namespace li = trixy::lique;
@@ -80,9 +80,9 @@ using TrixyNetSerializer = tr::Serializer<TrixyNet>;
 using RandomIntegral     = tr::utility::RandomIntegral<>;
 using RandomFloating     = tr::utility::RandomFloating<>;
 ```
-Note that <Utility/utility.hpp> is not part of ```Trixy``` library.
+Note that <Utility/utility.hpp> is not part of the ```Trixy``` library.
 
-Preparing of simple train data:
+Preparing of the simple train data:
 ```C++
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_simple_test_idata()
@@ -90,8 +90,8 @@ typename Net::template Container<typename Net::Vector> get_simple_test_idata()
     return
     {
         {-0.08, 0.04},
-        {0.92,  0.24},
-        {0.4,   0.16},
+        { 0.92, 0.24},
+        { 0.4,  0.16},
         {-0.0, -0.24}
     };
 }
@@ -138,7 +138,7 @@ void simple_test()
 
     utility::Timer t;
     
-    // Training of neural network
+    // Training of the neural network
     teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
