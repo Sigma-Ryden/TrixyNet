@@ -144,7 +144,7 @@ void simple_test()
 
     utility::statistic(net, idata, odata);
 
-    std::ofstream file("D:\\Serialized\\simple_test.bin");
+    std::ofstream file("example.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     // The serializer help us save neural network to some storage
@@ -184,7 +184,7 @@ Definition of deserialization function:
 ```C++
 void simple_test_deserialization()
 {
-    std::ifstream file("D:\\Serialized\\simple_test.bin");
+    std::ifstream file("example.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     auto idata = get_simple_test_idata<TrixyNet>();
