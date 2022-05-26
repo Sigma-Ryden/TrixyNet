@@ -2,7 +2,7 @@
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/utility.hpp> // Timer, max, operator<<
+#include <Utility/utility.hpp> // Timer, operator<<
 #include <Utility/mnist_reader.hpp> // read_dataset
 
 #include <iostream> // cin, cout
@@ -14,7 +14,7 @@ namespace tr = trixy;
 namespace li = trixy::lique;
 
 using namespace tr::functional;
-using namespace utility; // Core
+using namespace utility;
 
 using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
 
@@ -107,24 +107,24 @@ void mnist_test_deserialization()
 
     size_type train_batch_size = 60000; // max 60 000
     size_type test_batch_size  = 10000;
-    size_type input_size = 784;
-    size_type out_size   = 10;
+    size_type input_size  = 784;
+    size_type output_size = 10;
 
     // Train batch initialize:
     auto train_idata = get_idata<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, output_size);
 
     // Test batch initialize:
     auto test_idata = get_idata<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, output_size);
 
-    std::ifstream in("D:\\Serialized\\mnist_test.bin", std::ios::binary);
-    if (not in.is_open()) return;
+    std::ifstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     // NeuralNetwork preparing:
     TrixyNetSerializer sr;
-    sr.deserialize(in);
-    in.close();
+    sr.deserialize(file);
+    file.close();
 
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
@@ -160,22 +160,22 @@ void mnist_test()
 
     size_type train_batch_size = 60000; // max 60 000
     size_type test_batch_size  = 10000;
-    size_type input_size = 784;
-    size_type out_size   = 10;
+    size_type input_size  = 784;
+    size_type output_size = 10;
 
     // Train batch initialize:
     auto train_idata = get_idata<TrixyNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, out_size);
+    auto train_odata = get_odata<TrixyNet>(dataset.training_labels, train_batch_size, output_size);
 
     // Test batch initialize:
     auto test_idata = get_idata<TrixyNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, out_size);
+    auto test_odata = get_odata<TrixyNet>(dataset.test_labels, test_batch_size, output_size);
 
     // Show image:
-    //show_image_batch(train_in);
+    //show_image_batch(train_file);
 
     // NeuralNetwork topology:
-    TrixyNet net({ input_size, 256, out_size });
+    TrixyNet net({ input_size, 256, output_size });
     TrixyNetFunctional manage;
     TrixyNetTraining teach(net);
     TrixyNetChecker check(net);
@@ -212,12 +212,12 @@ void mnist_test()
         << "Network test set normal accuracy: " << check.accuracy(test_idata, test_odata) << '\n'
         << "Check time: " << t.elapsed() << '\n';
 
-    std::ofstream out("D:\\Serialized\\mnist_test.bin", std::ios::binary);
-    if (not out.is_open()) return;
+    std::ofstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     TrixyNetSerializer sr;
-    sr.serialize(out, net);
-    out.close();
+    sr.serialize(file, net);
+    file.close();
 
     std::cout << "End of serialization\n";
 }

@@ -2,7 +2,7 @@
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/utility.hpp> // Timer, test_neuro, check_neuro
+#include <Utility/utility.hpp> // Timer, statistic
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
@@ -13,7 +13,7 @@ namespace li = trixy::lique;
 
 using namespace tr::functional;
 
-using namespace utility; // Core
+using namespace utility;
 
 using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
 
@@ -30,8 +30,8 @@ typename Net::template Container<typename Net::Vector> get_simple_test_idata()
     return
     {
         {-0.08, 0.04},
-        {0.92,  0.24},
-        {0.4,   0.16},
+        { 0.92, 0.24},
+        { 0.4,  0.16},
         {-0.0, -0.24}
     };
 }
@@ -50,15 +50,15 @@ typename Net::template Container<typename Net::Vector> get_simple_test_odata()
 
 void simple_test_deserialization()
 {
-    std::ifstream in("D:\\Serialized\\simple_test.bin");
-    if (not in.is_open()) return;
+    std::ifstream file("D:\\Serialized\\simple_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     auto idata = get_simple_test_idata<TrixyNet>();
     auto odata = get_simple_test_odata<TrixyNet>();
 
     TrixyNetSerializer sr;
-    sr.deserialize(in);
-    in.close();
+    sr.deserialize(file);
+    file.close();
 
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
@@ -95,14 +95,14 @@ void simple_test()
 
     utility::statistic(net, idata, odata);
 
-    std::ofstream out("D:\\Serialized\\simple_test.bin");
-    if (not out.is_open()) return;
+    std::ofstream file("D:\\Serialized\\simple_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     TrixyNetSerializer sr;
 
     sr.prepare(net);
-    sr.serialize(out);
-    out.close();
+    sr.serialize(file);
+    file.close();
 
     std::cout << "End of serialization\n";
 }

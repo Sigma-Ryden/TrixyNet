@@ -55,15 +55,15 @@ typename Net::template Container<typename Net::Vector> get_speed_test_odata()
 
 void speed_test_deserialization()
 {
-    std::ifstream in("D:\\Serialized\\speed_test.bin", std::ios::binary);
-    if (not in.is_open()) return;
+    std::ifstream file("D:\\Serialized\\speed_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     auto idata = get_speed_test_idata<TrixyNet>();
     auto odata = get_speed_test_odata<TrixyNet>();
 
     TrixyNetSerializer sr;
-    sr.deserialize(in);
-    in.close();
+    sr.deserialize(file);
+    file.close();
 
     TrixyNet net(sr.getTopology());
     TrixyNetFunctional manage;
@@ -108,12 +108,12 @@ void speed_test()
     std::cout << "After train\n";
     utility::statistic(net, idata, odata);
 
-    std::ofstream out("D:\\Serialized\\speed_test.bin", std::ios::binary);
-    if (not out.is_open()) return;
+    std::ofstream file("D:\\Serialized\\speed_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     TrixyNetSerializer sr;
-    sr.serialize(out, net);
-    out.close();
+    sr.serialize(file, net);
+    file.close();
 
     std::cout << "End of serialization\n";
 }
@@ -122,7 +122,7 @@ int main()
 {
     std::cout << std::fixed << std::setprecision(6);
 
-    speed_test();
+    //speed_test();
     speed_test_deserialization();
 
     //std::cin.get();

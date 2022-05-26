@@ -97,12 +97,12 @@ Vector get_linear_odata()
 
 void polynomial_regression_test_deserialization()
 {
-    std::ifstream in("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-    if (not in.is_open()) return;
+    std::ifstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
-    sr.deserialize(in);
-    in.close();
+    sr.deserialize(file);
+    file.close();
 
     PolynomialReg reg(sr.getPower());
     reg.initializeInnerStruct(sr.getWeight());
@@ -133,25 +133,25 @@ void polynomial_regression_test()
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
 
-    std::ofstream out("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
-    if (not out.is_open()) return;
+    std::ofstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     tr::Serializer<PolynomialReg> sr;
 
-    sr.serialize(out, reg);
-    out.close();
+    sr.serialize(file, reg);
+    file.close();
 
     std::cout << "End of serialization\n";
 }
 
 void linear_regression_test_deserialization()
 {
-    std::ifstream in("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-    if (not in.is_open()) return;
+    std::ifstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
-    sr.deserialize(in);
-    in.close();
+    sr.deserialize(file);
+    file.close();
 
     LinearReg reg(sr.getSize());
 
@@ -183,13 +183,13 @@ void linear_regression_test()
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
 
-    std::ofstream out("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
-    if (not out.is_open()) return;
+    std::ofstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
+    if (not file.is_open()) return;
 
     tr::Serializer<LinearReg> sr;
 
-    sr.serialize(out, reg);
-    out.close();
+    sr.serialize(file, reg);
+    file.close();
 
     std::cout << "End of serialization\n";
 }
