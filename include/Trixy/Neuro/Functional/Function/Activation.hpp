@@ -4,8 +4,11 @@
 #include <cstddef> // size_t
 #include <cmath> // exp
 
-#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
+#include <Trixy/Neuro/Functional/Function/Base.hpp>
+
 #include <Trixy/Neuro/Functional/Function/ActivationLess.hpp>
+
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
 #include <Trixy/Detail/MacroScope.hpp>
 
@@ -36,55 +39,105 @@ TRIXY_FUNCTION_GENERIC_HELPER(swish)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_relu)
 TRIXY_FUNCTION_GENERIC_HELPER(mod_tanh)
 
-template <class Tensor>
-void unstable_softmax(Tensor& buff, const Tensor& vector) noexcept
+template <class OutRange, class InRange>
+void unstable_softmax(OutRange& result, const InRange& input) noexcept
 {
-    using size_type      = typename Tensor::size_type;
-    using precision_type = typename Tensor::precision_type;
+    using precision_type = typename OutRange::value_type;
 
-    for (size_type i = 0; i < buff.size(); ++i)
-        buff(i) = std::exp(vector(i));
+    auto first = result.data();
+    auto last  = result.data() + result.size();
+
+    auto it = input.data();
+
+    while (first != last) *first++ = std::exp(*it++);
 
     precision_type denominator = 0.;
-    for (size_type i = 0; i < buff.size(); ++i)
-        denominator += buff(i);
+
+    first = result.data();
+    last  = result.data() + result.size();
+
+    while (first != last)
+    {
+        denominator += *first;
+        ++first;
+    }
 
     denominator = 1. / denominator;
 
-    for (size_type i = 0; i < buff.size(); ++i)
-        buff(i) *= denominator;
+    first = result.data();
+    last  = result.data() + result.size();
+
+    while (first != last)
+    {
+        *first *= denominator;
+        ++first;
+    }
 }
 
-template <class Tensor>
-void softmax(Tensor& buff, const Tensor& vector) noexcept
+template <class OutRange, class InRange>
+void softmax(OutRange& result, const InRange& input) noexcept
 {
-    using size_type      = typename Tensor::size_type;
-    using precision_type = typename Tensor::precision_type;
+    using precision_type = typename OutRange::value_type;
 
     precision_type max;
-    precision_type denominator;
+    {
+        auto first = input.data();
+        auto last  = input.data() + input.size();
 
-    max = vector(0);
-    for (size_type i = 1; i < buff.size(); ++i)
-        if (max < vector(i)) max = vector(i);
+        max = *first++; // assign of curr value and increment of it
 
-    for (size_type i = 0; i < buff.size(); ++i)
-        buff(i) = std::exp(vector(i) - max);
+        while (first != last)
+        {
+            if (max < *first) max = *first;
 
-    denominator = 0.;
-    for(size_type i = 0; i < buff.size(); ++i)
-        denominator += buff(i);
+            ++first;
+        }
+    }
+
+    auto first = result.data();
+    auto last  = result.data() + result.size();
+
+    auto it = input.data();
+
+    while (first != last)
+    {
+        *first = std::exp(*it - max);
+        ++first;
+        ++it;
+    }
+
+    first = result.data();
+    last  = result.data() + result.size();
+
+    precision_type denominator = 0.;
+
+    while (first != last)
+    {
+        denominator += *first;
+        ++first;
+    }
 
     denominator = 1. / denominator;
 
-    for (size_type i = 0; i < buff.size(); ++i)
-        buff(i) *= denominator;
+    first = result.data();
+    last  = result.data() + result.size();
+
+    while (first != last)
+    {
+        *first *= denominator;
+        ++first;
+    }
 }
 
-template <class Tensor>
-void softmax_derived(Tensor& buff, const Tensor& /*unused*/) noexcept
+template <class Range1, class Range2>
+void softmax_derived(Range1& result, const Range2& input) noexcept
 {
-    buff.fill(1.);
+    auto first = result.data();
+    auto last  = result.data() + result.size();
+
+    auto it = input.data();
+
+    while (first != last) *first++ = 1.;
 }
 
 template <class ActivationFunction, typename CastType, typename ActivationId>

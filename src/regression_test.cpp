@@ -11,7 +11,7 @@
 namespace tr = trixy;
 namespace li = trixy::lique;
 
-using namespace utility; // Core
+using namespace utility;
 
 using PolynomialReg = tr::PolynomialRegression<tr::TypeSet<double>>;
 using LinearReg     = tr::LinearRegression<tr::TypeSet<float>>;
@@ -131,7 +131,7 @@ void polynomial_regression_test()
     std::cout << reg.getInnerPower() << '\n'
               << "Weight:\n" << reg.getInnerWeight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE<>()) << '\n';
 
     std::ofstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
@@ -181,7 +181,7 @@ void linear_regression_test()
 
     std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, tr::functional::loss::MSE<float>()) << '\n';
 
     std::ofstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;

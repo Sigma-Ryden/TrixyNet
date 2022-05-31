@@ -53,6 +53,8 @@ struct TypeSet
 
     using Vector            = lique::Vector<Precision>;
     using Matrix            = lique::Matrix<Precision>;
+    using Tensor            = lique::Tensor<Precision>;
+
     using Linear            = lique::Linear<Precision>;
 
     using precision_type    = Precision;

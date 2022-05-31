@@ -4,6 +4,8 @@
 #include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
+#include <Trixy/Range/Unified.hpp>
+
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
@@ -16,7 +18,7 @@ namespace train
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 using GradDescent
-    = TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::grad_descent);
+    = TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::grad_descent);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
 class TRIXY_OPTIMIZER_TPL(meta::is_feedforward_net, OptimizerType::grad_descent)
@@ -48,51 +50,86 @@ private:
 
 public:
     Optimizer(Net& network,
-              precision_type learning_rate);
+              precision_type learning_rate)
+        : Base()
+        , net(network)
+        , buff1(Builder::get1d(net.inner.topology))
+        , buff2(Builder::get2d(net.inner.topology))
+        , learning_rate_(learning_rate)
+    {
+    }
 
     precision_type learning_rate() const noexcept { return learning_rate_; }
-    void learning_rate(precision_type value) noexcept;
+    void learning_rate(precision_type value) noexcept { learning_rate_ = value; }
 
     template <class BiasGrad, class WeightGrad>
     void update(const Container<BiasGrad>& gradB,
-                const Container<WeightGrad>& gradW) noexcept;
+                const Container<WeightGrad>& gradW) noexcept
+    {
+        // w = w - learning_rate * g
+
+        for (size_type i = 0; i < net.inner.N; ++i)
+        {
+            net.linear.join(buff1[i], learning_rate_, gradB[i]);
+            net.linear.sub(net.inner.B[i], buff1[i]);
+
+            net.linear.join(buff2[i], learning_rate_, gradW[i]);
+            net.linear.sub(net.inner.W[i], buff2[i]);
+        }
+    }
 };
 
+// __EXPERIMENTAL__
 TRIXY_OPTIMIZER_TPL_DECLARATION
-GradDescent<Optimizeriable>::Optimizer(
-    Net& network,
-    precision_type learning_rate)
-    : Base()
-    , net(network)
-    , buff1(Builder::get1d(net.inner.topology))
-    , buff2(Builder::get2d(net.inner.topology))
-    , learning_rate_(learning_rate)
+class Optimizer_<Optimizeriable, OptimizerType::grad_descent,
+    meta::when<meta::is_unified_net<Optimizeriable>::value>>
+    : public IOptimizer_<Optimizeriable>
 {
-}
+public:
+    using Net  = Optimizeriable;
+    using Base = IOptimizer_<Net>;
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-void GradDescent<Optimizeriable>::learning_rate(
-    precision_type value) noexcept
-{
-    learning_rate_ = value;
-}
+public:
+    using typename Base::Vector;
+    using typename Base::Matrix;
+    using typename Base::Tensor;
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-template <class BiasGrad, class WeightGrad>
-void GradDescent<Optimizeriable>::update(
-    const Container<BiasGrad>& gradB,
-    const Container<WeightGrad>& gradW) noexcept
-{
-    // w = w - learning_rate * g
+    using typename Base::precision_type;
+    using typename Base::size_type;
 
-    for (size_type i = 0; i < net.inner.N; ++i)
+    using typename Base::Range;
+
+private:
+    Net& net;
+    precision_type learning_rate_;
+
+public:
+    Optimizer_(Net& network,
+              precision_type learning_rate)
+        : Base()
+        , net(network)
+        , learning_rate_(learning_rate)
     {
-        net.linear.join(buff1[i], learning_rate_, gradB[i]);
-        net.linear.sub(net.inner.B[i], buff1[i]);
-
-        net.linear.join(buff2[i], learning_rate_, gradW[i]);
-        net.linear.sub(net.inner.W[i], buff2[i]);
+        this->template initialize<Optimizer_>();
     }
+
+    precision_type learning_rate() const noexcept { return learning_rate_; }
+    void learning_rate(precision_type value) noexcept { learning_rate_ = value; }
+
+    // get zip
+    void update(Range param, Range grad) noexcept
+    {
+        net.linear.join(grad, learning_rate_);
+        net.linear.sub(param, grad);
+    }
+};
+
+// __EXPERIMENTAL__
+// will be change in the future versions
+template <class Net, typename... Args>
+Optimizer_<Net, OptimizerType::grad_descent> GradDescentOptimizer_(Net& net, Args&&... args)
+{
+    return Optimizer_<Net, OptimizerType::grad_descent>(net, std::forward<Args>(args)...);
 }
 
 template <class Net, typename... Args>

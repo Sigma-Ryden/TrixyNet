@@ -16,3 +16,5 @@
 #undef TRIXY_DEF_OPT_HELPER
 
 #undef TRIXY_REQUIRE
+
+#undef TRIXY_DERIVED

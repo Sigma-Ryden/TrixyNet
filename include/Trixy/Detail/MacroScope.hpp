@@ -7,55 +7,57 @@
     template <typename T>                                                                               \
     struct has_##_name<T, ::trixy::meta::void_t<typename T::name>> : std::true_type {}
 
-#define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
-    template <class Tensor1, class Tensor2,                                                             \
-              typename precision_type = typename Tensor1::precision_type>                               \
-    void name(Tensor1& buff, const Tensor2& tensor) noexcept {                                          \
-        buff.apply(                                                                                     \
-            ::trixy::functional::activation::detail::name<precision_type>,                              \
-            tensor.data()                                                                               \
-        );                                                                                              \
-    }                                                                                                   \
-    template <class Tensor1, class Tensor2,                                                             \
-              typename precision_type = typename Tensor1::precision_type>                               \
-    void name##_derived(Tensor1& buff, const Tensor2& tensor) noexcept {                                \
-        buff.apply(                                                                                     \
-            ::trixy::functional::activation::detail::name##_derived<precision_type>,                    \
-            tensor.data()                                                                               \
-        );                                                                                              \
+#define TRIXY_APPLY_FUNCTION_GENERIC_HELPER(name)                                                       \
+    template <class InRange, class OutRange>                                                            \
+    void name(InRange& result, const OutRange& input) noexcept {                                        \
+        auto first = result.data();                                                                     \
+        auto last  = result.data() + result.size();                                                     \
+        auto it    = input.data();                                                                      \
+                                                                                                        \
+        while (first != last) *first++ = name(*it++);                                                   \
     }
 
+#define TRIXY_FUNCTION_GENERIC_HELPER(name)                                                             \
+    TRIXY_APPLY_FUNCTION_GENERIC_HELPER(name)                                                           \
+    TRIXY_APPLY_FUNCTION_GENERIC_HELPER(name##_derived)
+
 #define TRIXY_FUNCTION_GENERIC_LOSS_HELPER(name, function_name, derived_function_name)                  \
-struct name {                                                                                           \
-    template <typename Precision, class Target, class Prediction>                                       \
-    static void f(Precision& result, const Target& y_true, const Prediction& y_pred) {                  \
-        function_name(result, y_true, y_pred);                                                          \
-    }                                                                                                   \
-    template <class Buffer, class Target, class Prediction>                                             \
-    static void df(Buffer& buff, const Target& y_true, const Prediction& y_pred) {                      \
-        derived_function_name(buff, y_true, y_pred);                                                    \
-    }                                                                                                   \
-    template <typename Precision, class Target, class Prediction>                                       \
-    void operator() (Precision& result, const Target& y_true, const Prediction& y_pred) {               \
-        f(result, y_true, y_pred);                                                                      \
-    }                                                                                                   \
-}
+    template <typename Precision = double>                                                              \
+    class name : public ILoss<Precision> {                                                              \
+    public:                                                                                             \
+        using Base = ILoss<Precision>;                                                                  \
+                                                                                                        \
+        using typename Base::precision_type;                                                            \
+        using typename Base::Range;                                                                     \
+                                                                                                        \
+        name() : Base() { this->template initialize<name>(); }                                          \
+                                                                                                        \
+        void f(precision_type& result, const Range y_true, const Range y_pred)                          \
+        { function_name(result, y_true, y_pred); }                                                      \
+                                                                                                        \
+        void df(Range result, const Range y_true, const Range y_pred)                                   \
+        { derived_function_name(result, y_true, y_pred); }                                              \
+                                                                                                        \
+        void operator() (precision_type& result, const Range y_true, const Range y_pred)                \
+        { function_name(result, y_true, y_pred); }                                                      \
+    }
 
 #define TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(name, function_name, derived_function_name)            \
-struct name {                                                                                           \
-    template <class Tensor1, class Tensor2>                                                             \
-    static void f(Tensor1& result, const Tensor2& input) {                                              \
-        function_name(result, input);                                                                   \
-    }                                                                                                   \
-    template <class Tensor1, class Tensor2>                                                             \
-    static void df(Tensor1& result, const Tensor2& input) {                                             \
-        derived_function_name(result, input);                                                           \
-    }                                                                                                   \
-    template <class Tensor1, class Tensor2>                                                             \
-    void operator() (Tensor1& result, const Tensor2& input) {                                           \
-        f(result, input);                                                                               \
-    }                                                                                                   \
-}
+    template <typename Precision = double>                                                              \
+    class name : public IActivation<Precision> {                                                        \
+    public:                                                                                             \
+        using Base = IActivation<Precision>;                                                            \
+                                                                                                        \
+        using typename Base::precision_type;                                                            \
+        using typename Base::Range;                                                                     \
+                                                                                                        \
+        name() : Base() { this->template initialize<name>(); }                                          \
+                                                                                                        \
+        void f(Range result, const Range input) { function_name(result, input); }                       \
+        void df(Range result, const Range input) { derived_function_name(result, input); }              \
+                                                                                                        \
+        void operator() (Range result, const Range input) { function_name(result, input); }             \
+    }
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
     template <class Tensor,                                                                             \
@@ -88,3 +90,6 @@ struct name {                                                                   
 
 #define TRIXY_REQUIRE(...)                                                                              \
     ::trixy::meta::conjunction<__VA_ARGS__>::value
+
+#define TRIXY_DERIVED                                                                                   \
+    (*static_cast<Derived*>(self))

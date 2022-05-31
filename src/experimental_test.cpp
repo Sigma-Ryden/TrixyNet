@@ -12,22 +12,19 @@ namespace li = trixy::lique;
 
 using namespace tr::functional;
 using namespace tr::functional::activation;
+using namespace tr::functional::loss;
+
 using namespace tr::train;
 
 using namespace utility;
 
-using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
-using ConvNet = tr::ConvolutionalNet<tr::TypeSet<float>>;
+using Core    = tr::TypeSet<float>;
 
-using TrixyNetFunctional = tr::Functional<TrixyNet>;
-using TrixyNetTraining   = tr::train::Training<TrixyNet>;
-using TrixyNetSerializer = tr::Serializer<TrixyNet>;
+using FeedNet = tr::FeedForwardNet<Core>;
+using UniNet  = tr::TrixyNet<Core>;
 
-using RandomIntegral     = tr::utility::RandomIntegral<>;
-using RandomFloating     = tr::utility::RandomFloating<>;
-
-template <class Activation>
-using FullyConnected = tr::layer::FullyConnected<ConvNet, Activation>;
+using RandomIntegral = tr::utility::RandomIntegral<>;
+using RandomFloating = tr::utility::RandomFloating<>;
 
 template <class Net>
 typename Net::template Container<typename Net::Vector> get_speed_test_idata()
@@ -59,48 +56,69 @@ typename Net::template Container<typename Net::Vector> get_speed_test_odata()
 
 void experimental_test()
 {
-    auto idata = get_speed_test_idata<TrixyNet>();
-    auto odata = get_speed_test_odata<TrixyNet>();
-
-    TrixyNet net1({4, 4, 5, 4, 3});
-    ConvNet net2;
-
-    net2.add(new FullyConnected<ReLU>(4, 4));
-    net2.add(new FullyConnected<ReLU>(4, 5));
-    net2.add(new FullyConnected<ReLU>(5, 4));
-    net2.add(new FullyConnected<SoftMax>(4, 3));
-
-    TrixyNetFunctional manage;
-    TrixyNetTraining teach(net1);
+    // Preparing train data
+    auto idata = get_speed_test_idata<FeedNet>();
+    auto odata = get_speed_test_odata<FeedNet>();
 
     RandomFloating random;
+    auto generator = [&] { return random(-.5, .5); };
 
-    net1.inner.initialize([&] { return random(-.5, .5); });
-    net2.init(net1.inner.B.base(), net1.inner.W.base());
+    constexpr int epochs = 1000;
 
-    net1.function.activation(manage.get<ActivationId::relu>());
-    net1.function.normalization(manage.get<ActivationId::softmax>());
-    net1.function.loss(manage.get<LossId::CCE>());
+    // Preparing first model
+    {
+        FeedNet net({4, 4, 5, 4, 3});
 
-    auto grad = GradDescentOptimizer(net1, 0.1); // new style
+        net.inner.initialize(generator);
 
-    utility::statistic(net1, idata, odata);
-    utility::statistic(net2, idata, odata);
+        tr::Functional<FeedNet> manage;
 
-    constexpr int epoch = 1;
+        net.function.activation(manage.get<ActivationId::relu>());
+        net.function.normalization(manage.get<ActivationId::softmax>());
+        net.function.loss(manage.get<LossId::CCE>());
 
-    utility::Timer t;
+        Training<FeedNet> teach(net);
 
-    teach.trainBatch(idata, odata, grad, epoch);
-    std::cout << "Train net1 time: " << t.elapsed() << '\n';
+        auto grad = GradDescentOptimizer(net, 0.1);
 
-    net2.train(idata, odata, epoch, 0.1);
-    std::cout << "Train net2 time: " << t.elapsed() << '\n';
+        Timer t;
+        teach.trainBatch(idata, odata, grad, epochs);
+        std::cout << "Train first net time: " << t.elapsed() << '\n';
 
-    utility::statistic(net1, idata, odata);
-    utility::statistic(net2, idata, odata);
+        utility::statistic(net, idata, odata);
+    }
+
+    // Preparing second model
+    {
+        using FullyConnected = tr::layer::FullyConnected<UniNet>;
+
+        UniNet net;
+
+        auto relu = ReLU<float>();
+        auto soft_max = SoftMax<float>();
+
+        net.add(new FullyConnected(4, 4, &relu))
+           .add(new FullyConnected(4, 5, &relu))
+           .add(new FullyConnected(5, 4, &relu))
+           .add(new FullyConnected(4, 3, &soft_max));
+
+        net.init(generator);
+
+        auto mse = MSE<float>();
+        auto grad = GradDescentOptimizer_(net, 0.1);
+
+        Training<UniNet> teach(net);
+
+        teach.loss(&mse);
+
+        Timer t;
+        teach.trainBatch(idata, odata, grad, epochs);
+        std::cout << "Train second net time: " << t.elapsed() << '\n';
+
+        utility::statistic(net, idata, odata);
+    }
 }
-/*
+//
 int main()
 {
     std::cout << std::fixed << std::setprecision(6);
@@ -109,4 +127,4 @@ int main()
 
     return 0;
 }
-*/
+//

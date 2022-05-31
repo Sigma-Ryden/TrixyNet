@@ -15,7 +15,7 @@ template <class Tensor>
 using TensorRequire = Require<Tensor, RequireType::tensor>;
 
 template <class Tensor>
-struct Require<Tensor, RequireType::matrix> : protected Tensor
+struct Require<Tensor, RequireType::tensor> : protected Tensor
 {
 public:
     using type = RequireType::tensor;
@@ -31,6 +31,7 @@ protected:
 protected:
     using typename require::size_type;
     using typename require::precision_type;
+    using typename require::value_type;
 
     using typename require::pointer;
     using typename require::const_pointer;

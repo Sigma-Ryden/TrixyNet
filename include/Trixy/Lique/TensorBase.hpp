@@ -8,6 +8,8 @@
 
 #include <Trixy/Lique/Shape.hpp>
 
+#include <Trixy/Range/Base.hpp>
+
 #include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
@@ -47,6 +49,7 @@ class Tensor<Precision, TensorType::base, TensorMode::view> : public TensorType:
 public:
     using size_type         = std::size_t;
     using precision_type    = Precision;
+    using value_type        = Precision;
     using shape_type        = Shape;
 
     using pointer           = Precision*;
@@ -54,6 +57,8 @@ public:
 
     using reference         = Precision&;
     using const_reference   = const Precision&;
+
+    using unified_range     = utility::Range<Precision>;
 
 protected:
     pointer data_;
@@ -120,6 +125,8 @@ public:
     const shape_type& shape() const noexcept;
 
     void swap(Tensor& tensor) noexcept;
+
+    operator unified_range() const noexcept;
 
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
@@ -408,6 +415,12 @@ inline typename TensorBase<Precision>::reference
     TensorBase<Precision>::operator() (size_type i) noexcept
 {
     return data_[i];
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline TensorBase<Precision>::operator unified_range() const noexcept
+{
+    return unified_range(data_, data_ + shape_.size);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

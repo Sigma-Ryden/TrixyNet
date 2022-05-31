@@ -17,7 +17,8 @@ namespace functional
 namespace activation
 {
 
-namespace detail
+// inline namespace for generation code
+inline namespace detail
 {
 
 TRIXY_FUNCTION_TPL_DECLARATION
@@ -217,7 +218,7 @@ Precision mod_tanh_derived(Precision x) noexcept
     else        return sech2;
 }
 
-} // namespace detail
+} // inline namespace detail
 
 } // namespace activation
 

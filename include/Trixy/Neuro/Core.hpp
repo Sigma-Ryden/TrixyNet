@@ -4,6 +4,8 @@
 #include <Trixy/Neuro/Network/Core.hpp>
 #include <Trixy/Neuro/Regression/Core.hpp>
 
+#include <Trixy/Neuro/Network/Layer/Core.hpp>
+
 #include <Trixy/Neuro/Training/Core.hpp>
 
 #include <Trixy/Neuro/Checker/Core.hpp>

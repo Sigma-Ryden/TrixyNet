@@ -3,6 +3,10 @@
 
 #include <cmath> // log, fabs, tanh, cosh
 
+#include <Trixy/Neuro/Functional/Function/Base.hpp>
+
+#include <Trixy/Range/Base.hpp>
+
 #include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -35,12 +39,12 @@ void categorical_cross_entropy(Precision& result, const Target& y_true, const Pr
 }
 
 template <class Buffer, class Target, class Prediction>
-void categorical_cross_entropy_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void categorical_cross_entropy_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
     static constexpr auto epsilon = 1e-9;
 
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -78,10 +82,10 @@ void mean_squared_error(Precision& result, const Target& y_true, const Predictio
 }
 
 template <class Buffer, class Target, class Prediction>
-void mean_squared_error_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void mean_squared_error_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -114,10 +118,10 @@ void mean_absolute_error(Precision& result, const Target& y_true, const Predicti
 }
 
 template <class Buffer, class Target, class Prediction>
-void mean_absolute_error_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void mean_absolute_error_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -161,10 +165,10 @@ void mean_squared_log_error(Precision& result, const Target& y_true, const Predi
 }
 
 template <class Buffer, class Target, class Prediction>
-void mean_squared_log_error_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void mean_squared_log_error_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -201,13 +205,13 @@ void binary_cross_entropy(Precision& result, const Target& y_true, const Predict
 }
 
 template <class Buffer, class Target, class Prediction>
-void binary_cross_entropy_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void binary_cross_entropy_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
     static constexpr auto epsilon = 1e-9;
     static constexpr auto alpha   = epsilon - 1.0;
 
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -222,10 +226,10 @@ void binary_cross_entropy_derived(Buffer& buff, const Target& y_true, const Pred
 }
 
 template <class Buffer, class Target, class Prediction>
-void binary_cross_entropy_derived_sigmoid(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void binary_cross_entropy_derived_sigmoid(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -260,10 +264,10 @@ void negative_log_likelihood(Precision& result, const Target& y_true, const Pred
 }
 
 template <class Buffer, class Target, class Prediction>
-void negative_log_likelihood_derived_softmax(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void negative_log_likelihood_derived_softmax(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -296,10 +300,10 @@ void logcosh(Precision& result, const Target& y_true, const Prediction& y_pred) 
 }
 
 template <class Buffer, class Target, class Prediction>
-void logcosh_derived(Buffer& buff, const Target& y_true, const Prediction& y_pred) noexcept
+void logcosh_derived(Buffer& result, const Target& y_true, const Prediction& y_pred) noexcept
 {
-    auto first  = buff.data();
-    auto last   = buff.data() + buff.size();
+    auto first  = result.data();
+    auto last   = result.data() + result.size();
 
     auto target = y_true.data();
     auto pred   = y_pred.data();
@@ -345,6 +349,7 @@ TRIXY_FUNCTION_GENERIC_LOSS_HELPER(BCE, binary_cross_entropy, binary_cross_entro
 TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSLE, mean_squared_log_error, mean_squared_log_error_derived);
 TRIXY_FUNCTION_GENERIC_LOSS_HELPER(NLL, negative_log_likelihood, negative_log_likelihood_derived_softmax);
 TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh, logcosh_derived);
+
 
 } // namespace loss
 

@@ -71,6 +71,13 @@ set(TRIXY_BUFFER
     include/Trixy/Buffer/Detail/MacroScope.hpp
     include/Trixy/Buffer/Detail/MacroUnscope.hpp
 )
+set(TRIXY_RANGE
+    include/Trixy/Range/Detail/Meta.hpp
+
+    include/Trixy/Range/Base.hpp
+    include/Trixy/Range/Unified.hpp
+    include/Trixy/Range/Core.hpp
+)
 set(TRIXY_RANDOM
     include/Trixy/Random/Core.hpp
 )
@@ -90,16 +97,21 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Base.hpp
     include/Trixy/Neuro/Network/Require.hpp
     include/Trixy/Neuro/Network/FeedForwardNet.hpp
-    include/Trixy/Neuro/Network/ConvolutionalNet.hpp
+    include/Trixy/Neuro/Network/UnifiedNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
 
-    include/Trixy/Neuro/Network/Layer/Layer.hpp
+    include/Trixy/Neuro/Network/Layer/Base.hpp
+    include/Trixy/Neuro/Network/Layer/FullyConnected.hpp
+    include/Trixy/Neuro/Network/Layer/Convolutional.hpp
+    include/Trixy/Neuro/Network/Layer/MaxPooling.hpp
+    include/Trixy/Neuro/Network/Layer/Core.hpp
 
     include/Trixy/Neuro/Checker/Detail/MacroScope.hpp
     include/Trixy/Neuro/Checker/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Checker/Accuracy.hpp
     include/Trixy/Neuro/Checker/Core.hpp
 
+    include/Trixy/Neuro/Functional/Function/Base.hpp
     include/Trixy/Neuro/Functional/Function/Activation.hpp
     include/Trixy/Neuro/Functional/Function/ActivationLess.hpp
     include/Trixy/Neuro/Functional/Function/Loss.hpp
@@ -134,9 +146,12 @@ set(TRIXY_NEURO
 
     include/Trixy/Neuro/Training/Base.hpp
     include/Trixy/Neuro/Training/FeedForwardNet.hpp
+    include/Trixy/Neuro/Training/UnifiedNet.hpp
     include/Trixy/Neuro/Training/LinearRegression.hpp
     include/Trixy/Neuro/Training/PolynomialRegression.hpp
     include/Trixy/Neuro/Training/Core.hpp
+
+    include/Trixy/Neuro/Core.hpp
 )
 set(UTILS
     include/Utility/utility.hpp
@@ -151,6 +166,7 @@ add_executable(${PROJECT_NAME}
     ${TRIXY_LOCKER}
     ${TRIXY_REQUIRE}
     ${TRIXY_BUFFER}
+    ${TRIXY_RANGE}
     ${TRIXY_RANDOM}
     ${TRIXY_NEURO}
     ${UTILS}

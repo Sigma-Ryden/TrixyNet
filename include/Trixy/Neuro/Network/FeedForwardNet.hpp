@@ -7,7 +7,6 @@
 #include <Trixy/Neuro/Network/Base.hpp>
 #include <Trixy/Neuro/Network/Require.hpp>
 
-#include <Trixy/Neuro/Training/Base.hpp>
 #include <Trixy/Neuro/Functional/Id.hpp>
 
 #include <Trixy/Locker/Core.hpp>

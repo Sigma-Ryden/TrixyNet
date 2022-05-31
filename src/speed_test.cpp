@@ -117,16 +117,16 @@ void speed_test()
 
     std::cout << "End of serialization\n";
 }
-//
+/*
 int main()
 {
     std::cout << std::fixed << std::setprecision(6);
 
-    //speed_test();
+    speed_test();
     speed_test_deserialization();
 
     //std::cin.get();
 
     return 0;
 }
-//
+*/

@@ -6,6 +6,7 @@
 #include <type_traits> // enable_if, is_same, true_type, false_type
 
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Range/Detail/Meta.hpp>
 
 #include <Trixy/Lique/Base.hpp>
 #include <Trixy/Locker/Base.hpp>
@@ -42,8 +43,9 @@ struct is_matrix : std::is_base_of<lique::TensorType::matrix, Tensor> {};
 template <class Tensor>
 struct is_tensor : trixy::meta::disjunction<
     std::is_base_of<lique::TensorType::tensor, Tensor>,
+    is_matrix<Tensor>,
     is_vector<Tensor>,
-    is_matrix<Tensor>> {};
+    trixy::meta::is_range<trixy::meta::decay_t<Tensor>>> {};
 
 template <typename T>
 using as_vector = trixy::meta::require<is_vector<T>::value>;

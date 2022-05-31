@@ -7,6 +7,8 @@
 
 #include <Trixy/Require/Vector.hpp>
 #include <Trixy/Require/Matrix.hpp>
+#include <Trixy/Require/Tensor.hpp>
+
 #include <Trixy/Require/Linear.hpp>
 
 #include <Trixy/Require/Container.hpp>

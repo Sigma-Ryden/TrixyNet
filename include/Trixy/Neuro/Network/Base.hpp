@@ -6,13 +6,13 @@
 namespace trixy
 {
 
-template <typename TrixyNetType, typename TypeSet>
+template <typename TypeSet, typename TrixyNetType = TrixyNetType::Unified>
 class TrixyNet;
 
 namespace guard
 {
 
-template <typename TrixyNetType, typename TypeSet>
+template <typename TypeSet, typename TrixyNetType>
 struct TrixyNetRequire;
 
 } // namespace guard

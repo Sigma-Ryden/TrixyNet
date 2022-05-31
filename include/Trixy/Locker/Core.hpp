@@ -5,6 +5,7 @@
 
 #include <Trixy/Locker/Vector.hpp>
 #include <Trixy/Locker/Matrix.hpp>
+#include <Trixy/Locker/Tensor.hpp>
 
 #include <Trixy/Locker/Container.hpp>
 

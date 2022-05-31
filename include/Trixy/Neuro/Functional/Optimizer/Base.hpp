@@ -12,6 +12,14 @@ namespace trixy
 namespace train
 {
 
+// __EXPERIMENTAL__
+template <class Optimizeriable, class OptimizerType, typename enable = void>
+class Optimizer_;
+
+// __EXPERIMENTAL__
+template <class Optimizeriable, typename enable = void>
+class IOptimizer_;
+
 template <class Optimizeriable, class OptimizerType, typename enable = void>
 class Optimizer;
 

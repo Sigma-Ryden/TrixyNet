@@ -32,9 +32,9 @@ template <typename> struct is_feedforward_net : std::false_type {};
 TRIXY_NET_TPL_DECLARATION
 struct is_feedforward_net<TRIXY_NET_TPL(TrixyNetType::FeedForward)> : std::true_type {};
 
-template <typename> struct is_convolutional_net : std::false_type {};
+template <typename> struct is_unified_net : std::false_type {};
 TRIXY_NET_TPL_DECLARATION
-struct is_convolutional_net<TRIXY_NET_TPL(TrixyNetType::Convolutional)> : std::true_type {};
+struct is_unified_net<TRIXY_NET_TPL(TrixyNetType::Unified)> : std::true_type {};
 
 template <typename> struct is_regression : std::false_type {};
 template <typename RegressionType, typename TypeSet>

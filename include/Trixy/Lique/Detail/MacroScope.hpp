@@ -15,6 +15,7 @@
     public:                                                                                             \
         using typename Base::size_type;                                                                 \
         using typename Base::precision_type;                                                            \
+        using typename Base::value_type;                                                                \
         using typename Base::shape_type;                                                                \
                                                                                                         \
         using typename Base::pointer;                                                                   \

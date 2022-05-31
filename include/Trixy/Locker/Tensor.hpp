@@ -26,10 +26,12 @@ protected:
 public:
     using typename require::size_type;
     using typename require::precision_type;
+    using typename require::value_type;
 
     using typename require::pointer;
     using typename require::const_pointer;
 
+    using typename require::unified_range;
     //using typename require::Shape; // deprecated
 
 public:
@@ -59,6 +61,7 @@ public:
 
 public:
     using require::operator();
+    using require::operator unified_range;
 
     using require::copy;
 

@@ -31,6 +31,7 @@ protected:
 protected:
     using typename require::size_type;
     using typename require::precision_type;
+    using typename require::value_type;
 
     using typename require::pointer;
     using typename require::const_pointer;

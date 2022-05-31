@@ -9,7 +9,7 @@ namespace trixy
 struct TrixyNetType
 {
     struct FeedForward {};
-    struct Convolutional {};
+    struct Unified {};
 };
 
 struct RegressionType
@@ -22,6 +22,18 @@ struct LayerMode
 {
     struct Normal {};
     struct Train {};
+};
+
+struct LayerType
+{
+    struct FullyConnected {};
+    struct Convolutional {};
+    struct MaxPooling {};
+};
+
+struct RangeType
+{
+    struct Unified {};
 };
 
 namespace lique

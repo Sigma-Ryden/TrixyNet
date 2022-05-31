@@ -28,19 +28,19 @@ public:
     using Builder                   = typename Net::Builder;
 
     template <class Derived>
-    using IOptimizer                = typename train::IOptimizer<Derived, Net>;
+    using IOptimizer                = train::IOptimizer<Derived, Net>;
 
     template <class T>
     using Container                 = typename Net::template Container<T>;
-
-    using XVector                   = typename Net::XVector;
-    using XMatrix                   = typename Net::XMatrix;
 
     using Vector                    = typename Net::Vector;
     using Matrix                    = typename Net::Matrix;
 
     template <class T>
     using XContainer                = typename Net::template XContainer<T>;
+
+    using XVector                   = typename Net::XVector;
+    using XMatrix                   = typename Net::XMatrix;
 
     using precision_type            = typename Net::precision_type;
     using size_type                 = typename Net::size_type;

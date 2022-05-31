@@ -3,6 +3,7 @@
 
 #include <Trixy/Neuro/Training/Base.hpp>
 
+#include <Trixy/Neuro/Training/UnifiedNet.hpp>
 #include <Trixy/Neuro/Training/FeedForwardNet.hpp>
 
 #include <Trixy/Neuro/Training/LinearRegression.hpp>
