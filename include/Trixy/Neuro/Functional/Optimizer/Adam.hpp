@@ -138,10 +138,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-Adam<Net> AdamOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+Adam<Net, TypeSet> AdamOptimizer(Net& net, Args&&... args)
 {
-    return Adam<Net>(net, std::forward<Args>(args)...);
+    return Adam<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

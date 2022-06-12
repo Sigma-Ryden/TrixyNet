@@ -93,10 +93,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-AdaGrad<Net> AdaGradOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+AdaGrad<Net, TypeSet> AdaGradOptimizer(Net& net, Args&&... args)
 {
-    return AdaGrad<Net>(net, std::forward<Args>(args)...);
+    return AdaGrad<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

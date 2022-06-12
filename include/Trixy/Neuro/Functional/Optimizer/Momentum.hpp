@@ -94,10 +94,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-Momentum<Net> MomentumOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+Momentum<Net, TypeSet> MomentumOptimizer(Net& net, Args&&... args)
 {
-    return Momentum<Net>(net, std::forward<Args>(args)...);
+    return Momentum<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

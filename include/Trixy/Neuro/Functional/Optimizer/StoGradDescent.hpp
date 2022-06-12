@@ -65,10 +65,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-StoGradDescent<Net> StoGradDescentOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+StoGradDescent<Net, TypeSet> StoGradDescentOptimizer(Net& net, Args&&... args)
 {
-    return StoGradDescent<Net>(net, std::forward<Args>(args)...);
+    return StoGradDescent<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

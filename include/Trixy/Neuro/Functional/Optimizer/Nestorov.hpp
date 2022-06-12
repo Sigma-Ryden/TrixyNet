@@ -94,10 +94,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-Nestorov<Net> NestorovOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+Nestorov<Net, TypeSet> NestorovOptimizer(Net& net, Args&&... args)
 {
-    return Nestorov<Net>(net, std::forward<Args>(args)...);
+    return Nestorov<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

@@ -59,10 +59,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-GradDescent<Net> GradDescentOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+GradDescent<Net, TypeSet> GradDescentOptimizer(Net& net, Args&&... args)
 {
-    return GradDescent<Net>(net, std::forward<Args>(args)...);
+    return GradDescent<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

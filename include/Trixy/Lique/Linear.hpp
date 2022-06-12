@@ -225,10 +225,11 @@ public:
         return result;
     }
 
-    template <class Vector, class Matrix,
+    template <class Vector, class Matrix, class VectorRet = Vector,
               meta::as_vector<Vector> = 0,
-              meta::as_matrix<Matrix> = 0>
-    Vector dot(
+              meta::as_matrix<Matrix> = 0,
+              meta::as_vector<VectorRet> = 0>
+    VectorRet dot(
         const Vector& row_vector,
         const Matrix& matrix) const
     {
@@ -239,10 +240,11 @@ public:
         return result;
     }
 
-    template <class Vector, class Matrix,
+    template <class Vector, class Matrix, class VectorRet = Vector,
               meta::as_vector<Vector> = 0,
-              meta::as_matrix<Matrix> = 0>
-    Vector dot(
+              meta::as_matrix<Matrix> = 0,
+              meta::as_vector<VectorRet> = 0>
+    VectorRet dot(
         const Matrix& matrix,
         const Vector& col_vector) const
     {
@@ -253,53 +255,53 @@ public:
         return result;
     }
 
-    template <class Matrix1, class Matrix2, class Matrix3 = Matrix1,
+    template <class Matrix1, class Matrix2, class MatrixRet = Matrix1,
               meta::as_matrix<Matrix1> = 0,
               meta::as_matrix<Matrix2> = 0,
-              meta::as_matrix<Matrix3> = 0>
-    Matrix3 dot(
+              meta::as_matrix<MatrixRet> = 0>
+    MatrixRet dot(
         const Matrix1& lhs,
         const Matrix2& rhs) const
     {
-        Matrix3 matrix(lhs.shape().height, rhs.shape().width, 0.);
+        MatrixRet matrix(lhs.shape().height, rhs.shape().width, 0.);
 
         dot(matrix, lhs, rhs);
 
         return matrix;
     }
 
-    template <class Matrix, class Vector,
-              meta::as_matrix<Matrix> = 0,
+    template <class MatrixRet, class Vector,
+              meta::as_matrix<MatrixRet> = 0,
               meta::as_vector<Vector> = 0>
-    Matrix tensordot(
+    MatrixRet tensordot(
         const Vector& col_vector,
         const Vector& row_vector) const
     {
-        Matrix result(col_vector.size(), row_vector.size());
+        MatrixRet result(col_vector.size(), row_vector.size());
 
         tensordot(result, col_vector, row_vector);
 
         return result;
     }
 
-    template <class Matrix1, class Matrix2 = Matrix1,
-              meta::as_matrix<Matrix1> = 0,
-              meta::as_matrix<Matrix2> = 0>
-    Matrix2 transpose(const Matrix1& matrix) const
+    template <class Matrix, class MatrixRet = Matrix,
+              meta::as_matrix<Matrix> = 0,
+              meta::as_matrix<MatrixRet> = 0>
+    MatrixRet transpose(const Matrix& matrix) const
     {
-        Matrix2 result(matrix.shape().width, matrix.shape().height);
+        MatrixRet result(matrix.shape().width, matrix.shape().height);
 
         transpose(result, matrix);
 
         return result;
     }
 
-    template <class Matrix1, class Matrix2 = Matrix1,
-              meta::as_matrix<Matrix1> = 0,
-              meta::as_matrix<Matrix2> = 0>
-    Matrix2 inverse(Matrix1& matrix) const
+    template <class Matrix, class MatrixRet = Matrix,
+              meta::as_matrix<Matrix> = 0,
+              meta::as_matrix<MatrixRet> = 0>
+    MatrixRet inverse(Matrix& matrix) const
     {
-        Matrix2 result(matrix.shape());
+        MatrixRet result(matrix.shape());
 
         inverse(result, matrix);
 
@@ -351,8 +353,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              typename = meta::when_is_tensor<Tensor1>,
-              typename = meta::when_is_tensor<Tensor2>>
+              meta::as_tensor<Tensor1> = 0,
+              meta::as_tensor<Tensor2> = 0>
     void mul(
         Tensor1& result,
         const Tensor2& rhs) const noexcept
@@ -382,8 +384,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              typename = meta::when_is_tensor<Tensor1>,
-              typename = meta::when_is_tensor<Tensor2>>
+              meta::as_tensor<Tensor1> = 0,
+              meta::as_tensor<Tensor2> = 0>
     void join(
         Tensor1& result,
         precision_type value,
@@ -393,7 +395,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              typename = meta::when_is_tensor<Tensor>>
+              meta::as_tensor<Tensor> = 0>
     void apply(
         Tensor& result,
         Function func) const noexcept
@@ -402,8 +404,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Function,
-              typename = meta::when_is_tensor<Tensor1>,
-              typename = meta::when_is_tensor<Tensor2>>
+              meta::as_tensor<Tensor1> = 0,
+              meta::as_tensor<Tensor2> = 0>
     void apply(
         Tensor1& result,
         Function func,
@@ -413,8 +415,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              typename = meta::when_is_tensor<Tensor1>,
-              typename = meta::when_is_tensor<Tensor2>>
+              meta::as_tensor<Tensor1> = 0,
+              meta::as_tensor<Tensor2> = 0>
     void assign(
         Tensor1& lhs,
         const Tensor2& rhs) const noexcept

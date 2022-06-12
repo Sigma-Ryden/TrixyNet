@@ -100,10 +100,10 @@ public:
     }
 };
 
-template <class Net, typename... Args>
-RMSProp<Net> RMSPropOptimizer(Net& net, Args&&... args)
+template <class TypeSet = OptimizerTypeSet, class Net, typename... Args>
+RMSProp<Net, TypeSet> RMSPropOptimizer(Net& net, Args&&... args)
 {
-    return RMSProp<Net>(net, std::forward<Args>(args)...);
+    return RMSProp<Net, TypeSet>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train
