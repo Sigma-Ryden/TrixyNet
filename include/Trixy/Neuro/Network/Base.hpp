@@ -12,7 +12,7 @@ class TrixyNet;
 namespace guard
 {
 
-template <typename TypeSet, typename TrixyNetType>
+template <typename TrixyNetType, typename TypeSet>
 struct TrixyNetRequire;
 
 } // namespace guard

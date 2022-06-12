@@ -42,7 +42,7 @@ public:
     using ITrainLayer               = typename Net::ITrainLayer;
 
     using ILoss                     = functional::loss::ILoss<precision_type>;
-    using IOptimizer                = train::IOptimizer_<Net>;
+    using IOptimizer                = train::IOptimizer<Net>;
 
 private:
     Net& net;                       ///< reference to network prevent her copying

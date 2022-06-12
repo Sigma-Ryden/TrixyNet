@@ -8,7 +8,7 @@
 
 #include <Trixy/Lique/Shape.hpp>
 
-#include <Trixy/Range/Base.hpp>
+#include <Trixy/Range/View.hpp>
 
 #include <Trixy/Lique/Detail/FunctionDetail.hpp>
 
@@ -58,7 +58,7 @@ public:
     using reference         = Precision&;
     using const_reference   = const Precision&;
 
-    using unified_range     = utility::Range<Precision>;
+    using range_view        = utility::Range<Precision>;
 
 protected:
     pointer data_;
@@ -126,7 +126,7 @@ public:
 
     void swap(Tensor& tensor) noexcept;
 
-    operator unified_range() const noexcept;
+    operator range_view() const noexcept;
 
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
@@ -418,9 +418,9 @@ inline typename TensorBase<Precision>::reference
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline TensorBase<Precision>::operator unified_range() const noexcept
+inline TensorBase<Precision>::operator range_view() const noexcept
 {
-    return unified_range(data_, data_ + shape_.size);
+    return range_view(data_, data_ + shape_.size);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

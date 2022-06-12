@@ -49,6 +49,7 @@ enum class OptimizationId : std::uint8_t
 {
     undefined,          ///< Default null value
     grad_descent,       ///< Gradient descent optimizer
+    stograd_descent,    ///< Stochastic Gradient Descent optimizer
     momentum,           ///< Momentum (slowed & stable)
     nestorov,           ///< Nesterov accelerated gradient (modified momentum)
     ada_grad,           ///< Adaptive Gradient algorithm (stable)

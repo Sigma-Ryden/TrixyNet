@@ -79,10 +79,10 @@ void experimental_test()
 
         Training<FeedNet> teach(net);
 
-        auto grad = GradDescentOptimizer(net, 0.1);
+        auto optimizer = AdamOptimizer(net, 0.01);
 
         Timer t;
-        teach.trainBatch(idata, odata, grad, epochs);
+        teach.trainBatch(idata, odata, optimizer, epochs);
         std::cout << "Train first net time: " << t.elapsed() << '\n';
 
         utility::statistic(net, idata, odata);
@@ -104,15 +104,15 @@ void experimental_test()
 
         net.init(generator);
 
-        auto mse = MSE<float>();
-        auto grad = GradDescentOptimizer_(net, 0.1);
+        auto cce = CCE<float>();
+        auto optimizer = AdamOptimizer(net, 0.01);
 
         Training<UniNet> teach(net);
 
-        teach.loss(&mse);
+        teach.loss(&cce);
 
         Timer t;
-        teach.trainBatch(idata, odata, grad, epochs);
+        teach.trainBatch(idata, odata, optimizer, epochs);
         std::cout << "Train second net time: " << t.elapsed() << '\n';
 
         utility::statistic(net, idata, odata);

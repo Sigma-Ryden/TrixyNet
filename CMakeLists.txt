@@ -8,10 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 set(TESTING
-    src/simple_test.cpp
-    src/mnist_test.cpp
-    src/speed_test.cpp
-    src/regression_test.cpp
+    #src/simple_test.cpp
+    #src/mnist_test.cpp
+    #src/speed_test.cpp
+    #src/regression_test.cpp
     src/experimental_test.cpp
 )
 set(TRIXY_CONTAINER
@@ -75,6 +75,7 @@ set(TRIXY_RANGE
     include/Trixy/Range/Detail/Meta.hpp
 
     include/Trixy/Range/Base.hpp
+    include/Trixy/Range/View.hpp
     include/Trixy/Range/Unified.hpp
     include/Trixy/Range/Core.hpp
 )
@@ -119,6 +120,7 @@ set(TRIXY_NEURO
 
     include/Trixy/Neuro/Functional/Optimizer/Base.hpp
     include/Trixy/Neuro/Functional/Optimizer/GradDescent.hpp
+    include/Trixy/Neuro/Functional/Optimizer/StoGradDescent.hpp
     include/Trixy/Neuro/Functional/Optimizer/Momentum.hpp
     include/Trixy/Neuro/Functional/Optimizer/Nestorov.hpp
     include/Trixy/Neuro/Functional/Optimizer/AdaGrad.hpp

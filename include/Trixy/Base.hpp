@@ -33,6 +33,7 @@ struct LayerType
 
 struct RangeType
 {
+    struct View {};
     struct Unified {};
 };
 

@@ -39,6 +39,8 @@ protected:
     using typename require::reference;
     using typename require::const_reference;
 
+    using typename require::range_view;
+
 protected:
     using require::copy;
 
@@ -52,6 +54,7 @@ protected:
     using require::apply; // maybe unused
 
     using require::operator();
+    using require::operator range_view;
 
     using require::add;
     using require::sub;

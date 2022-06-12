@@ -1,7 +1,7 @@
 #ifndef TRIXY_FUNCTION_BASE_HPP
 #define TRIXY_FUNCTION_BASE_HPP
 
-#include <Trixy/Range/Base.hpp>
+#include <Trixy/Range/View.hpp>
 
 #include <Trixy/Detail/MacroScope.hpp>
 

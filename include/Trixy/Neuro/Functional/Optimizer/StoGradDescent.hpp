@@ -1,5 +1,5 @@
-#ifndef TRIXY_OPTIMIZER_GRAD_DESCENT_HPP
-#define TRIXY_OPTIMIZER_GRAD_DESCENT_HPP
+#ifndef TRIXY_OPTIMIZER_STO_GRAD_DESCENT_HPP
+#define TRIXY_OPTIMIZER_STO_GRAD_DESCENT_HPP
 
 #include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
@@ -17,11 +17,11 @@ namespace train
 {
 
 template <class Optimizeriable, class TypeSet = OptimizerTypeSet>
-using GradDescent
-    = TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::grad_descent);
+using StoGradDescent
+    = TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::stograd_descent);
 
 TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::grad_descent)
+class TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::stograd_descent)
     : public IOptimizer<Optimizeriable>
 {
 public:
@@ -36,14 +36,18 @@ public:
 
 private:
     Net& net;
+
     precision_type learning_rate_;
+    precision_type alpha_;
 
 public:
     Optimizer(Net& network,
-              precision_type learning_rate)
+              precision_type learning_rate,
+              precision_type decay = 0.e-6)
         : Base()
         , net(network)
         , learning_rate_(learning_rate)
+        , alpha_(1. - learning_rate * decay)
     {
         this->template initialize<Optimizer>();
     }
@@ -53,16 +57,18 @@ public:
 
     void update(Range param, Range grad) noexcept
     {
-        // w = w - learning_rate * grad
+        // w = alpha * w - learning_rate * grad
         net.linear.join(grad, learning_rate_);
+        net.linear.join(param, alpha_);
+
         net.linear.sub(param, grad);
     }
 };
 
 template <class Net, typename... Args>
-GradDescent<Net> GradDescentOptimizer(Net& net, Args&&... args)
+StoGradDescent<Net> StoGradDescentOptimizer(Net& net, Args&&... args)
 {
-    return GradDescent<Net>(net, std::forward<Args>(args)...);
+    return StoGradDescent<Net>(net, std::forward<Args>(args)...);
 }
 
 } // namespace train

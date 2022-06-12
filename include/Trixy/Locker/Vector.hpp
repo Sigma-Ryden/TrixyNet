@@ -31,7 +31,7 @@ public:
     using typename require::pointer;
     using typename require::const_pointer;
 
-    using typename require::unified_range;
+    using typename require::range_view;
 
 public:
     template <typename U = Tensor,
@@ -60,7 +60,7 @@ public:
 
 public:
     using require::operator();
-    using require::operator unified_range;
+    using require::operator range_view;
 
     using require::copy;
 

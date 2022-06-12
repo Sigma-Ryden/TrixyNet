@@ -9,7 +9,7 @@ namespace trixy
 namespace utility
 {
 
-template <typename T, typename RangeType = RangeType::Unified>
+template <typename T, typename RangeType = RangeType::View>
 struct Range;
 
 } // namespace utility

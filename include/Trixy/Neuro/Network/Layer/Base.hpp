@@ -109,7 +109,7 @@ public:
 
     using typename Base::Generator;
 
-    using IOptimizer  = train::IOptimizer_<Net>;
+    using IOptimizer = train::IOptimizer<Net>;
 
 private:
     template <typename Ret, typename... Args>

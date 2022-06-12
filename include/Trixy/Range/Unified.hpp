@@ -23,25 +23,60 @@ public:
     using difference_type   = std::ptrdiff_t;
 
 private:
-    T* first_;
-    T* last_;
+    pointer first_;
+    size_type size_;
 
 public:
-    Range() : first_(nullptr), last_(nullptr) {}
+    Range() : first_(nullptr), size_(0) {}
 
-    Range(pointer first, pointer last)
-        : first_(first), last_(last) {}
+    Range(size_type size)
+        : first_(new value_type [size]), size_(size)
+    {
+    }
+
+    Range(size_type size, value_type value)
+        : Range(size)
+    {
+        fill(first_, first_ + size_);
+    }
+
+    ~Range()
+    {
+        delete[] first_;
+    }
+
+    void fill(value_type value)
+    {
+        auto first = first_;
+        auto last  = first_ + size_;
+
+        while (first != last) *first++ = value;
+    }
+
+    void resize(size_type size)
+    {
+        delete[] first_;
+
+        first_ = new value_type [size];
+        size_  = size;
+    }
+
+    void resize(size_type size, value_type value)
+    {
+        resize(size);
+        fill(value);
+    }
 
     pointer data() noexcept { return first_; }
     const_pointer data() const noexcept { return first_; }
 
-    difference_type size() const noexcept { return last_ - first_; }
+    difference_type size() const noexcept { return size_; }
 
-    pointer first() noexcept { return first_; }
-    pointer last() noexcept { return last_; }
+    pointer first() noexcept { return size_; }
+    pointer last() noexcept { return first_ + size_; }
 
     const_pointer first() const noexcept { return first_; }
-    const_pointer last() const noexcept { return last_; }
+    const_pointer last() const noexcept { return first_ + size_; }
 };
 
 } // namespace utility

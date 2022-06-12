@@ -1,6 +1,8 @@
 #ifndef TRIXY_OPTIMIZER_BASE_HPP
 #define TRIXY_OPTIMIZER_BASE_HPP
 
+#include <unordered_map> // unordered_map
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Neuro/Functional/Id.hpp>
 
@@ -12,18 +14,19 @@ namespace trixy
 namespace train
 {
 
-// __EXPERIMENTAL__
-template <class Optimizeriable, class OptimizerType, typename enable = void>
-class Optimizer_;
+struct OptimizerTypeSet
+{
+    template <typename Key, typename Value>
+    using Table = std::unordered_map<Key, Value>;
+};
 
-// __EXPERIMENTAL__
-template <class Optimizeriable, typename enable = void>
-class IOptimizer_;
-
-template <class Optimizeriable, class OptimizerType, typename enable = void>
+template <class OptimizerType,
+          class Optimizeriable,
+          class TypeSet = OptimizerTypeSet,
+          typename enable = void>
 class Optimizer;
 
-template <class Derived, class Optimizeriable, typename enable = void>
+template <class Optimizeriable, typename enable = void>
 class IOptimizer;
 
 struct OptimizerType
@@ -37,6 +40,7 @@ private:
 public:
     TRIXY_DEF_OPT_HELPER(id_type, undefined);
     TRIXY_DEF_OPT_HELPER(id_type, grad_descent);
+    TRIXY_DEF_OPT_HELPER(id_type, stograd_descent);
     TRIXY_DEF_OPT_HELPER(id_type, momentum);
     TRIXY_DEF_OPT_HELPER(id_type, nestorov);
     TRIXY_DEF_OPT_HELPER(id_type, ada_grad);
@@ -48,6 +52,7 @@ public:
     <
         undefined::def<id>,
         grad_descent::def<id>,
+        stograd_descent::def<id>,
         momentum::def<id>,
         nestorov::def<id>,
         ada_grad::def<id>,

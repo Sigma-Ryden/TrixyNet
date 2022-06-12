@@ -5,6 +5,7 @@
 #include <Trixy/Neuro/Functional/Optimizer/Interface.hpp>
 
 #include <Trixy/Neuro/Functional/Optimizer/GradDescent.hpp>
+#include <Trixy/Neuro/Functional/Optimizer/StoGradDescent.hpp>
 
 #include <Trixy/Neuro/Functional/Optimizer/Momentum.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Nestorov.hpp>

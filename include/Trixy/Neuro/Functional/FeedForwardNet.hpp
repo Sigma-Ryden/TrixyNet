@@ -31,8 +31,8 @@ public:
     using ActivationFunction        = typename Functionable::ActivationFunction;
     using LossFunction              = typename Functionable::LossFunction;
 
-    template <class optimizer_type>
-    using Optimizer = typename train::Optimizer<Functionable, optimizer_type>;
+    template <class Type>
+    using Optimizer                 = typename train::Optimizer<Type, Functionable>;
 
 private:
     template <functional::OptimizationId id>

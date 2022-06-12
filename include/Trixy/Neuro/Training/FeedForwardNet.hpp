@@ -27,9 +27,6 @@ public:
 
     using Builder                   = typename Net::Builder;
 
-    template <class Derived>
-    using IOptimizer                = train::IOptimizer<Derived, Net>;
-
     template <class T>
     using Container                 = typename Net::template Container<T>;
 
@@ -46,6 +43,7 @@ public:
     using size_type                 = typename Net::size_type;
 
     using InnerBuffer               = XContainer<XVector>;
+    using IOptimizer                = train::IOptimizer<Net>;
 
 private:
     Net& net;                       ///< reference to network prevent her copying
@@ -64,23 +62,21 @@ public:
     Training(const Training&) = default;
     Training(Training&&) noexcept = default;
 
-    template <class Derived, class GeneratorInteger>
+    template <class GeneratorInteger>
     void trainStochastic(const Container<Vector>& idata,
                          const Container<Vector>& odata,
-                         IOptimizer<Derived>& optimizer,
+                         IOptimizer& optimizer,
                          size_type iteration_scale,
                          GeneratorInteger generator) noexcept;
 
-    template <class Derived>
     void trainBatch(const Container<Vector>& idata,
                     const Container<Vector>& odata,
-                    IOptimizer<Derived>& optimizer,
+                    IOptimizer& optimizer,
                     size_type number_of_epochs) noexcept;
 
-    template <class Derived>
     void trainMiniBatch(const Container<Vector>& idata,
                         const Container<Vector>& odata,
-                        IOptimizer<Derived>& optimizer,
+                        IOptimizer& optimizer,
                         size_type number_of_epochs,
                         size_type mini_batch_size) noexcept;
 
@@ -93,6 +89,15 @@ public:
 
     long double loss(const Container<Vector>& idata,
                      const Container<Vector>& odata) const noexcept; // repair
+
+    template <class Param, class Grad>
+    void update(IOptimizer& optimizer,
+                XContainer<Param>& param,
+                XContainer<Grad>& grad) noexcept;
+
+private:
+    void model_update(IOptimizer& optimizer) noexcept;
+    void quick_model_update(IOptimizer& optimizer) noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -198,13 +203,12 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
     , buff(Builder::getlock1d(network.inner.topology))
 {
 }
-
 TRIXY_TRAINING_TPL_DECLARATION
-template <class Derived, class GeneratorInteger>
+template <class GeneratorInteger>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
-    IOptimizer<Derived>& optimizer,
+    IOptimizer& optimizer,
     size_type iteration_scale,
     GeneratorInteger generator) noexcept
 {
@@ -215,16 +219,15 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         feedforward(idata[sample]);
         backprop(idata[sample], odata[sample]);
 
-        optimizer.update(backprop_.gradB.base(), backprop_.gradW.base());
+        quick_model_update(optimizer);
     }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
-    IOptimizer<Derived>& optimizer,
+    IOptimizer& optimizer,
     size_type number_of_epochs) noexcept
 {
     precision_type alpha = 1. / static_cast<precision_type>(idata.size());
@@ -242,16 +245,15 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
         // averaging deltas for one full-batch
         backprop_.normalizeDelta(alpha);
 
-        optimizer.update(backprop_.deltaB.base(), backprop_.deltaW.base());
+        model_update(optimizer);
     }
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-template <class Derived>
 void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
-    IOptimizer<Derived>& optimizer,
+    IOptimizer& optimizer,
     size_type number_of_epochs,
     size_type mini_batch_size) noexcept
 {
@@ -286,7 +288,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
             // averaging deltas for one mini-batch
             backprop_.normalizeDelta(alpha);
 
-            optimizer.update(backprop_.deltaB.base(), backprop_.deltaW.base());
+            model_update(optimizer);
         }
     }
 }
@@ -371,6 +373,34 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
     }
 
     return result / static_cast<long double>(odata.size());
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+template <class Param, class Grad>
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::update(
+    IOptimizer& optimizer,
+    XContainer<Param>& param,
+    XContainer<Grad>& grad) noexcept
+{
+    for (size_type i = 0; i < net.inner.N; ++i)
+        optimizer.update(param[i], grad[i]);
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::model_update(
+    IOptimizer& optimizer) noexcept
+{
+    update(optimizer, net.inner.B, backprop_.deltaB);
+    update(optimizer, net.inner.W, backprop_.deltaW);
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::quick_model_update(
+    IOptimizer& optimizer) noexcept
+{
+    // Quick update is best used to update a layer with simple gradients
+    update(optimizer, net.inner.B, backprop_.gradB);
+    update(optimizer, net.inner.W, backprop_.gradB);
 }
 
 } // namespace train
