@@ -55,7 +55,9 @@ void network_size(const Collection<std::size_t>& topology) // deprecated & repai
               << count % 1024 << " Byte(s)\n";
 }
 
-template <class Vector, trixy::lique::meta::as_vector<Vector> = 0>
+template <class Vector,
+    trixy::meta::require<not trixy::lique::meta::is_matrix<Vector>::value and
+                         trixy::lique::meta::is_iterate<Vector>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Vector& vector)
 {
     if (vector.size() == 0) return out;
@@ -93,8 +95,7 @@ std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 
 template <class TrixyNet,
           template <typename> class Container = TrixyNet::template Container,
-          typename Sample = typename TrixyNet::Vector,
-          typename Target = typename TrixyNet::Vector>
+          typename Sample, typename Target>
 void statistic(
     TrixyNet& network,
     const Container<Sample>& idata,

@@ -16,26 +16,32 @@ namespace lique
 template <typename Precision>
 class Linear
 {
+private:
+    template <class T>
+    using as_flat_iterate =
+        trixy::meta::require<not meta::is_matrix<T>::value and
+                             meta::is_iterate<T>::value>;
+
 public:
     using size_type      = std::size_t;
     using precision_type = Precision;
 
 public:
-    template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
-    auto first(Tensor& tensor) const noexcept -> decltype(tensor.data())
+    template <class Iterable, lique::meta::as_iterate<Iterable> = 0>
+    auto first(Iterable& it) const noexcept -> decltype(it.data())
     {
-        return tensor.data();
+        return it.data();
     }
 
-    template <class Tensor, lique::meta::as_tensor<Tensor> = 0>
-    auto last(Tensor& tensor) const noexcept -> decltype(tensor.data() + tensor.size())
+    template <class Iterable, lique::meta::as_iterate<Iterable> = 0>
+    auto last(Iterable& it) const noexcept -> decltype(it.data() + it.size())
     {
-        return tensor.data() + tensor.size();
+        return it.data() + it.size();
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              meta::as_vector<Vector1> = 0,
-              meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               meta::as_matrix<Matrix> = 0>
     void dot(
         Vector1& result,
@@ -55,8 +61,8 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              meta::as_vector<Vector1> = 0,
-              meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               meta::as_matrix<Matrix> = 0>
     void dot(
         Vector1& result,
@@ -93,8 +99,8 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              meta::as_vector<Vector1> = 0,
-              meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               meta::as_matrix<Matrix> = 0>
     void tensordot(
         Matrix& result,
@@ -201,8 +207,8 @@ public:
     }
 
     template <class Vector1, class Vector2,
-              meta::as_vector<Vector1> = 0,
-              meta::as_vector<Vector2> = 0>
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0>
     precision_type dot(
         const Vector1& lhs,
         const Vector2& rhs) const noexcept
@@ -226,9 +232,9 @@ public:
     }
 
     template <class Vector, class Matrix, class VectorRet = Vector,
-              meta::as_vector<Vector> = 0,
+              as_flat_iterate<Vector> = 0,
               meta::as_matrix<Matrix> = 0,
-              meta::as_vector<VectorRet> = 0>
+              as_flat_iterate<VectorRet> = 0>
     VectorRet dot(
         const Vector& row_vector,
         const Matrix& matrix) const
@@ -241,9 +247,9 @@ public:
     }
 
     template <class Vector, class Matrix, class VectorRet = Vector,
-              meta::as_vector<Vector> = 0,
+              as_flat_iterate<Vector> = 0,
               meta::as_matrix<Matrix> = 0,
-              meta::as_vector<VectorRet> = 0>
+              as_flat_iterate<VectorRet> = 0>
     VectorRet dot(
         const Matrix& matrix,
         const Vector& col_vector) const
@@ -272,7 +278,7 @@ public:
 
     template <class MatrixRet, class Vector,
               meta::as_matrix<MatrixRet> = 0,
-              meta::as_vector<Vector> = 0>
+              as_flat_iterate<Vector> = 0>
     MatrixRet tensordot(
         const Vector& col_vector,
         const Vector& row_vector) const
@@ -309,8 +315,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void add(
         Tensor1& result,
         const Tensor2& rhs) const noexcept
@@ -319,9 +325,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0,
-              meta::as_tensor<Tensor3> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0,
+              meta::as_iterate<Tensor3> = 0>
     void add(
         Tensor1& result,
         const Tensor2& lhs,
@@ -331,8 +337,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void sub(
         Tensor1& result,
         const Tensor2& rhs) const noexcept
@@ -341,9 +347,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0,
-              meta::as_tensor<Tensor3> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0,
+              meta::as_iterate<Tensor3> = 0>
     void sub(
         Tensor1& result,
         const Tensor2& lhs,
@@ -353,8 +359,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void mul(
         Tensor1& result,
         const Tensor2& rhs) const noexcept
@@ -363,9 +369,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0,
-              meta::as_tensor<Tensor3> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0,
+              meta::as_iterate<Tensor3> = 0>
     void mul(
         Tensor1& result,
         const Tensor2& lhs,
@@ -375,7 +381,7 @@ public:
     }
 
     template <class Tensor1,
-              typename = meta::when_is_tensor<Tensor1>>
+              meta::as_iterate<Tensor1> = 0>
     void join(
         Tensor1& result,
         precision_type value) const noexcept
@@ -384,8 +390,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void join(
         Tensor1& result,
         precision_type value,
@@ -395,7 +401,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              meta::as_tensor<Tensor> = 0>
+              meta::as_iterate<Tensor> = 0>
     void apply(
         Tensor& result,
         Function func) const noexcept
@@ -404,8 +410,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Function,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void apply(
         Tensor1& result,
         Function func,
@@ -415,8 +421,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              meta::as_tensor<Tensor1> = 0,
-              meta::as_tensor<Tensor2> = 0>
+              meta::as_iterate<Tensor1> = 0,
+              meta::as_iterate<Tensor2> = 0>
     void assign(
         Tensor1& lhs,
         const Tensor2& rhs) const noexcept
@@ -425,7 +431,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              meta::as_tensor<Tensor> = 0>
+              meta::as_iterate<Tensor> = 0>
     void for_each(
         Tensor& tensor,
         Function func) const noexcept

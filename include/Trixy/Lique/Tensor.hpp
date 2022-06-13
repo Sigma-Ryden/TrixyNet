@@ -38,6 +38,8 @@ public:
 
     Tensor(const_pointer first, const_pointer last);
 
+    Tensor(std::initializer_list<precision_type> list);
+
     Tensor(const Tensor& tensor);
     Tensor(Tensor&& tensor) noexcept;
 
@@ -99,7 +101,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(const shape_type& shape, precision_type value)
     : Base(shape)
 {
-    this->data_ = new precision_type [this->size_];
+    this->data_ = new precision_type [this->shape_.size];
 
     this->fill(value);
 }
@@ -115,7 +117,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, const_pointer data)
     : Base(depth, height, width)
 {
-    this->data_ = new precision_type [this->size_];
+    this->data_ = new precision_type [this->shape_.size];
 
     this->copy(data);
 }
@@ -124,7 +126,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, precision_type value)
     : Base(depth, height, width)
 {
-    this->data_ = new precision_type [this->size_];
+    this->data_ = new precision_type [this->shape_.size];
 
     this->fill(value);
 }
@@ -133,23 +135,32 @@ LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width)
     : Base(depth, height, width)
 {
-    this->data_ = new precision_type [this->size_];
+    this->data_ = new precision_type [this->shape_.size];
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(const_pointer first, const_pointer last)
     : Base(1, 1, last - first)
 {
-    this->data_ = new precision_type [this->size_];
+    this->data_ = new precision_type [this->shape_.size];
 
     this->copy(first);
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+Tensor<Precision>::Tensor(std::initializer_list<precision_type> list)
+    : Base(1, 1, list.size())
+{
+    this->data_ = new precision_type [this->shape_.size];
+
+    this->copy(list.begin());
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
 Tensor<Precision>::Tensor(const Tensor& tensor)
     : Base(tensor.shape_)
 {
-    this->data_ = new precision_type [tensor.size_];
+    this->data_ = new precision_type [tensor.shape_.size];
     this->shape_ = tensor.shape_;
 
     this->copy(tensor.data_);
@@ -168,7 +179,7 @@ Tensor<Precision>& Tensor<Precision>::operator= (const Tensor& tensor)
     {
         delete[] this->data_;
 
-        this->data_ = new precision_type [tensor.size_];
+        this->data_ = new precision_type [tensor.shape_.size];
 
         this->copy(tensor.data_);
 

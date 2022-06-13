@@ -41,11 +41,16 @@ template <class Tensor>
 struct is_matrix : std::is_base_of<lique::TensorType::matrix, Tensor> {};
 
 template <class Tensor>
-struct is_tensor : trixy::meta::disjunction<
-    std::is_base_of<lique::TensorType::tensor, Tensor>,
+struct is_tensor : std::is_base_of<lique::TensorType::tensor, Tensor> {};
+
+template <class Tensor>
+struct is_iterate : trixy::meta::disjunction
+<
+    is_tensor<Tensor>,
     is_matrix<Tensor>,
     is_vector<Tensor>,
-    trixy::meta::is_range<trixy::meta::decay_t<Tensor>>> {};
+    trixy::meta::is_range<trixy::meta::decay_t<Tensor>>
+> {};
 
 template <typename T>
 using as_vector = trixy::meta::require<is_vector<T>::value>;
@@ -57,13 +62,7 @@ template <typename T>
 using as_tensor = trixy::meta::require<is_tensor<T>::value>;
 
 template <typename T>
-using when_is_vector = trixy::meta::when<is_vector<T>::value>;
-
-template <typename T>
-using when_is_matrix = trixy::meta::when<is_matrix<T>::value>;
-
-template <typename T>
-using when_is_tensor = trixy::meta::when<is_tensor<T>::value>;
+using as_iterate = trixy::meta::require<is_iterate<T>::value>;
 
 } // namespace meta
 

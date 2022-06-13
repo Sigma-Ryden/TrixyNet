@@ -27,7 +27,7 @@ template <typename T>
 using decay_t = typename std::decay<T>::type;
 
 template <bool condition, typename if_true, typename if_false>
-using conditional_t = typename std::conditional<condition, if_true, if_false>::type;
+using if_ = typename std::conditional<condition, if_true, if_false>::type;
 
 template <typename...> struct scope;
 
@@ -59,13 +59,13 @@ template <class...> struct conjunction : std::true_type {};
 template <class B1> struct conjunction<B1> : B1 {};
 template <class B1, class... Bn>
 struct conjunction<B1, Bn...>
-    : conditional_t<bool(B1::value), conjunction<Bn...>, B1> {};
+    : if_<bool(B1::value), conjunction<Bn...>, B1> {};
 
 template <class...> struct disjunction : std::false_type {};
 template <class B1> struct disjunction<B1> : B1 {};
 template <class B1, class... Bn>
 struct disjunction<B1, Bn...>
-    : conditional_t<bool(B1::value), B1, disjunction<Bn...>> {};
+    : if_<bool(B1::value), B1, disjunction<Bn...>> {};
 
 template <class T, template <class> class... Bn>
 struct has_true : disjunction<Bn<T>...> {};

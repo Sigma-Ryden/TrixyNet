@@ -28,9 +28,11 @@ public:
 public:
     using typename Base::Vector;
     using typename Base::Matrix;
+    using typename Base::Tensor;
 
     using typename Base::XVector;
     using typename Base::XMatrix;
+    using typename Base::XTensor;
 
     using typename Base::Linear;
 
@@ -44,7 +46,7 @@ public:
 private:
     XVector buff_;
 
-    XVector H_;
+    XTensor H_;
     XVector B_;
     XMatrix W_;
 
@@ -54,7 +56,7 @@ private:
     XVector deltaB_;
     XMatrix deltaW_;
 
-    XVector delta_;
+    XTensor delta_;
 
     size_type in_;
     size_type out_;
@@ -65,12 +67,13 @@ public:
     Linear linear;
 
 public:
+    // maybe change in the future release
     Layer(size_type in, size_type out, IActivation* activation = nullptr)
         : Base()
-        , buff_(out), H_(out), B_(out), W_(in, out)
+        , buff_(out), H_(1, 1, out), B_(out), W_(in, out)
         , gradB_(out), gradW_(in, out)
         , deltaB_(out), deltaW_(in, out)
-        , delta_(in)
+        , delta_(1, 1, in)
         , in_(in), out_(out)
         , activation_(activation)
     {
@@ -88,12 +91,13 @@ public:
         W_.fill(gen);
     }
 
-    void forward(const Vector& input) noexcept
+    void forward(const Tensor& input) noexcept
     {
         // H - input
         // S - buff
 
         // S = H . W + B
+
         linear.dot(buff_, input, W_);
         linear.add(buff_, B_);
 
@@ -101,7 +105,7 @@ public:
         activation_->f(H_, buff_);
     }
 
-    void backward(const Vector& input, const Vector& idelta) noexcept
+    void backward(const Tensor& input, const Tensor& idelta) noexcept
     {
         first_backward(input, idelta);
 
@@ -111,7 +115,7 @@ public:
         linear.dot(delta_, W_, gradB_);
     }
 
-    void first_backward(const Vector& input, const Vector& idelta) noexcept
+    void first_backward(const Tensor& input, const Tensor& idelta) noexcept
     {
         // curr_delta  - gradB
         // input_delta - idelta
@@ -127,9 +131,9 @@ public:
         linear.tensordot(gradW_, input, gradB_);
     }
 
-    const Vector& value() noexcept { return H_.base(); }
+    const Tensor& value() noexcept { return H_.base(); }
 
-    XVector& delta() noexcept { return delta_; }
+    XTensor& delta() noexcept { return delta_; }
 
     void reset_grad() noexcept
     {
@@ -176,9 +180,11 @@ public:
 public:
     using typename Base::Vector;
     using typename Base::Matrix;
+    using typename Base::Tensor;
 
     using typename Base::XVector;
     using typename Base::XMatrix;
+    using typename Base::XTensor;
 
     using typename Base::Linear;
 
@@ -190,7 +196,7 @@ public:
 private:
     XVector buff_;
 
-    XVector H_;
+    XTensor H_;
     XVector B_;
     XMatrix W_;
 
@@ -204,7 +210,7 @@ private:
 public:
     Layer(size_type in, size_type out, IActivation* activation = nullptr)
         : Base()
-        , buff_(out), H_(out), B_(out), W_(in, out)
+        , buff_(out), H_(1, 1, out), B_(out), W_(in, out)
         , in_(in), out_(out)
         , activation_(activation)
     {
@@ -216,7 +222,7 @@ public:
         activation_ = activation;
     }
 
-    void forward(const Vector& input) noexcept
+    void forward(const Tensor& input) noexcept
     {
         // H - input
         // S - buff
@@ -229,7 +235,7 @@ public:
         activation_->f(H_, buff_);
     }
 
-    const Vector& value() noexcept { return H_.base(); }
+    const Tensor& value() noexcept { return H_.base(); }
 
     size_type in() const noexcept { return in_; }
     size_type out() const noexcept { return out_; }

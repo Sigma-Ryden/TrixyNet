@@ -8,10 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 set(TESTING
-    #src/simple_test.cpp
-    #src/mnist_test.cpp
-    #src/speed_test.cpp
-    #src/regression_test.cpp
+    src/simple_test.cpp
+    src/mnist_test.cpp
+    src/speed_test.cpp
+    src/regression_test.cpp
     src/experimental_test.cpp
 )
 set(TRIXY_CONTAINER

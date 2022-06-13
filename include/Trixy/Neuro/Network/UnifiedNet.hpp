@@ -60,9 +60,9 @@ public:
 
     auto size() const noexcept -> const size_type& { return size_; }
 
-    auto feedforward(const Vector& sample) noexcept -> const Vector&;
+    auto feedforward(const Tensor& sample) noexcept -> const Tensor&;
 
-    auto operator() (const Vector& sample) noexcept -> const Vector&
+    auto operator() (const Tensor& sample) noexcept -> const Tensor&
     { return feedforward(sample); }
 
     template <class FloatGenerator,
@@ -95,7 +95,7 @@ auto TRIXY_NET_TPL(TrixyNetType::Unified)::add(ILayer* layer) -> TrixyNet&
 
 TRIXY_NET_TPL_DECLARATION
 auto TRIXY_NET_TPL(TrixyNetType::Unified)::feedforward(
-    const Vector& sample) noexcept -> const Vector&
+    const Tensor& sample) noexcept -> const Tensor&
 {
     layer(0).forward(sample);
 
@@ -110,7 +110,7 @@ template <class FloatGenerator,
           meta::require<meta::is_callable<FloatGenerator>::value>>
 void TRIXY_NET_TPL(TrixyNetType::Unified)::init(FloatGenerator generator) noexcept
 {
-    std::function<precision_type()> gen = generator;
+    auto gen = typename ILayer::Generator(generator);
 
     for (size_type i = 0; i < size_; ++i)
         layer(i).init(gen);

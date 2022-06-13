@@ -47,7 +47,7 @@ public:
 private:
     Net& net;                       ///< reference to network prevent her copying
 
-    Vector delta;                   ///< back propogation delta tensor
+    Tensor delta;                   ///< back propogation delta tensor
 
     ILoss* loss_;
 
@@ -59,32 +59,32 @@ public:
     Training(Training&&) noexcept = default;
 
     template <class GeneratorInteger>
-    void trainStochastic(const Container<Vector>& idata,
-                         const Container<Vector>& odata,
+    void trainStochastic(const Container<Tensor>& idata,
+                         const Container<Tensor>& odata,
                          IOptimizer& optimizer,
                          size_type iteration_scale,
                          GeneratorInteger generator) noexcept;
 
-    void trainBatch(const Container<Vector>& idata,
-                    const Container<Vector>& odata,
+    void trainBatch(const Container<Tensor>& idata,
+                    const Container<Tensor>& odata,
                     IOptimizer& optimizer,
                     size_type number_of_epochs) noexcept;
 
-    void trainMiniBatch(const Container<Vector>& idata,
-                        const Container<Vector>& odata,
+    void trainMiniBatch(const Container<Tensor>& idata,
+                        const Container<Tensor>& odata,
                         IOptimizer& optimizer,
                         size_type number_of_epochs,
                         size_type mini_batch_size) noexcept;
 
-    void feedforward(const Vector& sample) noexcept;
+    void feedforward(const Tensor& sample) noexcept;
 
-    void backprop(const Vector& sample,
-                  const Vector& target) noexcept;
+    void backprop(const Tensor& sample,
+                  const Tensor& target) noexcept;
 
     void loss(ILoss* loss);
 
-    long double loss(const Container<Vector>& idata,
-                     const Container<Vector>& odata) const noexcept;
+    long double loss(const Container<Tensor>& idata,
+                     const Container<Tensor>& odata) const noexcept;
 
 private:
     ITrainLayer& layer(size_type i) noexcept;
@@ -108,14 +108,15 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::loss(ILoss* loss)
 {
     loss_ = loss;
 
-    delta.resize(net.layer(net.size() - 1).out());
+    // will be change in the future release
+    delta.resize(1, 1, net.layer(net.size() - 1).out());
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 template <class GeneratorInteger>
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainStochastic(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata,
+    const Container<Tensor>& idata,
+    const Container<Tensor>& odata,
     IOptimizer& optimizer,
     size_type iteration_scale,
     GeneratorInteger generator) noexcept
@@ -134,8 +135,8 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainStochastic(
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainBatch(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata,
+    const Container<Tensor>& idata,
+    const Container<Tensor>& odata,
     IOptimizer& optimizer,
     size_type number_of_epochs) noexcept
 {
@@ -160,8 +161,8 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainBatch(
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainMiniBatch(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata,
+    const Container<Tensor>& idata,
+    const Container<Tensor>& odata,
     IOptimizer& optimizer,
     size_type number_of_epochs,
     size_type mini_batch_size) noexcept
@@ -204,15 +205,15 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainMiniBatch(
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::feedforward(
-    const Vector& sample) noexcept
+    const Tensor& sample) noexcept
 {
     net.feedforward(sample);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::backprop(
-    const Vector& sample,
-    const Vector& target) noexcept
+    const Tensor& sample,
+    const Tensor& target) noexcept
 {
     const size_type N = net.size();
 
@@ -228,8 +229,8 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::backprop(
 
 TRIXY_TRAINING_TPL_DECLARATION
 long double TRIXY_TRAINING_TPL(meta::is_unified_net)::loss(
-    const Container<Vector>& idata,
-    const Container<Vector>& odata) const noexcept
+    const Container<Tensor>& idata,
+    const Container<Tensor>& odata) const noexcept
 {
     precision_type result = 0.;
     precision_type error  = 0.;

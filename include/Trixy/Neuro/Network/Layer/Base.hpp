@@ -47,11 +47,11 @@ private:
 private:
     Func<void, Generator&> f_init = nullptr;
 
-    Func<void, const Vector&> f_forward = nullptr; // will repair
+    Func<void, const Tensor&> f_forward = nullptr; // will repair
 
     Func<void, IActivation*> f_connect = nullptr;
 
-    Func<const Vector&> f_value = nullptr; // will repair
+    Func<const Tensor&> f_value = nullptr; // will repair
 
     Func<size_type> f_in = nullptr;
     Func<size_type> f_out = nullptr;
@@ -61,13 +61,13 @@ protected:
     void initialize() noexcept
     {
         f_init = [](void *const self, Generator& gen) { TRIXY_DERIVED.init(gen); };
-        f_forward = [](void *const self, const Vector& input)
+        f_forward = [](void *const self, const Tensor& input)
         { TRIXY_DERIVED.forward(input); };
 
         f_connect = [](void *const self, IActivation* activation)
         { TRIXY_DERIVED.connect(activation); };
 
-        f_value = [](void *const self) -> const Vector& { return TRIXY_DERIVED.value(); };
+        f_value = [](void *const self) -> const Tensor& { return TRIXY_DERIVED.value(); };
 
         f_in = [](void *const self) -> size_type { return TRIXY_DERIVED.in(); };
         f_out = [](void *const self) -> size_type { return TRIXY_DERIVED.out(); };
@@ -78,11 +78,11 @@ public:
 
     void init(Generator& generator) { f_init(this, generator); }
 
-    void forward(const Vector& input) { f_forward(this, input); }
+    void forward(const Tensor& input) { f_forward(this, input); }
 
     void connect(IActivation* activation) { f_connect(this, activation); }
 
-    const Vector& value() { return f_value(this); }
+    const Tensor& value() { return f_value(this); }
 
     size_type in() { return f_in(this); }
     size_type out() { return f_out(this); }
@@ -116,8 +116,8 @@ private:
     using Func = Ret (*)(void* const, Args...);
 
 private:
-    Func<void, const Vector&, const Vector&> f_backward = nullptr;
-    Func<void, const Vector&, const Vector&> f_first_backward = nullptr;
+    Func<void, const Tensor&, const Tensor&> f_backward = nullptr;
+    Func<void, const Tensor&, const Tensor&> f_first_backward = nullptr;
 
     Func<void> f_reset_grad = nullptr;
 
@@ -128,7 +128,7 @@ private:
 
     Func<void> f_accumulate_grad = nullptr;
 
-    Func<XVector&> f_delta = nullptr;
+    Func<XTensor&> f_delta = nullptr;
 
 protected:
     template <class Derived>
@@ -137,10 +137,10 @@ protected:
         // You should call ILayer::initialize function
         this->ILayer<Net>::template initialize<Derived>();
 
-        f_backward = [](void *const self, const Vector& input,  const Vector& idelta)
+        f_backward = [](void *const self, const Tensor& input,  const Tensor& idelta)
         { TRIXY_DERIVED.backward(input, idelta); };
 
-        f_first_backward = [](void *const self, const Vector& input, const Vector& idelta)
+        f_first_backward = [](void *const self, const Tensor& input, const Tensor& idelta)
         { TRIXY_DERIVED.first_backward(input, idelta); };
 
         f_reset_grad = [](void *const self) { TRIXY_DERIVED.reset_grad(); };
@@ -156,16 +156,16 @@ protected:
 
         f_accumulate_grad = [](void *const self) { TRIXY_DERIVED.accumulate_grad(); };
 
-        f_delta = [](void *const self) -> XVector& { return TRIXY_DERIVED.delta(); };
+        f_delta = [](void *const self) -> XTensor& { return TRIXY_DERIVED.delta(); };
     }
 
 public:
     virtual ~ITrainLayer() = default;
 
-    void backward(const Vector& input, const Vector& idelta)
+    void backward(const Tensor& input, const Tensor& idelta)
     { f_backward(this, input, idelta); }
 
-    void first_backward(const Vector& input, const Vector& idelta)
+    void first_backward(const Tensor& input, const Tensor& idelta)
     { f_first_backward(this, input, idelta); }
 
     void reset_grad() { f_reset_grad(this); }
@@ -176,7 +176,7 @@ public:
 
     void accumulate_grad() { f_accumulate_grad(this); }
 
-    XVector& delta() { return f_delta(this); }
+    XTensor& delta() { return f_delta(this); }
 };
 
 } // namespace layer

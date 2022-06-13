@@ -16,6 +16,8 @@ using namespace tr::functional::loss;
 
 using namespace tr::train;
 
+using namespace tr::meta;
+
 using namespace utility;
 
 using Core    = tr::TypeSet<float>;
@@ -26,8 +28,9 @@ using UniNet  = tr::TrixyNet<Core>;
 using RandomIntegral = tr::utility::RandomIntegral<>;
 using RandomFloating = tr::utility::RandomFloating<>;
 
-template <class Net>
-typename Net::template Container<typename Net::Vector> get_speed_test_idata()
+template <class Net, class Sample =
+    if_<is_feedforward_net<Net>::value, Core::Vector, Core::Tensor>>
+Core::Container<Sample> get_speed_test_idata()
 {
     return
     {
@@ -40,8 +43,9 @@ typename Net::template Container<typename Net::Vector> get_speed_test_idata()
     };
 }
 
-template <class Net>
-typename Net::template Container<typename Net::Vector> get_speed_test_odata()
+template <class Net, class Target =
+    if_<is_feedforward_net<Net>::value, Core::Vector, Core::Tensor>>
+Core::Container<Target> get_speed_test_odata()
 {
     return
     {
@@ -56,10 +60,6 @@ typename Net::template Container<typename Net::Vector> get_speed_test_odata()
 
 void experimental_test()
 {
-    // Preparing train data
-    auto idata = get_speed_test_idata<FeedNet>();
-    auto odata = get_speed_test_odata<FeedNet>();
-
     RandomFloating random;
     auto generator = [&] { return random(-.5, .5); };
 
@@ -67,6 +67,10 @@ void experimental_test()
 
     // Preparing first model
     {
+        // Preparing train data
+        auto idata = get_speed_test_idata<FeedNet>();
+        auto odata = get_speed_test_odata<FeedNet>();
+
         FeedNet net({4, 4, 5, 4, 3});
 
         net.inner.initialize(generator);
@@ -92,6 +96,10 @@ void experimental_test()
     {
         using FullyConnected = tr::layer::FullyConnected<UniNet>;
 
+        // Preparing train data
+        auto idata = get_speed_test_idata<UniNet>();
+        auto odata = get_speed_test_odata<UniNet>();
+
         UniNet net;
 
         auto relu = ReLU<float>();
@@ -110,6 +118,7 @@ void experimental_test()
         Training<UniNet> teach(net);
 
         teach.loss(&cce);
+
 
         Timer t;
         teach.trainBatch(idata, odata, optimizer, epochs);
