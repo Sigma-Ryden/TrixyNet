@@ -15,6 +15,12 @@ template <template <typename, typename...> class Derived,
           typename Precision, typename... Pack>
 class ILinear
 {
+private:
+    template <class T>
+    using as_flat_iterate =
+        trixy::meta::require<not lique::meta::is_matrix<T>::value and
+                             lique::meta::is_iterate<T>::value>;
+
 public:
     using Linear         = Derived<Precision, Pack...>;
 
@@ -26,8 +32,8 @@ private:
 
 public:
     template <class Vector1, class Vector2, class Matrix,
-              lique::meta::as_vector<Vector1> = 0,
-              lique::meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               lique::meta::as_matrix<Matrix> = 0>
     void dot(
         Vector1& result,
@@ -38,8 +44,8 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              lique::meta::as_vector<Vector1> = 0,
-              lique::meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               lique::meta::as_matrix<Matrix> = 0>
     void dot(
         Vector1& result,
@@ -50,8 +56,8 @@ public:
     }
 
     template <class Vector1, class Vector2, class Matrix,
-              lique::meta::as_vector<Vector1> = 0,
-              lique::meta::as_vector<Vector2> = 0,
+              as_flat_iterate<Vector1> = 0,
+              as_flat_iterate<Vector2> = 0,
               lique::meta::as_matrix<Matrix> = 0>
     void tensordot(
         Matrix& buff2,
@@ -94,8 +100,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void add(
         Tensor1& result,
         const Tensor2& tensor) const noexcept
@@ -104,9 +110,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0,
-              lique::meta::as_tensor<Tensor3> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0,
+              lique::meta::as_iterate<Tensor3> = 0>
     void add(
         Tensor1& result,
         const Tensor2& lhs,
@@ -116,8 +122,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void sub(
         Tensor1& result,
         const Tensor2& tensor) const noexcept
@@ -126,9 +132,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0,
-              lique::meta::as_tensor<Tensor3> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0,
+              lique::meta::as_iterate<Tensor3> = 0>
     void sub(
         Tensor1& result,
         const Tensor2& lhs,
@@ -138,8 +144,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void mul(
         Tensor1& result,
         const Tensor2& tensor) const noexcept
@@ -148,9 +154,9 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Tensor3,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0,
-              lique::meta::as_tensor<Tensor3> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0,
+              lique::meta::as_iterate<Tensor3> = 0>
     void mul(
         Tensor1& result,
         const Tensor2& lhs,
@@ -160,7 +166,7 @@ public:
     }
 
     template <class Tensor1,
-              lique::meta::as_tensor<Tensor1> = 0>
+              lique::meta::as_iterate<Tensor1> = 0>
     void join(
         Tensor1& result,
         precision_type value) const noexcept
@@ -169,8 +175,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void join(
         Tensor1& result,
         precision_type value,
@@ -180,7 +186,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              lique::meta::as_tensor<Tensor> = 0>
+              lique::meta::as_iterate<Tensor> = 0>
     void apply(
         Tensor& result,
         Function func) const noexcept
@@ -189,8 +195,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2, class Function,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void apply(
         Tensor1& result,
         Function func,
@@ -200,8 +206,8 @@ public:
     }
 
     template <class Tensor1, class Tensor2,
-              lique::meta::as_tensor<Tensor1> = 0,
-              lique::meta::as_tensor<Tensor2> = 0>
+              lique::meta::as_iterate<Tensor1> = 0,
+              lique::meta::as_iterate<Tensor2> = 0>
     void assign(
         Tensor1& lhs,
         const Tensor2& rhs) const noexcept
@@ -210,7 +216,7 @@ public:
     }
 
     template <class Tensor, class Function,
-              lique::meta::as_tensor<Tensor> = 0>
+              lique::meta::as_iterate<Tensor> = 0>
     void for_each(
         Tensor& tensor,
         Function func) const noexcept
