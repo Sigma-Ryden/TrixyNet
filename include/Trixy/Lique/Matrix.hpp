@@ -49,6 +49,9 @@ public:
     Tensor& operator= (const Tensor& tensor);
     Tensor& operator= (Tensor&& tensor) noexcept;
 
+    pointer at(size_type i, size_type j) noexcept;
+    const_pointer at(size_type i , size_type j) const noexcept;
+
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
@@ -78,6 +81,9 @@ public:
 
     Tensor& operator= (const Tensor& tensor) noexcept;
     Tensor& operator= (Tensor&& tensor) noexcept;
+
+    pointer at(size_type i, size_type j) noexcept;
+    const_pointer at(size_type i , size_type j) const noexcept;
 
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
@@ -206,17 +212,27 @@ Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& tensor) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename Matrix<Precision>::reference
-    Matrix<Precision>::operator() (size_type i, size_type j) noexcept
+inline auto Matrix<Precision>::at(size_type i, size_type j) noexcept -> pointer
 {
-    return this->data_[i * this->shape_.width + j];
+    return this->data_ + i * this->shape_.width + j;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename Matrix<Precision>::const_reference
-    Matrix<Precision>::operator() (size_type i, size_type j) const noexcept
+inline auto Matrix<Precision>::at(size_type i, size_type j) const noexcept -> const_pointer
 {
-    return this->data_[i * this->shape_.width + j];
+    return this->data_ + i * this->shape_.width + j;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto Matrix<Precision>::operator() (size_type i, size_type j) noexcept -> reference
+{
+    return *at(i, j); // dereferencing
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto Matrix<Precision>::operator() (size_type i, size_type j) const noexcept -> const_reference
+{
+    return *at(i, j); // dereferencing
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -298,17 +314,27 @@ MatrixView<Precision>& MatrixView<Precision>::operator= (Tensor&& tensor) noexce
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename MatrixView<Precision>::reference
-    MatrixView<Precision>::operator() (size_type i, size_type j) noexcept
+inline auto MatrixView<Precision>::at(size_type i, size_type j) noexcept -> pointer
 {
-    return this->data_[i * this->shape_.width + j];
+    return this->data_ + i * this->shape_.width + j;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename MatrixView<Precision>::const_reference
-    MatrixView<Precision>::operator() (size_type i, size_type j) const noexcept
+inline auto MatrixView<Precision>::at(size_type i, size_type j) const noexcept -> const_pointer
 {
-    return this->data_[i * this->shape_.width + j];
+    return this->data_ + i * this->shape_.width + j;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto MatrixView<Precision>::operator() (size_type i, size_type j) noexcept -> reference
+{
+    return *at(i, j); // dereferencing
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto MatrixView<Precision>::operator() (size_type i, size_type j) const noexcept -> const_reference
+{
+    return *at(i, j); // dereferencing
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

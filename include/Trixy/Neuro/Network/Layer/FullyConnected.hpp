@@ -5,6 +5,8 @@
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
+#include <Trixy/Neuro/Network/Layer/Detail/MacroScope.hpp>
+
 namespace trixy
 {
 
@@ -16,50 +18,31 @@ template <class Net,
 using FullyConnected = Layer<trixy::LayerType::FullyConnected, Net, LayerMode>;
 
 template <class Net>
-using XFullyConnected = FullyConnected<Net, LayerMode::Normal>;
+using XFullyConnected = FullyConnected<Net, LayerMode::Raw>;
 
 template <class Net>
 class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
-public:
-    using Base = ITrainLayer<Net>;
-
-public:
-    using typename Base::Vector;
-    using typename Base::Matrix;
-    using typename Base::Tensor;
-
-    using typename Base::XVector;
-    using typename Base::XMatrix;
-    using typename Base::XTensor;
-
-    using typename Base::Linear;
-
-    using typename Base::size_type;
-    using typename Base::precision_type;
-
-    using typename Base::Generator;
-    using typename Base::IActivation;
-    using typename Base::IOptimizer;
+    TRIXY_TRAIN_LAYER_BODY
 
 private:
-    XVector buff_;
+    Tensor value_;
+    Vector buff_;
 
-    XTensor H_;
-    XVector B_;
-    XMatrix W_;
+    Vector B_;
+    Matrix W_;
 
-    XVector gradB_;
-    XMatrix gradW_;
+    Vector gradB_;
+    Matrix gradW_;
 
-    XVector deltaB_;
-    XMatrix deltaW_;
+    Vector deltaB_;
+    Matrix deltaW_;
 
     XTensor delta_;
 
-    size_type in_;
-    size_type out_;
+    shape_type in_;
+    shape_type out_;
 
     IActivation* activation_;
 
@@ -70,11 +53,11 @@ public:
     // maybe change in the future release
     Layer(size_type in, size_type out, IActivation* activation = nullptr)
         : Base()
-        , buff_(out), H_(1, 1, out), B_(out), W_(in, out)
+        , buff_(out), value_(1, 1, out), B_(out), W_(in, out)
         , gradB_(out), gradW_(in, out)
         , deltaB_(out), deltaW_(in, out)
         , delta_(1, 1, in)
-        , in_(in), out_(out)
+        , in_(1, 1, in), out_(1, 1, out)
         , activation_(activation)
     {
         this->template initialize<Layer>();
@@ -102,7 +85,7 @@ public:
         linear.add(buff_, B_);
 
         // value = F(S)
-        activation_->f(H_, buff_);
+        activation_->f(value_, buff_);
     }
 
     void backward(const Tensor& input, const Tensor& idelta) noexcept
@@ -131,7 +114,7 @@ public:
         linear.tensordot(gradW_, input, gradB_);
     }
 
-    const Tensor& value() noexcept { return H_.base(); }
+    const Tensor& value() noexcept { return value_; }
 
     XTensor& delta() noexcept { return delta_; }
 
@@ -166,42 +149,23 @@ public:
         linear.add(deltaW_, gradW_);
     }
 
-    size_type in() const noexcept { return in_; }
-    size_type out() const noexcept { return out_; }
+    const shape_type& input() const noexcept { return in_; }
+    const shape_type& output() const noexcept { return out_; }
 };
 
 template <class Net>
-class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Normal>
+class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
-public:
-    using Base = ILayer<Net>;
-
-public:
-    using typename Base::Vector;
-    using typename Base::Matrix;
-    using typename Base::Tensor;
-
-    using typename Base::XVector;
-    using typename Base::XMatrix;
-    using typename Base::XTensor;
-
-    using typename Base::Linear;
-
-    using typename Base::size_type;
-    using typename Base::precision_type;
-
-    using typename Base::IActivation;
+    TRIXY_RAW_LAYER_BODY
 
 private:
-    XVector buff_;
+    Tensor value_;
+    Vector B_;
+    Matrix W_;
 
-    XTensor H_;
-    XVector B_;
-    XMatrix W_;
-
-    size_type in_;
-    size_type out_;
+    shape_type in_;
+    shape_type out_;
 
     IActivation* activation_;
 
@@ -210,8 +174,8 @@ private:
 public:
     Layer(size_type in, size_type out, IActivation* activation = nullptr)
         : Base()
-        , buff_(out), H_(1, 1, out), B_(out), W_(in, out)
-        , in_(in), out_(out)
+        , value_(1, 1, out), B_(out), W_(in, out)
+        , in_(1, 1, in), out_(1, 1, out)
         , activation_(activation)
     {
         this->template initialize<Layer>();
@@ -228,21 +192,23 @@ public:
         // S - buff
 
         // S = H . W + B
-        linear.dot(buff_, input, W_);
-        linear.add(buff_, B_);
+        linear.dot(value_, input, W_);
+        linear.add(value_, B_);
 
         // value = F(S)
-        activation_->f(H_, buff_);
+        activation_->f(value_, value_);
     }
 
-    const Tensor& value() noexcept { return H_.base(); }
+    const Tensor& value() noexcept { return value_.base(); }
 
-    size_type in() const noexcept { return in_; }
-    size_type out() const noexcept { return out_; }
+    const shape_type& input() const noexcept { return in_; }
+    const shape_type& output() const noexcept { return out_; }
 };
 
 } // namespace layer
 
 } // namespace trixy
+
+#include <Trixy/Neuro/Network/Layer/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP

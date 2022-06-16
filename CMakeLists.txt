@@ -102,6 +102,9 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Network/Core.hpp
 
     include/Trixy/Neuro/Network/Layer/Base.hpp
+    include/Trixy/Neuro/Network/Layer/Detail/FunctionDetail.hpp
+    include/Trixy/Neuro/Network/Layer/Detail/MacroScope.hpp
+    include/Trixy/Neuro/Network/Layer/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Network/Layer/FullyConnected.hpp
     include/Trixy/Neuro/Network/Layer/Convolutional.hpp
     include/Trixy/Neuro/Network/Layer/MaxPooling.hpp

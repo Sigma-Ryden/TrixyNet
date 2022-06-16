@@ -1,7 +1,7 @@
 #ifndef TRIXY_LIQUE_SHAPE_HPP
 #define TRIXY_LIQUE_SHAPE_HPP
 
-#include <cstddef> // size_t
+#include <type_traits> // is_integral
 
 namespace trixy
 {
@@ -9,10 +9,17 @@ namespace trixy
 namespace lique
 {
 
+// You MUST prevent any changes to this struct!
+template <typename T>
 struct Shape
 {
+private:
+    static constexpr bool require = std::is_integral<T>::value;
+
+    static_assert(require, "'T' should be an integral type.");
+
 public:
-    using size_type = std::size_t;
+    using size_type = T;
 
 public:
     size_type depth;

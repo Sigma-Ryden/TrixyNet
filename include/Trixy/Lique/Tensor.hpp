@@ -46,6 +46,9 @@ public:
     Tensor& operator= (const Tensor& tensor);
     Tensor& operator= (Tensor&& tensor) noexcept;
 
+    pointer at(size_type i, size_type j, size_type k) noexcept;
+    const_pointer at(size_type i , size_type j, size_type k) const noexcept;
+
     reference operator() (size_type i, size_type j, size_type k) noexcept;
     const_reference operator() (size_type i, size_type j, size_type k) const noexcept;
 
@@ -75,6 +78,9 @@ public:
 
     Tensor& operator= (const Tensor& tensor) noexcept = default;
     Tensor& operator= (Tensor&& tensor) noexcept = default;
+
+    pointer at(size_type i, size_type j, size_type k) noexcept;
+    const_pointer at(size_type i , size_type j, size_type k) const noexcept;
 
     reference operator() (size_type i, size_type j, size_type k) noexcept;
     const_reference operator() (size_type i, size_type j, size_type k) const noexcept;
@@ -206,17 +212,31 @@ Tensor<Precision>& Tensor<Precision>::operator= (Tensor&& tensor) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename Tensor<Precision>::reference
-    Tensor<Precision>::operator() (size_type i, size_type j, size_type k) noexcept
+inline auto Tensor<Precision>::at(
+    size_type i, size_type j, size_type k) noexcept -> pointer
 {
-    return this->data_[i * this->shape_.depth + j * this->shape_.width + k];
+    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename Tensor<Precision>::const_reference
-    Tensor<Precision>::operator() (size_type i, size_type j, size_type k) const noexcept
+inline auto Tensor<Precision>::at(
+    size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
-    return this->data_[i * this->shape_.depth + j * this->shape_.width + k];
+    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto Tensor<Precision>::operator() (
+    size_type i, size_type j, size_type k) noexcept -> reference
+{
+    return *at(i, j, k); // dereferencing
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto Tensor<Precision>::operator() (
+    size_type i, size_type j, size_type k) const noexcept -> const_reference
+{
+    return *at(i, j, k); // dereferencing
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -250,7 +270,8 @@ TensorView<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-TensorView<Precision>::Tensor(size_type depth, size_type height, size_type width, pointer data) noexcept
+TensorView<Precision>::Tensor(
+    size_type depth, size_type height, size_type width, pointer data) noexcept
     : Base(depth, height, width, data)
 {
 }
@@ -262,17 +283,31 @@ TensorView<Precision>::Tensor(pointer first, pointer last) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename TensorView<Precision>::reference
-    TensorView<Precision>::operator() (size_type i, size_type j, size_type k) noexcept
+inline auto TensorView<Precision>::at(
+    size_type i, size_type j, size_type k) noexcept -> pointer
 {
-    return this->data_[i * this->shape_.depth + j * this->shape_.width + k];
+    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-typename TensorView<Precision>::const_reference
-    TensorView<Precision>::operator() (size_type i, size_type j, size_type k) const noexcept
+inline auto TensorView<Precision>::at(
+    size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
-    return this->data_[i * this->shape_.depth + j * this->shape_.width + k];
+    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto TensorView<Precision>::operator() (
+    size_type i, size_type j, size_type k) noexcept -> reference
+{
+    return *at(i, j, k); // dereferencing
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto TensorView<Precision>::operator() (
+    size_type i, size_type j, size_type k) const noexcept -> const_reference
+{
+    return *at(i, j, k); // dereferencing
 }
 
 LIQUE_TENSOR_TPL_DECLARATION

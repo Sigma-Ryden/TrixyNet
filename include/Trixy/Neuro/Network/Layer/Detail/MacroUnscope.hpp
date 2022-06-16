@@ -1,0 +1,5 @@
+// clean up
+#undef TRIXY_LAYER_BASE_TYPES
+
+#undef TRIXY_NORMAL_LAYER_BODY
+#undef TRIXY_TRAIN_LAYER_BODY

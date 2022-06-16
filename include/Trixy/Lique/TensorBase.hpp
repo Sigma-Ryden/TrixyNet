@@ -15,6 +15,7 @@
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
+#include <Trixy/Detail/MacroScope.hpp>
 #include <Trixy/Lique/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -46,11 +47,15 @@ using TensorBase = Tensor<Precision, TensorType::base, TensorMode::view>;
 template <typename Precision>
 class Tensor<Precision, TensorType::base, TensorMode::view> : public TensorType::base
 {
+    static constexpr bool require = std::is_arithmetic<Precision>::value;
+
+    static_assert(require, "'Precision' should be an arithmetic type.");
+
 public:
     using size_type         = std::size_t;
     using precision_type    = Precision;
     using value_type        = Precision;
-    using shape_type        = Shape;
+    using shape_type        = Shape<std::size_t>;
 
     using pointer           = Precision*;
     using const_pointer     = const Precision*;
@@ -86,7 +91,7 @@ public:
 
     template <class Generator,
               trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator gen) noexcept;
+    Tensor& fill(Generator gen) TRIXY_NOEXCEPT_IF(noexcept(gen));
 
     Tensor& fill(precision_type value) noexcept;
 
@@ -128,6 +133,9 @@ public:
 
     operator range_view() const noexcept;
 
+    pointer at(size_type i) noexcept;
+    const_pointer at(size_type i) const noexcept;
+
     reference operator() (size_type i) noexcept;
     const_reference operator() (size_type i) const noexcept;
 };
@@ -139,7 +147,7 @@ LIQUE_TENSOR_TPL_DECLARATION
 TensorBase<Precision>::~Tensor() {}
 
 LIQUE_TENSOR_TPL_DECLARATION
-TensorBase<Precision>::Tensor(const Shape& shape, pointer data) noexcept
+TensorBase<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
 : data_(data), shape_(shape) {}
 
 LIQUE_TENSOR_TPL_DECLARATION
@@ -224,7 +232,8 @@ TensorBase<Precision>& TensorBase<Precision>::copy(
 
 LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
-TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen) noexcept
+TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen)
+    TRIXY_NOEXCEPT_IF(noexcept(gen))
 {
     lique::detail::fill(data_, data_ + shape_.size, gen);
 
@@ -380,25 +389,25 @@ TensorBase<Precision>& TensorBase<Precision>::join(precision_type value, const T
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename TensorBase<Precision>::pointer TensorBase<Precision>::data() noexcept
+inline auto TensorBase<Precision>::data() noexcept -> pointer
 {
     return data_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename TensorBase<Precision>::const_pointer TensorBase<Precision>::data() const noexcept
+inline auto TensorBase<Precision>::data() const noexcept -> const_pointer
 {
     return data_;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename TensorBase<Precision>::size_type TensorBase<Precision>::size() const noexcept
+inline auto TensorBase<Precision>::size() const noexcept -> size_type
 {
     return shape_.size;
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline const typename TensorBase<Precision>::shape_type& TensorBase<Precision>::shape() const noexcept
+inline auto TensorBase<Precision>::shape() const noexcept -> const shape_type&
 {
     return shape_;
 }
@@ -411,29 +420,40 @@ void TensorBase<Precision>::swap(Tensor& tensor) noexcept
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename TensorBase<Precision>::reference
-    TensorBase<Precision>::operator() (size_type i) noexcept
-{
-    return data_[i];
-}
-
-LIQUE_TENSOR_TPL_DECLARATION
 inline TensorBase<Precision>::operator range_view() const noexcept
 {
     return range_view(data_, data_ + shape_.size);
 }
 
 LIQUE_TENSOR_TPL_DECLARATION
-inline typename TensorBase<Precision>::const_reference
-    TensorBase<Precision>::operator() (size_type i) const noexcept
+inline auto TensorBase<Precision>::at(size_type i) noexcept -> pointer
 {
-    return data_[i];
+    return data_ + i;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto TensorBase<Precision>::at(size_type i) const noexcept -> const_pointer
+{
+    return data_ + i;
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto TensorBase<Precision>::operator() (size_type i) noexcept -> reference
+{
+    return *at(i); // dereferencing
+}
+
+LIQUE_TENSOR_TPL_DECLARATION
+inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> const_reference
+{
+    return *at(i); // dereferencing
 }
 
 } // namespace lique
 
 } // namespace trixy
 
+#include <Trixy/Detail/MacroUnscope.hpp>
 #include <Trixy/Lique/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

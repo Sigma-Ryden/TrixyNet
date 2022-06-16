@@ -5,6 +5,8 @@
 #include <type_traits>
 // enable_if, is_arithmetic, is_same, conditional, true_type, false_type, remove_reference
 
+#include <Trixy/Detail/MacroScope.hpp>
+
 namespace trixy
 {
 
@@ -70,6 +72,8 @@ struct disjunction<B1, Bn...>
 template <class T, template <class> class... Bn>
 struct has_true : disjunction<Bn<T>...> {};
 
+TRIXY_HAS_FUNCTION_HELPER(type);
+
 template <bool condition, typename T = void>
 struct select_for : std::false_type
 {
@@ -105,5 +109,7 @@ using deref = typename std::remove_reference<decltype(*std::declval<It>())>::typ
 } // namespace meta
 
 } // namespace trixy
+
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NET_META_HPP

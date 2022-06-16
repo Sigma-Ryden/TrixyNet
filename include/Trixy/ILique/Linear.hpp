@@ -189,7 +189,7 @@ public:
               lique::meta::as_iterate<Tensor> = 0>
     void apply(
         Tensor& result,
-        Function func) const noexcept
+        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
     {
         self().apply(result, func);
     }
@@ -200,7 +200,7 @@ public:
     void apply(
         Tensor1& result,
         Function func,
-        const Tensor2& tensor) const noexcept
+        const Tensor2& tensor) const TRIXY_NOEXCEPT_IF(noexcept(func))
     {
         self().apply(result, func, tensor);
     }
@@ -217,11 +217,11 @@ public:
 
     template <class Tensor, class Function,
               lique::meta::as_iterate<Tensor> = 0>
-    void for_each(
+    void loop(
         Tensor& tensor,
-        Function func) const noexcept
+        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
     {
-        self().for_each(tensor, func);
+        self().loop(tensor, func);
     }
 };
 

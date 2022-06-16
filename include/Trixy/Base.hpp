@@ -20,7 +20,7 @@ struct RegressionType
 
 struct LayerMode
 {
-    struct Normal {};
+    struct Raw {};
     struct Train {};
 };
 

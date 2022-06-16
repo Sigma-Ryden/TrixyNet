@@ -400,7 +400,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::quick_model_update(
 {
     // Quick update is best used to update a layer with simple gradients
     update(optimizer, net.inner.B, backprop_.gradB);
-    update(optimizer, net.inner.W, backprop_.gradB);
+    update(optimizer, net.inner.W, backprop_.gradW);
 }
 
 } // namespace train

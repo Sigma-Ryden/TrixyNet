@@ -29,7 +29,7 @@ public:
 public:
     using size_type         = std::size_t;
     using precision_type    = Precision;
-    using shape_type        = lique::Shape;
+    using shape_type        = lique::Shape<std::size_t>;
 
     using pointer           = Precision*;
     using const_pointer     = const Precision*;

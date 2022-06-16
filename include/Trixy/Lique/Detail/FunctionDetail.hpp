@@ -2,10 +2,6 @@
 #define TRIXY_LIQUE_FUNCTION_DETAIL_HPP
 
 #include <cstddef> // size_t
-//#include <functional> // mem_fn
-//#include <iterator> // distance
-//#include <thread> // thread
-//#include <vector> // vector
 
 #include <Trixy/Detail/FunctionDetail.hpp>
 
@@ -36,80 +32,38 @@ void for_each(FwdIt first, FwdIt last, Function function)
     }
 }
 
+template <class FwdIt, class Function>
+void block_for_each(
+    FwdIt first, FwdIt last, std::size_t extern_block_width, Function func)
+    TRIXY_NOEXCEPT_IF(noexcept(func))
+{
+    auto size = last - first + 1;
+
+    auto width  = size % extern_block_width; // iterable part
+    auto offset = extern_block_width - width; // offset to step over non-iterable part
+
+    while (first < last) // 'first' maybe never equal to 'last'
+    {
+        auto non_iterable_part = first + width;
+        while (first != non_iterable_part)
+            func(*first++);
+
+        first += offset;
+    }
+}
+
 template <typename FwdIt, typename InIt>
 void copy(FwdIt first, FwdIt last, InIt src)
 {
     while (first != last) *first++ = *src++;
 }
 
-// __EXPERIMENTAL__ maybe unstable
-/*
-template <typename FwdIt, typename InIt>
-void parrallel_copy(FwdIt first, FwdIt last, InIt src)
-{
-    constexpr std::size_t min_elements_per_thread = 32;
-
-    const std::size_t length = last - first;
-
-    if (length <= min_elements_per_thread) return copy(first, last, src);
-
-    auto info = trixy::detail::parallel_info<min_elements_per_thread>(length);
-
-    const std::size_t number_of_threads = info.first;
-    const std::size_t block_size = info.second;
-
-    std::vector<std::thread> threads;
-    threads.reserve(number_of_threads - 1);
-
-    for (std::size_t i = 0; i < number_of_threads - 1; ++i)
-    {
-        threads.emplace_back(copy<FwdIt, InIt>, first, first + block_size, src);
-
-        std::advance(first, block_size);
-        std::advance(src, block_size);
-    }
-    // task perfomane by main thread
-    copy(first, last, src);
-
-    detail::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
-}
-*/
 template <typename FwdIt, typename Generator>
 void fill(FwdIt first, FwdIt last, Generator gen)
 {
     while(first != last) *first++ = gen();
 }
 
-// __EXPERIMENTAL__ maybe unstable
-/*
-template <typename FwdIt, class Generator>
-void parallel_fill(FwdIt first, FwdIt last, Generator gen)
-{
-    constexpr std::size_t min_elements_per_thread = 32;
-
-    const std::size_t length = last - first;
-
-    if (length <= min_elements_per_thread) return fill(first, last, gen);
-
-    auto info = trixy::detail::parallel_info<min_elements_per_thread>(length);
-
-    const std::size_t number_of_threads = info.first;
-    const std::size_t block_size = info.second;
-
-    std::vector<std::thread> threads;
-    threads.reserve(number_of_threads - 1);
-
-    for (std::size_t i = 0; i < number_of_threads - 1; ++i)
-    {
-        threads.emplace_back(fill<FwdIt, Generator>, first, first + block_size, gen);
-        first += block_size;
-    }
-    // task perfomane by main thread
-    fill(first, last, gen);
-
-    detail::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
-}
-*/
 template <typename T, class Operation>
 void assign(T* first, T* last, Operation operation, const T& value)
 {

@@ -358,9 +358,19 @@ using detail::for_each;
 
 template <class Iterable, class Function,
           lique::meta::as_iterate<Iterable> = 0>
-void for_each(Iterable& it, Function func) noexcept
+void loop(Iterable& it, Function func) TRIXY_NOEXCEPT_IF(noexcept(func))
 {
     detail::for_each(first(it), last(it), func);
+}
+
+template <class FwdIt, class Function>
+void block_loop(
+    FwdIt A,
+    FwdIt B,
+    std::size_t extern_block_width,
+    Function func) TRIXY_NOEXCEPT_IF(noexcept(func))
+{
+    detail::block_for_each(A, B, extern_block_width, func);
 }
 
 namespace detail

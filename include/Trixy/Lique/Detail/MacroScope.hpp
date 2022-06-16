@@ -35,6 +35,7 @@
         using Base::mul;                                                                                \
         using Base::join;                                                                               \
                                                                                                         \
+        using Base::at;                                                                                 \
         using Base::data;                                                                               \
         using Base::size;                                                                               \
         using Base::shape;                                                                              \

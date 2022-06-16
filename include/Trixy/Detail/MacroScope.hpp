@@ -1,6 +1,13 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
+#define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
+    template <typename C, typename = ::trixy::meta::void_t<>>                                           \
+    struct has_##name : std::false_type {};								\
+    template <typename C>                                                                               \
+    struct has_##name<C, ::trixy::meta::void_t<decltype(&C::name)>>                                     \
+        : std::true_type {}
+
 #define TRIXY_HAS_TYPE_HELPER(name)                                                                     \
     template <typename T, typename = ::trixy::meta::void_t<>>                                           \
     struct has_##name : std::false_type {};								\
@@ -93,3 +100,6 @@
 
 #define TRIXY_DERIVED                                                                                   \
     (*static_cast<Derived*>(self))
+
+#define TRIXY_NOEXCEPT_IF(predicate)                                                                   \
+    noexcept((predicate))

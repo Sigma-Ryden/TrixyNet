@@ -108,8 +108,7 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::loss(ILoss* loss)
 {
     loss_ = loss;
 
-    // will be change in the future release
-    delta.resize(1, 1, net.layer(net.size() - 1).out());
+    delta.resize(net.layer(net.size() - 1).output());
 }
 
 TRIXY_TRAINING_TPL_DECLARATION

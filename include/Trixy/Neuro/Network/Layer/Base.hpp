@@ -23,8 +23,6 @@ template <class Net>
 class ILayer
 {
 public:
-    using Linear                = typename Net::Linear;
-
     using Vector                = typename Net::Vector;
     using Matrix                = typename Net::Matrix;
     using Tensor                = typename Net::Tensor;
@@ -35,9 +33,11 @@ public:
 
     using size_type             = typename Net::size_type;
     using precision_type        = typename Net::precision_type;
+    using shape_type            = typename Net::Tensor::shape_type;
+
+    using Linear                = typename Net::Linear;
 
     using Generator             = std::function<precision_type()>; // type erasing
-
     using IActivation           = functional::activation::IActivation<precision_type>;
 
 private:
@@ -46,15 +46,14 @@ private:
 
 private:
     Func<void, Generator&> f_init = nullptr;
-
     Func<void, const Tensor&> f_forward = nullptr; // will repair
 
     Func<void, IActivation*> f_connect = nullptr;
 
     Func<const Tensor&> f_value = nullptr; // will repair
 
-    Func<size_type> f_in = nullptr;
-    Func<size_type> f_out = nullptr;
+    Func<const shape_type&> f_input = nullptr;
+    Func<const shape_type&> f_output = nullptr;
 
 protected:
     template <class Derived>
@@ -69,23 +68,22 @@ protected:
 
         f_value = [](void *const self) -> const Tensor& { return TRIXY_DERIVED.value(); };
 
-        f_in = [](void *const self) -> size_type { return TRIXY_DERIVED.in(); };
-        f_out = [](void *const self) -> size_type { return TRIXY_DERIVED.out(); };
+        f_input = [](void *const self) -> const shape_type& { return TRIXY_DERIVED.input(); };
+        f_output = [](void *const self) -> const shape_type& { return TRIXY_DERIVED.output(); };
     }
 
 public:
     virtual ~ILayer() = default;
 
     void init(Generator& generator) { f_init(this, generator); }
-
     void forward(const Tensor& input) { f_forward(this, input); }
 
     void connect(IActivation* activation) { f_connect(this, activation); }
 
     const Tensor& value() { return f_value(this); }
 
-    size_type in() { return f_in(this); }
-    size_type out() { return f_out(this); }
+    const shape_type& input() { return f_input(this); }
+    const shape_type& output() { return f_output(this); }
 };
 
 template <class Net>
@@ -94,8 +92,6 @@ class ITrainLayer : public ILayer<Net>
     using Base = ILayer<Net>;
 
 public:
-    using typename Base::Linear;
-
     using typename Base::Vector;
     using typename Base::Matrix;
     using typename Base::Tensor;
@@ -106,8 +102,12 @@ public:
 
     using typename Base::size_type;
     using typename Base::precision_type;
+    using typename Base::shape_type;
+
+    using typename Base::Linear;
 
     using typename Base::Generator;
+    using typename Base::IActivation;
 
     using IOptimizer = train::IOptimizer<Net>;
 

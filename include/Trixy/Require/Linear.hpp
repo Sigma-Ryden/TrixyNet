@@ -41,9 +41,8 @@ protected:
 
     using require::apply;
 
-    using require::for_each;
+    using require::loop;
 };
-
 
 } // namespace guard
 
