@@ -49,17 +49,17 @@ public:
 
 public:
     Layer(size_type in_width, size_type in_height,
-          size_type chanels,
+          size_type channel_depth,
           size_type pooling_width, size_type pooling_height,
           size_type horizontal_stride,
           size_type vertical_stride,
           IActivation* activation = nullptr)
         : Base()
-        , delta_(chanels, in_height, in_width)
-        , in_(chanels, in_height, in_width)
-        , out_(chanels, 1 + (in_height - pooling_height) / vertical_stride,
+        , delta_(channel_depth, in_height, in_width)
+        , in_(channel_depth, in_height, in_width)
+        , out_(channel_depth, 1 + (in_height - pooling_height) / vertical_stride,
                         1 + (in_width - pooling_width) / horizontal_stride)
-        , pooling_(chanels, pooling_height, pooling_width)
+        , pooling_(channel_depth, pooling_height, pooling_width)
         , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
         , activation_(activation)
@@ -72,19 +72,19 @@ public:
     }
 
     Layer(size_type in_width, size_type in_height,
-          size_type chanels,
+          size_type channel_depth,
           size_type pooling_width, size_type pooling_height,
           size_type stride,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, chanels, pooling_width, pooling_height, stride, stride, activation)
+        : Layer(in_width, in_height, channel_depth, pooling_width, pooling_height, stride, stride, activation)
     {
     }
 
     Layer(size_type in_width, size_type in_height,
-          size_type chanels,
+          size_type channel_depth,
           size_type pooling_width, size_type pooling_height,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, chanels, pooling_width, pooling_height, 1, 1, activation)
+        : Layer(in_width, in_height, channel_depth, pooling_width, pooling_height, 1, 1, activation)
     {
     }
 

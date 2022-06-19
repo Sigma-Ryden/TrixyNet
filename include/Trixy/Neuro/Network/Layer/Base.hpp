@@ -23,6 +23,9 @@ template <class Net>
 class ILayer
 {
 public:
+    template <typename T>
+    using Container             = typename Net::template Container<T>;
+
     using Vector                = typename Net::Vector;
     using Matrix                = typename Net::Matrix;
     using Tensor                = typename Net::Tensor;
@@ -92,6 +95,9 @@ class ITrainLayer : public ILayer<Net>
     using Base = ILayer<Net>;
 
 public:
+    template <typename T>
+    using Container = typename Base::template Container<T>;
+
     using typename Base::Vector;
     using typename Base::Matrix;
     using typename Base::Tensor;

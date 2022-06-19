@@ -220,7 +220,7 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::backprop(
 
     layer(N - 1).backward(layer(N - 2).value(), delta);
 
-    for (int i = N - 2; i > 0; --i)
+    for (size_type i = N - 2; i > 0; --i)
         layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
 
     layer(0).first_backward(sample, layer(1).delta().base());

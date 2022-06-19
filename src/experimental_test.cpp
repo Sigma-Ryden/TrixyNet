@@ -119,7 +119,6 @@ void experimental_test()
 
         teach.loss(&cce);
 
-
         Timer t;
         teach.trainBatch(idata, odata, optimizer, epochs);
         std::cout << "Train second net time: " << t.elapsed() << '\n';
