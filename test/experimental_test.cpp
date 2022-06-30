@@ -107,12 +107,12 @@ void experimental_test()
 
         net.init(generator);
 
-        using CCE = loss::CCE<precision_type>;
-        auto optimizer = AdamOptimizer(net, 0.01);
-
         Training<UniNet> teach(net);
-
+        
+        using CCE = loss::CCE<precision_type>;
         teach.loss(new CCE);
+
+        auto optimizer = AdamOptimizer(net, 0.01);
 
         Timer t;
         teach.trainBatch(idata, odata, optimizer, epochs);
