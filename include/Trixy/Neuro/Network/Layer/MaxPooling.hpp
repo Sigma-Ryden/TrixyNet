@@ -88,8 +88,14 @@ public:
     {
     }
 
+    ~Layer()
+    {
+        delete activation_;
+    }
+
     void connect(IActivation* activation)
     {
+        delete activation_;
         activation_ = activation;
     }
 
@@ -219,8 +225,14 @@ public:
     {
     }
 
+    ~Layer()
+    {
+        delete activation_;
+    }
+
     void connect(IActivation* activation)
     {
+        delete activation_;
         activation_ = activation;
     }
 

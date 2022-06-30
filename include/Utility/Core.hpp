@@ -12,9 +12,6 @@
 
 #include <Trixy/Neuro/Checker/Core.hpp>
 
-namespace utility
-{
-
 class Timer
 {
 private:
@@ -114,6 +111,4 @@ void statistic(
               << '\n';
 }
 
-} // namespace utility
-
-#endif // UTILITY_HPP
+#endif // UTILITY_CORE_HPP

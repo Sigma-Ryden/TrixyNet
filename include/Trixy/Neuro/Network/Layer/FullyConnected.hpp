@@ -63,8 +63,14 @@ public:
         this->template initialize<Layer>();
     }
 
+    ~Layer()
+    {
+        delete activation_;
+    }
+
     void connect(IActivation* activation)
     {
+        delete activation_;
         activation_ = activation;
     }
 
@@ -181,8 +187,14 @@ public:
         this->template initialize<Layer>();
     }
 
+    ~Layer()
+    {
+        delete activation_;
+    }
+
     void connect(IActivation* activation)
     {
+        delete activation_;
         activation_ = activation;
     }
 

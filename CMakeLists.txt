@@ -8,11 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 set(TESTING
-    src/simple_test.cpp
-    src/mnist_test.cpp
-    src/speed_test.cpp
-    src/regression_test.cpp
-    src/experimental_test.cpp
+   # test/simple_test.cpp
+   # test/mnist_test.cpp
+   # test/speed_test.cpp
+   # test/regression_test.cpp
+    test/experimental_test.cpp
 )
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
@@ -160,10 +160,12 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Core.hpp
 )
 set(UTILS
-    include/Utility/utility.hpp
     include/Utility/mnist_reader.hpp
     include/Utility/mnist_reader_common.hpp
+    
+    include/Utility/Core.hpp
 )
+
 add_executable(${PROJECT_NAME}
     ${TESTING}
     ${TRIXY_CONTAINER}

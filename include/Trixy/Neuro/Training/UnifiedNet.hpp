@@ -53,6 +53,7 @@ private:
 
 public:
     explicit Training(Net& network);
+    ~Training();
 
     // operator= for copy and move Training object will not implicit generate
     Training(const Training&) = default;
@@ -99,16 +100,21 @@ private:
 
 TRIXY_TRAINING_TPL_DECLARATION
 TRIXY_TRAINING_TPL(meta::is_unified_net)::Training(Trainable& network)
-    : net(network), loss_(nullptr)
+    : net(network), delta(network.inner().back()->output()), loss_(nullptr)
 {
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
+TRIXY_TRAINING_TPL(meta::is_unified_net)::~Training()
+{
+    delete loss_;
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::loss(ILoss* loss)
 {
+    delete loss_;
     loss_ = loss;
-
-    delta.resize(net.layer(net.size() - 1).output());
 }
 
 TRIXY_TRAINING_TPL_DECLARATION

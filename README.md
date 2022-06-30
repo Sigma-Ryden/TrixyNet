@@ -54,7 +54,7 @@ Is a header-only library implemented purely in C++11.
 ```Performance```: We use the best solutions available. Do you want more perfomance? Please refer to item with Flexibility!
 
 # Quick start:
-Warning! This is a simple minimal example. You can see real applied examples [here](https://github.com/Sigma-Ryden/TrixyNet/tree/master/src).
+Warning! This is a simple minimal example. You can see real applied examples [here](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test).
 
 Including of common headers for library use:
 ```C++
@@ -62,25 +62,25 @@ Including of common headers for library use:
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/utility.hpp> // Timer, statistic
+#include <Utility/Core.hpp> // Timer, statistic
 
-namespace tr = trixy;
-namespace li = trixy::lique;
+#include <cstddef> // size_t
+#include <iostream> // cin, cout
+#include <iomanip> // setprecision, fixed
+#include <fstream> // ifstream, ofstream
 
-using namespace tr::functional;
+using namespace trixy;
+using namespace trixy::functional;
+using namespace trixy::train;
+using namespace trixy::utility;
 
-using namespace utility;
+using precision_type = float;
+using size_type      = std::size_t;
 
-using TrixyNet = tr::FeedForwardNet<tr::TypeSet<float>>;
-
-using TrixyNetFunctional = tr::Functional<TrixyNet>;
-using TrixyNetTraining   = tr::train::Training<TrixyNet>;
-using TrixyNetSerializer = tr::Serializer<TrixyNet>;
-
-using RandomIntegral     = tr::utility::RandomIntegral<>;
-using RandomFloating     = tr::utility::RandomFloating<>;
+using Core    = TypeSet<precision_type>;
+using FeedNet = FeedForwardNet<Core>;
 ```
-Note that <Utility/utility.hpp> is not part of the ```Trixy``` library.
+Note that <Utility/Core.hpp> is not part of the ```Trixy``` library.
 
 Preparing of the simple train data:
 ```C++
@@ -112,17 +112,20 @@ Definition of serialization function:
 ```C++
 void simple_test()
 {
-    auto idata = get_simple_test_idata<TrixyNet>();
-    auto odata = get_simple_test_odata<TrixyNet>();
+    using RandomFloating = RandomFloating<precision_type>;
+    using RandomIntegral = RandomIntegral<size_type>;
+
+    auto idata = get_simple_test_idata<FeedNet>();
+    auto odata = get_simple_test_odata<FeedNet>();
 
     // Creating fully connected neural network with 2 inputs, 2 hidden neurons and 2 outputs
-    TrixyNet net({2, 2, 2});
+    FeedNet net({2, 2, 2});
     
     // The function manager will help us to quickly set up activation, normalization and loss functions
-    TrixyNetFunctional manage;
+    Functional<FeedNet> manage;
 
     // The trainer will help us train the neural network, if it's not smart enough
-    TrixyNetTraining teach(net);
+    Training<FeedNet> teach(net);
 
     // Initialization of weights and biases
     net.inner.initialize(RandomFloating{});
@@ -136,19 +139,19 @@ void simple_test()
     // Creating of the optimizer for effective neural network train
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
-    utility::Timer t;
+    Timer t;
     
     // Training of the neural network
     teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
-    utility::statistic(net, idata, odata);
+    statistic(net, idata, odata);
 
     std::ofstream file("example.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     // The serializer help us save neural network to some storage
-    TrixyNetSerializer sr;
+    Serializer<FeedNet> sr;
 
     // This 2 line below can be replaced by: sr.serialize(out, file);
     sr.prepare(net);
@@ -187,18 +190,18 @@ void simple_test_deserialization()
     std::ifstream file("example.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    auto idata = get_simple_test_idata<TrixyNet>();
-    auto odata = get_simple_test_odata<TrixyNet>();
+    auto idata = get_simple_test_idata<FeedNet>();
+    auto odata = get_simple_test_odata<FeedNet>();
 
-    TrixyNetSerializer sr;
+    Serializer<FeedNet> sr;
     
     // Reading data 
     sr.deserialize(file);
     in.close();
 
     // Constructing and filling of neural network
-    TrixyNet net(sr.getTopology());
-    TrixyNetFunctional manage;
+    FeedNet net(sr.getTopology());
+    Functional<FeedNet> manage;
 
     net.inner.initialize(sr.getBias(), sr.getWeight());
 
@@ -206,7 +209,7 @@ void simple_test_deserialization()
     net.function.loss(manage.get(sr.getLossId()));
 
     // Checking of the result
-    utility::statistic(net, idata, odata);
+    statistic(net, idata, odata);
 }
 ```
 Processing:
