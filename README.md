@@ -153,7 +153,7 @@ void simple_test()
     // The serializer help us save neural network to some storage
     Serializer<FeedNet> sr;
 
-    // This 2 line below can be replaced by: sr.serialize(out, file);
+    // This 2 line below can be replaced by: sr.serialize(net, file);
     sr.prepare(net);
     sr.serialize(file);
     
