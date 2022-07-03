@@ -1,6 +1,6 @@
 # Trixy
 
-```Trixy``` - is a lightweight and flexible C++ machine learning framework.
+```Trixy``` - is a lightweight and flexible C++ machine learning library.
 Special features will allow you to completely rebuild the existing core of the system,
 without having to rewrite the library code.
 The main advantage is user customization.
