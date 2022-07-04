@@ -123,14 +123,14 @@ private:
 
 private:
     Func<void, const Tensor&, const Tensor&> f_backward = nullptr;
-    Func<void, const Tensor&, const Tensor&> f_first_backward = nullptr;
+    Func<void, const Tensor&, const Tensor&> f_backward_first = nullptr;
 
     Func<void> f_reset_grad = nullptr;
 
     Func<void, precision_type> f_normalize_grad = nullptr;
 
     Func<void, IOptimizer&> f_update = nullptr;
-    Func<void, IOptimizer&> f_quick_update = nullptr;
+    Func<void, IOptimizer&> f_update_fast = nullptr;
 
     Func<void> f_accumulate_grad = nullptr;
 
@@ -146,21 +146,21 @@ protected:
         f_backward = [](void *const self, const Tensor& input,  const Tensor& idelta)
         { TRIXY_DERIVED.backward(input, idelta); };
 
-        f_first_backward = [](void *const self, const Tensor& input, const Tensor& idelta)
-        { TRIXY_DERIVED.first_backward(input, idelta); };
+        f_backward_first = [](void *const self, const Tensor& input, const Tensor& idelta)
+        { TRIXY_DERIVED.backwardFirst(input, idelta); };
 
-        f_reset_grad = [](void *const self) { TRIXY_DERIVED.reset_grad(); };
+        f_reset_grad = [](void *const self) { TRIXY_DERIVED.resetGrad(); };
 
         f_normalize_grad = [](void *const self, precision_type alpha)
-        { TRIXY_DERIVED.normalize_grad(alpha); };
+        { TRIXY_DERIVED.normalizeGrad(alpha); };
 
         f_update = [](void *const self, IOptimizer& optimizer)
         { TRIXY_DERIVED.update(optimizer); };
 
-        f_quick_update = [](void *const self, IOptimizer& optimizer)
-        { TRIXY_DERIVED.quick_update(optimizer); };
+        f_update_fast = [](void *const self, IOptimizer& optimizer)
+        { TRIXY_DERIVED.updateFast(optimizer); };
 
-        f_accumulate_grad = [](void *const self) { TRIXY_DERIVED.accumulate_grad(); };
+        f_accumulate_grad = [](void *const self) { TRIXY_DERIVED.accumulateGrad(); };
 
         f_delta = [](void *const self) -> XTensor& { return TRIXY_DERIVED.delta(); };
     }
@@ -171,16 +171,16 @@ public:
     void backward(const Tensor& input, const Tensor& idelta)
     { f_backward(this, input, idelta); }
 
-    void first_backward(const Tensor& input, const Tensor& idelta)
-    { f_first_backward(this, input, idelta); }
+    void backwardFirst(const Tensor& input, const Tensor& idelta)
+    { f_backward_first(this, input, idelta); }
 
-    void reset_grad() { f_reset_grad(this); }
-    void normalize_grad(precision_type alpha) { f_normalize_grad(this, alpha); }
+    void resetGrad() { f_reset_grad(this); }
+    void normalizeGrad(precision_type alpha) { f_normalize_grad(this, alpha); }
 
     void update(IOptimizer& optimizer) { f_update(this, optimizer); }
-    void quick_update(IOptimizer& optimizer) { f_quick_update(this, optimizer); }
+    void updateFast(IOptimizer& optimizer) { f_update_fast(this, optimizer); }
 
-    void accumulate_grad() { f_accumulate_grad(this); }
+    void accumulateGrad() { f_accumulate_grad(this); }
 
     XTensor& delta() { return f_delta(this); }
 };

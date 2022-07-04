@@ -12,6 +12,8 @@ namespace tr = trixy;
 using namespace tr::functional;
 using namespace tr::train;
 
+using namespace tr::set;
+
 using namespace tr::utility;
 using namespace tr::meta;
 
@@ -108,7 +110,7 @@ void experimental_test()
         net.init(generator);
 
         Training<UniNet> teach(net);
-        
+
         using CCE = loss::CCE<precision_type>;
         teach.loss(new CCE);
 

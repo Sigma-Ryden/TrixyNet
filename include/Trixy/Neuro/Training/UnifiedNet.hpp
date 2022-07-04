@@ -84,18 +84,20 @@ public:
 
     void loss(ILoss* loss);
 
+    bool updateInner();
+
     long double loss(const Container<Tensor>& idata,
                      const Container<Tensor>& odata) const noexcept;
 
 private:
     ITrainLayer& layer(size_type i) noexcept;
 
-    void reset_grad() noexcept;
-    void accumulate_grad() noexcept;
-    void normalize_grad(precision_type alpha) noexcept;
+    void resetGrad() noexcept;
+    void accumulateGrad() noexcept;
+    void normalizeGrad(precision_type alpha) noexcept;
 
-    void model_update(IOptimizer& optimizer) noexcept;
-    void quick_model_update(IOptimizer& optimizer) noexcept;
+    void updateModel(IOptimizer& optimizer) noexcept;
+    void updateModelFast(IOptimizer& optimizer) noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -118,6 +120,21 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::loss(ILoss* loss)
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
+bool TRIXY_TRAINING_TPL(meta::is_unified_net)::updateInner()
+{
+    auto& shape = net.inner.back()->output();
+
+    bool is_changing = (delta.shape().size != shape.size);
+
+    if (is_changing)
+        delta.resize(shape);
+    else
+        delta.reshape(shape);
+
+    return is_changing;
+}
+
+TRIXY_TRAINING_TPL_DECLARATION
 template <class GeneratorInteger>
 void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainStochastic(
     const Container<Tensor>& idata,
@@ -134,7 +151,7 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainStochastic(
         backprop(idata[sample], odata[sample]);
 
         // Updating the model with dynamic gradients, without their accumulation
-        quick_model_update(optimizer);
+        updateModelFast(optimizer);
     }
 }
 
@@ -149,18 +166,18 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainBatch(
 
     for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
     {
-        reset_grad();
+        resetGrad();
 
         for (sample = 0; sample < idata.size(); ++sample)
         {
             feedforward(idata[sample]);
             backprop(idata[sample], odata[sample]);
 
-            accumulate_grad();
+            accumulateGrad();
         }
 
-        normalize_grad(alpha);
-        model_update(optimizer);
+        normalizeGrad(alpha);
+        updateModel(optimizer);
     }
 }
 
@@ -189,7 +206,7 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainMiniBatch(
         {
             sample_limit += mini_batch_size;
 
-            reset_grad();
+            resetGrad();
 
             // accumulating deltas for one mini-batch
             while (sample < sample_limit)
@@ -197,13 +214,13 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::trainMiniBatch(
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
 
-                accumulate_grad();
+                accumulateGrad();
 
                 ++sample;
             }
             // averaging deltas for one mini-batch
-            normalize_grad(alpha);
-            model_update(optimizer);
+            normalizeGrad(alpha);
+            updateModel(optimizer);
         }
     }
 }
@@ -229,7 +246,7 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::backprop(
     for (size_type i = N - 2; i > 0; --i)
         layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
 
-    layer(0).first_backward(sample, layer(1).delta().base());
+    layer(0).backwardFirst(sample, layer(1).delta().base());
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -258,29 +275,29 @@ typename TRIXY_TRAINING_TPL(meta::is_unified_net)::ITrainLayer&
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_unified_net)::reset_grad() noexcept
+void TRIXY_TRAINING_TPL(meta::is_unified_net)::resetGrad() noexcept
 {
     for (size_type i = 0; i < net.size(); ++i)
-        layer(i).reset_grad();
+        layer(i).resetGrad();
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_unified_net)::accumulate_grad() noexcept
+void TRIXY_TRAINING_TPL(meta::is_unified_net)::accumulateGrad() noexcept
 {
     for (size_type i = 0; i < net.size(); ++i)
-        layer(i).accumulate_grad();
+        layer(i).accumulateGrad();
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_unified_net)::normalize_grad(
+void TRIXY_TRAINING_TPL(meta::is_unified_net)::normalizeGrad(
     precision_type alpha) noexcept
 {
     for (size_type i = 0; i < net.size(); ++i)
-        layer(i).normalize_grad(alpha);
+        layer(i).normalizeGrad(alpha);
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_unified_net)::model_update(
+void TRIXY_TRAINING_TPL(meta::is_unified_net)::updateModel(
     IOptimizer& optimizer) noexcept
 {
     for (size_type i = 0; i < net.size(); ++i)
@@ -288,12 +305,12 @@ void TRIXY_TRAINING_TPL(meta::is_unified_net)::model_update(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_unified_net)::quick_model_update(
+void TRIXY_TRAINING_TPL(meta::is_unified_net)::updateModelFast(
     IOptimizer& optimizer) noexcept
 {
     // Quick update is best used to update a layer with simple gradients
     for (size_type i = 0; i < net.size(); ++i)
-        layer(i).quick_update(optimizer);
+        layer(i).updateFast(optimizer);
 }
 
 } // namespace train

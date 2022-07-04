@@ -2,6 +2,7 @@
 #define TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP
 
 #include <Trixy/Neuro/Network/Layer/Base.hpp>
+#include <Trixy/Neuro/Network/Layer/Volume.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -63,6 +64,11 @@ public:
         this->template initialize<Layer>();
     }
 
+    Layer(const set::Input& input, IActivation* activation = nullptr)
+        : Layer(input.width(), input.height(), activation)
+    {
+    }
+
     ~Layer()
     {
         delete activation_;
@@ -96,7 +102,7 @@ public:
 
     void backward(const Tensor& input, const Tensor& idelta) noexcept
     {
-        first_backward(input, idelta);
+        backwardFirst(input, idelta);
 
         // curr_delta - gradB
         // delta = curr_delta . W^T
@@ -104,7 +110,7 @@ public:
         linear.dot(delta_, W_, gradB_);
     }
 
-    void first_backward(const Tensor& input, const Tensor& idelta) noexcept
+    void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept
     {
         // curr_delta  - gradB
         // input_delta - idelta
@@ -124,13 +130,13 @@ public:
 
     XTensor& delta() noexcept { return delta_; }
 
-    void reset_grad() noexcept
+    void resetGrad() noexcept
     {
         deltaB_.fill(0.);
         deltaW_.fill(0.);
     }
 
-    void normalize_grad(precision_type alpha) noexcept
+    void normalizeGrad(precision_type alpha) noexcept
     {
         linear.join(deltaB_, alpha);
         linear.join(deltaW_, alpha);
@@ -142,14 +148,13 @@ public:
         optimizer.update(W_, deltaW_);
     }
 
-    // Maybe be rebuild in the future versions
-    void quick_update(IOptimizer& optimizer) noexcept
+    void updateFast(IOptimizer& optimizer) noexcept
     {
         optimizer.update(B_, gradB_);
         optimizer.update(W_, gradB_);
     }
 
-    void accumulate_grad() noexcept
+    void accumulateGrad() noexcept
     {
         linear.add(deltaB_, gradB_);
         linear.add(deltaW_, gradW_);
@@ -185,6 +190,11 @@ public:
         , activation_(activation)
     {
         this->template initialize<Layer>();
+    }
+
+    Layer(const set::Input& input, IActivation* activation = nullptr)
+        : Layer(input.width(), input.height(), activation)
+    {
     }
 
     ~Layer()

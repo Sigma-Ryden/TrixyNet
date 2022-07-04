@@ -2,6 +2,7 @@
 #define TRIXY_NETWORK_LAYER_MAX_POOLING_HPP
 
 #include <Trixy/Neuro/Network/Layer/Base.hpp>
+#include <Trixy/Neuro/Network/Layer/Volume.hpp>
 
 #include <Trixy/Neuro/Network/Layer/Detail/FunctionDetail.hpp>
 
@@ -48,11 +49,9 @@ public:
     Linear linear;
 
 public:
-    Layer(size_type in_width, size_type in_height,
-          size_type channel_depth,
+    Layer(size_type in_width, size_type in_height, size_type channel_depth,
           size_type pooling_width, size_type pooling_height,
-          size_type horizontal_stride,
-          size_type vertical_stride,
+          size_type horizontal_stride, size_type vertical_stride,
           IActivation* activation = nullptr)
         : Base()
         , delta_(channel_depth, in_height, in_width)
@@ -71,20 +70,21 @@ public:
         buff_.resize(out_);
     }
 
-    Layer(size_type in_width, size_type in_height,
-          size_type channel_depth,
-          size_type pooling_width, size_type pooling_height,
-          size_type stride,
+    Layer(const set::Input& input,
+          const set::Pool& pooling,
+          const set::Stride& stride,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, channel_depth, pooling_width, pooling_height, stride, stride, activation)
+        : Layer(input.width(), input.height(), input.depth(),
+                pooling.width(), pooling.height(),
+                stride.width(), stride.height(),
+                activation)
     {
     }
 
-    Layer(size_type in_width, size_type in_height,
-          size_type channel_depth,
-          size_type pooling_width, size_type pooling_height,
+    Layer(const set::Input& input,
+          const set::Pool& pooling,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, channel_depth, pooling_width, pooling_height, 1, 1, activation)
+        : Layer(input, pooling, set::Stride(1, 1), activation)
     {
     }
 
@@ -105,11 +105,6 @@ public:
     {
         mask_.fill(0.);
 
-        auto is_less = [&](precision_type lhs, precision_type rhs)
-        {
-            return lhs < rhs;
-        };
-
         auto result = buff_.data();
 
         const size_type height = in_.height - pooling_.height + 1;
@@ -125,7 +120,7 @@ public:
                         input, d, i, j,
                         pooling_.width,
                         pooling_.height,
-                        is_less
+                        utility::is_less<precision_type>
                     );
 
                     *result++ = input(d, position.i, position.j);
@@ -148,19 +143,19 @@ public:
                         buff_(d, i / vertical_stride_, j / horizontal_stride_) * mask_(d, i, j);
     }
 
-    void first_backward(const Tensor&, const Tensor&) noexcept { /*pass*/ }
+    void backwardFirst(const Tensor&, const Tensor&) noexcept { /*pass*/ }
 
     const Tensor& value() noexcept { return value_; }
     XTensor& delta() noexcept { return delta_; }
 
-    void reset_grad() noexcept { /*pass*/ }
+    void resetGrad() noexcept { /*pass*/ }
 
-    void normalize_grad(precision_type) noexcept { /*pass*/ }
+    void normalizeGrad(precision_type) noexcept { /*pass*/ }
 
     void update(IOptimizer&) noexcept { /*pass*/ }
-    void quick_update(IOptimizer&) noexcept {/*pass*/ }
+    void quickUpdate(IOptimizer&) noexcept {/*pass*/ }
 
-    void accumulate_grad() noexcept { /*pass*/ }
+    void accumulateGrad() noexcept { /*pass*/ }
 
     const shape_type& input() const noexcept { return in_; }
     const shape_type& output() const noexcept { return out_; }
@@ -188,17 +183,15 @@ public:
     Linear linear;
 
 public:
-    Layer(size_type in_width, size_type in_height,
-          size_type chanels,
+    Layer(size_type in_width, size_type in_height, size_type channel_depth,
           size_type pooling_width, size_type pooling_height,
-          size_type horizontal_stride,
-          size_type vertical_stride,
+          size_type horizontal_stride, size_type vertical_stride,
           IActivation* activation = nullptr)
         : Base()
-        , in_(chanels, in_height, in_width)
-        , out_(chanels, 1 + (in_height - pooling_height) / vertical_stride,
+        , in_(channel_depth, in_height, in_width)
+        , out_(channel_depth, 1 + (in_height - pooling_height) / vertical_stride,
                         1 + (in_width - pooling_width) / horizontal_stride)
-        , pooling_(chanels, pooling_height, pooling_width)
+        , pooling_(channel_depth, pooling_height, pooling_width)
         , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
         , activation_(activation)
@@ -208,20 +201,21 @@ public:
         value_.resize(out_);
     }
 
-    Layer(size_type in_width, size_type in_height,
-          size_type chanels,
-          size_type pooling_width, size_type pooling_height,
-          size_type stride,
+    Layer(const set::Input& input,
+          const set::Pool& pooling,
+          const set::Stride& stride,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, chanels, pooling_width, pooling_height, stride, stride, activation)
+        : Layer(input.width(), input.height(), input.depth(),
+                pooling.width(), pooling.height(),
+                stride.width(), stride.height(),
+                activation)
     {
     }
 
-    Layer(size_type in_width, size_type in_height,
-          size_type chanels,
-          size_type pooling_width, size_type pooling_height,
+    Layer(const set::Input& input,
+          const set::Pool& pooling,
           IActivation* activation = nullptr)
-        : Layer(in_width, in_height, chanels, pooling_width, pooling_height, 1, 1, activation)
+        : Layer(input, pooling, set::Stride(1, 1), activation)
     {
     }
 
@@ -240,11 +234,6 @@ public:
 
     void forward(const Tensor& input) noexcept
     {
-        auto is_less = [&](precision_type lhs, precision_type rhs)
-        {
-            return lhs < rhs;
-        };
-
         auto result = value_.data();
 
         const size_type height = in_.height - pooling_.height + 1;
@@ -260,7 +249,7 @@ public:
                         input, d, i, j,
                         pooling_.width,
                         pooling_.height,
-                        is_less
+                        utility::is_less<precision_type>
                     );
 
                     *result++ = input(d, position.i, position.j);

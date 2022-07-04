@@ -56,6 +56,11 @@ IndexPair<size_type> find(
     return position;
 }
 
+template <typename T> constexpr bool is_less(T lhs, T rhs) noexcept
+{
+    return lhs < rhs;
+};
+
 } // namespace utility
 
 } // namespace trixy

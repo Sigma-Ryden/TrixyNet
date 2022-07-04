@@ -96,8 +96,8 @@ public:
                 XContainer<Grad>& grad) noexcept;
 
 private:
-    void model_update(IOptimizer& optimizer) noexcept;
-    void quick_model_update(IOptimizer& optimizer) noexcept;
+    void updateModel(IOptimizer& optimizer) noexcept;
+    void updateModelFast(IOptimizer& optimizer) noexcept;
 };
 
 TRIXY_TRAINING_TPL_DECLARATION
@@ -219,7 +219,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         feedforward(idata[sample]);
         backprop(idata[sample], odata[sample]);
 
-        quick_model_update(optimizer);
+        updateModelFast(optimizer);
     }
 }
 
@@ -245,7 +245,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
         // averaging deltas for one full-batch
         backprop_.normalizeDelta(alpha);
 
-        model_update(optimizer);
+        updateModel(optimizer);
     }
 }
 
@@ -288,7 +288,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
             // averaging deltas for one mini-batch
             backprop_.normalizeDelta(alpha);
 
-            model_update(optimizer);
+            updateModel(optimizer);
         }
     }
 }
@@ -387,7 +387,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::update(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::model_update(
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateModel(
     IOptimizer& optimizer) noexcept
 {
     update(optimizer, net.inner.B, backprop_.deltaB);
@@ -395,7 +395,7 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::model_update(
 }
 
 TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::quick_model_update(
+void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateModelFast(
     IOptimizer& optimizer) noexcept
 {
     // Quick update is best used to update a layer with simple gradients
