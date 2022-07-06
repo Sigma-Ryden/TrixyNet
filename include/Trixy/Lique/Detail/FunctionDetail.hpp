@@ -7,6 +7,8 @@
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
+#include <Trixy/Detail/MacroScope.hpp>
+
 namespace trixy
 {
 
@@ -165,5 +167,7 @@ struct mul
 } // namespace lique
 
 } // namespace trixy
+
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_FUNCTION_DETAIL_HPP

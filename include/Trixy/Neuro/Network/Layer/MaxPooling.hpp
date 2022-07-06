@@ -63,8 +63,6 @@ public:
         , vertical_stride_(vertical_stride)
         , activation_(activation)
     {
-        this->template initialize<Layer>();
-
         value_.resize(out_);
         mask_.resize(in_);
         buff_.resize(out_);
@@ -143,19 +141,8 @@ public:
                         buff_(d, i / vertical_stride_, j / horizontal_stride_) * mask_(d, i, j);
     }
 
-    void backwardFirst(const Tensor&, const Tensor&) noexcept { /*pass*/ }
-
-    const Tensor& value() noexcept { return value_; }
+    const Tensor& value() const noexcept { return value_; }
     XTensor& delta() noexcept { return delta_; }
-
-    void resetGrad() noexcept { /*pass*/ }
-
-    void normalizeGrad(precision_type) noexcept { /*pass*/ }
-
-    void update(IOptimizer&) noexcept { /*pass*/ }
-    void quickUpdate(IOptimizer&) noexcept {/*pass*/ }
-
-    void accumulateGrad() noexcept { /*pass*/ }
 
     const shape_type& input() const noexcept { return in_; }
     const shape_type& output() const noexcept { return out_; }
@@ -196,8 +183,6 @@ public:
         , vertical_stride_(vertical_stride)
         , activation_(activation)
     {
-        this->template initialize<Layer>();
-
         value_.resize(out_);
     }
 
@@ -230,8 +215,6 @@ public:
         activation_ = activation;
     }
 
-    void init(Generator&) noexcept { /*pass*/ }
-
     void forward(const Tensor& input) noexcept
     {
         auto result = value_.data();
@@ -260,7 +243,7 @@ public:
         activation_->f(value_, value_);
     }
 
-    const Tensor& value() noexcept { return value_; }
+    const Tensor& value() const noexcept { return value_; }
 
     const shape_type& input() const noexcept { return in_; }
     const shape_type& output() const noexcept { return out_; }

@@ -37,15 +37,15 @@
         using typename Base::precision_type;                                                            \
         using typename Base::Range;                                                                     \
                                                                                                         \
-        name() : Base() { this->template initialize<name>(); }                                          \
+        name() : Base() {}                                                                              \
                                                                                                         \
-        void f(precision_type& result, const Range y_true, const Range y_pred)                          \
+        void f(precision_type& result, const Range y_true, const Range y_pred) noexcept                 \
         { function_name(result, y_true, y_pred); }                                                      \
                                                                                                         \
-        void df(Range result, const Range y_true, const Range y_pred)                                   \
+        void df(Range result, const Range y_true, const Range y_pred) noexcept                          \
         { derived_function_name(result, y_true, y_pred); }                                              \
                                                                                                         \
-        void operator() (precision_type& result, const Range y_true, const Range y_pred)                \
+        void operator() (precision_type& result, const Range y_true, const Range y_pred) noexcept       \
         { function_name(result, y_true, y_pred); }                                                      \
     }
 
@@ -58,12 +58,12 @@
         using typename Base::precision_type;                                                            \
         using typename Base::Range;                                                                     \
                                                                                                         \
-        name() : Base() { this->template initialize<name>(); }                                          \
+        name() : Base() {}                                                                              \
                                                                                                         \
-        void f(Range result, const Range input) { function_name(result, input); }                       \
-        void df(Range result, const Range input) { derived_function_name(result, input); }              \
+        void f(Range result, const Range input) noexcept { function_name(result, input); }              \
+        void df(Range result, const Range input) noexcept { derived_function_name(result, input); }     \
                                                                                                         \
-        void operator() (Range result, const Range input) { function_name(result, input); }             \
+        void operator() (Range result, const Range input) noexcept { function_name(result, input); }    \
     }
 
 #define TRIXY_FUNCTION_TENSOR_TPL_DECLARATION                                                           \
@@ -89,10 +89,10 @@
 #define TRIXY_CLASS_TPL_SELECT(is_type)                                                                 \
     template <typename T = Class, ::trixy::meta::require<is_type<T>::value> = 0>
 
-#define TRIXY_DEF_OPT_HELPER(id_type, T)                                                                \
+#define TRIXY_DEF_OPTIMIZER_HELPER(id_type, T)                                                          \
     struct T {                                                                                          \
         template <id_type id>                                                                           \
-        using def = ::trixy::meta::select_for<id == id_type::T, T>;                                     \
+        using type = ::trixy::meta::select_for<id == id_type::T, T>;                                    \
     }
 
 #define TRIXY_REQUIRE(...)                                                                              \
@@ -101,5 +101,5 @@
 #define TRIXY_DERIVED                                                                                   \
     (*static_cast<Derived*>(self))
 
-#define TRIXY_NOEXCEPT_IF(predicate)                                                                   \
+#define TRIXY_NOEXCEPT_IF(predicate)                                                                    \
     noexcept((predicate))

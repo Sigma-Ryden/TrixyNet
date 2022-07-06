@@ -38,26 +38,26 @@ private:
     using id_type = trixy::functional::OptimizationId;
 
 public:
-    TRIXY_DEF_OPT_HELPER(id_type, undefined);
-    TRIXY_DEF_OPT_HELPER(id_type, grad_descent);
-    TRIXY_DEF_OPT_HELPER(id_type, stograd_descent);
-    TRIXY_DEF_OPT_HELPER(id_type, momentum);
-    TRIXY_DEF_OPT_HELPER(id_type, nestorov);
-    TRIXY_DEF_OPT_HELPER(id_type, ada_grad);
-    TRIXY_DEF_OPT_HELPER(id_type, rms_prop);
-    TRIXY_DEF_OPT_HELPER(id_type, adam);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, undefined);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, grad_descent);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, stograd_descent);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, momentum);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, nestorov);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, ada_grad);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, rms_prop);
+    TRIXY_DEF_OPTIMIZER_HELPER(id_type, adam);
 
 public:
     template <id_type id> using type_from = switch_type
     <
-        undefined::def<id>,
-        grad_descent::def<id>,
-        stograd_descent::def<id>,
-        momentum::def<id>,
-        nestorov::def<id>,
-        ada_grad::def<id>,
-        rms_prop::def<id>,
-        adam::def<id>
+        undefined::type<id>,
+        grad_descent::type<id>,
+        stograd_descent::type<id>,
+        momentum::type<id>,
+        nestorov::type<id>,
+        ada_grad::type<id>,
+        rms_prop::type<id>,
+        adam::type<id>
     >;
 };
 

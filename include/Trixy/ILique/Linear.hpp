@@ -5,6 +5,8 @@
 
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
+#include <Trixy/Detail/MacroScope.hpp>
+
 namespace trixy
 {
 
@@ -228,5 +230,7 @@ public:
 } // namespace ilique
 
 } // namespace trixy
+
+#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_ILIQUE_LINEAR_HPP

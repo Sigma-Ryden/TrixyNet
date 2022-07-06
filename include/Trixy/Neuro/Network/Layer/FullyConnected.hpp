@@ -61,7 +61,6 @@ public:
         , in_(1, 1, in), out_(1, 1, out)
         , activation_(activation)
     {
-        this->template initialize<Layer>();
     }
 
     Layer(const set::Input& input, IActivation* activation = nullptr)
@@ -74,19 +73,19 @@ public:
         delete activation_;
     }
 
-    void connect(IActivation* activation)
+    void connect(IActivation* activation) override
     {
         delete activation_;
         activation_ = activation;
     }
 
-    void init(Generator& gen) noexcept
+    void init(Generator& gen) noexcept override
     {
         B_.fill(gen);
         W_.fill(gen);
     }
 
-    void forward(const Tensor& input) noexcept
+    void forward(const Tensor& input) noexcept override
     {
         // H - input
         // S - buff
@@ -100,7 +99,7 @@ public:
         activation_->f(value_, buff_);
     }
 
-    void backward(const Tensor& input, const Tensor& idelta) noexcept
+    void backward(const Tensor& input, const Tensor& idelta) noexcept override
     {
         backwardFirst(input, idelta);
 
@@ -110,7 +109,7 @@ public:
         linear.dot(delta_, W_, gradB_);
     }
 
-    void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept
+    void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept override
     {
         // curr_delta  - gradB
         // input_delta - idelta
@@ -126,42 +125,42 @@ public:
         linear.tensordot(gradW_, input, gradB_);
     }
 
-    const Tensor& value() noexcept { return value_; }
+    const Tensor& value() const noexcept override { return value_; }
 
-    XTensor& delta() noexcept { return delta_; }
+    XTensor& delta() noexcept override { return delta_; }
 
-    void resetGrad() noexcept
+    void resetGrad() noexcept override
     {
         deltaB_.fill(0.);
         deltaW_.fill(0.);
     }
 
-    void normalizeGrad(precision_type alpha) noexcept
+    void normalizeGrad(precision_type alpha) noexcept override
     {
         linear.join(deltaB_, alpha);
         linear.join(deltaW_, alpha);
     }
 
-    void update(IOptimizer& optimizer) noexcept
+    void update(IOptimizer& optimizer) noexcept override
     {
         optimizer.update(B_, deltaB_);
         optimizer.update(W_, deltaW_);
     }
 
-    void updateFast(IOptimizer& optimizer) noexcept
+    void updateFast(IOptimizer& optimizer) noexcept override
     {
         optimizer.update(B_, gradB_);
         optimizer.update(W_, gradB_);
     }
 
-    void accumulateGrad() noexcept
+    void accumulateGrad() noexcept override
     {
         linear.add(deltaB_, gradB_);
         linear.add(deltaW_, gradW_);
     }
 
-    const shape_type& input() const noexcept { return in_; }
-    const shape_type& output() const noexcept { return out_; }
+    const shape_type& input() const noexcept override { return in_; }
+    const shape_type& output() const noexcept override { return out_; }
 };
 
 template <class Net>
@@ -189,7 +188,6 @@ public:
         , in_(1, 1, in), out_(1, 1, out)
         , activation_(activation)
     {
-        this->template initialize<Layer>();
     }
 
     Layer(const set::Input& input, IActivation* activation = nullptr)
@@ -202,13 +200,13 @@ public:
         delete activation_;
     }
 
-    void connect(IActivation* activation)
+    void connect(IActivation* activation) override
     {
         delete activation_;
         activation_ = activation;
     }
 
-    void forward(const Tensor& input) noexcept
+    void forward(const Tensor& input) noexcept override
     {
         // H - input
         // S - buff
@@ -221,10 +219,10 @@ public:
         activation_->f(value_, value_);
     }
 
-    const Tensor& value() noexcept { return value_.base(); }
+    const Tensor& value() const noexcept override { return value_.base(); }
 
-    const shape_type& input() const noexcept { return in_; }
-    const shape_type& output() const noexcept { return out_; }
+    const shape_type& input() const noexcept override { return in_; }
+    const shape_type& output() const noexcept override { return out_; }
 };
 
 } // namespace layer

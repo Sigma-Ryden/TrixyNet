@@ -43,50 +43,20 @@ public:
     using Generator             = std::function<precision_type()>; // type erasing
     using IActivation           = functional::activation::IActivation<precision_type>;
 
-private:
-    template <typename Ret, typename... Args>
-    using Func = Ret (*)(void* const, Args...);
-
-private:
-    Func<void, Generator&> f_init = nullptr;
-    Func<void, const Tensor&> f_forward = nullptr; // will repair
-
-    Func<void, IActivation*> f_connect = nullptr;
-
-    Func<const Tensor&> f_value = nullptr; // will repair
-
-    Func<const shape_type&> f_input = nullptr;
-    Func<const shape_type&> f_output = nullptr;
-
-protected:
-    template <class Derived>
-    void initialize() noexcept
-    {
-        f_init = [](void *const self, Generator& gen) { TRIXY_DERIVED.init(gen); };
-        f_forward = [](void *const self, const Tensor& input)
-        { TRIXY_DERIVED.forward(input); };
-
-        f_connect = [](void *const self, IActivation* activation)
-        { TRIXY_DERIVED.connect(activation); };
-
-        f_value = [](void *const self) -> const Tensor& { return TRIXY_DERIVED.value(); };
-
-        f_input = [](void *const self) -> const shape_type& { return TRIXY_DERIVED.input(); };
-        f_output = [](void *const self) -> const shape_type& { return TRIXY_DERIVED.output(); };
-    }
-
 public:
     virtual ~ILayer() = default;
 
-    void init(Generator& generator) { f_init(this, generator); }
-    void forward(const Tensor& input) { f_forward(this, input); }
+    virtual void forward(const Tensor& input) noexcept = 0;
 
-    void connect(IActivation* activation) { f_connect(this, activation); }
+    virtual void connect(IActivation* activation) = 0;
 
-    const Tensor& value() { return f_value(this); }
+    virtual const Tensor& value() const noexcept = 0;
 
-    const shape_type& input() { return f_input(this); }
-    const shape_type& output() { return f_output(this); }
+    virtual const shape_type& input() const noexcept = 0;
+    virtual const shape_type& output() const noexcept = 0;
+
+public:
+    virtual void init(Generator& generator) noexcept { /*pass*/ }
 };
 
 template <class Net>
@@ -117,72 +87,23 @@ public:
 
     using IOptimizer = train::IOptimizer<Net>;
 
-private:
-    template <typename Ret, typename... Args>
-    using Func = Ret (*)(void* const, Args...);
-
-private:
-    Func<void, const Tensor&, const Tensor&> f_backward = nullptr;
-    Func<void, const Tensor&, const Tensor&> f_backward_first = nullptr;
-
-    Func<void> f_reset_grad = nullptr;
-
-    Func<void, precision_type> f_normalize_grad = nullptr;
-
-    Func<void, IOptimizer&> f_update = nullptr;
-    Func<void, IOptimizer&> f_update_fast = nullptr;
-
-    Func<void> f_accumulate_grad = nullptr;
-
-    Func<XTensor&> f_delta = nullptr;
-
-protected:
-    template <class Derived>
-    void initialize() noexcept
-    {
-        // You should call ILayer::initialize function
-        this->ILayer<Net>::template initialize<Derived>();
-
-        f_backward = [](void *const self, const Tensor& input,  const Tensor& idelta)
-        { TRIXY_DERIVED.backward(input, idelta); };
-
-        f_backward_first = [](void *const self, const Tensor& input, const Tensor& idelta)
-        { TRIXY_DERIVED.backwardFirst(input, idelta); };
-
-        f_reset_grad = [](void *const self) { TRIXY_DERIVED.resetGrad(); };
-
-        f_normalize_grad = [](void *const self, precision_type alpha)
-        { TRIXY_DERIVED.normalizeGrad(alpha); };
-
-        f_update = [](void *const self, IOptimizer& optimizer)
-        { TRIXY_DERIVED.update(optimizer); };
-
-        f_update_fast = [](void *const self, IOptimizer& optimizer)
-        { TRIXY_DERIVED.updateFast(optimizer); };
-
-        f_accumulate_grad = [](void *const self) { TRIXY_DERIVED.accumulateGrad(); };
-
-        f_delta = [](void *const self) -> XTensor& { return TRIXY_DERIVED.delta(); };
-    }
-
 public:
     virtual ~ITrainLayer() = default;
 
-    void backward(const Tensor& input, const Tensor& idelta)
-    { f_backward(this, input, idelta); }
+    virtual void backward(const Tensor& input, const Tensor& idelta) noexcept = 0;
 
-    void backwardFirst(const Tensor& input, const Tensor& idelta)
-    { f_backward_first(this, input, idelta); }
+    virtual XTensor& delta() noexcept = 0;
 
-    void resetGrad() { f_reset_grad(this); }
-    void normalizeGrad(precision_type alpha) { f_normalize_grad(this, alpha); }
+public:
+    virtual void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept { /*pass*/ }
 
-    void update(IOptimizer& optimizer) { f_update(this, optimizer); }
-    void updateFast(IOptimizer& optimizer) { f_update_fast(this, optimizer); }
+    virtual void resetGrad() noexcept { /*pass*/ }
+    virtual void normalizeGrad(precision_type alpha) noexcept { /*pass*/ }
 
-    void accumulateGrad() { f_accumulate_grad(this); }
+    virtual void update(IOptimizer& optimizer) noexcept { /*pass*/ }
+    virtual void updateFast(IOptimizer& optimizer) noexcept { /*pass*/ }
 
-    XTensor& delta() { return f_delta(this); }
+    virtual void accumulateGrad() noexcept { /*pass*/ }
 };
 
 } // namespace layer
