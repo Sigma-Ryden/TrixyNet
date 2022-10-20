@@ -25,7 +25,7 @@
 namespace trixy
 {
 
-namespace set
+namespace let
 {
 
 using i8   = std::int8_t;
@@ -42,7 +42,7 @@ using f32  = float;
 using f64  = double;
 using f128 = long double;
 
-} // namespace set
+} // namespace let
 
 // Special struct for types alias
 template <typename Precision>

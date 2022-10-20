@@ -35,26 +35,26 @@ template <typename...> struct scope;
 
 template <> struct scope<>
 {
-private:
-    template <int I> struct as_impl { using type = void; };
+public:
+    template <int I> struct arg { using type = void; };
 };
 
 template <typename T, typename... Tn>
 struct scope<T, Tn...>
 {
-private:
-    template <int I, typename overload = void> struct as_impl
+public:
+    template <int I, typename overload = void> struct arg
     {
-        using type = typename scope<Tn...>::template as_impl<I - 1>::type;
+        using type = typename scope<Tn...>::template arg<I - 1>::type;
     };
 
-    template <typename overload> struct as_impl<0, overload>
+    template <typename overload> struct arg<0, overload>
     {
         using type = T;
     };
 
 public:
-    template <int I> using type = typename as_impl<I>::type;
+    template <int I> using type = typename arg<I>::type;
 };
 
 template <class...> struct conjunction : std::true_type {};
