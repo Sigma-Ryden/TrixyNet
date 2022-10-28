@@ -5,7 +5,7 @@
 
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -191,7 +191,7 @@ public:
               lique::meta::as_iterate<Tensor> = 0>
     void apply(
         Tensor& result,
-        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        Function func) const TRNOEXCEPT_IF(noexcept(func))
     {
         self().apply(result, func);
     }
@@ -202,7 +202,7 @@ public:
     void apply(
         Tensor1& result,
         Function func,
-        const Tensor2& tensor) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        const Tensor2& tensor) const TRNOEXCEPT_IF(noexcept(func))
     {
         self().apply(result, func, tensor);
     }
@@ -221,7 +221,7 @@ public:
               lique::meta::as_iterate<Tensor> = 0>
     void loop(
         Tensor& tensor,
-        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        Function func) const TRNOEXCEPT_IF(noexcept(func))
     {
         self().loop(tensor, func);
     }
@@ -230,7 +230,5 @@ public:
 } // namespace ilique
 
 } // namespace trixy
-
-#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_ILIQUE_LINEAR_HPP

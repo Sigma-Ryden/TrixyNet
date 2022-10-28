@@ -5,9 +5,7 @@
 
 #include <Trixy/Detail/FunctionDetail.hpp>
 
-#include <Trixy/Detail/TrixyMeta.hpp>
-
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -37,7 +35,7 @@ void for_each(FwdIt first, FwdIt last, Function function)
 template <class FwdIt, class Function>
 void block_for_each(
     FwdIt first, FwdIt last, std::size_t extern_block_width, Function func)
-    TRIXY_NOEXCEPT_IF(noexcept(func))
+    TRNOEXCEPT_IF(noexcept(func))
 {
     auto size = last - first + 1;
 
@@ -167,7 +165,5 @@ struct mul
 } // namespace lique
 
 } // namespace trixy
-
-#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_FUNCTION_DETAIL_HPP

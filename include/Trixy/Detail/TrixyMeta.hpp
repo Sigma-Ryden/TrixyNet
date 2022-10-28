@@ -13,23 +13,26 @@ namespace trixy
 namespace meta
 {
 
-template <bool condition>
-using when = typename std::enable_if<condition, void>::type;
-
-template <bool condition>
-using require = typename std::enable_if<condition, int>::type;
-
-template <typename...>
-using void_t = void;
-
 template <bool condition, typename T = void>
-using enable_if_t = typename std::enable_if<condition, T>::type;
+using when = typename std::enable_if<condition, T>::type;
+
+template <bool condition>
+using require = when<condition, int>;
+
+template <typename... Args>
+using to_void = void;
 
 template <typename T>
-using decay_t = typename std::decay<T>::type;
+using remove_ptr = typename std::remove_pointer<T>::type;
 
-template <bool condition, typename if_true, typename if_false>
-using if_ = typename std::conditional<condition, if_true, if_false>::type;
+template <typename T>
+using remove_cv = typename std::remove_cv<T>::type;
+
+template <typename T>
+using remove_ref = typename std::remove_reference<T>::type;
+
+template <typename T>
+using decay = typename std::decay<T>::type;
 
 template <typename...> struct scope;
 
@@ -57,20 +60,33 @@ public:
     template <int I> using type = typename arg<I>::type;
 };
 
-template <class...> struct conjunction : std::true_type {};
-template <class B1> struct conjunction<B1> : B1 {};
-template <class B1, class... Bn>
-struct conjunction<B1, Bn...>
-    : if_<bool(B1::value), conjunction<Bn...>, B1> {};
+template <bool condition, typename if_true, typename if_false>
+using if_ = typename std::conditional<condition, if_true, if_false>::type;
 
-template <class...> struct disjunction : std::false_type {};
-template <class B1> struct disjunction<B1> : B1 {};
+template <class...> struct and_ : std::true_type {};
+template <class B1> struct and_<B1> : B1 {};
 template <class B1, class... Bn>
-struct disjunction<B1, Bn...>
-    : if_<bool(B1::value), B1, disjunction<Bn...>> {};
+struct and_<B1, Bn...>
+    : if_<bool(B1::value), and_<Bn...>, B1> {};
+
+template <class...> struct or_ : std::false_type {};
+template <class B1> struct or_<B1> : B1 {};
+template <class B1, class... Bn>
+struct or_<B1, Bn...>
+    : if_<bool(B1::value), B1, or_<Bn...>> {};
+
+template <typename... Bn> constexpr bool all() noexcept
+{
+    return and_<Bn...>::value;
+}
+
+template <typename... Bn> constexpr bool one() noexcept
+{
+    return or_<Bn...>::value;
+}
 
 template <class T, template <class> class... Bn>
-struct has_true : disjunction<Bn<T>...> {};
+struct has_true : or_<Bn<T>...> {};
 
 TRIXY_HAS_FUNCTION_HELPER(type);
 
@@ -101,10 +117,27 @@ public:
 };
 
 template <class T, class... Tn>
-struct is_same_all: conjunction<std::is_same<T, Tn>...> {};
+struct is_same_all: and_<std::is_same<T, Tn>...> {};
+
+namespace detail
+{
+
+template <typename T, typename = void>
+struct deref_impl { using type = T; };
+
+template <>
+struct deref_impl<void*> { using type = void; };
+
+template <typename T>
+struct deref_impl<T, to_void<decltype(*std::declval<T>())>>
+{
+    using type = remove_ref<decltype(*std::declval<T>())>;
+};
+
+} // namespace detail
 
 template <typename It>
-using deref = typename std::remove_reference<decltype(*std::declval<It>())>::type;
+using dereference = typename detail::deref_impl<It>::type;
 
 } // namespace meta
 

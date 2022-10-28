@@ -4,7 +4,7 @@
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -34,7 +34,7 @@ template <class Tensor, class Predicate,
 IndexPair<size_type> find(
     Tensor& tensor, size_type d, size_type i, size_type j,
     size_type block_width, size_type block_height,
-    Predicate predicate) TRIXY_NOEXCEPT_IF(noexcept(predicate))
+    Predicate predicate) TRNOEXCEPT_IF(noexcept(predicate))
 {
     const size_type i_end = i + block_height;
     const size_type j_end = j + block_width;
@@ -64,7 +64,5 @@ template <typename T> constexpr bool is_less(T lhs, T rhs) noexcept
 } // namespace utility
 
 } // namespace trixy
-
-#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NETWORK_LAYER_FUNCTION_DETAIL_HPP

@@ -139,7 +139,7 @@ template <class InStream, typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserializeData(
     InStream& in, OutData data, size_type n, bool buffering)
 {
-    using Data = meta::deref<OutData>; // dereferencing OutData type
+    using Data = meta::dereference<OutData>;
 
     if (buffering)
     {

@@ -13,6 +13,7 @@
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
+#include <Trixy/Detail/MetaMacro.hpp>
 #include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -358,7 +359,7 @@ using detail::for_each;
 
 template <class Iterable, class Function,
           lique::meta::as_iterate<Iterable> = 0>
-void loop(Iterable& it, Function func) TRIXY_NOEXCEPT_IF(noexcept(func))
+void loop(Iterable& it, Function func) TRNOEXCEPT_IF(noexcept(func))
 {
     detail::for_each(first(it), last(it), func);
 }
@@ -368,7 +369,7 @@ void block_loop(
     FwdIt A,
     FwdIt B,
     std::size_t extern_block_width,
-    Function func) TRIXY_NOEXCEPT_IF(noexcept(func))
+    Function func) TRNOEXCEPT_IF(noexcept(func))
 {
     detail::block_for_each(A, B, extern_block_width, func);
 }
@@ -384,7 +385,7 @@ void concat(T& out, std::size_t& at, const T& it)
 
 template <class T, class... Tn,
           lique::meta::as_iterate<T> = 0,
-          trixy::meta::enable_if_t<trixy::meta::is_same_all<T, Tn...>::value, int> = 0>
+          trixy::meta::require<trixy::meta::is_same_all<T, Tn...>::value> = 0>
 void concat(T& out, std::size_t& at, const T& it, const Tn&... it_n)
 {
     detail::copy(out.data() + at, out.data() + at + it.size(), it.data());
@@ -435,7 +436,7 @@ T concat(const T& it, const Tn&... it_n)
 template <class FwdIt, class Generator>
 std::size_t multinomial(FwdIt first, FwdIt last, Generator generator, std::size_t rand_max) noexcept
 {
-    using precision_type = trixy::meta::decay_t<decltype(*first)>;
+    using precision_type = trixy::meta::decay<decltype(*first)>;
 
     // random_value satisfies the range [0, 1]
     precision_type random_value = precision_type(generator()) / precision_type(rand_max);

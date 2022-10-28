@@ -2,25 +2,24 @@
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
 
 #define TRIXY_HAS_FUNCTION_HELPER(name)                                                                 \
-    template <typename C, typename = ::trixy::meta::void_t<>>                                           \
+    template <typename C, typename = ::trixy::meta::to_void<>>                                          \
     struct has_##name : std::false_type {};								\
     template <typename C>                                                                               \
-    struct has_##name<C, ::trixy::meta::void_t<decltype(&C::name)>>                                     \
+    struct has_##name<C, ::trixy::meta::to_void<decltype(&C::name)>>                                    \
         : std::true_type {}
 
 #define TRIXY_HAS_TYPE_HELPER(name)                                                                     \
-    template <typename T, typename = ::trixy::meta::void_t<>>                                           \
+    template <typename T, typename = ::trixy::meta::to_void<>>                                          \
     struct has_##name : std::false_type {};								\
     template <typename T>                                                                               \
-    struct has_##_name<T, ::trixy::meta::void_t<typename T::name>> : std::true_type {}
+    struct has_##_name<T, ::trixy::meta::to_void<typename T::name>> : std::true_type {}
 
 #define TRIXY_APPLY_FUNCTION_GENERIC_HELPER(name)                                                       \
     template <class InRange, class OutRange>                                                            \
     void name(InRange& result, const OutRange& input) noexcept {                                        \
+        auto it = input.data();                                                                         \
         auto first = result.data();                                                                     \
-        auto last  = result.data() + result.size();                                                     \
-        auto it    = input.data();                                                                      \
-                                                                                                        \
+        auto last = result.data() + result.size();                                                      \
         while (first != last) *first++ = name(*it++);                                                   \
     }
 
@@ -94,12 +93,3 @@
         template <id_type id>                                                                           \
         using type = ::trixy::meta::select_for<id == id_type::T, T>;                                    \
     }
-
-#define TRIXY_REQUIRE(...)                                                                              \
-    ::trixy::meta::conjunction<__VA_ARGS__>::value
-
-#define TRIXY_DERIVED                                                                                   \
-    (*static_cast<Derived*>(self))
-
-#define TRIXY_NOEXCEPT_IF(predicate)                                                                    \
-    noexcept((predicate))

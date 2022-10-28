@@ -44,12 +44,12 @@ template <class Tensor>
 struct is_tensor : std::is_base_of<lique::TensorType::tensor, Tensor> {};
 
 template <class Tensor>
-struct is_iterate : trixy::meta::disjunction
+struct is_iterate : trixy::meta::or_
 <
     is_tensor<Tensor>,
     is_matrix<Tensor>,
     is_vector<Tensor>,
-    trixy::meta::is_range<trixy::meta::decay_t<Tensor>>
+    trixy::meta::is_range<trixy::meta::decay<Tensor>>
 > {};
 
 template <typename T>

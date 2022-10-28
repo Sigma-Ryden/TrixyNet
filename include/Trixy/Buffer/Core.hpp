@@ -104,11 +104,11 @@ public:
 
 private:
     template <typename CastType, typename OutData,
-    meta::require<std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
+    meta::require<std::is_convertible<meta::dereference<OutData>, CastType>::value> = 0>
     void read_buff(OutData first, OutData last);
 
     template <typename CastType, typename OutData,
-    meta::require<not std::is_convertible<meta::deref<OutData>, CastType>::value> = 0>
+    meta::require<not std::is_convertible<meta::dereference<OutData>, CastType>::value> = 0>
     void read_buff(OutData first, OutData last) {}
 
     template <typename DetectionDataType>
@@ -273,7 +273,7 @@ template <typename InData>
 void Buff<T>::write(InData first, InData last, bool is_mutable) noexcept
 {
     // dereferencing InData type with removing constant for stable reinterpret_cast-ing
-    using Data = typename std::remove_const<meta::deref<InData>>::type;
+    using Data = typename std::remove_const<meta::dereference<InData>>::type;
 
     SupportTypeId type_id = detect_data_type_id<Data>();
 
@@ -301,7 +301,7 @@ template <typename T>
 template <typename InData>
 void Buff<T>::write(InData idata, memory_size n, bool is_mutable) noexcept
 {
-    using Data = meta::deref<InData>; // dereferencing InData type
+    using Data = meta::dereference<InData>;
 
     write(idata, idata + n / sizeof(Data), is_mutable);
 }
@@ -485,10 +485,10 @@ void Buff<T>::set(size_type offset) noexcept
 
 template <typename T>
 template <typename CastType, typename OutData,
-meta::require<std::is_convertible<meta::deref<OutData>, CastType>::value>>
+meta::require<std::is_convertible<meta::dereference<OutData>, CastType>::value>>
 void Buff<T>::read_buff(OutData first, OutData last)
 {
-    using Data = meta::deref<OutData>; // dereferencing OutData type
+    using Data = meta::dereference<OutData>;
 
     auto it = data_;
     while (first != last)

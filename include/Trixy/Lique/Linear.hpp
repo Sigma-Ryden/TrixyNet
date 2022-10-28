@@ -8,7 +8,7 @@
 #include <Trixy/Lique/Detail/FunctionDetail.hpp>
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -407,7 +407,7 @@ public:
               meta::as_iterate<Tensor> = 0>
     void apply(
         Tensor& result,
-        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        Function func) const TRNOEXCEPT_IF(noexcept(func))
     {
         detail::apply(first(result), last(result), func);
     }
@@ -418,7 +418,7 @@ public:
     void apply(
         Tensor1& result,
         Function func,
-        const Tensor2& rhs) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        const Tensor2& rhs) const TRNOEXCEPT_IF(noexcept(func))
     {
         detail::apply(first(result), last(result), func, first(rhs));
     }
@@ -437,7 +437,7 @@ public:
               meta::as_iterate<Tensor> = 0>
     void loop(
         Tensor& tensor,
-        Function func) const TRIXY_NOEXCEPT_IF(noexcept(func))
+        Function func) const TRNOEXCEPT_IF(noexcept(func))
     {
         detail::for_each(first(tensor), last(tensor), func);
     }
@@ -446,7 +446,5 @@ public:
 } // namespace lique
 
 } // namespace trixy
-
-#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_LINEAR_HPP

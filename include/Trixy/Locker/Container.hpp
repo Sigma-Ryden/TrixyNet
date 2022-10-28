@@ -39,7 +39,7 @@ public:
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        trixy::meta::require<not std::is_base_of<trixy::meta::decay_t<T>, Locker>::value and
+        trixy::meta::require<not std::is_base_of<trixy::meta::decay<T>, Locker>::value and
                              std::is_constructible<Container, T, Tn...>::value> = 0>
     explicit Locker(T&& t, Tn&&... tn)
         : Container(std::forward<T>(t), std::forward<Tn>(tn)...) {}

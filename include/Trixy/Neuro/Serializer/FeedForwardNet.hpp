@@ -240,7 +240,7 @@ template <class OutStream, typename InData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
     OutStream& out, InData data, size_type n)
 {
-    using Data = meta::deref<InData>; // dereferencing InData type
+    using Data = meta::dereference<InData>;
 
     size_type memory_size = n * sizeof(Data);
     out.write(reinterpret_cast<const char*>(data), memory_size);
@@ -251,7 +251,7 @@ template <class InStream, typename OutData>
 void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
     InStream& in, OutData data, size_type n, bool buffering)
 {
-    using Data = meta::deref<OutData>; // dereferencing OutData type
+    using Data = meta::dereference<OutData>;
 
     if (buffering)
     {

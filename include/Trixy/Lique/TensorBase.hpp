@@ -15,7 +15,7 @@
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 #include <Trixy/Lique/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -91,7 +91,7 @@ public:
 
     template <class Generator,
               trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator gen) TRIXY_NOEXCEPT_IF(noexcept(gen));
+    Tensor& fill(Generator gen) TRNOEXCEPT_IF(noexcept(gen));
 
     Tensor& fill(precision_type value) noexcept;
 
@@ -233,7 +233,7 @@ TensorBase<Precision>& TensorBase<Precision>::copy(
 LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
 TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen)
-    TRIXY_NOEXCEPT_IF(noexcept(gen))
+    TRNOEXCEPT_IF(noexcept(gen))
 {
     lique::detail::fill(data_, data_ + shape_.size, gen);
 
@@ -453,7 +453,6 @@ inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> co
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
 #include <Trixy/Lique/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

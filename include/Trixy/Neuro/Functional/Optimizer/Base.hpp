@@ -33,7 +33,7 @@ struct OptimizerType
 {
 private:
     template <class... Bn>
-    using switch_type = typename meta::disjunction<Bn...>::type;
+    using switch_type = typename meta::or_<Bn...>::type;
 
     using id_type = trixy::functional::OptimizationId;
 

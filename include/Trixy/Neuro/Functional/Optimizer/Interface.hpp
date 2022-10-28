@@ -44,13 +44,13 @@ protected:
     void initialize() noexcept
     {
         f_set_learning_rate = [](void *const self, precision_type value)
-        { TRIXY_DERIVED.learning_rate(value); };
+        { static_cast<Derived*>(self)->learning_rate(value); };
 
         f_get_learning_rate = [](void *const self) -> precision_type
-        { return TRIXY_DERIVED.learning_rate(); };
+        { return static_cast<Derived*>(self)->learning_rate(); };
 
         f_update = [](void *const self, Range param, Range grad)
-        { TRIXY_DERIVED.update(param, grad); };
+        { static_cast<Derived*>(self)->update(param, grad); };
     }
 
 public:

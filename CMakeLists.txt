@@ -90,6 +90,7 @@ set(TRIXY_NEURO
     include/Trixy/Detail/FunctionDetail.hpp
     include/Trixy/Detail/MacroScope.hpp
     include/Trixy/Detail/MacroUnscope.hpp
+	include/Trixy/Detail/MetaMacro.hpp
 
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp
