@@ -91,7 +91,7 @@ public:
 
     template <class Generator,
               trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator gen) TRNOEXCEPT_IF(noexcept(gen));
+    Tensor& fill(Generator gen) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
 
@@ -232,8 +232,7 @@ TensorBase<Precision>& TensorBase<Precision>::copy(
 
 LIQUE_TENSOR_TPL_DECLARATION
 template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
-TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen)
-    TRNOEXCEPT_IF(noexcept(gen))
+TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen) noexcept
 {
     lique::detail::fill(data_, data_ + shape_.size, gen);
 

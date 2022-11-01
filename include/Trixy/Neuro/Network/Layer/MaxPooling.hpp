@@ -56,8 +56,9 @@ public:
         : Base()
         , delta_(channel_depth, in_height, in_width)
         , in_(channel_depth, in_height, in_width)
-        , out_(channel_depth, 1 + (in_height - pooling_height) / vertical_stride,
-                        1 + (in_width - pooling_width) / horizontal_stride)
+        , out_(channel_depth,
+               1 + (in_height - pooling_height) / vertical_stride,
+               1 + (in_width - pooling_width) / horizontal_stride)
         , pooling_(channel_depth, pooling_height, pooling_width)
         , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
@@ -86,20 +87,20 @@ public:
     {
     }
 
-    ~Layer()
+    virtual ~Layer()
     {
         delete activation_;
     }
 
-    void connect(IActivation* activation)
+    void connect(IActivation* activation) override
     {
         delete activation_;
         activation_ = activation;
     }
 
-    void init(Generator&) noexcept { /*pass*/ }
+    void init(Generator&) noexcept override { /*pass*/ }
 
-    void forward(const Tensor& input) noexcept
+    void forward(const Tensor& input) noexcept override
     {
         mask_.fill(0.);
 
@@ -129,7 +130,8 @@ public:
 
         activation_->f(value_, buff_);
     }
-    void backward(const Tensor& /*input*/, const Tensor& idelta) noexcept
+
+    void backward(const Tensor& /*input*/, const Tensor& idelta) noexcept override
     {
         activation_->df(buff_, buff_);
         linear.mul(buff_, idelta);
@@ -141,11 +143,11 @@ public:
                         buff_(d, i / vertical_stride_, j / horizontal_stride_) * mask_(d, i, j);
     }
 
-    const Tensor& value() const noexcept { return value_; }
-    XTensor& delta() noexcept { return delta_; }
+    const Tensor& value() const noexcept override { return value_; }
+    XTensor& delta() noexcept override { return delta_; }
 
-    const shape_type& input() const noexcept { return in_; }
-    const shape_type& output() const noexcept { return out_; }
+    const shape_type& input() const noexcept override { return in_; }
+    const shape_type& output() const noexcept override { return out_; }
 };
 
 template <class Net>
@@ -176,8 +178,9 @@ public:
           IActivation* activation = nullptr)
         : Base()
         , in_(channel_depth, in_height, in_width)
-        , out_(channel_depth, 1 + (in_height - pooling_height) / vertical_stride,
-                        1 + (in_width - pooling_width) / horizontal_stride)
+        , out_(channel_depth,
+               1 + (in_height - pooling_height) / vertical_stride,
+               1 + (in_width - pooling_width) / horizontal_stride)
         , pooling_(channel_depth, pooling_height, pooling_width)
         , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
@@ -204,18 +207,18 @@ public:
     {
     }
 
-    ~Layer()
+    virtual ~Layer()
     {
         delete activation_;
     }
 
-    void connect(IActivation* activation)
+    void connect(IActivation* activation) override
     {
         delete activation_;
         activation_ = activation;
     }
 
-    void forward(const Tensor& input) noexcept
+    void forward(const Tensor& input) noexcept override
     {
         auto result = value_.data();
 
@@ -243,10 +246,10 @@ public:
         activation_->f(value_, value_);
     }
 
-    const Tensor& value() const noexcept { return value_; }
+    const Tensor& value() const noexcept override { return value_; }
 
-    const shape_type& input() const noexcept { return in_; }
-    const shape_type& output() const noexcept { return out_; }
+    const shape_type& input() const noexcept override { return in_; }
+    const shape_type& output() const noexcept override { return out_; }
 };
 
 } // namespace layer

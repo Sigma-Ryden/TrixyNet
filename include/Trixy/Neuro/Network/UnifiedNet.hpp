@@ -53,20 +53,17 @@ public:
     TrixyNet(size_type reserve_size = 8);
     ~TrixyNet();
 
-    auto add(ILayer* layer) -> TrixyNet&;
+    TrixyNet& add(ILayer* layer);
 
-    auto inner() const noexcept -> const Topology& { return inner_; }
-    auto layer(size_type i) noexcept -> ILayer& { return *inner_[i]; }
+    const Topology& inner() const noexcept { return inner_; }
+    ILayer& layer(size_type i) noexcept { return *inner_[i]; }
 
-    auto size() const noexcept -> const size_type& { return size_; }
+    const size_type& size() const noexcept { return size_; }
 
-    auto feedforward(const Tensor& sample) noexcept -> const Tensor&;
+    const Tensor& feedforward(const Tensor& sample) noexcept;
+    const Tensor& operator() (const Tensor& sample) noexcept;
 
-    auto operator() (const Tensor& sample) noexcept -> const Tensor&
-    { return feedforward(sample); }
-
-    template <class FloatGenerator,
-              meta::require<meta::is_callable<FloatGenerator>::value> = 0>
+    template <class FloatGenerator>
     void init(FloatGenerator generator) noexcept;
 };
 
@@ -87,7 +84,6 @@ TRIXY_NET_TPL_DECLARATION
 auto TRIXY_NET_TPL(TrixyNetType::Unified)::add(ILayer* layer) -> TrixyNet&
 {
     inner_.emplace_back(layer);
-
     ++size_;
 
     return *this;
@@ -106,14 +102,21 @@ auto TRIXY_NET_TPL(TrixyNetType::Unified)::feedforward(
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <class FloatGenerator,
-          meta::require<meta::is_callable<FloatGenerator>::value>>
-void TRIXY_NET_TPL(TrixyNetType::Unified)::init(FloatGenerator generator) noexcept
+auto TRIXY_NET_TPL(TrixyNetType::Unified)::operator() (
+    const Tensor& sample) noexcept -> const Tensor&
 {
-    auto gen = typename ILayer::Generator(generator);
+    return feedforward(sample);
+}
+
+TRIXY_NET_TPL_DECLARATION
+template <class TopologyGenerator>
+void TRIXY_NET_TPL(TrixyNetType::Unified)::init(
+    TopologyGenerator functor) noexcept
+{
+    typename ILayer::Generator generator{functor};
 
     for (size_type i = 0; i < size_; ++i)
-        layer(i).init(gen);
+        layer(i).init(generator);
 }
 
 } // namespace trixy

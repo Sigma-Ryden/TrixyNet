@@ -68,7 +68,7 @@ public:
     {
     }
 
-    ~Layer()
+    virtual ~Layer()
     {
         delete activation_;
     }
@@ -195,7 +195,7 @@ public:
     {
     }
 
-    ~Layer()
+    virtual ~Layer()
     {
         delete activation_;
     }
@@ -219,7 +219,7 @@ public:
         activation_->f(value_, value_);
     }
 
-    const Tensor& value() const noexcept override { return value_.base(); }
+    const Tensor& value() const noexcept override { return value_; }
 
     const shape_type& input() const noexcept override { return in_; }
     const shape_type& output() const noexcept override { return out_; }

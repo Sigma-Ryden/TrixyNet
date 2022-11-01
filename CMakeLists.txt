@@ -9,10 +9,10 @@ include_directories(include)
 
 set(TESTING
    # test/simple_test.cpp
-    test/mnist_test.cpp
+   # test/mnist_test.cpp
    # test/speed_test.cpp
    # test/regression_test.cpp
-   # test/experimental_test.cpp
+   test/experimental_test.cpp
 )
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
@@ -90,7 +90,7 @@ set(TRIXY_NEURO
     include/Trixy/Detail/FunctionDetail.hpp
     include/Trixy/Detail/MacroScope.hpp
     include/Trixy/Detail/MacroUnscope.hpp
-	include/Trixy/Detail/MetaMacro.hpp
+    include/Trixy/Detail/MetaMacro.hpp
 
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp

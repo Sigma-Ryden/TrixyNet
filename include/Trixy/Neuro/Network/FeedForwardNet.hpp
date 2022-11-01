@@ -33,7 +33,6 @@ public:
 
     class Builder;
 
-private:
     class InnerFunctional;
 
 public:
@@ -77,9 +76,7 @@ public:
     TrixyNet(TrixyNet&&) noexcept = default;
 
     const Vector& feedforward(const Vector& sample) const noexcept;
-
-    const Vector& operator() (const Vector& sample) const noexcept
-    { return feedforward(sample); }
+    const Vector& operator() (const Vector& sample) const noexcept;
 };
 
 TRIXY_NET_TPL_DECLARATION
@@ -100,15 +97,12 @@ public:
     InnerStruct(const InnerStruct&) = default;
     InnerStruct(InnerStruct&&) noexcept = default;
 
-    template <class FloatGenerator,
-              meta::require<meta::is_callable<FloatGenerator>::value> = 0>
-    void initialize(FloatGenerator gen) noexcept;
+    template <class TopologyGenerator>
+    void initialize(TopologyGenerator functor) noexcept;
 
-    template <class BiasGenerator, class WeightGenerator,
-              meta::require<meta::is_callable<BiasGenerator>::value and
-                            meta::is_callable<WeightGenerator>::value> = 0>
-    void initialize(BiasGenerator genB,
-                    WeightGenerator genW) noexcept;
+    template <class BiasGenerator, class WeightGenerator>
+    void initialize(BiasGenerator functorB,
+                    WeightGenerator functorW) noexcept;
 
     void initialize(const Container<Vector>& bias,
                     const Container<Matrix>& weight) noexcept;
@@ -192,12 +186,11 @@ public:
 
 private:
     AllActivationFunction activation_;      ///< Network activation functions
+    AllActivationId activationId_;          ///< Network activation function ids
     LossFunction loss_;                     ///< Network loss function
 
-    AllActivationId activationId_;          ///< Network activation function ids
-
 public:
-    explicit InnerFunctional(size_type N) : activation_(N), loss_(), activationId_(N) {}
+    explicit InnerFunctional(size_type N) : activation_(N), activationId_(N), loss_() {}
     ~InnerFunctional() = default;
 
     // operator= for copy and move InnerFunctional object will not implicit generate
@@ -224,30 +217,27 @@ public:
 };
 
 TRIXY_NET_TPL_DECLARATION
-template <class FloatGenerator,
-          meta::require<meta::is_callable<FloatGenerator>::value>>
+template <class TopologyGenerator>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
-    FloatGenerator generator_all) noexcept
+    TopologyGenerator functor) noexcept
 {
     for (size_type i = 0; i < N; ++i)
     {
-        B[i].fill(generator_all);
-        W[i].fill(generator_all);
+        B[i].fill(functor);
+        W[i].fill(functor);
     }
 }
 
 TRIXY_NET_TPL_DECLARATION
-template <class BiasGenerator, class WeightGenerator,
-          meta::require<meta::is_callable<BiasGenerator>::value and
-                        meta::is_callable<WeightGenerator>::value>>
+template <class BiasGenerator, class WeightGenerator>
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
-    BiasGenerator genB,
-    WeightGenerator genW) noexcept
+    BiasGenerator functorB,
+    WeightGenerator functorW) noexcept
 {
     for (size_type i = 0; i < N; ++i)
     {
-        B[i].fill(genB);
-        W[i].fill(genW);
+        B[i].fill(functorB);
+        W[i].fill(functorW);
     }
 }
 
@@ -309,7 +299,7 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::getlock2d(
 
 TRIXY_NET_TPL_DECLARATION
 void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activation(
-    const TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction& f)
+    const ActivationFunction& f)
 {
     for (size_type i = 0; i < activation_.size() - 1; ++i)
     {
@@ -365,9 +355,8 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
 }
 
 TRIXY_NET_TPL_DECLARATION
-const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
-    TRIXY_NET_TPL(TrixyNetType::FeedForward)::feedforward(
-    const Vector& sample) const noexcept
+auto TRIXY_NET_TPL(TrixyNetType::FeedForward)::feedforward(
+    const Vector& sample) const noexcept -> const Vector&
 {
     /*
     Operations:
@@ -389,6 +378,13 @@ const typename TRIXY_NET_TPL(TrixyNetType::FeedForward)::Vector&
     }
 
     return buff.back().base();
+}
+
+TRIXY_NET_TPL_DECLARATION
+auto TRIXY_NET_TPL(TrixyNetType::FeedForward)::operator() (
+    const Vector& sample) const noexcept -> const Vector&
+{
+    return feedforward(sample);
 }
 
 } // namespace trixy
