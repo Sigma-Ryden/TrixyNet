@@ -16,11 +16,11 @@ namespace train
 {
 
 template <class Optimizeriable, class TypeSet = OptimizerTypeSet>
-using RMSProp =
-    TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::rms_prop);
+using RMSProp
+    = TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::rms_prop);
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::rms_prop)
+TRIXY_OPTIMIZER_TEMPLATE()
+class TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::rms_prop)
     : public IOptimizer<Optimizeriable>
 {
 public:

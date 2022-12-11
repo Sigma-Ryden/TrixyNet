@@ -11,15 +11,15 @@ namespace trixy
 namespace ilique
 {
 
-ILIQUE_TENSOR_TPL_DECLARATION
-using IVector = ILIQUE_TENSOR_TPL(lique::TensorType::vector);
+ILIQUE_TENSOR_TEMPLATE()
+using IVector = ILIQUE_TENSOR_TEMPLATE_CLASS(lique::TensorType::vector);
 
-ILIQUE_TENSOR_TPL_DECLARATION
-class ILIQUE_TENSOR_TPL(lique::TensorType::vector)
+ILIQUE_TENSOR_TEMPLATE()
+class ILIQUE_TENSOR_TEMPLATE_CLASS(lique::TensorType::vector)
     : protected ilique::ITensorBase<Derived, Precision, Pack...>
     , public lique::TensorType::vector
 {
-    ILIQUE_TENSOR_BASE_BODY
+    ILIQUE_TENSOR_BASE_BODY()
 
 public:
     void resize(const shape_type& shape) { self().resize(shape); }

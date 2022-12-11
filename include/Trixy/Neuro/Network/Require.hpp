@@ -13,8 +13,8 @@ namespace trixy
 namespace guard
 {
 
-TRIXY_NET_TPL_DECLARATION
-struct TRIXY_NET_REQUIRE_TPL(TrixyNetType::Unified)
+TRIXY_NET_TEMPLATE()
+struct TrixyNetRequire<TypeSet, TrixyNetType::Unified>
 {
 public:
     using type = TrixyNetType::FeedForward;
@@ -40,8 +40,8 @@ protected:
     using require_container = typename ContainerRequire<Container>::type;
 };
 
-TRIXY_NET_TPL_DECLARATION
-struct TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)
+TRIXY_NET_TEMPLATE()
+struct TrixyNetRequire<TypeSet, TrixyNetType::FeedForward>
 {
 public:
     using type = TrixyNetType::FeedForward;

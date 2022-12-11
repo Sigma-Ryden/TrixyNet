@@ -7,7 +7,7 @@
 
 #include <Trixy/Range/Base.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -350,13 +350,12 @@ TRIXY_FUNCTION_GENERIC_LOSS_HELPER(MSLE, mean_squared_log_error, mean_squared_lo
 TRIXY_FUNCTION_GENERIC_LOSS_HELPER(NLL, negative_log_likelihood, negative_log_likelihood_derived_softmax);
 TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh, logcosh_derived);
 
-
 } // namespace loss
 
 } // namespace functional
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
+#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
 
 #endif // TRIXY_FUNCTION_LOSS_HPP

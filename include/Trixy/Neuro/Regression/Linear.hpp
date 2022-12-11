@@ -15,14 +15,14 @@
 namespace trixy
 {
 
-TRIXY_REGRESSION_TPL_DECLARATION
-using LinearRegression = TRIXY_REGRESSION_TPL(RegressionType::Linear);
+TRIXY_REGRESSION_TEMPLATE()
+using LinearRegression = Regression<TypeSet, RegressionType::Linear>;
 
-TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_REGRESSION_TPL(RegressionType::Linear) :
-    public guard::TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)::type
+TRIXY_REGRESSION_TEMPLATE()
+class Regression<TypeSet, RegressionType::Linear> :
+    public guard::RegressionRequire<TypeSet, RegressionType::Linear>::type
 {
-friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Linear)>;
+friend train::Training<LinearRegression<TypeSet>>;
 
 public:
     using Vector          = typename TypeSet::Vector;
@@ -42,43 +42,42 @@ private:
 public:
     explicit Regression(size_type sample_size);
 
-    void initializeInnerStruct(Vector weight) noexcept;
+    void init(Vector weight) noexcept;
 
     void reset(size_type new_sample_size);
 
-    precision_type feedforwardSample(const Vector& sample) const;
+    precision_type feedforward_sample(const Vector& sample) const;
     Vector feedforward(const Matrix& idata) const;
 
     Vector operator() (const Matrix& idata) const
     { return feedforward(idata); }
 
-    const Vector& getInnerWeight() const noexcept { return W; }
-    size_type getInnerSize() const noexcept { return N - 1; }
+    const Vector& weight() const noexcept { return W; }
+    size_type size() const noexcept { return N - 1; }
 };
 
-TRIXY_REGRESSION_TPL_DECLARATION
-TRIXY_REGRESSION_TPL(RegressionType::Linear)::Regression(size_type sample_size)
+TRIXY_REGRESSION_TEMPLATE()
+LinearRegression<TypeSet>::Regression(size_type sample_size)
     : W(sample_size + 1), N(sample_size + 1)
 {
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_REGRESSION_TPL(RegressionType::Linear)::initializeInnerStruct(Vector weight) noexcept
+TRIXY_REGRESSION_TEMPLATE()
+void LinearRegression<TypeSet>::init(Vector weight) noexcept
 {
     W.copy(weight);
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_REGRESSION_TPL(RegressionType::Linear)::reset(size_type new_sample_size)
+TRIXY_REGRESSION_TEMPLATE()
+void LinearRegression<TypeSet>::reset(size_type new_sample_size)
 {
     N = new_sample_size + 1;
     W.resize(N);
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::precision_type
-    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforwardSample(
-    const Vector& sample) const
+TRIXY_REGRESSION_TEMPLATE()
+auto LinearRegression<TypeSet>::feedforward_sample(
+    const Vector& sample) const -> precision_type
 {
     precision_type result = W(0);
 
@@ -90,10 +89,9 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::precision_type
     return result;
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-typename TRIXY_REGRESSION_TPL(RegressionType::Linear)::Vector
-    TRIXY_REGRESSION_TPL(RegressionType::Linear)::feedforward(
-    const Matrix& idata) const
+TRIXY_REGRESSION_TEMPLATE()
+auto LinearRegression<TypeSet>::feedforward(
+    const Matrix& idata) const -> Vector
 {
     Matrix X(idata.shape().height, N);
 

@@ -13,9 +13,12 @@
 namespace trixy
 {
 
-TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::Unified)
-    : public guard::TRIXY_NET_REQUIRE_TPL(TrixyNetType::Unified)::type
+TRIXY_NET_TEMPLATE()
+using UnifiedNed = TrixyNet<TypeSet>;
+
+TRIXY_NET_TEMPLATE()
+class TrixyNet<TypeSet>
+    : public guard::TrixyNetRequire<TypeSet>::type
 {
 public:
     template <typename T>
@@ -67,21 +70,21 @@ public:
     void init(FloatGenerator generator) noexcept;
 };
 
-TRIXY_NET_TPL_DECLARATION
-TRIXY_NET_TPL(TrixyNetType::Unified)::TrixyNet(size_type reserve_size) : size_(0)
+TRIXY_NET_TEMPLATE()
+TrixyNet<TypeSet>::TrixyNet(size_type reserve_size) : size_(0)
 {
     inner_.reserve(reserve_size);
 }
 
-TRIXY_NET_TPL_DECLARATION
-TRIXY_NET_TPL(TrixyNetType::Unified)::~TrixyNet()
+TRIXY_NET_TEMPLATE()
+TrixyNet<TypeSet>::~TrixyNet()
 {
     for (size_type i = 0; i < size_; ++i)
         delete inner_[i];
 }
 
-TRIXY_NET_TPL_DECLARATION
-auto TRIXY_NET_TPL(TrixyNetType::Unified)::add(ILayer* layer) -> TrixyNet&
+TRIXY_NET_TEMPLATE()
+auto TrixyNet<TypeSet>::add(ILayer* layer) -> TrixyNet&
 {
     inner_.emplace_back(layer);
     ++size_;
@@ -89,8 +92,8 @@ auto TRIXY_NET_TPL(TrixyNetType::Unified)::add(ILayer* layer) -> TrixyNet&
     return *this;
 }
 
-TRIXY_NET_TPL_DECLARATION
-auto TRIXY_NET_TPL(TrixyNetType::Unified)::feedforward(
+TRIXY_NET_TEMPLATE()
+auto TrixyNet<TypeSet>::feedforward(
     const Tensor& sample) noexcept -> const Tensor&
 {
     layer(0).forward(sample);
@@ -101,16 +104,16 @@ auto TRIXY_NET_TPL(TrixyNetType::Unified)::feedforward(
     return layer(size_ - 1).value();
 }
 
-TRIXY_NET_TPL_DECLARATION
-auto TRIXY_NET_TPL(TrixyNetType::Unified)::operator() (
+TRIXY_NET_TEMPLATE()
+auto TrixyNet<TypeSet>::operator() (
     const Tensor& sample) noexcept -> const Tensor&
 {
     return feedforward(sample);
 }
 
-TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TEMPLATE()
 template <class TopologyGenerator>
-void TRIXY_NET_TPL(TrixyNetType::Unified)::init(
+void TrixyNet<TypeSet>::init(
     TopologyGenerator functor) noexcept
 {
     typename ILayer::Generator generator{functor};

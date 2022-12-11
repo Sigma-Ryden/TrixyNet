@@ -22,7 +22,7 @@ class Tensor<Precision, TensorType::tensor, TensorMode::own>
     : public TensorBase<Precision>
     , public TensorType::tensor
 {
-    LIQUE_TENSOR_BASE_BODY
+    LIQUE_TENSOR_BASE_BODY()
 
 public:
     Tensor() noexcept = default;
@@ -63,7 +63,7 @@ class Tensor<Precision, TensorType::tensor, TensorMode::view>
     : public TensorBase<Precision>
     , public TensorType::tensor
 {
-    LIQUE_TENSOR_BASE_BODY
+    LIQUE_TENSOR_BASE_BODY()
 
 public:
     Tensor() noexcept = default;
@@ -88,13 +88,13 @@ public:
     void reshape(size_type depth, size_type height, size_type width) noexcept;
 };
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::~Tensor()
 {
     delete[] this->data_;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(const shape_type& shape, const_pointer data)
     : Base(shape)
 {
@@ -103,7 +103,7 @@ Tensor<Precision>::Tensor(const shape_type& shape, const_pointer data)
     this->copy(data);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(const shape_type& shape, precision_type value)
     : Base(shape)
 {
@@ -112,14 +112,14 @@ Tensor<Precision>::Tensor(const shape_type& shape, precision_type value)
     this->fill(value);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(const shape_type& shape)
     : Base(shape)
 {
     this->data_ = new precision_type [this->shape_.size];
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, const_pointer data)
     : Base(depth, height, width)
 {
@@ -128,7 +128,7 @@ Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, co
     this->copy(data);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, precision_type value)
     : Base(depth, height, width)
 {
@@ -137,14 +137,14 @@ Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width, pr
     this->fill(value);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(size_type depth, size_type height, size_type width)
     : Base(depth, height, width)
 {
     this->data_ = new precision_type [this->shape_.size];
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(const_pointer first, const_pointer last)
     : Base(1, 1, last - first)
 {
@@ -153,7 +153,7 @@ Tensor<Precision>::Tensor(const_pointer first, const_pointer last)
     this->copy(first);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(std::initializer_list<precision_type> list)
     : Base(1, 1, list.size())
 {
@@ -162,7 +162,7 @@ Tensor<Precision>::Tensor(std::initializer_list<precision_type> list)
     this->copy(list.begin());
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(const Tensor& tensor)
     : Base(tensor.shape_)
 {
@@ -172,13 +172,13 @@ Tensor<Precision>::Tensor(const Tensor& tensor)
     this->copy(tensor.data_);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>::Tensor(Tensor&& tensor) noexcept
     : Base(std::move(tensor))
 {
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>& Tensor<Precision>::operator= (const Tensor& tensor)
 {
     if (this != &tensor)
@@ -195,7 +195,7 @@ Tensor<Precision>& Tensor<Precision>::operator= (const Tensor& tensor)
     return *this;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 Tensor<Precision>& Tensor<Precision>::operator= (Tensor&& tensor) noexcept
 {
     if (this != &tensor)
@@ -211,41 +211,41 @@ Tensor<Precision>& Tensor<Precision>::operator= (Tensor&& tensor) noexcept
     return *this;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::at(
     size_type i, size_type j, size_type k) noexcept -> pointer
 {
     return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::at(
     size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
     return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::operator() (
     size_type i, size_type j, size_type k) noexcept -> reference
 {
     return *at(i, j, k); // dereferencing
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::operator() (
     size_type i, size_type j, size_type k) const noexcept -> const_reference
 {
     return *at(i, j, k); // dereferencing
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 void Tensor<Precision>::resize(const shape_type& shape)
 {
     resize(shape.depth, shape.height, shape.width);
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 void Tensor<Precision>::resize(size_type depth, size_type height, size_type width)
 {
     delete[] this->data_;
@@ -255,7 +255,7 @@ void Tensor<Precision>::resize(size_type depth, size_type height, size_type widt
     this->data_ = new precision_type [this->shape_.size];
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 void Tensor<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept
 {
     this->shape_.depth = depth;
@@ -263,54 +263,54 @@ void Tensor<Precision>::reshape(size_type depth, size_type height, size_type wid
     this->shape_.width = width;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 TensorView<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
     : Base(shape, data)
 {
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 TensorView<Precision>::Tensor(
     size_type depth, size_type height, size_type width, pointer data) noexcept
     : Base(depth, height, width, data)
 {
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 TensorView<Precision>::Tensor(pointer first, pointer last) noexcept
     : Base(1, 1, last - first, first)
 {
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::at(
     size_type i, size_type j, size_type k) noexcept -> pointer
 {
     return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::at(
     size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
     return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::operator() (
     size_type i, size_type j, size_type k) noexcept -> reference
 {
     return *at(i, j, k); // dereferencing
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::operator() (
     size_type i, size_type j, size_type k) const noexcept -> const_reference
 {
     return *at(i, j, k); // dereferencing
 }
 
-LIQUE_TENSOR_TPL_DECLARATION
+LIQUE_TENSOR_TEMPLATE()
 void TensorView<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept
 {
     this->shape_.depth = depth;

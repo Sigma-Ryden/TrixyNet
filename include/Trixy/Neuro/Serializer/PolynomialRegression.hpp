@@ -11,12 +11,17 @@
 #include <Trixy/Detail/FunctionDetail.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-class TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)
+TRIXY_SERIALIZER_TEMPLATE()
+using PolynomialRegressionSerializer
+    = Serializer<Serializable, TRWITH(Serializable, meta::is_polynomial_regression)>;
+
+TRIXY_SERIALIZER_TEMPLATE()
+class Serializer<Serializable, TRWITH(Serializable, meta::is_polynomial_regression)>
 {
 public:
     using Regression        = Serializable;
@@ -55,54 +60,54 @@ public:
     template <class InStream>
     void deserialize(InStream& in);
 
-    const Vector& getWeight() const noexcept { return W; };
-    size_type getPower() const noexcept { return N; };
+    const Vector& weight() const noexcept { return W; };
+    size_type power() const noexcept { return N; };
 
 private:
-    static constexpr meta_data_type getBaseMetaData() noexcept;
+    static constexpr meta_data_type meta_data() noexcept;
 
     template <class InStream, typename OutData>
-    void deserializeData(InStream& in, OutData data, size_type n, bool buffering);
+    void deserialize_data(InStream& in, OutData data, size_type n, bool buffering);
 };
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::prepare(const Regression& reg)
+TRIXY_SERIALIZER_TEMPLATE()
+void PolynomialRegressionSerializer<Serializable>::prepare(const Regression& reg)
 {
-    W = reg.getInnerWeight();
-    N = reg.getInnerPower();
+    W = reg.weight();
+    N = reg.power();
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class OutStream>
-void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::serialize(OutStream& out) const
+void PolynomialRegressionSerializer<Serializable>::serialize(OutStream& out) const
 {
-    meta_data_type xmeta = getBaseMetaData();
+    meta_data_type xmeta = meta_data();
     out.write(detail::const_byte_cast(&xmeta), 2); // writing 2 bytes of meta data
 
     out.write(detail::const_byte_cast(&N), sizeof(size_type));
     out.write(detail::const_byte_cast(W.data()), sizeof(precision_type) *  W.size());
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class OutStream>
-void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::serialize(
+void PolynomialRegressionSerializer<Serializable>::serialize(
     OutStream& out, const Regression& reg) const
 {
-    meta_data_type xmeta = getBaseMetaData();
+    meta_data_type xmeta = meta_data();
     out.write(detail::const_byte_cast(&xmeta), 2); // writing 2 bytes of meta data
 
-    size_type n = reg.getInnerPower();
+    size_type n = reg.power();
     out.write(detail::const_byte_cast(&n), sizeof(size_type));
 
     out.write(
-        detail::const_byte_cast(reg.getInnerWeight().data()),
-        sizeof(precision_type) * reg.getInnerWeight().size()
+        detail::const_byte_cast(reg.weight().data()),
+        sizeof(precision_type) * reg.weight().size()
     );
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class InStream>
-void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserialize(InStream& in)
+void PolynomialRegressionSerializer<Serializable>::deserialize(InStream& in)
 {
     in.read(detail::byte_cast(&meta), 2); // reading 2 bytes of meta data
 
@@ -114,19 +119,18 @@ void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserialize(InStream&
     buffering = (sizeof(size_type) != meta_size_type);
     if (buffering) buff.set(BaseId::Unsigned, meta_size_type);
 
-    deserializeData(in, &N, 1, buffering);
+    deserialize_data(in, &N, 1, buffering);
 
     W.resize(N + 1);
 
     buffering = (sizeof(precision_type) != meta_precision_type);
     if (buffering) buff.set(BaseId::Float, meta_precision_type);
 
-    deserializeData(in, W.data(), W.size(), buffering);
+    deserialize_data(in, W.data(), W.size(), buffering);
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-constexpr typename TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::meta_data_type
-TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::getBaseMetaData() noexcept
+TRIXY_SERIALIZER_TEMPLATE()
+constexpr auto PolynomialRegressionSerializer<Serializable>::meta_data() noexcept -> meta_data_type
 {
     using M = meta_data_type;
 
@@ -134,9 +138,9 @@ TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::getBaseMetaData() noexcept
          +  static_cast<M>(sizeof(precision_type));
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class InStream, typename OutData>
-void TRIXY_SERIALIZER_TPL(meta::is_polynomial_regression)::deserializeData(
+void PolynomialRegressionSerializer<Serializable>::deserialize_data(
     InStream& in, OutData data, size_type n, bool buffering)
 {
     using Data = meta::dereference<OutData>;

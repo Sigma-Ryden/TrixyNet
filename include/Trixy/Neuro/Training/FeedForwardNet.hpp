@@ -15,8 +15,12 @@ namespace trixy
 namespace train
 {
 
-TRIXY_TRAINING_TPL_DECLARATION
-class TRIXY_TRAINING_TPL(meta::is_feedforward_net)
+TRIXY_TRAINING_TEMPLATE()
+using FeedForwardNetTraining
+    = Training<Trainable, TRWITH(Trainable, meta::is_feedforward_net)>;
+
+TRIXY_TRAINING_TEMPLATE()
+class Training<Trainable, TRWITH(Trainable, meta::is_feedforward_net)>
 {
 public:
     struct FeedForwardData;
@@ -63,22 +67,22 @@ public:
     Training(Training&&) noexcept = default;
 
     template <class GeneratorInteger>
-    void trainStochastic(const Container<Vector>& idata,
-                         const Container<Vector>& odata,
-                         IOptimizer& optimizer,
-                         size_type iteration_scale,
-                         GeneratorInteger generator) noexcept;
-
-    void trainBatch(const Container<Vector>& idata,
+    void stochastic(const Container<Vector>& idata,
                     const Container<Vector>& odata,
                     IOptimizer& optimizer,
-                    size_type number_of_epochs) noexcept;
+                    size_type iteration_scale,
+                    GeneratorInteger generator) noexcept;
 
-    void trainMiniBatch(const Container<Vector>& idata,
-                        const Container<Vector>& odata,
-                        IOptimizer& optimizer,
-                        size_type number_of_epochs,
-                        size_type mini_batch_size) noexcept;
+    void batch(const Container<Vector>& idata,
+               const Container<Vector>& odata,
+               IOptimizer& optimizer,
+               size_type number_of_epochs) noexcept;
+
+    void mini_batch(const Container<Vector>& idata,
+                    const Container<Vector>& odata,
+                    IOptimizer& optimizer,
+                    size_type number_of_epochs,
+                    size_type mini_batch_size) noexcept;
 
     FeedForwardData& feedforward() noexcept;
     void feedforward(const Vector& sample) noexcept;
@@ -96,12 +100,12 @@ public:
                 XContainer<Grad>& grad) noexcept;
 
 private:
-    void updateModel(IOptimizer& optimizer) noexcept;
-    void updateModelFast(IOptimizer& optimizer) noexcept;
+    void model_update(IOptimizer& optimizer) noexcept;
+    void fast_model_update(IOptimizer& optimizer) noexcept;
 };
 
-TRIXY_TRAINING_TPL_DECLARATION
-struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData
+TRIXY_TRAINING_TEMPLATE()
+struct FeedForwardNetTraining<Trainable>::FeedForwardData
 {
 public:
     XContainer<XVector> S;          ///< non-activated value for hidden layer
@@ -117,8 +121,8 @@ public:
     FeedForwardData(FeedForwardData&&) noexcept = default;
 };
 
-TRIXY_TRAINING_TPL_DECLARATION
-struct TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData
+TRIXY_TRAINING_TEMPLATE()
+struct FeedForwardNetTraining<Trainable>::BackPropData
 {
 private:
     const Net& net;
@@ -139,22 +143,22 @@ public:
     BackPropData(const BackPropData&) = default;
     BackPropData(BackPropData&&) noexcept = default;
 
-    void resetDelta() noexcept;
-    void updateDelta() noexcept;
+    void delta_reset() noexcept;
+    void delta_update() noexcept;
 
-    void normalizeDelta(precision_type alpha) noexcept;
+    void delta_normalize(precision_type alpha) noexcept;
 };
 
-TRIXY_TRAINING_TPL_DECLARATION
-TRIXY_TRAINING_TPL(meta::is_feedforward_net)::FeedForwardData::FeedForwardData(const Net& network)
+TRIXY_TRAINING_TEMPLATE()
+FeedForwardNetTraining<Trainable>::FeedForwardData::FeedForwardData(const Net& network)
     : S(Builder::getlock1d(network.inner.topology))
     , H(Builder::getlock1d(network.inner.topology))
     , size(network.inner.N)
 {
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(Net& network)
+TRIXY_TRAINING_TEMPLATE()
+FeedForwardNetTraining<Trainable>::BackPropData::BackPropData(Net& network)
     : net(network)
     , gradB(Builder::getlock1d(network.inner.topology))
     , gradW(Builder::getlock2d(network.inner.topology))
@@ -164,8 +168,8 @@ TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::BackPropData(Net& ne
 {
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::resetDelta() noexcept
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::BackPropData::delta_reset() noexcept
 {
     for(size_type i = 0; i < size; ++i)
     {
@@ -174,8 +178,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::resetDelta() no
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::updateDelta() noexcept
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::BackPropData::delta_update() noexcept
 {
     for(size_type i = 0; i < size; ++i)
     {
@@ -184,8 +188,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::updateDelta() n
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::normalizeDelta(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::BackPropData::delta_normalize(
     precision_type alpha) noexcept
 {
     for(size_type i = 0; i < size; ++i)
@@ -195,17 +199,17 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::BackPropData::normalizeDelta(
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-TRIXY_TRAINING_TPL(meta::is_feedforward_net)::Training(Trainable& network)
+TRIXY_TRAINING_TEMPLATE()
+FeedForwardNetTraining<Trainable>::Training(Trainable& network)
     : net(network)
     , feedforward_(network)
     , backprop_(network)
     , buff(Builder::getlock1d(network.inner.topology))
 {
 }
-TRIXY_TRAINING_TPL_DECLARATION
+TRIXY_TRAINING_TEMPLATE()
 template <class GeneratorInteger>
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
+void FeedForwardNetTraining<Trainable>::stochastic(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     IOptimizer& optimizer,
@@ -219,12 +223,12 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainStochastic(
         feedforward(idata[sample]);
         backprop(idata[sample], odata[sample]);
 
-        updateModelFast(optimizer);
+        fast_model_update(optimizer);
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::batch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     IOptimizer& optimizer,
@@ -234,23 +238,23 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainBatch(
 
     for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
     {
-        backprop_.resetDelta();
+        backprop_.delta_reset();
 
         for (sample = 0; sample < idata.size(); ++sample)
         {
             feedforward(idata[sample]);
             backprop(idata[sample], odata[sample]);
-            backprop_.updateDelta();
+            backprop_.delta_update();
         }
         // averaging deltas for one full-batch
-        backprop_.normalizeDelta(alpha);
+        backprop_.delta_normalize(alpha);
 
-        updateModel(optimizer);
+        model_update(optimizer);
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::mini_batch(
     const Container<Vector>& idata,
     const Container<Vector>& odata,
     IOptimizer& optimizer,
@@ -274,27 +278,27 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::trainMiniBatch(
         {
             sample_limit += mini_batch_size;
 
-            backprop_.resetDelta();
+            backprop_.delta_reset();
 
             // accumulating deltas for one mini-batch
             while (sample < sample_limit)
             {
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
-                backprop_.updateDelta();
+                backprop_.delta_update();
 
                 ++sample;
             }
             // averaging deltas for one mini-batch
-            backprop_.normalizeDelta(alpha);
+            backprop_.delta_normalize(alpha);
 
-            updateModel(optimizer);
+            model_update(optimizer);
         }
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::feedforward(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::feedforward(
     const Vector& sample) noexcept
 {
     /*
@@ -321,8 +325,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::feedforward(
     }
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::backprop(
     const Vector& sample,
     const Vector& target) noexcept
 {
@@ -358,8 +362,8 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::backprop(
     net.linear.tensordot(backprop_.gradW[curr], sample, backprop_.gradB[curr]);
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
+TRIXY_TRAINING_TEMPLATE()
+long double FeedForwardNetTraining<Trainable>::loss(
     const Container<Vector>& idata,
     const Container<Vector>& odata) const noexcept
 {
@@ -375,9 +379,9 @@ long double TRIXY_TRAINING_TPL(meta::is_feedforward_net)::loss(
     return result / static_cast<long double>(odata.size());
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
+TRIXY_TRAINING_TEMPLATE()
 template <class Param, class Grad>
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::update(
+void FeedForwardNetTraining<Trainable>::update(
     IOptimizer& optimizer,
     XContainer<Param>& param,
     XContainer<Grad>& grad) noexcept
@@ -386,16 +390,16 @@ void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::update(
         optimizer.update(param[i], grad[i]);
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateModel(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::model_update(
     IOptimizer& optimizer) noexcept
 {
     update(optimizer, net.inner.B, backprop_.deltaB);
     update(optimizer, net.inner.W, backprop_.deltaW);
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_feedforward_net)::updateModelFast(
+TRIXY_TRAINING_TEMPLATE()
+void FeedForwardNetTraining<Trainable>::fast_model_update(
     IOptimizer& optimizer) noexcept
 {
     // Quick update is best used to update a layer with simple gradients

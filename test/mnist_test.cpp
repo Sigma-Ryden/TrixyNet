@@ -122,13 +122,13 @@ void mnist_test_deserialization()
     sr.deserialize(file);
     file.close();
 
-    FeedNet net(sr.getTopology());
+    FeedNet net(sr.topology());
     Functional<FeedNet> manage;
 
-    net.inner.initialize(sr.getBias(), sr.getWeight());
+    net.inner.init(sr.bias(), sr.weight());
 
-    net.function.activationSet(manage.get(sr.getAllActivationId()));
-    net.function.loss(manage.get(sr.getLossId()));
+    net.function.activation(manage.get(sr.all_activation_id()));
+    net.function.loss(manage.get(sr.loss_id()));
 
     auto error = net.function.loss().f;
 
@@ -177,7 +177,7 @@ void mnist_test()
     Checker<FeedNet> check(net);
 
     RandomFloating<precision_type> random;
-    net.inner.initialize([&] { return random(-.25, .25); });
+    net.inner.init([&] { return random(-.25, .25); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());
@@ -193,7 +193,7 @@ void mnist_test()
     for (size_type i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        teach.trainMiniBatch(train_idata, train_odata, optimizer, 1, 40);
+        teach.mini_batch(train_idata, train_odata, optimizer, 1, 40);
         std::cout << "Accuracy: " << check.accuracy(train_idata, train_odata) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';

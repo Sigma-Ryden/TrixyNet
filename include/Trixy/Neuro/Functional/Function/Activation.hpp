@@ -10,7 +10,7 @@
 
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
 
 namespace trixy
 {
@@ -201,6 +201,6 @@ TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SoftMax, softmax, softmax_derived);
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
+#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
 
 #endif // TRIXY_FUNCTION_ACTIVATION_HPP

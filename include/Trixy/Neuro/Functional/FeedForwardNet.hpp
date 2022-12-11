@@ -16,8 +16,8 @@
 namespace trixy
 {
 
-TRIXY_FUNCTIONAL_TPL_DECLARATION
-class TRIXY_FUNCTIONAL_TPL(meta::is_feedforward_net)
+TRIXY_FUNCTIONAL_TEMPLATE()
+class Functional<Functionable, TRWITH(Functionable, meta::is_feedforward_net)>
 {
 public:
     template <typename T>
@@ -41,7 +41,8 @@ private:
 public:
     ActivationFunction get(ActivationId id) const noexcept
     {
-        return functional::activation::get_activation_function<ActivationFunction, ActivationId>(id);
+        using functional::activation::get_activation_function;
+        return get_activation_function<ActivationFunction, ActivationId>(id);
     }
 
     Container<ActivationFunction> get(const Container<ActivationId>& all_id) const noexcept
@@ -56,14 +57,12 @@ public:
 
     LossFunction get(LossId id) const noexcept
     {
-        return functional::loss::get_loss_function<LossFunction, LossId>(id);
+        using functional::loss::get_loss_function;
+        return get_loss_function<LossFunction, LossId>(id);
     }
 
-    template <ActivationId id> ActivationFunction get() const noexcept
-    { return get(id); }
-
-    template <LossId id> LossFunction get() const noexcept
-    { return get(id); }
+    template <ActivationId id> ActivationFunction get() const noexcept { return get(id); }
+    template <LossId id> LossFunction get() const noexcept { return get(id); }
 
     template <functional::OptimizationId id, typename... Args>
     Optimizer<optimizer_type_from<id>> get(Args&&... args) const

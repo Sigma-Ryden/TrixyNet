@@ -11,12 +11,12 @@ namespace trixy
 namespace ilique
 {
 
-ILIQUE_TENSOR_TPL_DECLARATION
-class ILIQUE_TENSOR_TPL(lique::TensorType::tensor)
+ILIQUE_TENSOR_TEMPLATE()
+class ILIQUE_TENSOR_TEMPLATE_CLASS(lique::TensorType::tensor)
     : protected ilique::ITensorBase<Derived, Precision, Pack...>
     , public lique::TensorType::tensor
 {
-    ILIQUE_TENSOR_BASE_BODY
+    ILIQUE_TENSOR_BASE_BODY()
 
 public:
     reference operator() (size_type i, size_type j, size_type k) noexcept

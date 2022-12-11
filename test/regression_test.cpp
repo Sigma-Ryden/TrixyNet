@@ -96,15 +96,15 @@ void polynomial_regression_test_deserialization()
     sr.deserialize(file);
     file.close();
 
-    PolynomialReg reg(sr.getPower());
-    reg.initializeInnerStruct(sr.getWeight());
+    PolynomialReg reg(sr.power());
+    reg.init(sr.weight());
 
     auto X = get_sin_idata<PolynomialReg>();
     auto Y = get_sin_odata<PolynomialReg>();
 
     Checker<PolynomialReg> check(reg);
 
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+    std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg(X) << "\n\n"
               << "Accuracy:\n" << check.guide.global(Y, reg(X), 0.1) << '/' << Y.size() << "\n\n";
 }
@@ -120,8 +120,8 @@ void polynomial_regression_test()
     Checker<PolynomialReg> check(reg);
 
     teach.train(X, Y);
-    std::cout << reg.getInnerPower() << '\n'
-              << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+    std::cout << reg.power() << '\n'
+              << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, loss::MSE<precision_type>()) << '\n';
 
@@ -145,16 +145,16 @@ void linear_regression_test_deserialization()
     sr.deserialize(file);
     file.close();
 
-    LinearReg reg(sr.getSize());
+    LinearReg reg(sr.size());
 
-    reg.initializeInnerStruct(sr.getWeight());
+    reg.init(sr.weight());
 
     auto X = get_linear_idata<LinearReg>();
     auto Y = get_linear_odata<LinearReg>();
 
     Checker<LinearReg> check(reg);
 
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+    std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg(X) << "\n\n"
               << "Accuracy:\n" << check.guide.full(Y, reg(X), 0.1) << "\n\n";
 }
@@ -169,9 +169,9 @@ void linear_regression_test()
     auto Y = get_linear_odata<LinearReg>();
 
     teach.train(X, Y);
-    std::cout << reg.getInnerSize() << '\n';
+    std::cout << reg.size() << '\n';
 
-    std::cout << "Weight:\n" << reg.getInnerWeight() << "\n\n"
+    std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, loss::MSE<precision_type>()) << '\n';
 

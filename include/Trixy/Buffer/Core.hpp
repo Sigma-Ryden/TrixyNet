@@ -228,26 +228,21 @@ void Buff<T>::read(OutData first, OutData last) noexcept
 {
     if (offset_ * (last - first) > size_) return;
 
-    switch (id_)
-    {
-    BUFF_CASE_READ_HELPER(i8)
-    BUFF_CASE_READ_HELPER(i16)
-    BUFF_CASE_READ_HELPER(i32)
-    BUFF_CASE_READ_HELPER(i64)
+    _BUFF_READ_HELPER(i8)
+    _BUFF_READ_HELPER(i16)
+    _BUFF_READ_HELPER(i32)
+    _BUFF_READ_HELPER(i64)
 
-    BUFF_CASE_READ_HELPER(u8)
-    BUFF_CASE_READ_HELPER(u16)
-    BUFF_CASE_READ_HELPER(u32)
-    BUFF_CASE_READ_HELPER(u64)
+    _BUFF_READ_HELPER(u8)
+    _BUFF_READ_HELPER(u16)
+    _BUFF_READ_HELPER(u32)
+    _BUFF_READ_HELPER(u64)
 
-    BUFF_CASE_READ_HELPER(f32)
-    BUFF_CASE_READ_HELPER(f64)
-    BUFF_CASE_READ_HELPER(f128)
+    _BUFF_READ_HELPER(f32)
+    _BUFF_READ_HELPER(f64)
+    _BUFF_READ_HELPER(f128)
 
-    BUFF_CASE_READ_HELPER(user)
-
-    default: return;
-    }
+    _BUFF_READ_HELPER(user)
 }
 
 template <typename T>
@@ -503,21 +498,21 @@ template <typename T>
 template <typename DetectionDataType>
 typename Buff<T>::SupportTypeId Buff<T>::detect_data_type_id()
 {
-    BUFF_DETECT_HELPER(i8)
-    BUFF_DETECT_HELPER(i16)
-    BUFF_DETECT_HELPER(i32)
-    BUFF_DETECT_HELPER(i64)
+    _BUFF_DETECT_HELPER(i8)
+    _BUFF_DETECT_HELPER(i16)
+    _BUFF_DETECT_HELPER(i32)
+    _BUFF_DETECT_HELPER(i64)
 
-    BUFF_DETECT_HELPER(u8)
-    BUFF_DETECT_HELPER(u16)
-    BUFF_DETECT_HELPER(u32)
-    BUFF_DETECT_HELPER(u64)
+    _BUFF_DETECT_HELPER(u8)
+    _BUFF_DETECT_HELPER(u16)
+    _BUFF_DETECT_HELPER(u32)
+    _BUFF_DETECT_HELPER(u64)
 
-    BUFF_DETECT_HELPER(f32)
-    BUFF_DETECT_HELPER(f64)
-    BUFF_DETECT_HELPER(f128)
+    _BUFF_DETECT_HELPER(f32)
+    _BUFF_DETECT_HELPER(f64)
+    _BUFF_DETECT_HELPER(f128)
 
-    BUFF_DETECT_HELPER(user)
+    _BUFF_DETECT_HELPER(user)
 
     return SupportTypeId::null;
 }

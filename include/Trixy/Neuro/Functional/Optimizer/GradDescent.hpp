@@ -18,10 +18,10 @@ namespace train
 
 template <class Optimizeriable, class TypeSet = OptimizerTypeSet>
 using GradDescent
-    = TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::grad_descent);
+    = TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::grad_descent);
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::grad_descent)
+TRIXY_OPTIMIZER_TEMPLATE()
+class TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::grad_descent)
     : public IOptimizer<Optimizeriable>
 {
 public:

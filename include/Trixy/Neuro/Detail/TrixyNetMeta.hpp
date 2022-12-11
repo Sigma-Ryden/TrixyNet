@@ -16,8 +16,6 @@
 
 #include <Trixy/Neuro/Serializer/Base.hpp>
 
-#include <Trixy/Neuro/Detail/MacroScope.hpp>
-
 namespace trixy
 {
 
@@ -26,27 +24,27 @@ namespace meta
 
 template <typename> struct is_trixy_net : std::false_type {};
 template <typename TrixyNetType, typename TypeSet>
-struct is_trixy_net<TRIXY_NET_TPL(TrixyNetType)> : std::true_type {};
+struct is_trixy_net<TrixyNet<TypeSet, TrixyNetType>> : std::true_type {};
 
 template <typename> struct is_feedforward_net : std::false_type {};
-TRIXY_NET_TPL_DECLARATION
-struct is_feedforward_net<TRIXY_NET_TPL(TrixyNetType::FeedForward)> : std::true_type {};
+template <typename TypeSet>
+struct is_feedforward_net<TrixyNet<TypeSet, TrixyNetType::FeedForward>> : std::true_type {};
 
 template <typename> struct is_unified_net : std::false_type {};
-TRIXY_NET_TPL_DECLARATION
-struct is_unified_net<TRIXY_NET_TPL(TrixyNetType::Unified)> : std::true_type {};
+template <typename TypeSet>
+struct is_unified_net<TrixyNet<TypeSet, TrixyNetType::Unified>> : std::true_type {};
 
 template <typename> struct is_regression : std::false_type {};
 template <typename RegressionType, typename TypeSet>
-struct is_regression<TRIXY_REGRESSION_TPL(RegressionType)> : std::true_type {};
+struct is_regression<Regression<TypeSet, RegressionType>> : std::true_type {};
 
 template <typename> struct is_linear_regression : std::false_type {};
-TRIXY_REGRESSION_TPL_DECLARATION
-struct is_linear_regression<TRIXY_REGRESSION_TPL(RegressionType::Linear)> : std::true_type {};
+template <typename TypeSet>
+struct is_linear_regression<Regression<TypeSet, RegressionType::Linear>> : std::true_type {};
 
 template <typename> struct is_polynomial_regression : std::false_type {};
-TRIXY_REGRESSION_TPL_DECLARATION
-struct is_polynomial_regression<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)> : std::true_type {};
+template <typename TypeSet>
+struct is_polynomial_regression<Regression<TypeSet, RegressionType::Polynomial>> : std::true_type {};
 
 template <typename> struct is_optimizer : std::false_type {};
 template <class Optimizeriable,
@@ -68,7 +66,5 @@ struct is_training<train::Training<Trainable>> : std::true_type {};
 } // namespace meta
 
 } // namespace trixy
-
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_NET_META_HPP

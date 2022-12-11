@@ -1,3 +1,3 @@
 // clean up
-#undef BUFF_DETECT_HELPER
-#undef BUFF_CASE_READ_HELPER
+#undef _BUFF_READ_HELPER
+#undef _BUFF_DETECT_HELPER

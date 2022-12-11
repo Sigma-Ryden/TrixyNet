@@ -6,13 +6,13 @@
 namespace trixy
 {
 
-template <typename RegressionType, typename TypeSet>
+template <typename TypeSet, typename RegressionType = RegressionType::Polynomial>
 class Regression;
 
 namespace guard
 {
 
-template <class RegressionType, typename TypeSet>
+template <typename TypeSet, typename RegressionType = RegressionType::Polynomial>
 struct RegressionRequire;
 
 } // namespace guard

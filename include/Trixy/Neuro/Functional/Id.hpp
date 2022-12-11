@@ -13,48 +13,51 @@ namespace functional
 
 enum class ActivationId : std::uint8_t
 {
-    undefined,          ///< default null value
-    identity,           ///< same value from input
-    sigmoid,            ///< sigmoid(x) = 1 / (exp(-x) + 1)
-    tanh,               ///< hyperbolic tangent
-    relu,               ///< relu(x) = max(0, x) (Rectified Linear Unit)
-    elu,                ///< exponential relu with alpha = 0.2
-    lrelu,              ///< leaky relu (same as relu, but with low negative signal)
-    selu,               ///< exponential relu with lambda = 1.050701, beta = 1.758099
-    gelu,               ///< gaussian relu
-    softsign,           ///< absolute value hyperbola
-    softplus,           ///< logarithm with exponential argument
-    swish,              ///< same as relu & sigmoid
-    softmax,            ///< normalization function
-    mod_relu,           ///< relu for range [0, 1]
-    mod_tanh,           ///< tanh for range [0, 1]
-    unstable_softmax,   ///< deprecated
+    undefined = 0,          ///< default null value
+    identity = 1,           ///< same value from input
+    sigmoid = 2,            ///< sigmoid(x) = 1 / (exp(-x) + 1)
+    tanh = 3,               ///< hyperbolic tangent
+    relu = 4,               ///< relu(x) = max(0, x) (Rectified Linear Unit)
+    elu = 5,                ///< exponential relu with alpha = 0.2
+    lrelu = 6,              ///< leaky relu (same as relu, but with low negative signal)
+    selu = 7,               ///< exponential relu with lambda = 1.050701, beta = 1.758099
+    gelu = 8,               ///< gaussian relu
+    softsign = 9,           ///< absolute value hyperbola
+    softplus = 10,          ///< logarithm with exponential argument
+    swish = 11,             ///< same as relu & sigmoid
+    softmax = 12,           ///< normalization function
+    mod_relu = 13,          ///< relu for range [0, 1]
+    mod_tanh = 14,          ///< tanh for range [0, 1]
+    unstable_softmax = 15,  ///< deprecated
+    size
 };
 
 enum class LossId : std::uint8_t
 {
-    undefined,          ///< default null value
-    MSE,                ///< mean squared error
-    MAE,                ///< mean absolute error
-    CCE,                ///< categorical cross entropy (for softmax)
-    BCE,                ///< binary cross entropy (for sigmoid)
-    MSLE,               ///< mean squared logarithmic error
-    NLL,                ///< negative logarithmic likelihood (for softmax)
-    LC,                 ///< logcosh (maybe unused)
-    CCE_,               ///< categorical cross entropy (deprecated)
-    BCE_                ///< binary_cross_entropy (maybe unused)
+    undefined = 0,          ///< default null value
+    MSE = 1,                ///< mean squared error
+    MAE = 2,                ///< mean absolute error
+    CCE = 3,                ///< categorical cross entropy (for softmax)
+    BCE = 4,                ///< binary cross entropy (for sigmoid)
+    MSLE = 5,               ///< mean squared logarithmic error
+    NLL = 6,                ///< negative logarithmic likelihood (for softmax)
+    LC = 7,                 ///< logcosh (maybe unused)
+    CCE_ = 8,               ///< categorical cross entropy (deprecated)
+    BCE_ = 9,               ///< binary_cross_entropy (maybe unused)
+    size
 };
 
 enum class OptimizationId : std::uint8_t
 {
-    undefined,          ///< Default null value
-    grad_descent,       ///< Gradient descent optimizer
-    stograd_descent,    ///< Stochastic Gradient Descent optimizer
-    momentum,           ///< Momentum (slowed & stable)
-    nestorov,           ///< Nesterov accelerated gradient (modified momentum)
-    ada_grad,           ///< Adaptive Gradient algorithm (stable)
-    rms_prop,           ///< Root Mean Square Propagation (horny)
-    adam,               ///< Adaptive moment estimation (quick)
+    undefined = 0,          ///< Default null value
+    grad_descent = 1,       ///< Gradient descent optimizer
+    stograd_descent = 2,    ///< Stochastic Gradient Descent optimizer
+    momentum = 3,           ///< Momentum (slowed & stable)
+    nestorov = 4,           ///< Nesterov accelerated gradient (modified momentum)
+    ada_grad = 5,           ///< Adaptive Gradient algorithm (stable)
+    rms_prop = 6,           ///< Root Mean Square Propagation (horny)
+    adam = 7,               ///< Adaptive moment estimation (quick)
+    size
 };
 
 } // namespace functional

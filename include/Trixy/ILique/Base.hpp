@@ -7,6 +7,7 @@
 #include <Trixy/Lique/Shape.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -49,7 +50,7 @@ public:
 
     Tensor& fill(Precision value) noexcept { return self().fill(value); }
 
-    template <class Generator, trixy::meta::require<meta::is_callable<Generator>::value> = 0>
+    template <class Generator, TRREQUIRE(meta::is_callable<Generator>::value)>
     Tensor& fill(Generator gen) noexcept { return self().fill(gen); }
 
     template <class Function>
@@ -96,8 +97,7 @@ public:
     size_type size() const noexcept { return self().size(); }
     const shape_type& shape() const noexcept { return self().shape(); }
 
-    void swap(Tensor& tensor) noexcept
-    { self().swap(tensor); }
+    void swap(Tensor& tensor) noexcept { self().swap(tensor); }
 
     reference operator() (size_type i) noexcept { return self().operator()(i); }
     const_reference operator() (size_type i) const noexcept { return self().operator()(i); }

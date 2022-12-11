@@ -1,14 +1,15 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#include <Trixy/Detail/MetaMacro.hpp> // TRIXY_TEMPLATE
 
-#define ILIQUE_TENSOR_TPL_DECLARATION                                                                   \
-    template <template <typename, typename...> class Derived,                                           \
-              typename Precision, typename... Pack>
+#define ILIQUE_TENSOR_TEMPLATE(...)                                                                     \
+    TRIXY_TEMPLATE(template <typename, typename...> class Derived,                                      \
+                   typename Precision, typename... Pack)
 
-#define ILIQUE_TENSOR_TPL(tensor_type)                                                                  \
-    ITensor<tensor_type, Derived, Precision, Pack...>
+#define ILIQUE_TENSOR_TEMPLATE_CLASS(...)                                                               \
+    ITensor<__VA_ARGS__, Derived, Precision, Pack...>
 
-#define ILIQUE_TENSOR_BASE_TYPES                                                                        \
+#define _ILIQUE_TENSOR_BASE_TYPES(...)                                                                  \
     private:                                                                                            \
         using Base = ITensorBase<Derived, Precision, Pack...>;                                          \
                                                                                                         \
@@ -23,7 +24,7 @@
         using typename Base::reference;                                                                 \
         using typename Base::const_reference;
 
-#define ILIQUE_TENSOR_BASE_FUNCIONS                                                                     \
+#define _ILIQUE_TENSOR_BASE_FUNCIONS(...)                                                               \
     public:                                                                                             \
         using Base::copy;                                                                               \
         using Base::fill;                                                                               \
@@ -43,6 +44,6 @@
     protected:                                                                                          \
         using Base::self;
 
-#define ILIQUE_TENSOR_BASE_BODY                                                                         \
-    ILIQUE_TENSOR_BASE_TYPES                                                                            \
-    ILIQUE_TENSOR_BASE_FUNCIONS
+#define ILIQUE_TENSOR_BASE_BODY(...)                                                                    \
+    _ILIQUE_TENSOR_BASE_TYPES(__VA_ARGS__)                                                              \
+    _ILIQUE_TENSOR_BASE_FUNCIONS(__VA_ARGS__)

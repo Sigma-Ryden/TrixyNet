@@ -20,10 +20,10 @@ using namespace tr::meta;
 using precision_type = float;
 using size_type      = std::size_t;
 
-using Core    = tr::TypeSet<precision_type>;
+using Core     = tr::TypeSet<precision_type>;
 
-using FeedNet = tr::FeedForwardNet<Core>;
-using UniNet  = tr::TrixyNet<Core>;
+using FeedNet  = tr::FeedForwardNet<Core>;
+using TrixyNet = tr::TrixyNet<Core>;
 
 template <class Net, class Sample =
     if_<is_feedforward_net<Net>::value, Core::Vector, Core::Tensor>>
@@ -70,20 +70,21 @@ void experimental_test()
 
         FeedNet net({4, 4, 5, 4, 3});
 
-        net.inner.initialize(generator);
+        net.inner.init(generator);
 
         tr::Functional<FeedNet> manage;
 
         net.function.activation(manage.get<ActivationId::relu>());
         net.function.normalization(manage.get<ActivationId::softmax>());
+
         net.function.loss(manage.get<LossId::CCE>());
 
-        Training<FeedNet> teach(net);
+        Training<FeedNet> train(net);
 
         auto optimizer = AdamOptimizer(net, 0.01);
 
         Timer t;
-        teach.trainBatch(idata, odata, optimizer, epochs);
+        train.batch(idata, odata, optimizer, epochs);
         std::cout << "Train first net time: " << t.elapsed() << '\n';
 
         statistic(net, idata, odata);
@@ -91,13 +92,13 @@ void experimental_test()
 
     // Preparing second model
     {
-        using FullyConnected = tr::layer::FullyConnected<UniNet>;
+        using FullyConnected = tr::layer::FullyConnected<TrixyNet>;
 
         // Preparing train data
-        auto idata = get_speed_test_idata<UniNet>();
-        auto odata = get_speed_test_odata<UniNet>();
+        auto idata = get_speed_test_idata<TrixyNet>();
+        auto odata = get_speed_test_odata<TrixyNet>();
 
-        UniNet net;
+        TrixyNet net;
 
         using ReLU = activation::ReLU<precision_type>;
         using SoftMax = activation::SoftMax<precision_type>;
@@ -109,15 +110,15 @@ void experimental_test()
 
         net.init(generator);
 
-        Training<UniNet> teach(net);
+        Training<TrixyNet> train(net);
 
         using CCE = loss::CCE<precision_type>;
-        teach.loss(new CCE);
+        train.loss(new CCE);
 
         auto optimizer = AdamOptimizer(net, 0.01);
 
         Timer t;
-        teach.trainBatch(idata, odata, optimizer, epochs);
+        train.batch(idata, odata, optimizer, epochs);
         std::cout << "Train second net time: " << t.elapsed() << '\n';
 
         statistic(net, idata, odata);

@@ -13,8 +13,8 @@ namespace trixy
 namespace guard
 {
 
-TRIXY_REGRESSION_TPL_DECLARATION
-struct TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Linear)
+TRIXY_REGRESSION_TEMPLATE()
+struct RegressionRequire<TypeSet, RegressionType::Linear>
 {
 public:
     using type = RegressionType::Linear;
@@ -36,8 +36,8 @@ protected:
     using require_linear    = typename LinearRequire<Linear>::type;
 };
 
-TRIXY_REGRESSION_TPL_DECLARATION
-struct TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Polynomial)
+TRIXY_REGRESSION_TEMPLATE()
+struct RegressionRequire<TypeSet>
 {
 public:
     using type = RegressionType::Polynomial;

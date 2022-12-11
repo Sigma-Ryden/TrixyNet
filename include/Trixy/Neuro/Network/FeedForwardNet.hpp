@@ -10,6 +10,7 @@
 #include <Trixy/Neuro/Functional/Id.hpp>
 
 #include <Trixy/Locker/Core.hpp>
+#include <Trixy/Range/View.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -18,12 +19,12 @@
 namespace trixy
 {
 
-TRIXY_NET_TPL_DECLARATION
-using FeedForwardNet = TRIXY_NET_TPL(TrixyNetType::FeedForward);
+TRIXY_NET_TEMPLATE()
+using FeedForwardNet = TrixyNet<TypeSet, TrixyNetType::FeedForward>;
 
-TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward)
-    : public guard::TRIXY_NET_REQUIRE_TPL(TrixyNetType::FeedForward)::type
+TRIXY_NET_TEMPLATE()
+class TrixyNet<TypeSet, TrixyNetType::FeedForward>
+    : public guard::TrixyNetRequire<TypeSet, TrixyNetType::FeedForward>::type
 {
 public:
     class InnerStruct;
@@ -79,8 +80,8 @@ public:
     const Vector& operator() (const Vector& sample) const noexcept;
 };
 
-TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct
+TRIXY_NET_TEMPLATE()
+class FeedForwardNet<TypeSet>::InnerStruct
 {
 public:
     const size_type N;              ///< Number of functional layer (same as topology_size - 1)
@@ -98,18 +99,18 @@ public:
     InnerStruct(InnerStruct&&) noexcept = default;
 
     template <class TopologyGenerator>
-    void initialize(TopologyGenerator functor) noexcept;
+    void init(TopologyGenerator functor) noexcept;
 
     template <class BiasGenerator, class WeightGenerator>
-    void initialize(BiasGenerator functorB,
-                    WeightGenerator functorW) noexcept;
+    void init(BiasGenerator functorB,
+              WeightGenerator functorW) noexcept;
 
-    void initialize(const Container<Vector>& bias,
-                    const Container<Matrix>& weight) noexcept;
+    void init(const Container<Vector>& bias,
+              const Container<Matrix>& weight) noexcept;
 };
 
-TRIXY_NET_TPL_DECLARATION
-struct TRIXY_NET_TPL(TrixyNetType::FeedForward)::ActivationFunction
+TRIXY_NET_TEMPLATE()
+struct FeedForwardNet<TypeSet>::ActivationFunction
 {
 public:
     using Function        = void (*)(XVector&, const XVector&);
@@ -132,8 +133,8 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_NET_TPL_DECLARATION
-struct TRIXY_NET_TPL(TrixyNetType::FeedForward)::LossFunction
+TRIXY_NET_TEMPLATE()
+struct FeedForwardNet<TypeSet>::LossFunction
 {
 public:
     using Function        = void (*)(precision_type&, const XVector&, const XVector&);
@@ -156,13 +157,14 @@ public:
     , id(function_id) {}
 };
 
-TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder
+TRIXY_NET_TEMPLATE()
+class FeedForwardNet<TypeSet>::Builder
 {
 public:
     template <class Ret = XContainer<XVector>,
               class Init = Container<XVector>, typename... Args>
-    static Ret getlock1d(const InnerTopology& topology, Args&&... args);
+    static Ret getlock1d(const InnerTopology& topology, Args&&... args)
+    { return get1d<Ret, Init>(topology, std::forward<Args>(args)...); }
 
     template <class Ret = Container<Vector>,
               class Init = Ret, typename... Args>
@@ -170,15 +172,16 @@ public:
 
     template <class Ret = XContainer<XMatrix>,
               class Init = Container<XMatrix>, typename... Args>
-    static Ret getlock2d(const InnerTopology& topology, Args&&... args);
+    static Ret getlock2d(const InnerTopology& topology, Args&&... args)
+    { return get2d<Ret, Init>(topology, std::forward<Args>(args)...); }
 
     template <class Ret = Container<Matrix>,
               class Init = Ret, typename... Args>
     static Ret get2d(const InnerTopology& topology, Args&&... args);
 };
 
-TRIXY_NET_TPL_DECLARATION
-class TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional
+TRIXY_NET_TEMPLATE()
+class FeedForwardNet<TypeSet>::InnerFunctional
 {
 public:
     using AllActivationFunction             = Container<ActivationFunction>;
@@ -198,51 +201,47 @@ public:
     InnerFunctional(InnerFunctional&&) noexcept = default;
 
     void activation(const ActivationFunction&);
-    void activationSet(const AllActivationFunction&);
+    void activation(const AllActivationFunction&);
     void normalization(const ActivationFunction&);
 
     void loss(const LossFunction&);
 
-    const ActivationFunction& activation(size_type i = 0) const noexcept { return activation_[i]; }
-    const ActivationId& activationId(size_type i = 0) const noexcept { return activationId_[i]; }
+    const ActivationFunction& activation(size_type i) const noexcept { return activation_[i]; }
+    const ActivationId& activation_id(size_type i) const noexcept { return activationId_[i]; }
 
-    const AllActivationFunction& activationSet() const noexcept { return activation_; }
-    const Container<ActivationId>& activationIdSet() const noexcept { return activationId_; }
+    const AllActivationFunction& activation() const noexcept { return activation_; }
+    const Container<ActivationId>& activation_id() const noexcept { return activationId_; }
 
     const ActivationFunction& normalization() const noexcept { return activation_.back(); }
-    const ActivationId& normalizationId() const noexcept { return activationId_.back(); }
+    const ActivationId& normalization_id() const noexcept { return activationId_.back(); }
 
     const LossFunction& loss() const noexcept { return loss_; }
-    const LossId& lossId() const noexcept { return loss_.id; }
+    const LossId& loss_id() const noexcept { return loss_.id; }
 };
 
-TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TEMPLATE()
 template <class TopologyGenerator>
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
+void FeedForwardNet<TypeSet>::InnerStruct::init(
     TopologyGenerator functor) noexcept
 {
-    for (size_type i = 0; i < N; ++i)
-    {
-        B[i].fill(functor);
-        W[i].fill(functor);
-    }
+    init(functor, functor);
 }
 
-TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TEMPLATE()
 template <class BiasGenerator, class WeightGenerator>
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
+void FeedForwardNet<TypeSet>::InnerStruct::init(
     BiasGenerator functorB,
     WeightGenerator functorW) noexcept
 {
     for (size_type i = 0; i < N; ++i)
     {
-        B[i].fill(functorB);
+        B[i].fill(functorW);
         W[i].fill(functorW);
     }
 }
 
-TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
+TRIXY_NET_TEMPLATE()
+void FeedForwardNet<TypeSet>::InnerStruct::init(
     const Container<Vector>& bias,
     const Container<Matrix>& weight) noexcept
 {
@@ -253,9 +252,9 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::initialize(
     }
 }
 
-TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TEMPLATE()
 template <class Ret, class Init, typename... Args>
-Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get1d(
+Ret FeedForwardNet<TypeSet>::Builder::get1d(
     const Container<size_type>& topology, Args&&... args)
 {
     Init data;
@@ -267,17 +266,9 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get1d(
     return data;
 }
 
-TRIXY_NET_TPL_DECLARATION
+TRIXY_NET_TEMPLATE()
 template <class Ret, class Init, typename... Args>
-Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::getlock1d(
-    const Container<size_type>& topology, Args&&... args)
-{
-    return get1d<Ret, Init>(topology, std::forward<Args>(args)...);
-}
-
-TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Args>
-Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get2d(
+Ret FeedForwardNet<TypeSet>::Builder::get2d(
     const Container<size_type>& topology, Args&&... args)
 {
     Init data;
@@ -289,16 +280,8 @@ Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::get2d(
     return data;
 }
 
-TRIXY_NET_TPL_DECLARATION
-template <class Ret, class Init, typename... Args>
-Ret TRIXY_NET_TPL(TrixyNetType::FeedForward)::Builder::getlock2d(
-    const Container<size_type>& topology, Args&&... args)
-{
-    return get2d<Ret, Init>(topology, std::forward<Args>(args)...);
-}
-
-TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activation(
+TRIXY_NET_TEMPLATE()
+void FeedForwardNet<TypeSet>::InnerFunctional::activation(
     const ActivationFunction& f)
 {
     for (size_type i = 0; i < activation_.size() - 1; ++i)
@@ -308,8 +291,8 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activation(
     }
 }
 
-TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activationSet(
+TRIXY_NET_TEMPLATE()
+void FeedForwardNet<TypeSet>::InnerFunctional::activation(
     const Container<ActivationFunction>& fs)
 {
     for (size_type i = 0; i < activation_.size(); ++i)
@@ -319,23 +302,23 @@ void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::activationSet(
     }
 }
 
-TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::normalization(
+TRIXY_NET_TEMPLATE()
+void FeedForwardNet<TypeSet>::InnerFunctional::normalization(
     const ActivationFunction& f)
 {
     activation_  .back() = f;
     activationId_.back() = f.id;
 }
 
-TRIXY_NET_TPL_DECLARATION
-void TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerFunctional::loss(
+TRIXY_NET_TEMPLATE()
+void FeedForwardNet<TypeSet>::InnerFunctional::loss(
     const LossFunction& f)
 {
     loss_ = f;
 }
 
-TRIXY_NET_TPL_DECLARATION
-TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::InnerStruct(
+TRIXY_NET_TEMPLATE()
+FeedForwardNet<TypeSet>::InnerStruct::InnerStruct(
     const Container<size_type>& topology)
     : N(topology.size() - 1)
     , B(TrixyNet::Builder::getlock1d(topology))
@@ -344,8 +327,8 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::InnerStruct::InnerStruct(
 {
 }
 
-TRIXY_NET_TPL_DECLARATION
-TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
+TRIXY_NET_TEMPLATE()
+FeedForwardNet<TypeSet>::TrixyNet(
     const Container<size_type>& topology)
     : buff(TrixyNet::Builder::getlock1d(topology))
     , inner(topology)
@@ -354,8 +337,8 @@ TRIXY_NET_TPL(TrixyNetType::FeedForward)::TrixyNet(
 {
 }
 
-TRIXY_NET_TPL_DECLARATION
-auto TRIXY_NET_TPL(TrixyNetType::FeedForward)::feedforward(
+TRIXY_NET_TEMPLATE()
+auto FeedForwardNet<TypeSet>::feedforward(
     const Vector& sample) const noexcept -> const Vector&
 {
     /*
@@ -380,8 +363,8 @@ auto TRIXY_NET_TPL(TrixyNetType::FeedForward)::feedforward(
     return buff.back().base();
 }
 
-TRIXY_NET_TPL_DECLARATION
-auto TRIXY_NET_TPL(TrixyNetType::FeedForward)::operator() (
+TRIXY_NET_TEMPLATE()
+auto FeedForwardNet<TypeSet>::operator() (
     const Vector& sample) const noexcept -> const Vector&
 {
     return feedforward(sample);

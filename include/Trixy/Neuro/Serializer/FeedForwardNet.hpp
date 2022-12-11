@@ -13,12 +13,17 @@
 #include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-class TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)
+TRIXY_SERIALIZER_TEMPLATE()
+using FeedForwardNetSerializer
+    = Serializer<Serializable, TRWITH(Serializable, meta::is_feedforward_net)>;
+
+TRIXY_SERIALIZER_TEMPLATE()
+class Serializer<Serializable, TRWITH(Serializable, meta::is_feedforward_net)>
 {
 public:
     using Net = Serializable;
@@ -49,13 +54,13 @@ private:
 private:
     BaseBuffer buff;                ///< Specialized Buffer for casting stream data
 
-    InnerTopology topology;         ///< Network topology (main meta data for construction)
+    InnerTopology topology_;        ///< Network topology (main meta data for construction)
 
     Container<Vector> B;            ///< Container of network bias
     Container<Matrix> W;            ///< Container of network weight
 
-    AllActivationId activationId;   ///< Network activation functions id
-    LossId lossId;                  ///< Network loss function id
+    AllActivationId activation_id_; ///< Network activation functions id
+    LossId loss_id_;                ///< Network loss function id
 
     size_type N;                    ///< Number of functional layer (same as topology_size - 1)
 
@@ -75,33 +80,33 @@ public:
     template <class InStream>
     void deserialize(InStream& in);
 
-    const Container<size_type>& getTopology() const noexcept { return topology; }
-    const Container<Vector>& getBias() const noexcept { return B; }
-    const Container<Matrix>& getWeight() const noexcept { return W; }
+    const Container<size_type>& topology() const noexcept { return topology_; }
+    const Container<Vector>& bias() const noexcept { return B; }
+    const Container<Matrix>& weight() const noexcept { return W; }
 
-    ActivationId getActivationId() const noexcept { return activationId.front(); }
-    ActivationId getNormalizationId() const noexcept { return activationId.back(); }
+    ActivationId activation_id() const noexcept { return activation_id_.front(); }
+    ActivationId normalization_id() const noexcept { return activation_id_.back(); }
 
-    const AllActivationId& getAllActivationId() const noexcept { return activationId; }
+    const AllActivationId& all_activation_id() const noexcept { return activation_id_; }
 
-    LossId getLossId() const noexcept { return lossId; }
+    LossId loss_id() const noexcept { return loss_id_; }
 
 private:
-    constexpr static meta_data_type getBaseMetaData() noexcept;
+    constexpr static meta_data_type meta_data() noexcept;
 
     template <class OutStream, typename InData>
-    static void serializeData(OutStream& out, InData data, size_type n);
+    static void serialize_data(OutStream& out, InData data, size_type n);
 
     template <class InStream, typename OutData>
-    void deserializeData(InStream& in, OutData data, size_type n, bool buffering);
+    void deserialize_data(InStream& in, OutData data, size_type n, bool buffering);
 };
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Net& net)
+TRIXY_SERIALIZER_TEMPLATE()
+void FeedForwardNetSerializer<Serializable>::prepare(const Net& net)
 {
-    topology = net.inner.topology;
+    topology_ = net.inner.topology;
 
-    N = topology.size() - 1;
+    N = topology_.size() - 1;
 
     B.resize(N);
     W.resize(N);
@@ -115,67 +120,67 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::prepare(const Net& net)
         W[i].copy(net.inner.W[i].data());
     }
 
-    activationId = net.function.activationIdSet();
-    lossId = net.function.lossId();
+    activation_id_ = net.function.activation_id();
+    loss_id_ = net.function.loss_id();
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class OutStream>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(OutStream& out) const
+void FeedForwardNetSerializer<Serializable>::serialize(OutStream& out) const
 {
-    meta_data_type xmeta = getBaseMetaData();
+    meta_data_type xmeta = meta_data();
     out.write(detail::const_byte_cast(&xmeta), 4); // writing 4 bytes of meta data
 
-    size_type topology_size = topology.size();
-    serializeData(out, &topology_size, 1);
+    size_type topology_size = topology_.size();
+    serialize_data(out, &topology_size, 1);
 
-    serializeData(out, topology.data(), topology.size());
+    serialize_data(out, topology_.data(), topology_.size());
 
-    serializeData(out, activationId.data(), activationId.size());
-    serializeData(out, &lossId, 1);
+    serialize_data(out, activation_id_.data(), activation_id_.size());
+    serialize_data(out, &loss_id_, 1);
 
     for (auto& tensor : B)
-        serializeData(out, tensor.data(), tensor.size());
+        serialize_data(out, tensor.data(), tensor.size());
 
     for (auto& tensor : W)
-        serializeData(out, tensor.data(), tensor.size());
+        serialize_data(out, tensor.data(), tensor.size());
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class OutStream>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serialize(
+void FeedForwardNetSerializer<Serializable>::serialize(
     OutStream& out, const Net& net) const
 {
-    meta_data_type xmeta = getBaseMetaData();
+    meta_data_type xmeta = meta_data();
     out.write(detail::const_byte_cast(&xmeta), 4); // writing 4 bytes of meta data
 
     size_type topology_size = net.inner.topology.size();
-    serializeData(out, &topology_size, 1);
+    serialize_data(out, &topology_size, 1);
 
-    serializeData(
+    serialize_data(
         out,
         net.inner.topology.data(),
         net.inner.topology.size()
     );
 
-    serializeData(
+    serialize_data(
         out,
-        net.function.activationIdSet().data(),
-        net.function.activationIdSet().size()
+        net.function.activation_id().data(),
+        net.function.activation_id().size()
     );
 
-    serializeData(out, &net.function.lossId(), 1);
+    serialize_data(out, &net.function.loss_id(), 1);
 
     for (auto& tensor : net.inner.B)
-        serializeData(out, tensor.data(), tensor.size());
+        serialize_data(out, tensor.data(), tensor.size());
 
     for (auto& tensor : net.inner.W)
-        serializeData(out, tensor.data(), tensor.size());
+        serialize_data(out, tensor.data(), tensor.size());
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class InStream>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(InStream& in)
+void FeedForwardNetSerializer<Serializable>::deserialize(InStream& in)
 {
     // reading first 4 bytes for getting meta data of type size
     in.read(detail::byte_cast(&meta), 4);
@@ -191,41 +196,40 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserialize(InStream& in)
     if(buffering) buff.set(BaseId::Unsigned, meta_size_type);
 
     size_type topology_size = 0;
-    deserializeData(in, &topology_size, 1, buffering);
+    deserialize_data(in, &topology_size, 1, buffering);
 
-    topology.resize(topology_size);
-    deserializeData(in, topology.data(), topology.size(), buffering);
+    topology_.resize(topology_size);
+    deserialize_data(in, topology_.data(), topology_.size(), buffering);
 
     N = topology_size - 1;
 
-    activationId.resize(N);
+    activation_id_.resize(N);
 
-    B = Net::Builder::get1d(topology);
-    W = Net::Builder::get2d(topology);
+    B = Net::Builder::get1d(topology_);
+    W = Net::Builder::get2d(topology_);
 
     buffering = (sizeof(ActivationId) != meta_activation_id);
     if (buffering) buff.set(BaseId::Unsigned, meta_activation_id);
 
-    deserializeData(in, activationId.data(), activationId.size(), buffering);
+    deserialize_data(in, activation_id_.data(), activation_id_.size(), buffering);
 
     buffering = (sizeof(LossId) != meta_loss_id);
     if (buffering) buff.set(BaseId::Unsigned, meta_loss_id);
 
-    deserializeData(in, &lossId, 1, buffering);
+    deserialize_data(in, &loss_id_, 1, buffering);
 
     buffering = (sizeof(precision_type) != meta_precision_type);
     if (buffering) buff.set(BaseId::Float, meta_precision_type);
 
     for (auto& tensor : B)
-        deserializeData(in, tensor.data(), tensor.size(), buffering);
+        deserialize_data(in, tensor.data(), tensor.size(), buffering);
 
     for (auto& tensor : W)
-        deserializeData(in, tensor.data(), tensor.size(), buffering);
+        deserialize_data(in, tensor.data(), tensor.size(), buffering);
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
-constexpr typename TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::meta_data_type
-TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::getBaseMetaData() noexcept
+TRIXY_SERIALIZER_TEMPLATE()
+constexpr auto FeedForwardNetSerializer<Serializable>::meta_data() noexcept -> meta_data_type
 {
     using M = meta_data_type;
 
@@ -235,9 +239,9 @@ TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::getBaseMetaData() noexcept
          +  static_cast<M>(sizeof(LossId));
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class OutStream, typename InData>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
+void FeedForwardNetSerializer<Serializable>::serialize_data(
     OutStream& out, InData data, size_type n)
 {
     using Data = meta::dereference<InData>;
@@ -246,9 +250,9 @@ void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::serializeData(
     out.write(reinterpret_cast<const char*>(data), memory_size);
 }
 
-TRIXY_SERIALIZER_TPL_DECLARATION
+TRIXY_SERIALIZER_TEMPLATE()
 template <class InStream, typename OutData>
-void TRIXY_SERIALIZER_TPL(meta::is_feedforward_net)::deserializeData(
+void FeedForwardNetSerializer<Serializable>::deserialize_data(
     InStream& in, OutData data, size_type n, bool buffering)
 {
     using Data = meta::dereference<OutData>;

@@ -160,13 +160,13 @@ std::size_t argmax(const Iterable& it) noexcept
     return search(it, comp::is_less{});
 }
 
-TRIXY_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TEMPLATE()
 Vector<std::size_t> argmin(const Matrix<Precision>& matrix, Axis axis)
 {
     return search(matrix, axis, comp::is_bigger{});
 }
 
-TRIXY_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TEMPLATE()
 Vector<std::size_t> argmax(const Matrix<Precision>& matrix, Axis axis)
 {
     return search(matrix, axis, comp::is_less{});
@@ -240,7 +240,7 @@ T std(const Iterable& it, bool unbiased = false)
     return std(first(it), last(it), T{}, unbiased);
 }
 
-TRIXY_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TEMPLATE()
 Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
 {
     using size_type = typename Matrix<Precision>::size_type;
@@ -289,7 +289,7 @@ Vector<double> mean(const Matrix<Precision>& matrix, Axis axis) // repair
     return vector;
 }
 
-TRIXY_FUNCTION_TPL_DECLARATION
+TRIXY_FUNCTION_TEMPLATE()
 Vector<double> std(const Matrix<Precision>& matrix, Axis axis, bool unbiased = false)
 {
     using size_type = typename Matrix<Precision>::size_type;

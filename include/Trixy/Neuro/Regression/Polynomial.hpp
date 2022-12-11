@@ -15,14 +15,14 @@
 namespace trixy
 {
 
-TRIXY_REGRESSION_TPL_DECLARATION
-using PolynomialRegression = TRIXY_REGRESSION_TPL(RegressionType::Polynomial);
+TRIXY_REGRESSION_TEMPLATE()
+using PolynomialRegression = Regression<TypeSet>;
 
-TRIXY_REGRESSION_TPL_DECLARATION
-class TRIXY_REGRESSION_TPL(RegressionType::Polynomial) :
-    public guard::TRIXY_REGRESSION_REQUIRE_TPL(RegressionType::Polynomial)::type
+TRIXY_REGRESSION_TEMPLATE()
+class Regression<TypeSet> :
+    public guard::RegressionRequire<TypeSet>::type
 {
-friend train::Training<TRIXY_REGRESSION_TPL(RegressionType::Polynomial)>;
+friend train::Training<PolynomialRegression<TypeSet>>;
 
 public:
     using Vector          = typename TypeSet::Vector;
@@ -42,7 +42,7 @@ private:
 public:
     explicit Regression(size_type power);
 
-    void initializeInnerStruct(Vector weight) noexcept;
+    void init(Vector weight) noexcept;
 
     void reset(size_type new_power);
 
@@ -52,35 +52,34 @@ public:
     Vector operator() (const Vector& idata) const
     { return feedforward(idata); }
 
-    const Vector& getInnerWeight() const noexcept { return W; }
-    size_type getInnerPower() const noexcept { return N - 1; }
+    const Vector& weight() const noexcept { return W; }
+    size_type power() const noexcept { return N - 1; }
 };
 
-TRIXY_REGRESSION_TPL_DECLARATION
-TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::Regression(size_type power)
+TRIXY_REGRESSION_TEMPLATE()
+Regression<TypeSet>::Regression(size_type power)
     : W(power + 1), N(power + 1)
 {
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::initializeInnerStruct(
+TRIXY_REGRESSION_TEMPLATE()
+void Regression<TypeSet>::init(
     Vector weight) noexcept
 {
     W.copy(weight);
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-void TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::reset(
+TRIXY_REGRESSION_TEMPLATE()
+void Regression<TypeSet>::reset(
     size_type new_power)
 {
     N = new_power + 1;
     W.resize(N);
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::precision_type
-    TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::feedforward(
-    precision_type sample) const noexcept
+TRIXY_REGRESSION_TEMPLATE()
+auto Regression<TypeSet>::feedforward(
+    precision_type sample) const noexcept -> precision_type
 {
     precision_type result = W(0);
     precision_type power  = 1.;
@@ -94,10 +93,9 @@ typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::precision_type
     return result;
 }
 
-TRIXY_REGRESSION_TPL_DECLARATION
-typename TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::Vector
-    TRIXY_REGRESSION_TPL(RegressionType::Polynomial)::feedforward(
-    const Vector& idata) const
+TRIXY_REGRESSION_TEMPLATE()
+auto Regression<TypeSet>::feedforward(
+    const Vector& idata) const -> Vector
 {
     Matrix X(idata.size(), N);
 

@@ -1,14 +1,10 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#include <Trixy/Detail/MetaMacro.hpp> // TRIXY_TEMPLATE
 
-#define LIQUE_TENSOR_TPL_DECLARATION                                                                    \
-    template <typename Precision>
+#define LIQUE_TENSOR_TEMPLATE(...) TRIXY_TEMPLATE(typename Precision)
 
-#define LIQUE_TENSOR_TPL(tensor_type)                                                                   \
-    Tensor<Precision, tensor_type,                                                                      \
-           ::trixy::meta::when<std::is_arithmetic<Precision>::value>>
-
-#define LIQUE_TENSOR_BASE_TYPES                                                                         \
+#define _LIQUE_TENSOR_BASE_TYPES(...)                                                                   \
     private:                                                                                            \
         using Base = TensorBase<Precision>;                                                             \
                                                                                                         \
@@ -24,7 +20,7 @@
         using typename Base::reference;                                                                 \
         using typename Base::const_reference;
 
-#define LIQUE_TENSOR_BASE_FUNCIONS                                                                      \
+#define _LIQUE_TENSOR_BASE_FUNCIONS(...)                                                                \
     public:                                                                                             \
         using Base::copy;                                                                               \
         using Base::fill;                                                                               \
@@ -42,6 +38,6 @@
                                                                                                         \
         using Base::operator();
 
-#define LIQUE_TENSOR_BASE_BODY                                                                          \
-    LIQUE_TENSOR_BASE_TYPES                                                                             \
-    LIQUE_TENSOR_BASE_FUNCIONS
+#define LIQUE_TENSOR_BASE_BODY(...)                                                                     \
+    _LIQUE_TENSOR_BASE_TYPES(__VA_ARGS__)                                                               \
+    _LIQUE_TENSOR_BASE_FUNCIONS(__VA_ARGS__)

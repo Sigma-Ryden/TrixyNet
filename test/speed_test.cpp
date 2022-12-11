@@ -63,13 +63,13 @@ void speed_test_deserialization()
     sr.deserialize(file);
     file.close();
 
-    TrixyNet net(sr.getTopology());
+    TrixyNet net(sr.topology());
     TrixyNetFunctional manage;
 
-    net.inner.initialize(sr.getBias(), sr.getWeight());
+    net.inner.init(sr.bias(), sr.weight());
 
-    net.function.activationSet(manage.get(sr.getAllActivationId()));
-    net.function.loss(manage.get(sr.getLossId()));
+    net.function.activation(manage.get(sr.all_activation_id()));
+    net.function.loss(manage.get(sr.loss_id()));
 
     statistic(net, idata, odata);
 }
@@ -82,13 +82,14 @@ void speed_test()
     TrixyNet net({4, 4, 5, 4, 3});
 
     TrixyNetFunctional manage;
-    TrixyNetTraining teach(net);
+    TrixyNetTraining train(net);
 
     RandomFloating random;
-    net.inner.initialize([&] { return random(-.5, .5); });
+    net.inner.init([&] { return random(-.5, .5); });
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());
+
     net.function.loss(manage.get<LossId::CCE>());
 
     auto grad = GradDescentOptimizer(net, 0.1); // new style
@@ -97,9 +98,9 @@ void speed_test()
     statistic(net, idata, odata);
 
     Timer t;
-    teach.trainBatch(idata, odata, grad, 100000);
-    teach.trainStochastic(idata, odata, grad, 100000, RandomIntegral{});
-    teach.trainMiniBatch(idata, odata, adam, 15000, 2);
+    train.batch(idata, odata, grad, 100000);
+    train.stochastic(idata, odata, grad, 100000, RandomIntegral{});
+    train.mini_batch(idata, odata, adam, 15000, 2);
 
     std::cout << "Train time: " << t.elapsed() << '\n';
 

@@ -25,7 +25,7 @@ template <class Net>
 class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
-    TRIXY_TRAIN_LAYER_BODY
+    TRIXY_TRAIN_LAYER_BODY()
 
 private:
     Tensor value_;
@@ -42,8 +42,8 @@ private:
 
     XTensor delta_;
 
-    shape_type in_;
-    shape_type out_;
+    shape_type isize_;
+    shape_type osize_;
 
     IActivation* activation_;
 
@@ -52,13 +52,12 @@ public:
 
 public:
     // maybe change in the future release
-    Layer(size_type in, size_type out, IActivation* activation = nullptr)
+    Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
         : Base()
-        , buff_(out), value_(1, 1, out), B_(out), W_(in, out)
-        , gradB_(out), gradW_(in, out)
-        , deltaB_(out), deltaW_(in, out)
-        , delta_(1, 1, in)
-        , in_(1, 1, in), out_(1, 1, out)
+        , buff_(osize), value_(1, 1, osize), B_(osize), W_(isize, osize)
+        , gradB_(osize), gradW_(isize, osize)
+        , deltaB_(osize), deltaW_(isize, osize), delta_(1, 1, isize)
+        , isize_(1, 1, isize), osize_(1, 1, osize)
         , activation_(activation)
     {
     }
@@ -68,21 +67,18 @@ public:
     {
     }
 
-    virtual ~Layer()
+    virtual ~Layer() { delete activation_; }
+
+    void init(Generator& gen) noexcept override
     {
-        delete activation_;
+        B_.fill(gen);
+        W_.fill(gen);
     }
 
     void connect(IActivation* activation) override
     {
         delete activation_;
         activation_ = activation;
-    }
-
-    void init(Generator& gen) noexcept override
-    {
-        B_.fill(gen);
-        W_.fill(gen);
     }
 
     void forward(const Tensor& input) noexcept override
@@ -101,7 +97,7 @@ public:
 
     void backward(const Tensor& input, const Tensor& idelta) noexcept override
     {
-        backwardFirst(input, idelta);
+        first_backward(input, idelta);
 
         // curr_delta - gradB
         // delta = curr_delta . W^T
@@ -109,7 +105,7 @@ public:
         linear.dot(delta_, W_, gradB_);
     }
 
-    void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept override
+    void first_backward(const Tensor& input, const Tensor& idelta) noexcept override
     {
         // curr_delta  - gradB
         // input_delta - idelta
@@ -129,16 +125,22 @@ public:
 
     XTensor& delta() noexcept override { return delta_; }
 
-    void resetGrad() noexcept override
+    void grad_reset() noexcept override
     {
         deltaB_.fill(0.);
         deltaW_.fill(0.);
     }
 
-    void normalizeGrad(precision_type alpha) noexcept override
+    void grad_normalize(precision_type alpha) noexcept override
     {
         linear.join(deltaB_, alpha);
         linear.join(deltaW_, alpha);
+    }
+
+    void grad_accumulate() noexcept override
+    {
+        linear.add(deltaB_, gradB_);
+        linear.add(deltaW_, gradW_);
     }
 
     void update(IOptimizer& optimizer) noexcept override
@@ -147,45 +149,39 @@ public:
         optimizer.update(W_, deltaW_);
     }
 
-    void updateFast(IOptimizer& optimizer) noexcept override
+    void fast_update(IOptimizer& optimizer) noexcept override
     {
         optimizer.update(B_, gradB_);
         optimizer.update(W_, gradB_);
     }
 
-    void accumulateGrad() noexcept override
-    {
-        linear.add(deltaB_, gradB_);
-        linear.add(deltaW_, gradW_);
-    }
-
-    const shape_type& input() const noexcept override { return in_; }
-    const shape_type& output() const noexcept override { return out_; }
+    const shape_type& isize() const noexcept override { return isize_; }
+    const shape_type& osize() const noexcept override { return osize_; }
 };
 
 template <class Net>
 class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
-    TRIXY_RAW_LAYER_BODY
+    TRIXY_RAW_LAYER_BODY()
 
 private:
     Tensor value_;
     Vector B_;
     Matrix W_;
 
-    shape_type in_;
-    shape_type out_;
+    shape_type isize_;
+    shape_type osize_;
 
     IActivation* activation_;
 
     Linear linear;
 
 public:
-    Layer(size_type in, size_type out, IActivation* activation = nullptr)
+    Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
         : Base()
-        , value_(1, 1, out), B_(out), W_(in, out)
-        , in_(1, 1, in), out_(1, 1, out)
+        , value_(1, 1, osize), B_(osize), W_(isize, osize)
+        , isize_(1, 1, isize), osize_(1, 1, osize)
         , activation_(activation)
     {
     }
@@ -195,10 +191,7 @@ public:
     {
     }
 
-    virtual ~Layer()
-    {
-        delete activation_;
-    }
+    virtual ~Layer() { delete activation_; }
 
     void connect(IActivation* activation) override
     {
@@ -221,8 +214,8 @@ public:
 
     const Tensor& value() const noexcept override { return value_; }
 
-    const shape_type& input() const noexcept override { return in_; }
-    const shape_type& output() const noexcept override { return out_; }
+    const shape_type& isize() const noexcept override { return isize_; }
+    const shape_type& osize() const noexcept override { return osize_; }
 };
 
 } // namespace layer

@@ -1,6 +1,6 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
-#define TRIXY_LAYER_BASE_TYPES                                                                          \
+#define _TRIXY_LAYER_BASE_TYPES(...)                                                                    \
     public:                                                                                             \
         template <typename T>                                                                           \
         using Container = typename Base::template Container<T>;                                         \
@@ -22,16 +22,16 @@
         using typename Base::Generator;                                                                 \
         using typename Base::IActivation;
 
-#define TRIXY_RAW_LAYER_BODY                                                                            \
+#define TRIXY_RAW_LAYER_BODY(...)                                                                       \
     public:                                                                                             \
         using Base = ILayer<Net>;                                                                       \
-        TRIXY_LAYER_BASE_TYPES                                                                          \
+        _TRIXY_LAYER_BASE_TYPES(__VA_ARGS__)
 
-#define TRIXY_TRAIN_LAYER_BODY                                                                          \
+#define TRIXY_TRAIN_LAYER_BODY(...)                                                                     \
     public:                                                                                             \
         using Base = ITrainLayer<Net>;                                                                  \
         using typename Base::IOptimizer;                                                                \
-        TRIXY_LAYER_BASE_TYPES
+        _TRIXY_LAYER_BASE_TYPES(__VA_ARGS__)
 
 #define TRIXY_LAYER_PARAM_2D(name)                                                                      \
     struct name : Volume<2> {                                                                           \

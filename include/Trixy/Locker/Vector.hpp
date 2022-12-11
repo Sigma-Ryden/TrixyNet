@@ -6,7 +6,7 @@
 #include <Trixy/Locker/Base.hpp>
 #include <Trixy/Detail/TrixyMeta.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -34,15 +34,14 @@ public:
     using typename require::range_view;
 
 public:
-    template <typename U = Tensor,
-              trixy::meta::require<std::is_constructible<U>::value> = 0>
+    template <typename T = Tensor, TRREQUIRE(std::is_constructible<T>::value)>
     Locker() : Tensor() {}
 
     // We MUST define explicit copy and move constructors
     // to prevent EATING args by constructor with perfect forwarding
     template <typename T, typename... Tn,
-        trixy::meta::require<not std::is_base_of<trixy::meta::decay<T>, Locker>::value and
-                             std::is_constructible<Tensor, T, Tn...>::value> = 0>
+              TRREQUIRE(not std::is_base_of<trixy::meta::decay<T>, Locker>::value and
+                            std::is_constructible<Tensor, T, Tn...>::value)>
     explicit Locker(T&& t, Tn&&... tn)
         : Tensor(std::forward<T>(t), std::forward<Tn>(tn)...) {}
 
@@ -70,8 +69,6 @@ public:
     using require::fill;
     using require::apply;
 
-    //using require::dot; deprecated
-
     using require::add;
     using require::sub;
     using require::mul;
@@ -83,7 +80,5 @@ public:
 } // namespace memory
 
 } // namespace trixy
-
-#include <Trixy/Detail/MacroUnscope.hpp>
 
 #endif // TRIXY_LOCKER_VECTOR_HPP

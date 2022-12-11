@@ -6,6 +6,7 @@
 #include <random> // srand, rand
 
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Detail/MetaMacro.hpp>
 
 namespace trixy
 {
@@ -76,8 +77,8 @@ class Random;
 
 template <typename RandomType, class Generator>
 class Random<RandomType, Generator,
-    trixy::meta::when<meta::is_integral_random_type<RandomType>::value and
-               trixy::meta::is_callable<Generator>::value>>
+    TRWHEN(meta::is_integral_random_type<RandomType>::value and
+           trixy::meta::is_callable<Generator>::value)>
 {
 public:
     using integral_type = typename RandomType::type;
@@ -105,25 +106,25 @@ public:
 
 template <typename RandomType, class Generator>
 class Random<RandomType, Generator,
-    trixy::meta::when<meta::is_floating_random_type<RandomType>::value and
-               trixy::meta::is_callable<Generator>::value>>
+    TRWHEN(meta::is_floating_random_type<RandomType>::value and
+           trixy::meta::is_callable<Generator>::value)>
 {
 public:
     using floating_type = typename RandomType::type;
     using size_type = std::size_t;
 
 private:
-    Generator gen;
+    Generator generator_;
 
 public:
-    Random() noexcept : gen(DefaultGenerator::seed()) {}
-    Random(size_type seed) noexcept : gen(seed) {}
+    Random() noexcept : generator_(DefaultGenerator::seed()) {}
+    Random(size_type seed) noexcept : generator_(seed) {}
 
-    void seed(size_type seed) noexcept { gen.seed(seed); }
+    void seed(size_type seed) noexcept { generator_.seed(seed); }
 
     floating_type operator() () noexcept
     {
-        return static_cast<floating_type>(gen()) / static_cast<floating_type>(gen.max());
+        return floating_type(generator_()) / floating_type(generator_.max());
     }
 
     floating_type operator() (floating_type min, floating_type max) noexcept

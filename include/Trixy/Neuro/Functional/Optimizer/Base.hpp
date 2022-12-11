@@ -6,7 +6,11 @@
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Neuro/Functional/Id.hpp>
 
-#include <Trixy/Detail/MacroScope.hpp>
+#define _TRIXY_DEF_OPTIMIZER_HELPER(id_type, T)                                                         \
+    struct T {                                                                                          \
+        template <id_type id>                                                                           \
+        using type = ::trixy::meta::select_for<id == id_type::T, T>;                                    \
+    };
 
 namespace trixy
 {
@@ -38,14 +42,14 @@ private:
     using id_type = trixy::functional::OptimizationId;
 
 public:
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, undefined);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, grad_descent);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, stograd_descent);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, momentum);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, nestorov);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, ada_grad);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, rms_prop);
-    TRIXY_DEF_OPTIMIZER_HELPER(id_type, adam);
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, undefined)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, grad_descent)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, stograd_descent)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, momentum)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, nestorov)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, ada_grad)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, rms_prop)
+    _TRIXY_DEF_OPTIMIZER_HELPER(id_type, adam)
 
 public:
     template <id_type id> using type_from = switch_type
@@ -65,6 +69,7 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
+// clean up
+#undef _TRIXY_DEF_OPTIMIZER_HELPER
 
 #endif // TRIXY_OPTIMIZER_BASE_HPP

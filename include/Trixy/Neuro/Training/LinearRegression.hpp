@@ -12,8 +12,12 @@ namespace trixy
 namespace train
 {
 
-TRIXY_TRAINING_TPL_DECLARATION
-class TRIXY_TRAINING_TPL(meta::is_linear_regression)
+TRIXY_TRAINING_TEMPLATE()
+using LinearRegressionTraining
+    = Training<Trainable, TRWITH(Trainable, meta::is_linear_regression)>;
+
+TRIXY_TRAINING_TEMPLATE()
+class Training<Trainable, TRWITH(Trainable, meta::is_linear_regression)>
 {
 public:
     using Vector          = typename Trainable::Vector;
@@ -35,8 +39,8 @@ public:
                      const Vector& odata) const;
 };
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
+TRIXY_TRAINING_TEMPLATE()
+void LinearRegressionTraining<Trainable>::train(
     const Matrix& idata,
     const Vector& odata)
 {
@@ -61,8 +65,8 @@ void TRIXY_TRAINING_TPL(meta::is_linear_regression)::train(
     );
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_linear_regression)::loss(
+TRIXY_TRAINING_TEMPLATE()
+long double LinearRegressionTraining<Trainable>::loss(
     const Matrix& idata,
     const Vector& odata) const
 {

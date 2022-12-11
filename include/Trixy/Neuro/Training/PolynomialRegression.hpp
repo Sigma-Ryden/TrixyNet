@@ -12,8 +12,12 @@ namespace trixy
 namespace train
 {
 
-TRIXY_TRAINING_TPL_DECLARATION
-class TRIXY_TRAINING_TPL(meta::is_polynomial_regression)
+TRIXY_TRAINING_TEMPLATE()
+using PolynomialRegressionTraining
+    = Training<Trainable, TRWITH(Trainable, meta::is_polynomial_regression)>;
+
+TRIXY_TRAINING_TEMPLATE()
+class Training<Trainable, TRWITH(Trainable, meta::is_polynomial_regression)>
 {
 public:
     using Vector          = typename Trainable::Vector;
@@ -35,8 +39,8 @@ public:
                      const Vector& odata) const;
 };
 
-TRIXY_TRAINING_TPL_DECLARATION
-void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
+TRIXY_TRAINING_TEMPLATE()
+void PolynomialRegressionTraining<Trainable>::train(
     const Vector& idata,
     const Vector& odata)
 {
@@ -69,8 +73,8 @@ void TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::train(
     );
 }
 
-TRIXY_TRAINING_TPL_DECLARATION
-long double TRIXY_TRAINING_TPL(meta::is_polynomial_regression)::loss(
+TRIXY_TRAINING_TEMPLATE()
+long double PolynomialRegressionTraining<Trainable>::loss(
     const Vector& idata,
     const Vector& odata) const
 {

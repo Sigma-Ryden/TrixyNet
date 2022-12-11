@@ -46,17 +46,14 @@ public:
 public:
     virtual ~ILayer() = default;
 
-    virtual void forward(const Tensor& input) noexcept = 0;
-
+    virtual void init(Generator& generator) noexcept { /*pass*/ }
     virtual void connect(IActivation* activation) = 0;
 
+    virtual void forward(const Tensor& input) noexcept = 0;
     virtual const Tensor& value() const noexcept = 0;
 
-    virtual const shape_type& input() const noexcept = 0;
-    virtual const shape_type& output() const noexcept = 0;
-
-public:
-    virtual void init(Generator& generator) noexcept { /*pass*/ }
+    virtual const shape_type& isize() const noexcept = 0;
+    virtual const shape_type& osize() const noexcept = 0;
 };
 
 template <class Net>
@@ -90,20 +87,18 @@ public:
 public:
     virtual ~ITrainLayer() = default;
 
+public:
     virtual void backward(const Tensor& input, const Tensor& idelta) noexcept = 0;
+    virtual void first_backward(const Tensor& input, const Tensor& idelta) noexcept { /*pass*/ }
+
+    virtual void grad_reset() noexcept { /*pass*/ }
+    virtual void grad_normalize(precision_type alpha) noexcept { /*pass*/ }
+    virtual void grad_accumulate() noexcept { /*pass*/ }
 
     virtual XTensor& delta() noexcept = 0;
 
-public:
-    virtual void backwardFirst(const Tensor& input, const Tensor& idelta) noexcept { /*pass*/ }
-
-    virtual void resetGrad() noexcept { /*pass*/ }
-    virtual void normalizeGrad(precision_type alpha) noexcept { /*pass*/ }
-
     virtual void update(IOptimizer& optimizer) noexcept { /*pass*/ }
-    virtual void updateFast(IOptimizer& optimizer) noexcept { /*pass*/ }
-
-    virtual void accumulateGrad() noexcept { /*pass*/ }
+    virtual void fast_update(IOptimizer& optimizer) noexcept { /*pass*/ }
 };
 
 } // namespace layer

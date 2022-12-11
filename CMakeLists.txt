@@ -117,6 +117,8 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Checker/Accuracy.hpp
     include/Trixy/Neuro/Checker/Core.hpp
 
+	include/Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp
+	include/Trixy/Neuro/Functional/Function/Detail/MacroUnscope.hpp
     include/Trixy/Neuro/Functional/Function/Base.hpp
     include/Trixy/Neuro/Functional/Function/Activation.hpp
     include/Trixy/Neuro/Functional/Function/ActivationLess.hpp

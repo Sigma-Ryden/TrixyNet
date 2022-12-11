@@ -11,15 +11,15 @@ namespace trixy
 namespace ilique
 {
 
-ILIQUE_TENSOR_TPL_DECLARATION
-using IMatrix = ILIQUE_TENSOR_TPL(lique::TensorType::matrix);
+ILIQUE_TENSOR_TEMPLATE()
+using IMatrix = ILIQUE_TENSOR_TEMPLATE_CLASS(lique::TensorType::matrix);
 
-ILIQUE_TENSOR_TPL_DECLARATION
-class ILIQUE_TENSOR_TPL(lique::TensorType::matrix)
+ILIQUE_TENSOR_TEMPLATE()
+class ILIQUE_TENSOR_TEMPLATE_CLASS(lique::TensorType::matrix)
     : protected ilique::ITensorBase<Derived, Precision, Pack...>
     , public lique::TensorType::matrix
 {
-    ILIQUE_TENSOR_BASE_BODY
+    ILIQUE_TENSOR_BASE_BODY()
 
 public:
     reference operator() (size_type i, size_type j) noexcept

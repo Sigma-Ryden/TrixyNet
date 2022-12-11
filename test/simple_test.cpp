@@ -56,13 +56,13 @@ void simple_test_deserialization()
     sr.deserialize(file);
     file.close();
 
-    FeedNet net(sr.getTopology());
+    FeedNet net(sr.topology());
     Functional<FeedNet> manage;
 
-    net.inner.initialize(sr.getBias(), sr.getWeight());
+    net.inner.init(sr.bias(), sr.weight());
 
-    net.function.activationSet(manage.get(sr.getAllActivationId()));
-    net.function.loss(manage.get(sr.getLossId()));
+    net.function.activation(manage.get(sr.all_activation_id()));
+    net.function.loss(manage.get(sr.loss_id()));
 
     statistic(net, idata, odata);
 }
@@ -79,7 +79,7 @@ void simple_test()
     Functional<FeedNet> manage;
     Training<FeedNet> teach(net);
 
-    net.inner.initialize(RandomFloating{});
+    net.inner.init(RandomFloating{});
 
     net.function.activation(manage.get<ActivationId::relu>());
     net.function.normalization(manage.get<ActivationId::softmax>());
@@ -89,7 +89,7 @@ void simple_test()
     auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
 
     Timer t;
-    teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
+    teach.stochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     statistic(net, idata, odata);

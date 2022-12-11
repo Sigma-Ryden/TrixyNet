@@ -27,7 +27,7 @@ template <class Net>
 class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
-    TRIXY_TRAIN_LAYER_BODY
+    TRIXY_TRAIN_LAYER_BODY()
 
 private:
     Tensor value_;
@@ -36,8 +36,8 @@ private:
 
     XTensor delta_;
 
-    shape_type in_;
-    shape_type out_;
+    shape_type isize_;
+    shape_type osize_;
     shape_type pooling_;
 
     size_type horizontal_stride_;
@@ -55,8 +55,8 @@ public:
           IActivation* activation = nullptr)
         : Base()
         , delta_(channel_depth, in_height, in_width)
-        , in_(channel_depth, in_height, in_width)
-        , out_(channel_depth,
+        , isize_(channel_depth, in_height, in_width)
+        , osize_(channel_depth,
                1 + (in_height - pooling_height) / vertical_stride,
                1 + (in_width - pooling_width) / horizontal_stride)
         , pooling_(channel_depth, pooling_height, pooling_width)
@@ -64,9 +64,9 @@ public:
         , vertical_stride_(vertical_stride)
         , activation_(activation)
     {
-        value_.resize(out_);
-        mask_.resize(in_);
-        buff_.resize(out_);
+        value_.resize(osize_);
+        mask_.resize(isize_);
+        buff_.resize(osize_);
     }
 
     Layer(const set::Input& input,
@@ -87,10 +87,7 @@ public:
     {
     }
 
-    virtual ~Layer()
-    {
-        delete activation_;
-    }
+    virtual ~Layer() { delete activation_; }
 
     void connect(IActivation* activation) override
     {
@@ -106,10 +103,10 @@ public:
 
         auto result = buff_.data();
 
-        const size_type height = in_.height - pooling_.height + 1;
-        const size_type width  = in_.width - pooling_.width + 1;
+        const size_type height = isize_.height - pooling_.height + 1;
+        const size_type width  = isize_.width - pooling_.width + 1;
 
-        for (size_type d = 0; d < in_.depth; ++d)
+        for (size_type d = 0; d < isize_.depth; ++d)
         {
             for (size_type i = 0; i < height; i += vertical_stride_)
             {
@@ -136,9 +133,9 @@ public:
         activation_->df(buff_, buff_);
         linear.mul(buff_, idelta);
 
-        for (size_type d = 0; d < in_.depth; ++d)
-            for (size_type i = 0; i < in_.height; ++i)
-                for (size_type j = 0; j < in_.width; ++j)
+        for (size_type d = 0; d < isize_.depth; ++d)
+            for (size_type i = 0; i < isize_.height; ++i)
+                for (size_type j = 0; j < isize_.width; ++j)
                     delta_(d, i, j) =
                         buff_(d, i / vertical_stride_, j / horizontal_stride_) * mask_(d, i, j);
     }
@@ -146,21 +143,21 @@ public:
     const Tensor& value() const noexcept override { return value_; }
     XTensor& delta() noexcept override { return delta_; }
 
-    const shape_type& input() const noexcept override { return in_; }
-    const shape_type& output() const noexcept override { return out_; }
+    const shape_type& isize() const noexcept override { return isize_; }
+    const shape_type& osize() const noexcept override { return osize_; }
 };
 
 template <class Net>
 class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
-    TRIXY_RAW_LAYER_BODY
+    TRIXY_RAW_LAYER_BODY()
 
 private:
     Tensor value_;
 
-    shape_type in_;
-    shape_type out_;
+    shape_type isize_;
+    shape_type osize_;
     shape_type pooling_;
 
     size_type horizontal_stride_;
@@ -177,8 +174,8 @@ public:
           size_type horizontal_stride, size_type vertical_stride,
           IActivation* activation = nullptr)
         : Base()
-        , in_(channel_depth, in_height, in_width)
-        , out_(channel_depth,
+        , isize_(channel_depth, in_height, in_width)
+        , osize_(channel_depth,
                1 + (in_height - pooling_height) / vertical_stride,
                1 + (in_width - pooling_width) / horizontal_stride)
         , pooling_(channel_depth, pooling_height, pooling_width)
@@ -186,7 +183,7 @@ public:
         , vertical_stride_(vertical_stride)
         , activation_(activation)
     {
-        value_.resize(out_);
+        value_.resize(osize_);
     }
 
     Layer(const set::Input& input,
@@ -207,10 +204,7 @@ public:
     {
     }
 
-    virtual ~Layer()
-    {
-        delete activation_;
-    }
+    virtual ~Layer() { delete activation_; }
 
     void connect(IActivation* activation) override
     {
@@ -222,10 +216,10 @@ public:
     {
         auto result = value_.data();
 
-        const size_type height = in_.height - pooling_.height + 1;
-        const size_type width  = in_.width - pooling_.width + 1;
+        const size_type height = isize_.height - pooling_.height + 1;
+        const size_type width  = isize_.width - pooling_.width + 1;
 
-        for (size_type d = 0; d < in_.depth; ++d)
+        for (size_type d = 0; d < isize_.depth; ++d)
         {
             for (size_type i = 0; i < height; i += vertical_stride_)
             {
@@ -248,8 +242,8 @@ public:
 
     const Tensor& value() const noexcept override { return value_; }
 
-    const shape_type& input() const noexcept override { return in_; }
-    const shape_type& output() const noexcept override { return out_; }
+    const shape_type& isize() const noexcept override { return isize_; }
+    const shape_type& osize() const noexcept override { return osize_; }
 };
 
 } // namespace layer

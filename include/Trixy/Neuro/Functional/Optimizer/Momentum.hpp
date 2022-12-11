@@ -17,11 +17,11 @@ namespace train
 {
 
 template <class Optimizeriable, class TypeSet = OptimizerTypeSet>
-using Momentum =
-    TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::momentum);
+using Momentum
+    = TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::momentum);
 
-TRIXY_OPTIMIZER_TPL_DECLARATION
-class TRIXY_OPTIMIZER_TPL(meta::is_trixy_net, OptimizerType::momentum)
+TRIXY_OPTIMIZER_TEMPLATE()
+class TRIXY_OPTIMIZER_TEMPLATE_CLASS(meta::is_trixy_net, OptimizerType::momentum)
     : public IOptimizer<Optimizeriable>
 {
 public:
