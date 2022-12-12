@@ -34,8 +34,8 @@ Is a header-only library implemented purely in C++11.
   - Locking types (Lockers)
   - Requires guards
   - ```Portable Linear library```:
-    - Vector, Matrix and Tensor
-    - Lineary algorithm and operations with
+   - Vector, Matrix and Tensor
+   - Lineary algorithm and operations with
 * ```Additional functional```:
   - Injected Generators
   - Parallel algorithms (under development)
@@ -125,10 +125,10 @@ void simple_test()
     Functional<FeedNet> manage;
 
     // The trainer will help us train the neural network, if it's not smart enough
-    Training<FeedNet> teach(net);
+    Training<FeedNet> train(net);
 
     // Initialization of weights and biases
-    net.inner.initialize(RandomFloating{});
+    net.inner.init(RandomFloating{});
 
     // Set up some functions
     net.function.activation(manage.get<ActivationId::relu>());
@@ -142,7 +142,7 @@ void simple_test()
     Timer t;
     
     // Training of the neural network
-    teach.trainStochastic(idata, odata, optimizer, 2000, RandomIntegral{});
+    train.stochastic(idata, odata, optimizer, 2000, RandomIntegral{});
     std::cout << "Train time: " << t.elapsed() << '\n';
 
     statistic(net, idata, odata);
@@ -200,13 +200,13 @@ void simple_test_deserialization()
     in.close();
 
     // Constructing and filling of neural network
-    FeedNet net(sr.getTopology());
+    FeedNet net(sr.topology());
     Functional<FeedNet> manage;
 
-    net.inner.initialize(sr.getBias(), sr.getWeight());
+    net.inner.init(sr.bias(), sr.weight());
 
-    net.function.activationSet(manage.get(sr.getAllActivationId()));
-    net.function.loss(manage.get(sr.getLossId()));
+    net.function.activation(manage.get(sr.all_activation_id()));
+    net.function.loss(manage.get(sr.loss_id()));
 
     // Checking of the result
     statistic(net, idata, odata);
