@@ -161,6 +161,4 @@ void LinearRegressionSerializer<Serializable>::deserialize_data(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_SERIALIZER_LINEAR_REGRESSION_HPP

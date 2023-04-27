@@ -275,6 +275,4 @@ void FeedForwardNetSerializer<Serializable>::deserialize_data(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_SERIALIZER_FEED_FORWARD_NET_HPP

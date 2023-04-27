@@ -63,6 +63,4 @@ protected:
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_REGRESSION_REQUIRE_HPP

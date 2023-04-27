@@ -104,6 +104,4 @@ Nestorov<Net, TypeSet> NestorovOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_NESTOROV_HPP

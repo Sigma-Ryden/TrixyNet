@@ -1,5 +1,8 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#ifndef TRIXY_NEURO_FUNCTIONAL_DETAIL_MACRO_SCOPE_HPP
+#define TRIXY_NEURO_FUNCTIONAL_DETAIL_MACRO_SCOPE_HPP
+
 #define TRIXY_APPLY_FUNCTION_GENERIC_HELPER(name)                                                       \
     template <class InRange, class OutRange>                                                            \
     void name(InRange& result, const OutRange& input) noexcept {                                        \
@@ -50,3 +53,5 @@
                                                                                                         \
         void operator() (Range result, const Range input) noexcept { function_name(result, input); }    \
     }
+
+#endif // TRIXY_NEURO_FUNCTIONAL_DETAIL_MACRO_SCOPE_HPP

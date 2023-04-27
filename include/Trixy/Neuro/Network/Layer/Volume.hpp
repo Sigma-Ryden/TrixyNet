@@ -47,6 +47,4 @@ TRIXY_LAYER_PARAM_2D(Padding);
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Network/Layer/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NETWORK_LAYER_VOLUME_HPP

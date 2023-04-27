@@ -104,6 +104,4 @@ Momentum<Net, TypeSet> MomentumOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_MOMENTUM_HPP

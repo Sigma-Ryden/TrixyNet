@@ -411,6 +411,4 @@ void FeedForwardNetTraining<Trainable>::fast_model_update(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_TRAINING_FEED_FORWARD_NET_HPP

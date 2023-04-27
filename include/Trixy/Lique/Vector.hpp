@@ -287,6 +287,4 @@ void VectorView<Precision>::reshape(size_type width) noexcept
 
 } // namespace trixy
 
-#include <Trixy/Lique/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_LIQUE_VECTOR_HPP

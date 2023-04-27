@@ -85,6 +85,4 @@ long double PolynomialRegressionTraining<Trainable>::loss(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_TRAINING_POLYNOMIAL_REGRESSION_HPP

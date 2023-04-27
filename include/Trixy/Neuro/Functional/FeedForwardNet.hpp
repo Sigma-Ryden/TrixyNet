@@ -73,6 +73,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_FUNCTIONAL_FEED_FORWARD_NET_HPP

@@ -319,6 +319,4 @@ void UnifiedNetTraining<Trainable>::fast_model_update(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_TRAINING_UNIFIED_NET_HPP

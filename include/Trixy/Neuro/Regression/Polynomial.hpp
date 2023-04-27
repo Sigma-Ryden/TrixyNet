@@ -120,6 +120,4 @@ auto Regression<TypeSet>::feedforward(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_REGRESSION_POLYNOMIAL_HPP

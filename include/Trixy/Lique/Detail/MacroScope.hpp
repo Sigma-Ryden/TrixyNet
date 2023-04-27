@@ -1,5 +1,8 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#ifndef TRIXY_LIQUE_DETAIL_MACRO_SCOPE_HPP
+#define TRIXY_LIQUE_DETAIL_MACRO_SCOPE_HPP
+
 #include <Trixy/Detail/MetaMacro.hpp> // TRIXY_TEMPLATE
 
 #define LIQUE_TENSOR_TEMPLATE(...) TRIXY_TEMPLATE(typename Precision)
@@ -41,3 +44,5 @@
 #define LIQUE_TENSOR_BASE_BODY(...)                                                                     \
     _LIQUE_TENSOR_BASE_TYPES(__VA_ARGS__)                                                               \
     _LIQUE_TENSOR_BASE_FUNCIONS(__VA_ARGS__)
+
+#endif // TRIXY_LIQUE_DETAIL_MACRO_SCOPE_HPP

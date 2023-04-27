@@ -452,6 +452,4 @@ inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> co
 
 } // namespace trixy
 
-#include <Trixy/Lique/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

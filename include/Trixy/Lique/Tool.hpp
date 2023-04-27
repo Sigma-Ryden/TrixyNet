@@ -481,6 +481,4 @@ std::size_t multinomial(const Iterable& it) noexcept
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_LIQUE_TOOL_HPP

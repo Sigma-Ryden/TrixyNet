@@ -69,6 +69,4 @@ GradDescent<Net, TypeSet> GradDescentOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_GRAD_DESCENT_HPP

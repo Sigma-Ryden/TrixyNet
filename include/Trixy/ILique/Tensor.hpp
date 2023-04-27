@@ -37,6 +37,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/ILique/Detail/MacroUnscope.hpp>
-
 #endif // ILIQUE_TENSOR_HPP

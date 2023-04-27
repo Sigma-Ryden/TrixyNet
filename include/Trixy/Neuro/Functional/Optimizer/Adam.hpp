@@ -148,6 +148,4 @@ Adam<Net, TypeSet> AdamOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_ADAM_HPP

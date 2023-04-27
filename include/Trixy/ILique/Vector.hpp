@@ -32,6 +32,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/ILique/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_ILIQUE_VECTOR_HPP

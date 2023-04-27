@@ -143,6 +143,4 @@ using dereference = typename detail::deref_impl<It>::type;
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NET_META_HPP

@@ -322,6 +322,4 @@ void TensorView<Precision>::reshape(size_type depth, size_type height, size_type
 
 } // namespace trixy
 
-#include <Trixy/Lique/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_LIQUE_TENSOR_HPP

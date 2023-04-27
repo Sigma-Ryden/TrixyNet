@@ -77,6 +77,4 @@ long double LinearRegressionTraining<Trainable>::loss(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_TRAINING_LINEAR_REGRESSION_HPP

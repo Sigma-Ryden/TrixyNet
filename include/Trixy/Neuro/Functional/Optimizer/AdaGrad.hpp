@@ -103,6 +103,4 @@ AdaGrad<Net, TypeSet> AdaGradOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_ADA_GRAD_HPP

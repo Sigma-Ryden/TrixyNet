@@ -138,6 +138,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Checker/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NEURO_CHECKER_ACCURACY_HPP

@@ -110,6 +110,4 @@ RMSProp<Net, TypeSet> RMSPropOptimizer(Net& net, Args&&... args)
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_OPTIMIZER_RMS_PROP_HPP

@@ -53,6 +53,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_FUNCTION_BASE_HPP

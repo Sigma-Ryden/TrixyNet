@@ -193,6 +193,4 @@ TRIXY_FUNCTION_TEMPLATE() Precision mod_tanh_derived(Precision x) noexcept
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_FUNCTION_ACTIVATION_LESS_HPP

@@ -73,6 +73,4 @@ protected:
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NETWORK_REQUIRE_HPP

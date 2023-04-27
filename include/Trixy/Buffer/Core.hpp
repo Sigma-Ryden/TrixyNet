@@ -523,6 +523,4 @@ using Buffer = Buff<char>;
 
 } // namespace trixy
 
-#include <Trixy/Buffer/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_BUFFER_HPP

@@ -124,6 +124,4 @@ void TrixyNet<TypeSet>::init(
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NETWORK_UNIFIED_NET_HPP

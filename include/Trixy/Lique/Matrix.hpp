@@ -348,6 +348,4 @@ void MatrixView<Precision>::reshape(size_type height, size_type width) noexcept
 
 } // namespace trixy
 
-#include <Trixy/Lique/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_LIQUE_MATRIX_HPP

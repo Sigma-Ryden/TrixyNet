@@ -105,6 +105,4 @@ public:
 
 } // namespace trixy
 
-#include <Trixy/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NETWORK_LAYER_BASE_HPP

@@ -1,5 +1,8 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#ifndef TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP
+#define TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP
+
 #define _TRIXY_LAYER_BASE_TYPES(...)                                                                    \
     public:                                                                                             \
         template <typename T>                                                                           \
@@ -61,3 +64,5 @@
         size_type height() const noexcept { return data_[Height]; }                                     \
         size_type depth() const noexcept { return data_[Depth]; }                                       \
     }
+
+#endif // TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP

@@ -1,5 +1,8 @@
 // This file contains all internal macro definitions
 // You MUST include MacroUnscope.hpp at the end of *.hpp to undef all of them
+#ifndef TRIXY_ILIQUE_DETAIL_MACRO_SCOPE_HPP
+#define TRIXY_ILIQUE_DETAIL_MACRO_SCOPE_HPP
+
 #include <Trixy/Detail/MetaMacro.hpp> // TRIXY_TEMPLATE
 
 #define ILIQUE_TENSOR_TEMPLATE(...)                                                                     \
@@ -47,3 +50,5 @@
 #define ILIQUE_TENSOR_BASE_BODY(...)                                                                    \
     _ILIQUE_TENSOR_BASE_TYPES(__VA_ARGS__)                                                              \
     _ILIQUE_TENSOR_BASE_FUNCIONS(__VA_ARGS__)
+
+#endif // TRIXY_ILIQUE_DETAIL_MACRO_SCOPE_HPP

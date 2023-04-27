@@ -372,6 +372,4 @@ auto FeedForwardNet<TypeSet>::operator() (
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Detail/MacroUnscope.hpp>
-
 #endif // TRIXY_NETWORK_FEED_FORWARD_NET_HPP
