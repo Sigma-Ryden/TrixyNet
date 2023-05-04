@@ -40,16 +40,12 @@ void show_image_batch(const Core::Container<Core::Tensor>& data) noexcept
 
 void test_image_batch(Net& net, Core::Container<Core::Tensor>& data, Core::Container<Core::Tensor>& target) noexcept
 {
-    Core::Tensor prediction;
-
     for (Core::size_type i = 0; i < data.size(); ++i)
     {
         show_image(data[i]);
 
-        prediction.copy(net.feedforward(data[i]));
-
         std::cout << "\nTRUE: " << trixy::lique::argmax(target[i])
-                  << "\nPRED: " << trixy::lique::argmax(prediction) << '\n'; // << prediction << '\n';
+                  << "\nPRED: " << trixy::lique::argmax(net.feedforward(data[i])) << '\n';
 
         std::cin.get();
     }
@@ -213,7 +209,7 @@ int main()
 
     std::cout << std::fixed << std::setprecision(6);
 
-    mnist_test();
+    //mnist_test();
     mnist_test_deserialization();
 
     return 0;
