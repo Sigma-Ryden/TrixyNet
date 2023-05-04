@@ -6,6 +6,8 @@
 #include <new> // operator new[], operator delete[]
 #include <utility> // forward
 
+#include <Trixy/Serializer/Core.hpp>
+
 namespace trixy
 {
 
@@ -15,6 +17,8 @@ namespace utility
 template <typename Type>
 class Container
 {
+    SERIALIZATION_ACCESS()
+
 public:
     class iterator;
     class const_iterator;
@@ -337,8 +341,22 @@ void Container<Type>::destroy(pointer first, pointer last)
     }
 }
 
-} // namespace trixy
+} // namespace utility
 
-} // namepace utility
+namespace meta
+{
+
+template <typename T> struct is_container : std::false_type {};
+template <typename Type> struct is_container<utility::Container<Type>> : std::true_type {};
+
+} // namespace meta
+
+} // namepace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_container<T>::value)
+{
+    archive & sf::span(self.data_, self.size_);
+    self.capacity_ = self.size_;
+}
 
 #endif // TRIXY_CONTAINER_HPP

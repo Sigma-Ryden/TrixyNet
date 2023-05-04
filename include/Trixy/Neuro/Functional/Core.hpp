@@ -5,6 +5,4 @@
 
 #include <Trixy/Neuro/Functional/Id.hpp>
 
-#include <Trixy/Neuro/Functional/FeedForwardNet.hpp>
-
 #endif // TRIXY_FUNCTIONAL_CORE_HPP

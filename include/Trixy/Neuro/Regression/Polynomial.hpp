@@ -8,7 +8,10 @@
 
 #include <Trixy/Neuro/Training/Base.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
 
@@ -22,6 +25,8 @@ TRIXY_REGRESSION_TEMPLATE()
 class Regression<TypeSet> :
     public guard::RegressionRequire<TypeSet>::type
 {
+    SERIALIZATION_ACCESS()
+
 friend train::Training<PolynomialRegression<TypeSet>>;
 
 public:
@@ -40,7 +45,7 @@ private:
     Linear linear;
 
 public:
-    explicit Regression(size_type power);
+    explicit Regression(size_type power = 0);
 
     void init(Vector weight) noexcept;
 
@@ -119,5 +124,10 @@ auto Regression<TypeSet>::feedforward(
 }
 
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_polynomial_regression<T>::value)
+{
+    archive & self.W & self.N;
+}
 
 #endif // TRIXY_REGRESSION_POLYNOMIAL_HPP

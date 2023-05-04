@@ -8,7 +8,6 @@ namespace trixy
 
 struct TrixyNetType
 {
-    struct FeedForward {};
     struct Unified {};
 };
 

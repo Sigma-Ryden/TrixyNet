@@ -8,29 +8,18 @@
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
 
-namespace tr = trixy;
-namespace li = trixy::lique;
+using Core = trixy::TypeSet<float>;
+using PolynomialRegression = trixy::PolynomialRegression<Core>;
+using LinearRegression = trixy::LinearRegression<Core>;
 
-using namespace tr;
-using namespace tr::functional;
-using namespace tr::train;
+using MSE = trixy::functional::loss::MSE<Core::precision_type>;
 
-using precision_type = float;
-using size_type      = std::size_t;
-
-using Core           = TypeSet<precision_type>;
-
-using PolynomialReg  = PolynomialRegression<Core>;
-using LinearReg      = LinearRegression<Core>;
-
-template <class Reg, class Vector = typename Reg::Vector>
-Vector get_sin_idata()
+Core::Vector get_sin_idata()
 {
-    Vector x(61);
+    Core::Vector x(61);
 
-    precision_type arg = -3.;
-
-    for (size_type i = 0; i < x.size(); ++i)
+    Core::precision_type arg = -3.;
+    for (Core::size_type i = 0; i < x.size(); ++i)
     {
         x(i) = arg;
         arg += .1;
@@ -39,14 +28,12 @@ Vector get_sin_idata()
     return x;
 }
 
-template <class Reg, class Vector = typename Reg::Vector>
-Vector get_sin_odata()
+Core::Vector get_sin_odata()
 {
-    Vector y(61);
+    Core::Vector y(61);
 
-    precision_type arg = -3.;
-
-    for (size_type i = 0; i < y.size(); ++i)
+    Core::precision_type arg = -3.;
+    for (Core::size_type i = 0; i < y.size(); ++i)
     {
         y(i) = std::sin(arg);
         arg += .1;
@@ -55,14 +42,12 @@ Vector get_sin_odata()
     return y;
 }
 
-template <class Reg, class Matrix = typename Reg::Matrix>
-Matrix get_linear_idata()
+Core::Matrix get_linear_idata()
 {
-    Matrix x(101, 1);
+    Core::Matrix x(101, 1);
 
-    precision_type arg = -1.;
-
-    for (size_type i = 0; i < x.shape().height; ++i)
+    Core::precision_type arg = -1.;
+    for (Core::size_type i = 0; i < x.shape().height; ++i)
     {
         x(i, 0) = arg;
         arg    += .02;
@@ -71,14 +56,12 @@ Matrix get_linear_idata()
     return x;
 }
 
-template <class Reg, class Vector = typename Reg::Vector>
-Vector get_linear_odata()
+Core::Vector get_linear_odata()
 {
-    Vector y(101);
+    Core::Vector y(101);
 
-    precision_type arg = -1.;
-
-    for (size_type i = 0; i < y.size(); ++i)
+    Core::precision_type arg = -1.;
+    for (Core::size_type i = 0; i < y.size(); ++i)
     {
         y(i) = arg * 8. + 2.;
         arg += .02;
@@ -92,17 +75,17 @@ void polynomial_regression_test_deserialization()
     std::ifstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    Serializer<PolynomialReg> sr;
-    sr.deserialize(file);
+    PolynomialRegression reg;
+
+    trixy::Serializer<PolynomialRegression> sr;
+    sr.deserialize(file, reg);
+
     file.close();
 
-    PolynomialReg reg(sr.power());
-    reg.init(sr.weight());
+    auto X = get_sin_idata();
+    auto Y = get_sin_odata();
 
-    auto X = get_sin_idata<PolynomialReg>();
-    auto Y = get_sin_odata<PolynomialReg>();
-
-    Checker<PolynomialReg> check(reg);
+    trixy::Checker<PolynomialRegression> check(reg);
 
     std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg(X) << "\n\n"
@@ -111,26 +94,26 @@ void polynomial_regression_test_deserialization()
 
 void polynomial_regression_test()
 {
-    PolynomialReg reg(6);
-    Training<PolynomialReg> teach(reg);
+    PolynomialRegression reg(6);
+    trixy::train::Training<PolynomialRegression> teach(reg);
 
-    auto X = get_sin_idata<PolynomialReg>();
-    auto Y = get_sin_odata<PolynomialReg>();
+    auto X = get_sin_idata();
+    auto Y = get_sin_odata();
 
-    Checker<PolynomialReg> check(reg);
+    trixy::Checker<PolynomialRegression> check(reg);
 
     teach.train(X, Y);
     std::cout << reg.power() << '\n'
               << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, loss::MSE<precision_type>()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, MSE()) << '\n';
 
     std::ofstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    Serializer<PolynomialReg> sr;
-
+    trixy::Serializer<PolynomialRegression> sr;
     sr.serialize(file, reg);
+
     file.close();
 
     std::cout << "End of serialization\n";
@@ -141,18 +124,17 @@ void linear_regression_test_deserialization()
     std::ifstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    Serializer<LinearReg> sr;
-    sr.deserialize(file);
+    LinearRegression reg;
+
+    trixy::Serializer<LinearRegression> sr;
+    sr.deserialize(file, reg);
+
     file.close();
 
-    LinearReg reg(sr.size());
+    auto X = get_linear_idata();
+    auto Y = get_linear_odata();
 
-    reg.init(sr.weight());
-
-    auto X = get_linear_idata<LinearReg>();
-    auto Y = get_linear_odata<LinearReg>();
-
-    Checker<LinearReg> check(reg);
+    trixy::Checker<LinearRegression> check(reg);
 
     std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg(X) << "\n\n"
@@ -161,31 +143,31 @@ void linear_regression_test_deserialization()
 
 void linear_regression_test()
 {
-    LinearReg reg(1);
-    Training<LinearReg> teach(reg);
-    Checker<LinearReg> check(reg);
+    LinearRegression reg(1);
+    trixy::train::Training<LinearRegression> teach(reg);
+    trixy::Checker<LinearRegression> check(reg);
 
-    auto X = get_linear_idata<LinearReg>();
-    auto Y = get_linear_odata<LinearReg>();
+    auto X = get_linear_idata();
+    auto Y = get_linear_odata();
 
     teach.train(X, Y);
     std::cout << reg.size() << '\n';
 
     std::cout << "Weight:\n" << reg.weight() << "\n\n"
               << "Test:\n" << reg.feedforward(X) << "\n\n"
-              << "Loss:\n" << check.loss(X, Y, loss::MSE<precision_type>()) << '\n';
+              << "Loss:\n" << check.loss(X, Y, MSE()) << '\n';
 
     std::ofstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    Serializer<LinearReg> sr;
-
+    trixy::Serializer<LinearRegression> sr;
     sr.serialize(file, reg);
+
     file.close();
 
     std::cout << "End of serialization\n";
 }
-//
+
 int main()
 {
     std::cout << std::fixed << std::setprecision(6);
@@ -197,4 +179,3 @@ int main()
 
     return 0;
 }
-//

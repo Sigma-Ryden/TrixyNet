@@ -3,6 +3,8 @@
 
 #include <Trixy/Locker/Base.hpp>
 
+#include <Trixy/Locker/Serialization.hpp>
+
 #include <Trixy/Locker/Vector.hpp>
 #include <Trixy/Locker/Matrix.hpp>
 #include <Trixy/Locker/Tensor.hpp>

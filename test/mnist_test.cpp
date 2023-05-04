@@ -10,32 +10,26 @@
 #include <fstream> // ifstream, ofstream
 #include <vector> // vector
 
-namespace tr = trixy;
-namespace li = tr::lique;
+using Core = trixy::TypeSet<float>;
+using Net = trixy::TrixyNet<Core>;
 
-using namespace tr;
-using namespace tr::functional;
-using namespace tr::train;
-using namespace tr::utility;
+using FullyConnected = trixy::layer::FullyConnected<Net>;
 
-using precision_type = float;
-using size_type      = std::size_t;
+using ReLU = trixy::functional::activation::ReLU<Core::precision_type>;
+using SoftMax = trixy::functional::activation::SoftMax<Core::precision_type>;
 
-using Core    = tr::TypeSet<precision_type>;
-using FeedNet = tr::FeedForwardNet<Core>;
+using CCE = trixy::functional::loss::CCE<Core::precision_type>;
 
-template <class Net, class ImageType = typename Net::Vector>
-void show_image(const ImageType& image) noexcept
+void show_image(const Core::Tensor& image) noexcept
 {
-    for (size_type i = 0; i < image.size(); ++i)
+    for (Core::size_type i = 0; i < image.size(); ++i)
     {
         if (i % 28 == 0) std::cout << '\n';
         std::cout << (image(i) > 0.5 ? '#' : image(i) > 0.05 ? '*' : '.') << ' ';
     }
 }
 
-template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-void show_image_batch(const ImageDataType& data) noexcept
+void show_image_batch(const Core::Container<Core::Tensor>& data) noexcept
 {
     for (const auto& image : data)
     {
@@ -44,53 +38,50 @@ void show_image_batch(const ImageDataType& data) noexcept
     }
 }
 
-template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-void test_image_batch(const Net& net, const ImageDataType& data, const ImageDataType& target) noexcept
+void test_image_batch(Net& net, Core::Container<Core::Tensor>& data, Core::Container<Core::Tensor>& target) noexcept
 {
-    typename Net::Vector prediction(net.inner.topology.back());
+    Core::Tensor prediction;
 
-    for (size_type i = 0; i < data.size(); ++i)
+    for (Core::size_type i = 0; i < data.size(); ++i)
     {
-        show_image<Net>(data[i]);
+        show_image(data[i]);
 
         prediction.copy(net.feedforward(data[i]));
 
-        std::cout << "\nTRUE: " << li::argmax(target[i])
-                  << "\nPRED: " << li::argmax(prediction) << '\n'; // << prediction << '\n';
+        std::cout << "\nTRUE: " << trixy::lique::argmax(target[i])
+                  << "\nPRED: " << trixy::lique::argmax(prediction) << '\n'; // << prediction << '\n';
 
         std::cin.get();
     }
 }
 
-template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-ImageDataType get_idata(
+Core::Container<Core::Tensor> get_idata(
     const std::vector<std::vector<unsigned char>>& data, std::size_t batch_size, std::size_t input_size)
 {
-    ImageDataType input_batch;
+    Core::Container<Core::Tensor> input_batch;
     input_batch.reserve(batch_size);
 
-    for (size_type i = 0; i < batch_size; ++i)
-        input_batch.emplace_back(input_size);
+    for (Core::size_type i = 0; i < batch_size; ++i)
+        input_batch.emplace_back(1, 1, input_size);
 
-    for (size_type i = 0; i < batch_size; ++i)
-        for (size_type j = 0; j < input_size; ++j)
+    for (Core::size_type i = 0; i < batch_size; ++i)
+        for (Core::size_type j = 0; j < input_size; ++j)
             input_batch[i](j) = data[i][j] / 255.0;
 
     return input_batch;
 }
 
-template <class Net, class ImageDataType = typename Net::template Container<typename Net::Vector>>
-ImageDataType get_odata(
+Core::Container<Core::Tensor> get_odata(
     const std::vector<unsigned char>& data, std::size_t batch_size, std::size_t output_size)
 {
-    ImageDataType output_batch;
+    Core::Container<Core::Tensor> output_batch;
     output_batch.reserve(batch_size);
 
-    for(size_type i = 0; i < batch_size; ++i)
-        output_batch.emplace_back(output_size);
+    for(Core::size_type i = 0; i < batch_size; ++i)
+        output_batch.emplace_back(1, 1, output_size);
 
-    for (size_type i = 0; i < batch_size; ++i)
-        for (size_type j = 0; j < output_size; ++j)
+    for (Core::size_type i = 0; i < batch_size; ++i)
+        for (Core::size_type j = 0; j < output_size; ++j)
             output_batch[i](j) = (data[i] == j) ? 1.0 : 0.0;
 
     return output_batch;
@@ -101,43 +92,36 @@ void mnist_test_deserialization()
     // Data preparing:
     auto dataset = mnist::read_dataset("C:/mnist_data/");
 
-    size_type train_batch_size = 60000; // max 60 000
-    size_type test_batch_size  = 10000;
-    size_type input_size  = 784;
-    size_type output_size = 10;
+    Core::size_type train_batch_size = 60000; // max 60 000
+    Core::size_type test_batch_size  = 10000;
+    Core::size_type input_size  = 784;
+    Core::size_type output_size = 10;
 
     // Train batch initialize:
-    auto train_idata = get_idata<FeedNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = get_odata<FeedNet>(dataset.training_labels, train_batch_size, output_size);
+    auto train_idata = get_idata(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = get_odata(dataset.training_labels, train_batch_size, output_size);
 
     // Test batch initialize:
-    auto test_idata = get_idata<FeedNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = get_odata<FeedNet>(dataset.test_labels, test_batch_size, output_size);
+    auto test_idata = get_idata(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = get_odata(dataset.test_labels, test_batch_size, output_size);
 
     std::ifstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     // NeuralNetwork preparing:
-    Serializer<FeedNet> sr;
-    sr.deserialize(file);
+    Net net;
+
+    trixy::Serializer<Net> sr;
+    sr.deserialize(file, net);
+
     file.close();
 
-    FeedNet net(sr.topology());
-    Functional<FeedNet> manage;
-
-    net.inner.init(sr.bias(), sr.weight());
-
-    net.function.activation(manage.get(sr.all_activation_id()));
-    net.function.loss(manage.get(sr.loss_id()));
-
-    auto error = net.function.loss().f;
-
-    Checker<FeedNet> check(net);
+    trixy::Checker<Net> check(net);
     //
     std::cout << "NEURO TRAIN_SET ACCURACY: " << check.accuracy(train_idata, train_odata)
-              << "\nNEURO TRAIN_SET LOSS: " << check.loss(train_idata, train_odata, error) << '\n'
+              << "\nNEURO TRAIN_SET LOSS: " << check.loss(train_idata, train_odata, CCE()) << '\n'
               << "NEURO TEST_SET ACCURACY: " << check.accuracy(test_idata, test_odata)
-              << "\nNEURO TEST_SET LOSS: " << check.loss(test_idata, test_odata, error) << '\n';
+              << "\nNEURO TEST_SET LOSS: " << check.loss(test_idata, test_odata, CCE()) << '\n';
     //
     //
     std::cout << "TESTING TRAIN_SET\n";
@@ -151,46 +135,48 @@ void mnist_test_deserialization()
 
 void mnist_test()
 {
+    trixy::utility::RandomFloating<Core::precision_type> random;
+    auto generator = [&random] { return random(-0.25f, 0.25f); };
+
     // Data preparing:
     auto dataset = mnist::read_dataset("C:/mnist_data/");
 
-    size_type train_batch_size = 60000; // max 60 000
-    size_type test_batch_size  = 10000;
-    size_type input_size  = 784;
-    size_type output_size = 10;
+    Core::size_type train_batch_size = 60000; // max 60 000
+    Core::size_type test_batch_size  = 10000;
+    Core::size_type input_size  = 784;
+    Core::size_type output_size = 10;
 
     // Train batch initialize:
-    auto train_idata = get_idata<FeedNet>(dataset.training_images, train_batch_size, input_size);
-    auto train_odata = get_odata<FeedNet>(dataset.training_labels, train_batch_size, output_size);
+    auto train_idata = get_idata(dataset.training_images, train_batch_size, input_size);
+    auto train_odata = get_odata(dataset.training_labels, train_batch_size, output_size);
 
     // Test batch initialize:
-    auto test_idata = get_idata<FeedNet>(dataset.test_images, test_batch_size, input_size);
-    auto test_odata = get_odata<FeedNet>(dataset.test_labels, test_batch_size, output_size);
+    auto test_idata = get_idata(dataset.test_images, test_batch_size, input_size);
+    auto test_odata = get_odata(dataset.test_labels, test_batch_size, output_size);
 
     // Show image:
     //show_image_batch(train_file);
 
     // NeuralNetwork topology:
-    FeedNet net({ input_size, 256, output_size });
-    Functional<FeedNet> manage;
-    Training<FeedNet> teach(net);
-    Checker<FeedNet> check(net);
+    Net net;
 
-    RandomFloating<precision_type> random;
-    net.inner.init([&] { return random(-.25, .25); });
+    net.add(new FullyConnected(input_size, 256, new ReLU))
+       .add(new FullyConnected(256, output_size, new SoftMax));
 
-    net.function.activation(manage.get<ActivationId::relu>());
-    net.function.normalization(manage.get<ActivationId::softmax>());
-
-    net.function.loss(manage.get<LossId::CCE>());
-
-    auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
+    net.init(generator);
 
     // Train network:
+    trixy::train::Training<Net> teach(net);
+    trixy::Checker<Net> check(net);
+
+    teach.loss(new CCE);
+
+    auto optimizer = trixy::train::AdamOptimizer(net, 0.01f);
+
     Timer t;
     //
-    size_type times = 10;
-    for (size_type i = 1; i <= times; ++i)
+    Core::size_type times = 10;
+    for (Core::size_type i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
         teach.mini_batch(train_idata, train_odata, optimizer, 1, 40);
@@ -211,22 +197,24 @@ void mnist_test()
     std::ofstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    Serializer<FeedNet> sr;
+    trixy::Serializer<Net> sr;
     sr.serialize(file, net);
+
     file.close();
 
     std::cout << "End of serialization\n";
 }
-//
+
 int main()
 {
+    sf::serializable<FullyConnected>();
+    sf::serializable<ReLU>();
+    sf::serializable<SoftMax>();
+
     std::cout << std::fixed << std::setprecision(6);
 
-    //mnist_test();
+    mnist_test();
     mnist_test_deserialization();
-
-    std::cin.get();
 
     return 0;
 }
-//

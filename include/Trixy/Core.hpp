@@ -18,8 +18,6 @@
 #include <Trixy/Locker/Core.hpp>
 #include <Trixy/Require/Core.hpp>
 
-#include <Trixy/Buffer/Core.hpp>
-
 #include <Trixy/Random/Core.hpp>
 
 namespace trixy

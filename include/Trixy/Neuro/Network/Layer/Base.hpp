@@ -5,6 +5,8 @@
 
 #include <Trixy/Base.hpp> // LayerType, LayerMode
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Neuro/Functional/Function/Base.hpp>
 #include <Trixy/Neuro/Functional/Optimizer/Base.hpp>
 
@@ -20,8 +22,10 @@ template <typename LayerType, class Net, typename LayerMode>
 class Layer;
 
 template <class Net>
-class ILayer
+class ILayer : public sf::Instantiable
 {
+    SERIALIZABLE(ILayer)
+
 public:
     template <typename T>
     using Container             = typename Net::template Container<T>;
@@ -59,6 +63,8 @@ public:
 template <class Net>
 class ITrainLayer : public ILayer<Net>
 {
+    SERIALIZABLE(ITrainLayer)
+
     using Base = ILayer<Net>;
 
 public:
@@ -103,6 +109,20 @@ public:
 
 } // namespace layer
 
+namespace meta
+{
+
+template <typename T> struct is_ilayer : std::false_type {};
+template <class Net> struct is_ilayer<layer::ILayer<Net>> : std::true_type {};
+
+template <typename T> struct is_itrain_layer : std::false_type {};
+template <class Net> struct is_itrain_layer<layer::ITrainLayer<Net>> : std::true_type {};
+
+} // namespace meta
+
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_ilayer<T>::value) {}
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_itrain_layer<T>::value) {}
 
 #endif // TRIXY_NETWORK_LAYER_BASE_HPP

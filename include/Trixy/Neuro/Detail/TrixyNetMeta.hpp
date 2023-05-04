@@ -26,10 +26,6 @@ template <typename> struct is_trixy_net : std::false_type {};
 template <typename TrixyNetType, typename TypeSet>
 struct is_trixy_net<TrixyNet<TypeSet, TrixyNetType>> : std::true_type {};
 
-template <typename> struct is_feedforward_net : std::false_type {};
-template <typename TypeSet>
-struct is_feedforward_net<TrixyNet<TypeSet, TrixyNetType::FeedForward>> : std::true_type {};
-
 template <typename> struct is_unified_net : std::false_type {};
 template <typename TypeSet>
 struct is_unified_net<TrixyNet<TypeSet, TrixyNetType::Unified>> : std::true_type {};

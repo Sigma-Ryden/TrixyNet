@@ -6,8 +6,11 @@
 
 #include <Trixy/Neuro/Network/Layer/Base.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Locker/Core.hpp>
 
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -20,6 +23,8 @@ TRIXY_NET_TEMPLATE()
 class TrixyNet<TypeSet>
     : public guard::TrixyNetRequire<TypeSet>::type
 {
+    SERIALIZATION_ACCESS()
+
 public:
     template <typename T>
     using Container                 = typename TypeSet::template Container<T>;
@@ -47,13 +52,13 @@ public:
 
 private:
     Topology inner_;
-    size_type size_;
 
 public:
     Linear linear;
 
 public:
     TrixyNet(size_type reserve_size = 8);
+    TrixyNet(const Topology& topology);
     ~TrixyNet();
 
     TrixyNet& add(ILayer* layer);
@@ -61,7 +66,7 @@ public:
     const Topology& inner() const noexcept { return inner_; }
     ILayer& layer(size_type i) noexcept { return *inner_[i]; }
 
-    const size_type& size() const noexcept { return size_; }
+    size_type size() const noexcept { return inner_.size(); }
 
     const Tensor& feedforward(const Tensor& sample) noexcept;
     const Tensor& operator() (const Tensor& sample) noexcept;
@@ -71,15 +76,21 @@ public:
 };
 
 TRIXY_NET_TEMPLATE()
-TrixyNet<TypeSet>::TrixyNet(size_type reserve_size) : size_(0)
+TrixyNet<TypeSet>::TrixyNet(size_type reserve_size)
 {
     inner_.reserve(reserve_size);
 }
 
 TRIXY_NET_TEMPLATE()
+TrixyNet<TypeSet>::TrixyNet(const Topology& topology)
+{
+    inner_ = topology;
+}
+
+TRIXY_NET_TEMPLATE()
 TrixyNet<TypeSet>::~TrixyNet()
 {
-    for (size_type i = 0; i < size_; ++i)
+    for (size_type i = 0; i < inner_.size(); ++i)
         delete inner_[i];
 }
 
@@ -87,8 +98,6 @@ TRIXY_NET_TEMPLATE()
 auto TrixyNet<TypeSet>::add(ILayer* layer) -> TrixyNet&
 {
     inner_.emplace_back(layer);
-    ++size_;
-
     return *this;
 }
 
@@ -98,10 +107,10 @@ auto TrixyNet<TypeSet>::feedforward(
 {
     layer(0).forward(sample);
 
-    for (size_type i = 1; i < size_; ++i)
+    for (size_type i = 1; i < inner_.size(); ++i)
         layer(i).forward(layer(i - 1).value());
 
-    return layer(size_ - 1).value();
+    return layer(inner_.size() - 1).value();
 }
 
 TRIXY_NET_TEMPLATE()
@@ -118,10 +127,15 @@ void TrixyNet<TypeSet>::init(
 {
     typename ILayer::Generator generator{functor};
 
-    for (size_type i = 0; i < size_; ++i)
+    for (size_type i = 0; i < inner_.size(); ++i)
         layer(i).init(generator);
 }
 
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_unified_net<T>::value)
+{
+    archive & self.inner_;
+}
 
 #endif // TRIXY_NETWORK_UNIFIED_NET_HPP

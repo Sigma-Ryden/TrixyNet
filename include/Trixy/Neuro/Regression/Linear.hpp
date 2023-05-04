@@ -8,7 +8,10 @@
 
 #include <Trixy/Neuro/Training/Base.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
+#include <Trixy/Neuro/Detail/TrixyNetMeta.hpp>
 
 #include <Trixy/Neuro/Detail/MacroScope.hpp>
 
@@ -22,6 +25,8 @@ TRIXY_REGRESSION_TEMPLATE()
 class Regression<TypeSet, RegressionType::Linear> :
     public guard::RegressionRequire<TypeSet, RegressionType::Linear>::type
 {
+    SERIALIZATION_ACCESS()
+
 friend train::Training<LinearRegression<TypeSet>>;
 
 public:
@@ -40,7 +45,7 @@ private:
     Linear linear;
 
 public:
-    explicit Regression(size_type sample_size);
+    explicit Regression(size_type sample_size = 0);
 
     void init(Vector weight) noexcept;
 
@@ -106,5 +111,10 @@ auto LinearRegression<TypeSet>::feedforward(
 }
 
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_linear_regression<T>::value)
+{
+    archive & self.W & self.N;
+}
 
 #endif // TRIXY_REGRESSION_LINEAR_HPP

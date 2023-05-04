@@ -15,6 +15,8 @@
 #include <Trixy/Detail/TrixyMeta.hpp>
 #include <Trixy/Lique/Detail/LiqueMeta.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/MetaMacro.hpp>
 #include <Trixy/Lique/Detail/MacroScope.hpp>
 
@@ -47,6 +49,8 @@ using TensorBase = Tensor<Precision, TensorType::base, TensorMode::view>;
 template <typename Precision>
 class Tensor<Precision, TensorType::base, TensorMode::view> : public TensorType::base
 {
+    SERIALIZATION_ACCESS()
+
     static constexpr bool require = std::is_arithmetic<Precision>::value;
 
     static_assert(require, "'Precision' should be an arithmetic type.");
@@ -451,5 +455,11 @@ inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> co
 } // namespace lique
 
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_ltensor<T>::value)
+{
+    archive & self.shape_;
+    archive & sf::span(self.data_, self.shape_.size);
+}
 
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

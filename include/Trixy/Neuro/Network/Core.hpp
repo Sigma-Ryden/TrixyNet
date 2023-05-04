@@ -4,6 +4,5 @@
 #include <Trixy/Neuro/Network/Base.hpp>
 
 #include <Trixy/Neuro/Network/UnifiedNet.hpp>
-#include <Trixy/Neuro/Network/FeedForwardNet.hpp>
 
 #endif // TRIXY_NETWORK_CORE_HPP

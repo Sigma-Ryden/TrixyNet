@@ -3,6 +3,8 @@
 
 #include <type_traits> // is_integral
 
+#include <Trixy/Serializer/Core.hpp>
+
 namespace trixy
 {
 
@@ -41,8 +43,21 @@ public:
     : depth(1), height(1), width(w), size(w) {}
 };
 
+namespace meta
+{
+
+template <typename T> struct is_shape : std::false_type {};
+template <typename T> struct is_shape<Shape<T>> : std::true_type {};
+
+} // namespace meta
+
 } // namespace lique
 
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_shape<T>::value)
+{
+    archive & self.depth & self.height & self.width & self.size;
+}
 
 #endif // TRIXY_LIQUE_SHAPE_HPP

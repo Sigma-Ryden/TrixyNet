@@ -19,6 +19,7 @@
 #define TRIXY_FUNCTION_GENERIC_LOSS_HELPER(name, function_name, derived_function_name)                  \
     template <typename Precision = double>                                                              \
     class name : public ILoss<Precision> {                                                              \
+        SERIALIZABLE(name)                                                                              \
     public:                                                                                             \
         using Base = ILoss<Precision>;                                                                  \
                                                                                                         \
@@ -40,6 +41,7 @@
 #define TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(name, function_name, derived_function_name)            \
     template <typename Precision = double>                                                              \
     class name : public IActivation<Precision> {                                                        \
+        SERIALIZABLE(name)                                                                              \
     public:                                                                                             \
         using Base = IActivation<Precision>;                                                            \
                                                                                                         \

@@ -3,6 +3,8 @@
 
 #include <Trixy/Range/View.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/MacroScope.hpp>
 
 namespace trixy
@@ -11,12 +13,16 @@ namespace trixy
 namespace functional
 {
 
+struct ActivationType {};
+
 namespace activation
 {
 
 template <typename Precision>
-class IActivation
+class IActivation : public ActivationType, public sf::Instantiable
 {
+    SERIALIZABLE(IActivation)
+
 public:
     using precision_type = Precision;
     using Range = utility::Range<Precision>;
@@ -30,12 +36,16 @@ public:
 
 } // namespace activation
 
+struct LossType {};
+
 namespace loss
 {
 
 template <typename Precision>
-class ILoss
+class ILoss : public LossType, public sf::Instantiable
 {
+    SERIALIZABLE(ILoss)
+
 public:
     using precision_type = Precision;
     using Range = utility::Range<Precision>;
@@ -51,6 +61,17 @@ public:
 
 } // namespace functional
 
+namespace meta
+{
+
+template <typename T> struct is_iactivation : std::is_base_of<functional::ActivationType, T> {};
+template <typename T> struct is_iloss : std::is_base_of<functional::LossType, T> {};
+
+} // namespace meta
+
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_iactivation<T>::value) {}
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_iloss<T>::value) {}
 
 #endif // TRIXY_FUNCTION_BASE_HPP

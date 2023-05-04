@@ -4,6 +4,8 @@
 #include <utility> // move, forward
 
 #include <Trixy/Locker/Base.hpp>
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 
 #include <Trixy/Detail/MetaMacro.hpp>
@@ -20,6 +22,8 @@ using VectorLocker = Locker<Tensor, LockerType::vector>;
 template <class Tensor>
 class Locker<Tensor, LockerType::vector> : protected Tensor
 {
+    SERIALIZATION_ACCESS()
+
 protected:
     using require = Tensor;
 

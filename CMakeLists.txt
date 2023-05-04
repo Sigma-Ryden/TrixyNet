@@ -8,11 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 set(TESTING
-   # test/simple_test.cpp
-   # test/mnist_test.cpp
-   # test/speed_test.cpp
+   test/mnist_test.cpp
    # test/regression_test.cpp
-   test/experimental_test.cpp
+   # test/simple_test.cpp
 )
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
@@ -50,6 +48,7 @@ set(TRIXY_LOCKER
     include/Trixy/Locker/Detail/LockerMeta.hpp
 
     include/Trixy/Locker/Base.hpp
+    include/Trixy/Locker/Serialization.hpp
     include/Trixy/Locker/Container.hpp
     include/Trixy/Locker/Vector.hpp
     include/Trixy/Locker/Matrix.hpp
@@ -66,11 +65,7 @@ set(TRIXY_REQUIRE
     include/Trixy/Require/Precision.hpp
     include/Trixy/Require/Core.hpp
 )
-set(TRIXY_BUFFER
-    include/Trixy/Buffer/Core.hpp
-    include/Trixy/Buffer/Detail/MacroScope.hpp
-    include/Trixy/Buffer/Detail/MacroUnscope.hpp
-)
+
 set(TRIXY_RANGE
     include/Trixy/Range/Detail/Meta.hpp
 
@@ -92,13 +87,15 @@ set(TRIXY_NEURO
     include/Trixy/Detail/MacroUnscope.hpp
     include/Trixy/Detail/MetaMacro.hpp
 
+    include/Trixy/Serializer/SerializationFixture.hpp
+    include/Trixy/Serializer/Core.hpp
+
     include/Trixy/Neuro/Detail/TrixyNetMeta.hpp
     include/Trixy/Neuro/Detail/MacroScope.hpp
     include/Trixy/Neuro/Detail/MacroUnscope.hpp
 
     include/Trixy/Neuro/Network/Base.hpp
     include/Trixy/Neuro/Network/Require.hpp
-    include/Trixy/Neuro/Network/FeedForwardNet.hpp
     include/Trixy/Neuro/Network/UnifiedNet.hpp
     include/Trixy/Neuro/Network/Core.hpp
 
@@ -138,13 +135,9 @@ set(TRIXY_NEURO
 
     include/Trixy/Neuro/Functional/Base.hpp
     include/Trixy/Neuro/Functional/Id.hpp
-    include/Trixy/Neuro/Functional/FeedForwardNet.hpp
     include/Trixy/Neuro/Functional/Core.hpp
 
     include/Trixy/Neuro/Serializer/Base.hpp
-    include/Trixy/Neuro/Serializer/FeedForwardNet.hpp
-    include/Trixy/Neuro/Serializer/PolynomialRegression.hpp
-    include/Trixy/Neuro/Serializer/LinearRegression.hpp
     include/Trixy/Neuro/Serializer/Core.hpp
 
     include/Trixy/Neuro/Regression/Base.hpp
@@ -154,7 +147,6 @@ set(TRIXY_NEURO
     include/Trixy/Neuro/Regression/Core.hpp
 
     include/Trixy/Neuro/Training/Base.hpp
-    include/Trixy/Neuro/Training/FeedForwardNet.hpp
     include/Trixy/Neuro/Training/UnifiedNet.hpp
     include/Trixy/Neuro/Training/LinearRegression.hpp
     include/Trixy/Neuro/Training/PolynomialRegression.hpp

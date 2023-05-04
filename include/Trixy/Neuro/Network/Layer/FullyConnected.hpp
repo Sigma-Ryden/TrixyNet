@@ -26,6 +26,7 @@ class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
     TRIXY_TRAIN_LAYER_BODY()
+    SERIALIZABLE(Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>)
 
 private:
     Tensor value_;
@@ -51,6 +52,8 @@ public:
     Linear linear;
 
 public:
+    Layer() : activation_(nullptr) {} // temp
+
     // maybe change in the future release
     Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
         : Base()
@@ -164,6 +167,7 @@ class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
     TRIXY_RAW_LAYER_BODY()
+    SERIALIZABLE(Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>)
 
 private:
     Tensor value_;
@@ -178,6 +182,8 @@ private:
     Linear linear;
 
 public:
+    Layer() : activation_(nullptr) {} // temp
+
     Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
         : Base()
         , value_(1, 1, osize), B_(osize), W_(isize, osize)
@@ -220,6 +226,37 @@ public:
 
 } // namespace layer
 
+namespace meta
+{
+
+template <typename T> struct is_fully_connected_layer : std::false_type {};
+template <class Net>
+struct is_fully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, LayerMode::Train>> : std::true_type {};
+
+template <typename T> struct is_xfully_connected_layer : std::false_type {};
+template <class Net>
+struct is_xfully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, LayerMode::Raw>> : std::true_type {};
+
+} // namespace meta
+
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_fully_connected_layer<T>::value)
+{
+    archive & self.value_ & self.buff_
+            & self.B_ & self.W_
+            & self.gradB_ & self.gradW_
+            & self.deltaB_ & self.deltaW_ & self.delta_
+            & self.isize_ & self.osize_
+            & self.activation_;
+}
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_xfully_connected_layer<T>::value)
+{
+    archive & self.value_
+            & self.B_ & self.W_
+            & self.isize_ & self.osize_
+            & self.activation_;
+}
 
 #endif // TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP

@@ -17,7 +17,7 @@ TRIXY_NET_TEMPLATE()
 struct TrixyNetRequire<TypeSet, TrixyNetType::Unified>
 {
 public:
-    using type = TrixyNetType::FeedForward;
+    using type = TrixyNetType::Unified;
 
 protected:
     using precision_type    = typename TypeSet::precision_type;
@@ -34,35 +34,6 @@ protected:
 
     using require_vector    = typename VectorRequire<Vector>::type;
     using require_matrix    = typename MatrixRequire<Matrix>::type;
-
-    using require_linear    = typename LinearRequire<Linear>::type;
-
-    using require_container = typename ContainerRequire<Container>::type;
-};
-
-TRIXY_NET_TEMPLATE()
-struct TrixyNetRequire<TypeSet, TrixyNetType::FeedForward>
-{
-public:
-    using type = TrixyNetType::FeedForward;
-
-protected:
-    using precision_type    = typename TypeSet::precision_type;
-
-    using Vector            = typename TypeSet::Vector;
-    using Matrix            = typename TypeSet::Matrix;
-    using Tensor            = typename TypeSet::Tensor;
-
-    using Linear            = typename TypeSet::Linear;
-
-    using Container         = typename TypeSet::template Container<precision_type>;
-
-protected:
-    using require_precision = typename PrecisionRequire<precision_type>::type;
-
-    using require_vector    = typename VectorRequire<Vector>::type;
-    using require_matrix    = typename MatrixRequire<Matrix>::type;
-    using require_tensor    = typename TensorRequire<Tensor>::type;
 
     using require_linear    = typename LinearRequire<Linear>::type;
 

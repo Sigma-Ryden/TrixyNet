@@ -12,8 +12,8 @@ namespace meta
 {
 
 template <typename> struct is_locker : std::false_type {};
-template <class Lockable, class locker_type>
-struct is_locker<memory::Locker<Lockable, locker_type>> : std::true_type {};
+template <class Lockable, typename LockerType>
+struct is_locker<memory::Locker<Lockable, LockerType>> : std::true_type {};
 
 } // namespace meta
 

@@ -6,6 +6,8 @@
 
 #include <Trixy/Neuro/Network/Layer/Detail/FunctionDetail.hpp>
 
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 
 #include <Trixy/Neuro/Network/Layer/Detail/MacroScope.hpp>
@@ -28,6 +30,7 @@ class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
     TRIXY_TRAIN_LAYER_BODY()
+    SERIALIZABLE(Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Train>)
 
 private:
     Tensor value_;
@@ -152,6 +155,7 @@ class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
     TRIXY_RAW_LAYER_BODY()
+    SERIALIZABLE(Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Raw>)
 
 private:
     Tensor value_;
@@ -248,6 +252,35 @@ public:
 
 } // namespace layer
 
+namespace meta
+{
+
+template <typename T> struct is_max_polling_layer : std::false_type {};
+template <class Net>
+struct is_max_polling_layer<layer::Layer<LayerType::MaxPooling, Net, LayerMode::Train>> : std::true_type {};
+
+template <typename T> struct is_xmax_polling_layer : std::false_type {};
+template <class Net>
+struct is_xmax_polling_layer<layer::Layer<LayerType::MaxPooling, Net, LayerMode::Raw>> : std::true_type {};
+
+} // namespace meta
+
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_max_polling_layer<T>::value)
+{
+    archive & self.value_ & self.buff_ & self.mask_ & self.delta_
+            & self.isize_ & self.osize_ & self.pooling_
+            & self.horizontal_stride_ & self.horizontal_stride_
+            & self.activation_;
+}
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_xmax_polling_layer<T>::value)
+{
+    archive & self.value_
+            & self.isize_ & self.osize_ & self.pooling_
+            & self.horizontal_stride_ & self.horizontal_stride_
+            & self.activation_;
+}
 
 #endif // TRIXY_NETWORK_LAYER_MAX_POOLING_HPP

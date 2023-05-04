@@ -5,6 +5,8 @@
 #include <initializer_list> // initializer_list
 
 #include <Trixy/Locker/Base.hpp>
+#include <Trixy/Serializer/Core.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 
 #include <Trixy/Detail/MetaMacro.hpp>
@@ -21,6 +23,8 @@ using ContainerLocker = Locker<Container, LockerType::container>;
 template <class Container>
 class Locker<Container, LockerType::container> : protected Container
 {
+    SERIALIZATION_ACCESS()
+
 protected:
     using require = Container;
 
