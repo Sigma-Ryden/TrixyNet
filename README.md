@@ -64,47 +64,46 @@ Including of common headers for library use:
 
 #include <Utility/Core.hpp> // Timer, statistic
 
-#include <cstddef> // size_t
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
-#include <fstream> // ifstream, ofstream
 
-using namespace trixy;
-using namespace trixy::functional;
-using namespace trixy::train;
-using namespace trixy::utility;
+using Core = trixy::TypeSet<float>;
+using Net = trixy::TrixyNet<Core>;
 
-using precision_type = float;
-using size_type      = std::size_t;
+using FullyConnected = trixy::layer::FullyConnected<Net>;
 
-using Core    = TypeSet<precision_type>;
-using FeedNet = FeedForwardNet<Core>;
+using ReLU = trixy::functional::activation::ReLU<Core::precision_type>;
+using SoftMax = trixy::functional::activation::SoftMax<Core::precision_type>;
+
+using CCE = trixy::functional::loss::CCE<Core::precision_type>;
 ```
 Note that <Utility/Core.hpp> is not part of the ```Trixy``` library.
 
 Preparing of the simple train data:
 ```C++
-template <class Net>
-typename Net::template Container<typename Net::Vector> get_simple_test_idata()
+Core::Container<Core::Tensor> get_simple_test_idata()
 {
     return
     {
-        {-0.08, 0.04},
-        { 0.92, 0.24},
-        { 0.4,  0.16},
-        {-0.0, -0.24}
+        {1, 0, 1, 1},
+        {1, 1, 1, 0},
+        {1, 1, 0, 1},
+        {0, 1, 1, 0},
+        {1, 0, 1, 0},
+        {0, 0, 1, 1}
     };
 }
 
-template <class Net>
-typename Net::template Container<typename Net::Vector> get_simple_test_odata()
+Core::Container<Core::Tensor> get_simple_test_odata()
 {
     return
     {
-        {1, 0},
-        {0, 1},
-        {0, 1},
-        {1, 0}
+        {1, 0, 0},
+        {0, 1, 0},
+        {1, 0, 0},
+        {0, 0, 1},
+        {0, 1, 0},
+        {1, 0, 0}
     };
 }
 ```
@@ -112,54 +111,41 @@ Definition of serialization function:
 ```C++
 void simple_test()
 {
-    using RandomFloating = RandomFloating<precision_type>;
-    using RandomIntegral = RandomIntegral<size_type>;
+    trixy::utility::RandomFloating<Core::precision_type> random;
+    auto generator = [&random] { return random(-0.5f, 0.5f); };
 
-    auto idata = get_simple_test_idata<FeedNet>();
-    auto odata = get_simple_test_odata<FeedNet>();
+    // Preparing train data
+    auto idata = get_simple_test_idata();
+    auto odata = get_simple_test_odata();
 
-    // Creating fully connected neural network with 2 inputs, 2 hidden neurons and 2 outputs
-    FeedNet net({2, 2, 2});
-    
-    // The function manager will help us to quickly set up activation, normalization and loss functions
-    Functional<FeedNet> manage;
+    Net net;
 
-    // The trainer will help us train the neural network, if it's not smart enough
-    Training<FeedNet> train(net);
+    net.add(new FullyConnected(4, 4, new ReLU))
+       .add(new FullyConnected(4, 5, new ReLU))
+       .add(new FullyConnected(5, 4, new ReLU))
+       .add(new FullyConnected(4, 3, new SoftMax));
 
-    // Initialization of weights and biases
-    net.inner.init(RandomFloating{});
+    net.init(generator);
 
-    // Set up some functions
-    net.function.activation(manage.get<ActivationId::relu>());
-    net.function.normalization(manage.get<ActivationId::softmax>());
+    trixy::train::Training<Net> train(net);
 
-    net.function.loss(manage.get<LossId::CCE>());
+    train.loss(new CCE);
 
-    // Creating of the optimizer for effective neural network train
-    auto optimizer = manage.get<OptimizationId::adam>(net, 0.01);
+    auto optimizer = trixy::train::AdamOptimizer(net, 0.01f);
 
     Timer t;
-    
-    // Training of the neural network
-    train.stochastic(idata, odata, optimizer, 2000, RandomIntegral{});
-    std::cout << "Train time: " << t.elapsed() << '\n';
+    train.batch(idata, odata, optimizer, 1000);
+    std::cout << "Train second net time: " << t.elapsed() << '\n';
 
     statistic(net, idata, odata);
 
-    std::ofstream file("example.bin", std::ios::binary);
+    std::ofstream file("simple_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    // The serializer help us save neural network to some storage
-    Serializer<FeedNet> sr;
+    trixy::Serializer<Net> sr;
+    sr.serialize(file, net);
 
-    // This 2 line below can be replaced by: sr.serialize(net, file);
-    sr.prepare(net);
-    sr.serialize(file);
-    
-    out.close();
-
-    std::cout << "End of serialization\n";
+    file.close();
 }
 ```
 Processing:
@@ -173,7 +159,7 @@ int main()
     return 0;
 }
 ```
-Output:
+Possible output:
 ```console
 Train time: 0.010822
 <0> [0.992433, 0.007567] : [1.000000, 0.000000]
@@ -187,28 +173,19 @@ Definition of deserialization function:
 ```C++
 void simple_test_deserialization()
 {
-    std::ifstream file("example.bin", std::ios::binary);
+    std::ifstream file("simple_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
-    auto idata = get_simple_test_idata<FeedNet>();
-    auto odata = get_simple_test_odata<FeedNet>();
+    Net net;
 
-    Serializer<FeedNet> sr;
-    
-    // Reading data 
-    sr.deserialize(file);
-    in.close();
+    trixy::Serializer<Net> sr;
+    sr.deserialize(file, net);
 
-    // Constructing and filling of neural network
-    FeedNet net(sr.topology());
-    Functional<FeedNet> manage;
+    file.close();
 
-    net.inner.init(sr.bias(), sr.weight());
+    auto idata = get_simple_test_idata();
+    auto odata = get_simple_test_odata();
 
-    net.function.activation(manage.get(sr.all_activation_id()));
-    net.function.loss(manage.get(sr.loss_id()));
-
-    // Checking of the result
     statistic(net, idata, odata);
 }
 ```
@@ -217,9 +194,9 @@ Processing:
 int main()
 {
     std::cout << std::fixed << std::setprecision(6);
-    
+
     simple_test_deserialization();
-    
+
     return 0;
 }
 ```
@@ -231,6 +208,8 @@ Output:
 <3> [0.999418, 0.000583] : [1.000000, 0.000000]
 Network normal accuracy: 1.000000
 ```
+See full example here: [simple_test](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test/simple_test.cpp).
+
 #### Notes:
 Most of the time, you will be preparing data as well as neural networks for training and running.
 Therefore, the library provides flexible configuration of neural networks before and during their training.
