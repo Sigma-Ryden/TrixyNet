@@ -331,6 +331,4 @@ TRIXY_FUNCTION_GENERIC_LOSS_HELPER(LC, logcosh, logcosh_derived);
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
-
 #endif // TRIXY_FUNCTION_LOSS_HPP

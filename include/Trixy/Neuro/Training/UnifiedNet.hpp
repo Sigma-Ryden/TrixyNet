@@ -96,12 +96,12 @@ public:
 private:
     ITrainLayer& layer(size_type i) noexcept;
 
-    void grad_reset() noexcept;
-    void grad_accumulate() noexcept;
-    void grad_normalize(precision_type alpha) noexcept;
+private:
+    // only for model
+    void updating(IOptimizer& optimizer, precision_type alpha) noexcept;
 
-    void model_update(IOptimizer& optimizer) noexcept;
-    void fast_model_update(IOptimizer& optimizer) noexcept;
+    void reseting() noexcept;
+    void accumulating() noexcept;
 };
 
 TRIXY_TRAINING_TEMPLATE()
@@ -153,7 +153,7 @@ void UnifiedNetTraining<Trainable>::stochastic(
         backprop(idata[sample], odata[sample]);
 
         // Updating the model with dynamic gradients, without their accumulation
-        fast_model_update(optimizer);
+        model_update(optimizer, 1.f);
     }
 }
 
@@ -168,18 +168,17 @@ void UnifiedNetTraining<Trainable>::batch(
 
     for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
     {
-        grad_reset();
+        reseting();
 
         for (sample = 0; sample < idata.size(); ++sample)
         {
             feedforward(idata[sample]);
             backprop(idata[sample], odata[sample]);
 
-            grad_accumulate();
+            accumulating();
         }
 
-        grad_normalize(alpha);
-        model_update(optimizer);
+        updating(optimizer, alpha);
     }
 }
 
@@ -208,7 +207,7 @@ void UnifiedNetTraining<Trainable>::mini_batch(
         {
             sample_limit += mini_batch_size;
 
-            grad_reset();
+            reseting();
 
             // accumulating deltas for one mini-batch
             while (sample < sample_limit)
@@ -216,13 +215,12 @@ void UnifiedNetTraining<Trainable>::mini_batch(
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
 
-                grad_accumulate();
+                accumulating();
 
                 ++sample;
             }
             // averaging deltas for one mini-batch
-            grad_normalize(alpha);
-            model_update(optimizer);
+            updating(optimizer, alpha);
         }
     }
 }
@@ -246,9 +244,9 @@ void UnifiedNetTraining<Trainable>::backprop(
     layer(N - 1).backward(layer(N - 2).value(), delta);
 
     for (size_type i = N - 2; i > 0; --i)
-        layer(i).backward(layer(i - 1).value(), layer(i + 1).delta().base());
+        layer(i).backward(layer(i - 1).value(), layer(i + 1).delta());
 
-    layer(0).first_backward(sample, layer(1).delta().base());
+    layer(0).backward(sample, layer(1).delta(), false);
 }
 
 TRIXY_TRAINING_TEMPLATE()
@@ -277,42 +275,21 @@ typename UnifiedNetTraining<Trainable>::ITrainLayer&
 }
 
 TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::grad_reset() noexcept
+void UnifiedNetTraining<Trainable>::updating(IOptimizer& optimizer, precision_type alpha) noexcept
 {
-    for (size_type i = 0; i < net.size(); ++i)
-        layer(i).grad_reset();
+    for (size_type i = 0; i < net.size(); ++i) layer(i).update(optimizer, alpha);
 }
 
 TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::grad_accumulate() noexcept
+void UnifiedNetTraining<Trainable>::reseting() noexcept
 {
-    for (size_type i = 0; i < net.size(); ++i)
-        layer(i).grad_accumulate();
+    for (size_type i = 0; i < net.size(); ++i) layer(i).reset();
 }
 
 TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::grad_normalize(
-    precision_type alpha) noexcept
+void UnifiedNetTraining<Trainable>::accumulating() noexcept
 {
-    for (size_type i = 0; i < net.size(); ++i)
-        layer(i).grad_normalize(alpha);
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::model_update(
-    IOptimizer& optimizer) noexcept
-{
-    for (size_type i = 0; i < net.size(); ++i)
-        layer(i).update(optimizer);
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::fast_model_update(
-    IOptimizer& optimizer) noexcept
-{
-    // Quick update is best used to update a layer with simple gradients
-    for (size_type i = 0; i < net.size(); ++i)
-        layer(i).fast_update(optimizer);
+    for (size_type i = 0; i < net.size(); ++i) layer(i).accumulate();
 }
 
 } // namespace train

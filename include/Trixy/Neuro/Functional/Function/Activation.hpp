@@ -167,6 +167,4 @@ TRIXY_FUNCTION_GENERIC_ACTIVATION_HELPER(SoftMax, softmax, softmax_derived);
 
 } // namespace trixy
 
-#include <Trixy/Neuro/Functional/Function/Detail/MacroScope.hpp>
-
 #endif // TRIXY_FUNCTION_ACTIVATION_HPP

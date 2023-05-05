@@ -215,14 +215,14 @@ LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::at(
     size_type i, size_type j, size_type k) noexcept -> pointer
 {
-    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+    return this->data_ + (i * this->shape_.height + j) * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TEMPLATE()
 inline auto Tensor<Precision>::at(
     size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
-    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+    return this->data_ + (i * this->shape_.height + j) * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TEMPLATE()
@@ -286,14 +286,14 @@ LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::at(
     size_type i, size_type j, size_type k) noexcept -> pointer
 {
-    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+    return this->data_ + (i * this->shape_.height + j) * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TEMPLATE()
 inline auto TensorView<Precision>::at(
     size_type i, size_type j, size_type k) const noexcept -> const_pointer
 {
-    return this->data_ + i * this->shape_.depth + j * this->shape_.width + k;
+    return this->data_ + (i * this->shape_.height + j) * this->shape_.width + k;
 }
 
 LIQUE_TENSOR_TEMPLATE()

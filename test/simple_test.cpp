@@ -108,7 +108,7 @@ int main()
 
     std::cout << std::fixed << std::setprecision(6);
 
-    //simple_test();
+    simple_test();
     simple_test_deserialization();
 
     return 0;

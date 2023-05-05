@@ -209,7 +209,7 @@ int main()
 
     std::cout << std::fixed << std::setprecision(6);
 
-    //mnist_test();
+    mnist_test();
     mnist_test_deserialization();
 
     return 0;

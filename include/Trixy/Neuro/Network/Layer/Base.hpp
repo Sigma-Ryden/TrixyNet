@@ -94,17 +94,13 @@ public:
     virtual ~ITrainLayer() = default;
 
 public:
-    virtual void backward(const Tensor& input, const Tensor& idelta) noexcept = 0;
-    virtual void first_backward(const Tensor& input, const Tensor& idelta) noexcept { /*pass*/ }
+    virtual void backward(const Tensor& input, const Tensor& idelta, bool full = true) noexcept = 0;
+    virtual const Tensor& delta() const noexcept = 0;
 
-    virtual void grad_reset() noexcept { /*pass*/ }
-    virtual void grad_normalize(precision_type alpha) noexcept { /*pass*/ }
-    virtual void grad_accumulate() noexcept { /*pass*/ }
+    virtual void update(IOptimizer& optimizer, precision_type alpha) noexcept { /*pass*/ }
 
-    virtual XTensor& delta() noexcept = 0;
-
-    virtual void update(IOptimizer& optimizer) noexcept { /*pass*/ }
-    virtual void fast_update(IOptimizer& optimizer) noexcept { /*pass*/ }
+    virtual void accumulate() noexcept { /*pass*/ }
+    virtual void reset() noexcept { /*pass*/ }
 };
 
 } // namespace layer

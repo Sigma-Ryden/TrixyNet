@@ -53,39 +53,52 @@ void network_size(const Collection<std::size_t>& topology) // deprecated & repai
 }
 
 template <class Vector,
-    trixy::meta::require<not trixy::lique::meta::is_matrix<Vector>::value and
-                         trixy::lique::meta::is_iterate<Vector>::value> = 0>
+    trixy::meta::require<trixy::lique::meta::is_lvector<Vector>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Vector& vector)
 {
-    if (vector.size() == 0) return out;
-
     out << '[';
-    for (std::size_t i = 0; i < vector.size() - 1; ++i)
+    for (std::size_t i = 0; i < vector.size(); ++i)
         out << vector(i) << ", ";
-
-    out << vector(vector.size() - 1) << ']';
+    out << ']';
 
     return out;
 }
 
-template <class Matrix, trixy::lique::meta::as_matrix<Matrix> = 0>
+template <class Matrix,
+    trixy::meta::require<trixy::lique::meta::is_lmatrix<Matrix>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 {
     out << '[';
-    for (std::size_t i = 0; i < matrix.shape().height - 1; ++i)
+    for (std::size_t i = 0; i < matrix.shape().height; ++i)
     {
         out << '[';
-        for (std::size_t j = 0; j < matrix.shape().width - 1; ++j)
+        for (std::size_t j = 0; j < matrix.shape().width; ++j)
             out << matrix(i, j) << ", ";
-
-        out << matrix(i, matrix.shape().width - 1) << "],\n";
+        out << "],\n";
     }
+    out << ']';
 
+    return out;
+}
+
+template <class Tensor,
+    trixy::meta::require<trixy::lique::meta::is_ltensor<Tensor>::value> = 0>
+std::ostream& operator<< (std::ostream& out, const Tensor& tensor)
+{
     out << '[';
-    for (std::size_t j = 0; j < matrix.shape().width - 1; ++j)
-        out << matrix(matrix.shape().height - 1, j) << ", ";
-
-    out << matrix(matrix.size() - 1) << "]]";
+    for (std::size_t i = 0; i < tensor.shape().depth; ++i)
+    {
+        out << '[';
+        for (std::size_t j = 0; j < tensor.shape().height; ++j)
+        {
+            out << '[';
+            for (std::size_t k = 0; k < tensor.shape().width; ++k)
+                out << tensor(i, j, k) << ", ";
+            out << "],";
+        }
+        out << "], ";
+    }
+    out << ']';
 
     return out;
 }

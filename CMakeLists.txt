@@ -11,6 +11,7 @@ set(TESTING
    test/mnist_test.cpp
    # test/regression_test.cpp
    # test/simple_test.cpp
+   # test/auto_tests.cpp
 )
 set(TRIXY_CONTAINER
     include/Trixy/Container/Container.hpp
@@ -160,6 +161,9 @@ set(UTILS
     
     include/Utility/Core.hpp
 )
+set(AUTO
+    include/Auto/TestingCore.hpp
+    include/Auto/TestingCore.cpp)
 
 add_executable(${PROJECT_NAME}
     ${TESTING}
@@ -173,4 +177,5 @@ add_executable(${PROJECT_NAME}
     ${TRIXY_RANDOM}
     ${TRIXY_NEURO}
     ${UTILS}
+    ${AUTO}
 )
