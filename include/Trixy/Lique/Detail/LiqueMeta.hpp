@@ -22,17 +22,9 @@ namespace lique
 namespace meta
 {
 
-template <typename> struct is_ltensor : std::false_type {};
-template <typename Precision, class tensor_type>
-struct is_ltensor<Tensor<Precision, tensor_type>> : std::true_type {};
-
-template <typename> struct is_lvector : std::false_type {};
-template <typename Precision>
-struct is_lvector<Tensor<Precision, TensorType::vector>> : std::true_type {};
-
-template <typename> struct is_lmatrix : std::false_type {};
-template <typename Precision>
-struct is_lmatrix<Tensor<Precision, TensorType::matrix>> : std::true_type {};
+template <typename> struct is_tensor_type : std::false_type {};
+template <typename Precision, typename TensrorType, typename TensorMode>
+struct is_tensor_type<Tensor<Precision, TensrorType, TensorMode>> : std::true_type {};
 
 template <class Tensor>
 struct is_vector : std::is_base_of<lique::TensorType::vector, Tensor> {};

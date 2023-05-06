@@ -95,7 +95,7 @@ public:
 
     template <class Generator,
               trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator gen) noexcept;
+    Tensor& fill(Generator generator) noexcept;
 
     Tensor& fill(precision_type value) noexcept;
 
@@ -236,9 +236,9 @@ TensorBase<Precision>& TensorBase<Precision>::copy(
 
 LIQUE_TENSOR_TEMPLATE()
 template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
-TensorBase<Precision>& TensorBase<Precision>::fill(Generator gen) noexcept
+TensorBase<Precision>& TensorBase<Precision>::fill(Generator generator) noexcept
 {
-    lique::detail::fill(data_, data_ + shape_.size, gen);
+    lique::detail::fill(data_, data_ + shape_.size, generator);
 
     return *this;
 }
@@ -456,7 +456,7 @@ inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> co
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_ltensor<T>::value)
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_tensor_type<T>::value)
 {
     archive & self.shape_;
     archive & sf::span(self.data_, self.shape_.size);

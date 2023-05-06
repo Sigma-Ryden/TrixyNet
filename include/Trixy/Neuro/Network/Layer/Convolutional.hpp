@@ -2,6 +2,9 @@
 #define TRIXY_NETWORK_LAYER_CONVOLUTIONAL_HPP
 
 #include <Trixy/Neuro/Network/Layer/Base.hpp>
+#include <Trixy/Neuro/Network/Layer/Volume.hpp>
+
+#include <Trixy/Neuro/Functional/Function/Activation.hpp>
 
 #include <Trixy/Detail/TrixyMeta.hpp>
 
@@ -20,32 +23,140 @@ template <class Net>
 using XConvolutional = Convolutional<Net, LayerMode::Raw>;
 
 template <class Net>
+class Layer<trixy::LayerType::Convolutional, Net, LayerMode::Raw>
+    : public ILayer<Net>
+{
+    TRIXY_LAYER_BODY(ILayer<Net>)
+    SERIALIZABLE(Layer<trixy::LayerType::Convolutional, Net, LayerMode::Raw>)
+
+protected:
+    shape_type isize_;
+    shape_type osize_;
+
+    size_type padding_;
+    size_type stride_;
+
+    size_type filter_count_;
+    shape_type filter_size_;
+
+    Vector B_;
+    Container<Tensor> Ws_;
+
+    Tensor value_;
+
+public:
+    Layer() {}
+
+    Layer(const set::Input& input,
+          const set::Filter& filter,
+          const set::Padding& padding = set::Padding(0),
+          const set::Stride& stride = set::Stride(1))
+        : Layer(input,
+                filter.depth, filter.height, filter.width,
+                padding.height,
+                stride.height) {}
+
+    Layer(shape_type size,
+          size_type filter_count, size_type filter_height, size_type filter_width,
+          size_type padding, size_type stride)
+        : Base()
+        , isize_(size)
+        , osize_(filter_count,
+                 (size.height - filter_height + 2 * padding) / stride + 1,
+                 (size.width - filter_width + 2 * padding) / stride + 1)
+        , padding_(padding)
+        , stride_(stride)
+        , filter_count_(filter_count)
+        , filter_size_(size.depth, filter_height, filter_width)
+    {
+        B_.resize(filter_count_).fill(0.f);
+
+        Ws_.resize(filter_count_);
+        for (auto& W : Ws_) W.resize(filter_size_).fill(0.f);
+
+        prepare();
+    }
+
+protected:
+    void prepare()
+    {
+        value_.resize(osize_).fill(0.f);
+    }
+
+    void init(Generator& gen) noexcept override
+    {
+        for (auto& W : Ws_) W.fill(gen);
+        B_.fill(gen);
+    }
+
+    void connect(IActivation* activation) override { /*pass*/ }
+
+    void forward(const Tensor& input) noexcept override
+    {
+        for (size_type f = 0; f < filter_count_; ++f)
+        {
+            for (size_type y = 0; y < osize_.height; ++y)
+            {
+                for (size_type x = 0; x < osize_.width; ++x)
+                {
+                    precision_type sum = B_(f);
+
+                    for (size_type i = 0; i < filter_size_.height; ++i)
+                    {
+                        for (size_type j = 0; j < filter_size_.width; ++j)
+                        {
+                            size_type i0 = stride_ * y + i - padding_;
+                            size_type j0 = stride_ * x + j - padding_;
+
+                            // negative value will be bigger than bounds
+                            if (i0 >= isize_.height || j0 >= isize_.width)
+                                continue;
+
+                            for (size_type c = 0; c < filter_size_.depth; ++c)
+                                sum += input(c, i0, j0) * Ws_[f](c, i, j);
+                        }
+                    }
+
+                    value_(f, y, x) = sum;
+                }
+            }
+        }
+    }
+
+    const Tensor& value() const noexcept override { return value_; }
+
+    const shape_type& isize() const noexcept override { return isize_; }
+    const shape_type& osize() const noexcept override { return osize_; }
+};
+
+template <class Net>
 class Layer<trixy::LayerType::Convolutional, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
-    TRIXY_TRAIN_LAYER_BODY()
+    TRIXY_LAYER_BODY(ITrainLayer<Net>)
     SERIALIZABLE(Layer<trixy::LayerType::Convolutional, Net, LayerMode::Train>)
 
 protected:
     shape_type isize_;
     shape_type osize_;
 
-    Tensor value_;
+    size_type padding_;
+    size_type stride_;
 
-    Container<Tensor> Ws_;
+    size_type filter_count_;
+    shape_type filter_size_;
+
     Vector B_;
+    Container<Tensor> Ws_;
+
+    Tensor value_;
 
     Container<Tensor> gradWs_;
     Vector gradB_;
 
     Tensor delta_;
+    Tensor buff_;
 
-    size_type pooling_;
-    size_type stride_;
-
-    size_type filter_count_;
-    size_type filter_size_;
-    size_type filter_depth_;
 
 public:
     Linear linear;
@@ -53,50 +164,59 @@ public:
 public:
     Layer() {}
 
-    Layer(shape_type size, size_type filter_count, size_type filter_size,
-          size_type pooling, size_type stride) : Base()
+    Layer(const set::Input& input,
+          const set::Filter& filter,
+          const set::Padding& padding = set::Padding(0),
+          const set::Stride& stride = set::Stride(1))
+        : Layer(input,
+                filter.depth, filter.height, filter.width,
+                padding.height,
+                stride.height) {}
+
+    Layer(shape_type size,
+          size_type filter_count, size_type filter_height, size_type filter_width,
+          size_type padding, size_type stride)
+        : Base()
+        , isize_(size)
+        , osize_(filter_count,
+                 (size.height - filter_height + 2 * padding) / stride + 1,
+                 (size.width - filter_width + 2 * padding) / stride + 1)
+        , padding_(padding)
+        , stride_(stride)
+        , filter_count_(filter_count)
+        , filter_size_(size.depth, filter_height, filter_width)
     {
-        pooling_ = pooling;
-        stride_ = stride;
-
-        filter_count_ = filter_count;
-        filter_size_ = filter_size;
-        filter_depth_ = size.depth;
-
-        isize_ = size;
-
-        osize_.width = (size.width - filter_size_ + 2 * pooling_) / stride_ + 1;
-        osize_.height = (size.height - filter_size_ + 2 * pooling_) / stride_ + 1;
-        osize_.depth = filter_count_;
-        osize_.size = osize_.width * osize_.height * osize_.depth;
+        B_.resize(filter_count_).fill(0.f);
 
         Ws_.resize(filter_count_);
-        for (auto& W : Ws_)
-        {
-            W.resize(filter_depth_, filter_size_, filter_size_);
-            W.fill(0);
-        }
+        for (auto& W : Ws_) W.resize(filter_size_).fill(0.f);
 
-        gradWs_.resize(filter_count_);
-        for (auto& gradW : gradWs_)
-        {
-            gradW.resize(filter_depth_, filter_size_, filter_size_);
-            gradW.fill(0);
-        }
-
-        gradB_.resize(filter_count_);
-        gradB_.fill(0);
-
-        delta_.resize(isize_);
-        delta_.fill(0);
-
-        B_.resize(filter_count_);
-        B_.fill(0);
-
-        value_.resize(osize_);
-        value_.fill(0);
+        prepare();
     }
 
+protected:
+    void prepare()
+    {
+        value_.resize(osize_).fill(0.f);
+
+        gradWs_.resize(filter_count_);
+        for (auto& gradW : gradWs_) gradW.resize(filter_size_).fill(0.f);
+
+        gradB_.resize(filter_count_).fill(0.f);
+
+        delta_.resize(isize_).fill(0.f);
+
+        auto buff_size = shape_type
+        (
+            osize_.depth,
+            stride_ * (osize_.height - 1) + 1,
+            stride_ * (osize_.width - 1) + 1
+        );
+
+        buff_.resize(buff_size).fill(0.f);
+    }
+
+public:
     void init(Generator& generation) noexcept override
     {
         for (auto& W : Ws_) W.fill(generation);
@@ -107,29 +227,31 @@ public:
 
     void forward(const Tensor& input) noexcept override
     {
-        // проходимся по каждому из фильтров
-        for (int f = 0; f < filter_count_; f++) {
-            for (int y = 0; y < osize_.height; y++) {
-                for (int x = 0; x < osize_.width; x++) {
-                    double sum = B_(f); // сразу прибавляем смещение
+        for (size_type f = 0; f < filter_count_; ++f)
+        {
+            for (size_type y = 0; y < osize_.height; ++y)
+            {
+                for (size_type x = 0; x < osize_.width; ++x)
+                {
+                    precision_type sum = B_(f);
 
-                    // проходимся по фильтрам
-                    for (int i = 0; i < filter_size_; i++) {
-                        for (int j = 0; j < filter_size_; j++) {
-                            int i0 = stride_ * y + i - pooling_;
-                            int j0 = stride_ * x + j - pooling_;
+                    for (size_type i = 0; i < filter_size_.height; ++i)
+                    {
+                        for (size_type j = 0; j < filter_size_.width; ++j)
+                        {
+                            size_type i0 = stride_ * y + i - padding_;
+                            size_type j0 = stride_ * x + j - padding_;
 
-                            // поскольку вне границ входного тензора элементы нулевые, то просто игнорируем их
-                            if (i0 < 0 || i0 >= isize_.height || j0 < 0 || j0 >= isize_.width)
+                            // negative value will be bigger than bounds
+                            if (i0 >= isize_.height || j0 >= isize_.width)
                                 continue;
 
-                            // проходимся по всей глубине тензора и считаем сумму
-                            for (int c = 0; c < filter_depth_; c++)
+                            for (size_type c = 0; c < filter_size_.depth; ++c)
                                 sum += input(c, i0, j0) * Ws_[f](c, i, j);
                         }
                     }
 
-                    value_(f, y, x) = sum; // записываем результат свёртки в выходной тензор
+                    value_(f, y, x) = sum;
                 }
             }
         }
@@ -137,72 +259,67 @@ public:
 
     void backward(const Tensor& input, const Tensor& idelta, bool full = true/*unused*/) noexcept override
     {
-        shape_type size; // размер дельт
+        auto& size = buff_.shape();
 
-        // расчитываем размер для дельт
-        size.height = stride_ * (osize_.height - 1) + 1;
-        size.width = stride_ * (osize_.width - 1) + 1;
-        size.depth = osize_.depth;
+        for (size_type d = 0; d < size.depth; d++)
+            for (size_type i = 0; i < osize_.height; ++i)
+                for (size_type j = 0; j < osize_.width; ++j)
+                    buff_(d, i * stride_, j * stride_) = idelta(d, i, j);
 
-        Tensor deltas(size); // создаём тензор для дельт
+        for (size_type f = 0; f < filter_count_; ++f)
+        {
+            for (size_type y = 0; y < size.height; ++y)
+            {
+                for (size_type x = 0; x < size.width; ++x)
+                {
+                    precision_type delta_value = buff_(f, y, x);
 
-        // расчитываем значения дельт
-        for (int d = 0; d < size.depth; d++)
-            for (int i = 0; i < osize_.height; i++)
-                for (int j = 0; j < osize_.width; j++)
-                    deltas(d, i * stride_, j * stride_) = idelta(d, i, j);
+                    for (size_type i = 0; i < filter_size_.height; ++i)
+                    {
+                        for (size_type j = 0; j < filter_size_.width; ++j)
+                        {
+                            size_type i0 = i + y - padding_;
+                            size_type j0 = j + x - padding_;
 
-        // расчитываем градиенты весов фильтров и смещений
-        for (int f = 0; f < filter_count_; f++) {
-            for (int y = 0; y < size.height; y++) {
-                for (int x = 0; x < size.width; x++) {
-                    double delta = deltas(f, y, x); // запоминаем значение градиента
-
-                    for (int i = 0; i < filter_size_; i++) {
-                        for (int j = 0; j < filter_size_; j++) {
-                            int i0 = i + y - pooling_;
-                            int j0 = j + x - pooling_;
-
-                            // игнорируем выходящие за границы элементы
-                            if (i0 < 0 || i0 >= isize_.height || j0 < 0 || j0 >= isize_.width)
+                            if (i0 >= isize_.height || j0 >= isize_.width)
                                 continue;
 
-                            // наращиваем градиент фильтра
-                            for (int c = 0; c < filter_depth_; c++)
-                                gradWs_[f](c, i, j) += delta * input(c, i0, j0);
+                            for (size_type c = 0; c < filter_size_.depth; ++c)
+                                gradWs_[f](c, i, j) += delta_value * input(c, i0, j0);
                         }
                     }
 
-                    gradB_(f) += delta; // наращиваем градиент смещения
+                    gradB_(f) += delta_value;
                 }
             }
         }
 
-        int pad = filter_size_ - 1 - pooling_; // заменяем величину дополнения
+        size_type pad_i = filter_size_.height - 1 - padding_;
+        size_type pad_j = filter_size_.width - 1 - padding_;
 
-        // расчитываем значения градиента
-        for (int y = 0; y < isize_.height; y++) {
-            for (int x = 0; x < isize_.width; x++) {
-                for (int c = 0; c < filter_depth_; c++) {
-                    double sum = 0; // сумма для градиента
+        for (size_type y = 0; y < isize_.height; ++y)
+        {
+            for (size_type x = 0; x < isize_.width; ++x)
+            {
+                for (size_type c = 0; c < filter_size_.depth; ++c)
+                {
+                    precision_type sum = 0;
+                    for (size_type i = 0; i < filter_size_.height; ++i)
+                    {
+                        for (size_type j = 0; j < filter_size_.width; ++j)
+                        {
+                            size_type i0 = y + i - pad_i;
+                            size_type j0 = x + j - pad_j;
 
-                    // идём по всем весовым коэффициентам фильтров
-                    for (int i = 0; i < filter_size_; i++) {
-                        for (int j = 0; j < filter_size_; j++) {
-                            int i0 = y + i - pad;
-                            int j0 = x + j - pad;
-
-                            // игнорируем выходящие за границы элементы
-                            if (i0 < 0 || i0 >= size.height || j0 < 0 || j0 >= size.width)
+                            if (i0 >= size.height || j0 >= size.width)
                                 continue;
 
-                            // суммируем по всем фильтрам
-                            for (int f = 0; f < filter_count_; f++)
-                                sum += Ws_[f](c, filter_size_ - 1 - i, filter_size_ - 1 - j) * deltas(f, i0, j0); // добавляем произведение повёрнутых фильтров на дельты
+                            for (size_type f = 0; f < filter_count_; ++f)
+                                sum += Ws_[f](c, filter_size_.height - 1 - i, filter_size_.width - 1 - j) * buff_(f, i0, j0);
                         }
                     }
 
-                    delta_(c, y, x) = sum; // записываем результат в тензор градиента
+                    delta_(c, y, x) = sum;
                 }
             }
         }
@@ -224,109 +341,28 @@ public:
     const shape_type& osize() const noexcept override { return osize_; }
 };
 
-template <class Net>
-class Layer<trixy::LayerType::Convolutional, Net, LayerMode::Raw>
-    : public ILayer<Net>
-{
-    TRIXY_RAW_LAYER_BODY()
-    SERIALIZABLE(Layer<trixy::LayerType::Convolutional, Net, LayerMode::Raw>)
-
-protected:
-    shape_type isize_;
-    shape_type osize_;
-
-    Tensor value_;
-
-    Container<Tensor> Ws_;
-    Vector B_;
-
-    size_type pooling_;
-    size_type stride_;
-
-    size_type filter_count_;
-    size_type filter_size_;
-    size_type filter_depth_;
-
-public:
-    Layer() {}
-
-    Layer(shape_type size, size_type filter_count, size_type filter_size,
-          size_type pooling, size_type stride) : Base()
-    {
-        pooling_ = pooling;
-        stride_ = stride;
-
-        filter_count_ = filter_count;
-        filter_size_ = filter_size;
-        filter_depth_ = size.depth;
-
-        isize_ = size;
-
-        osize_.width = (size.width - filter_size_ + 2 * pooling_) / stride_ + 1;
-        osize_.height = (size.height - filter_size_ + 2 * pooling_) / stride_ + 1;
-        osize_.depth = filter_count_;
-        osize_.size = osize_.width * osize_.height * osize_.depth;
-
-        Ws_.resize(filter_count_);
-        for (auto& W : Ws_)
-        {
-            W.resize(filter_depth_, filter_size_, filter_size_);
-            W.fill(0);
-        }
-
-        B_.resize(filter_count_);
-        B_.fill(0);
-
-        value_.resize(osize_);
-        value_.fill(0);
-    }
-
-    void init(Generator& gen) noexcept override
-    {
-        for (auto& W : Ws_) W.fill(gen);
-        B_.fill(gen);
-    }
-
-    void connect(IActivation* activation) override { /*pass*/ }
-
-    void forward(const Tensor& input) noexcept override
-    {
-        // проходимся по каждому из фильтров
-        for (int f = 0; f < filter_count_; f++) {
-            for (int y = 0; y < osize_.height; y++) {
-                for (int x = 0; x < osize_.width; x++) {
-                    double sum = B_(f); // сразу прибавляем смещение
-
-                    // проходимся по фильтрам
-                    for (int i = 0; i < filter_size_; i++) {
-                        for (int j = 0; j < filter_size_; j++) {
-                            int i0 = stride_ * y + i - pooling_;
-                            int j0 = stride_ * x + j - pooling_;
-
-                            // поскольку вне границ входного тензора элементы нулевые, то просто игнорируем их
-                            if (i0 < 0 || i0 >= isize_.height || j0 < 0 || j0 >= isize_.width)
-                                continue;
-
-                            // проходимся по всей глубине тензора и считаем сумму
-                            for (int c = 0; c < filter_depth_; c++)
-                                sum += input(c, i0, j0) * Ws_[f](c, i, j);
-                        }
-                    }
-
-                    value_(f, y, x) = sum; // записываем результат свёртки в выходной тензор
-                }
-            }
-        }
-    }
-
-    const Tensor& value() const noexcept override { return value_; }
-
-    const shape_type& isize() const noexcept override { return isize_; }
-    const shape_type& osize() const noexcept override { return osize_; }
-};
-
 } // namespace layer
 
+namespace meta
+{
+
+template <typename T> struct is_convolutional_layer : std::false_type {};
+template <class Net, typename LayerMode>
+struct is_convolutional_layer<layer::Layer<LayerType::Convolutional, Net, LayerMode>> : std::true_type {};
+
+} // namespace meta
+
 } // namespace trixy
+
+CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_convolutional_layer<T>::value)
+{
+    archive & self.isize_ & self.osize_
+            & self.padding_ & self.stride_
+            & self.filter_count_
+            & self.filter_size_
+            & self.B_ & self.Ws_;
+
+    self.prepare();
+}
 
 #endif // TRIXY_NETWORK_LAYER_CONVOLUTIONAL_HPP

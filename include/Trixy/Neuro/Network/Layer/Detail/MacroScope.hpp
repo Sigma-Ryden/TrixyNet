@@ -3,7 +3,10 @@
 #ifndef TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP
 #define TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP
 
-#define _TRIXY_LAYER_BASE_TYPES(...)                                                                    \
+#define TRIXY_LAYER_BODY(...)                                                                           \
+    public:                                                                                             \
+        using Base = __VA_ARGS__;                                                                       \
+        using typename Base::IOptimizer;                                                                \
     public:                                                                                             \
         template <typename T>                                                                           \
         using Container = typename Base::template Container<T>;                                         \
@@ -23,46 +26,9 @@
         using typename Base::shape_type;                                                                \
                                                                                                         \
         using typename Base::Generator;                                                                 \
-        using typename Base::IActivation;
-
-#define TRIXY_RAW_LAYER_BODY(...)                                                                       \
+        using typename Base::IActivation;                                                               \
+                                                                                                        \
     public:                                                                                             \
-        using Base = ILayer<Net>;                                                                       \
-        _TRIXY_LAYER_BASE_TYPES(__VA_ARGS__)
-
-#define TRIXY_TRAIN_LAYER_BODY(...)                                                                     \
-    public:                                                                                             \
-        using Base = ITrainLayer<Net>;                                                                  \
-        using typename Base::IOptimizer;                                                                \
-        _TRIXY_LAYER_BASE_TYPES(__VA_ARGS__)
-
-#define TRIXY_LAYER_PARAM_2D(name)                                                                      \
-    struct name : Volume<2> {                                                                           \
-    private:                                                                                            \
-        enum { Width, Height };                                                                         \
-    public:                                                                                             \
-        name(size_type w, size_type h) : Volume() {                                                     \
-            data_[Width] = w;                                                                           \
-            data_[Height] = h;                                                                          \
-        }                                                                                               \
-        name(size_type n) : name(n, n) {}                                                               \
-        size_type width() const noexcept { return data_[Width]; }                                       \
-        size_type height() const noexcept { return data_[Height]; }                                     \
-    }
-
-#define TRIXY_LAYER_PARAM_3D(name)                                                                      \
-    struct name : Volume<3> {                                                                           \
-    private:                                                                                            \
-        enum { Wight, Height, Depth };                                                                  \
-    public:                                                                                             \
-        name(size_type w, size_type h = 1, size_type d = 1) {                                           \
-            data_[Wight] = w;                                                                           \
-            data_[Height] = h;                                                                          \
-            data_[Depth] = d;                                                                           \
-        }                                                                                               \
-        size_type width() const noexcept { return data_[Wight]; }                                       \
-        size_type height() const noexcept { return data_[Height]; }                                     \
-        size_type depth() const noexcept { return data_[Depth]; }                                       \
-    }
+        using Identity = functional::activation::Identity<precision_type>;
 
 #endif // TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP

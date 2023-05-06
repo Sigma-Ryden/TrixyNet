@@ -47,6 +47,8 @@ public:
     using Generator             = std::function<precision_type()>; // type erasing
     using IActivation           = functional::activation::IActivation<precision_type>;
 
+    using IOptimizer = train::IOptimizer<Net>;
+
 public:
     virtual ~ILayer() = default;
 
@@ -88,7 +90,7 @@ public:
     using typename Base::Generator;
     using typename Base::IActivation;
 
-    using IOptimizer = train::IOptimizer<Net>;
+    using typename Base::IOptimizer;
 
 public:
     virtual ~ITrainLayer() = default;

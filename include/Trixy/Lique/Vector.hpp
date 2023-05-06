@@ -52,10 +52,10 @@ public:
     Tensor& operator= (const Tensor& tensor);
     Tensor& operator= (Tensor&& tensor) noexcept;
 
-    void resize(const shape_type& shape);
-    void resize(size_type width);
+    Tensor& resize(const shape_type& shape);
+    Tensor& resize(size_type width);
 
-    void reshape(size_type width) noexcept;
+    Tensor& reshape(size_type width) noexcept;
 };
 
 template <typename Precision>
@@ -79,7 +79,7 @@ public:
     Tensor& operator= (const Tensor& tensor) noexcept;
     Tensor& operator= (Tensor&& tensor) noexcept;
 
-    void reshape(size_type width) noexcept;
+    Tensor& reshape(size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TEMPLATE()
@@ -207,26 +207,29 @@ Vector<Precision>& Vector<Precision>::operator= (Tensor&& tensor) noexcept
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Vector<Precision>::resize(const shape_type& shape)
+auto Vector<Precision>::resize(const shape_type& shape) -> Tensor&
 {
     resize(shape.width);
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Vector<Precision>::resize(size_type width)
+auto Vector<Precision>::resize(size_type width) -> Tensor&
 {
     delete[] this->data_;
 
-    this->shape_.width = width;
-    this->shape_.size = width;
+    this->shape_ = shape_type(1, width, 1);
 
     this->data_ = new precision_type [width];
+
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Vector<Precision>::reshape(size_type width) noexcept
+auto Vector<Precision>::reshape(size_type width) noexcept -> Tensor&
 {
     this->shape_.width = width;
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
@@ -278,9 +281,10 @@ VectorView<Precision>& VectorView<Precision>::operator= (Tensor&& tensor) noexce
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void VectorView<Precision>::reshape(size_type width) noexcept
+auto VectorView<Precision>::reshape(size_type width) noexcept -> Tensor&
 {
     this->shape_.width = width;
+    return *this;
 }
 
 } // namespace lique

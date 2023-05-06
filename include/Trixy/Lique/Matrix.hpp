@@ -55,10 +55,10 @@ public:
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
-    void resize(const shape_type& shape);
-    void resize(size_type height, size_type width);
+    Tensor& resize(const shape_type& shape);
+    Tensor& resize(size_type height, size_type width);
 
-    void reshape(size_type height, size_type width) noexcept;
+    Tensor& reshape(size_type height, size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TEMPLATE()
@@ -88,7 +88,7 @@ public:
     reference operator() (size_type i, size_type j) noexcept;
     const_reference operator() (size_type i, size_type j) const noexcept;
 
-    void reshape(size_type height, size_type width) noexcept;
+    Tensor& reshape(size_type height, size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TEMPLATE()
@@ -236,13 +236,14 @@ inline auto Matrix<Precision>::operator() (size_type i, size_type j) const noexc
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Matrix<Precision>::resize(const shape_type& shape)
+auto Matrix<Precision>::resize(const shape_type& shape) -> Tensor&
 {
     resize(shape.height, shape.width);
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Matrix<Precision>::resize(size_type height, size_type width)
+auto Matrix<Precision>::resize(size_type height, size_type width) -> Tensor&
 {
     delete[] this->data_;
 
@@ -252,13 +253,17 @@ void Matrix<Precision>::resize(size_type height, size_type width)
     this->shape_.size = height * width;
 
     this->data_ = new precision_type [this->shape_.size];
+
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Matrix<Precision>::reshape(size_type height, size_type width) noexcept
+auto Matrix<Precision>::reshape(size_type height, size_type width) noexcept -> Tensor&
 {
     this->shape_.height = height;
     this->shape_.width = width;
+
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
@@ -338,10 +343,12 @@ inline auto MatrixView<Precision>::operator() (size_type i, size_type j) const n
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void MatrixView<Precision>::reshape(size_type height, size_type width) noexcept
+auto MatrixView<Precision>::reshape(size_type height, size_type width) noexcept -> Tensor&
 {
     this->shape_.height = height;
     this->shape_.width = width;
+
+    return *this;
 }
 
 } // namespace lique

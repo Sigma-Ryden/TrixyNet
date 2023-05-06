@@ -52,10 +52,10 @@ public:
     reference operator() (size_type i, size_type j, size_type k) noexcept;
     const_reference operator() (size_type i, size_type j, size_type k) const noexcept;
 
-    void resize(const shape_type& shape);
-    void resize(size_type depth, size_type height, size_type width);
+    Tensor& resize(const shape_type& shape);
+    Tensor& resize(size_type depth, size_type height, size_type width);
 
-    void reshape(size_type depth, size_type height, size_type width) noexcept;
+    Tensor& reshape(size_type depth, size_type height, size_type width) noexcept;
 };
 
 template <typename Precision>
@@ -85,7 +85,7 @@ public:
     reference operator() (size_type i, size_type j, size_type k) noexcept;
     const_reference operator() (size_type i, size_type j, size_type k) const noexcept;
 
-    void reshape(size_type depth, size_type height, size_type width) noexcept;
+    Tensor& reshape(size_type depth, size_type height, size_type width) noexcept;
 };
 
 LIQUE_TENSOR_TEMPLATE()
@@ -240,27 +240,32 @@ inline auto Tensor<Precision>::operator() (
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Tensor<Precision>::resize(const shape_type& shape)
+auto Tensor<Precision>::resize(const shape_type& shape) -> Tensor&
 {
     resize(shape.depth, shape.height, shape.width);
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Tensor<Precision>::resize(size_type depth, size_type height, size_type width)
+auto Tensor<Precision>::resize(size_type depth, size_type height, size_type width) -> Tensor&
 {
     delete[] this->data_;
 
     this->shape_ = shape_type(depth, height, width);
 
     this->data_ = new precision_type [this->shape_.size];
+
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void Tensor<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept
+auto Tensor<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept -> Tensor&
 {
     this->shape_.depth = depth;
     this->shape_.height = height;
     this->shape_.width = width;
+
+    return *this;
 }
 
 LIQUE_TENSOR_TEMPLATE()
@@ -311,11 +316,13 @@ inline auto TensorView<Precision>::operator() (
 }
 
 LIQUE_TENSOR_TEMPLATE()
-void TensorView<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept
+auto TensorView<Precision>::reshape(size_type depth, size_type height, size_type width) noexcept -> Tensor&
 {
     this->shape_.depth = depth;
     this->shape_.height = height;
     this->shape_.width = width;
+
+    return *this;
 }
 
 } // namespace lique

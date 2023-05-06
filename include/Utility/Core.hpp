@@ -52,20 +52,32 @@ void network_size(const Collection<std::size_t>& topology) // deprecated & repai
               << count % 1024 << " Byte(s)\n";
 }
 
+template <typename> struct is_ltensor : std::false_type {};
+template <typename Precision>
+struct is_ltensor<trixy::lique::Tensor<Precision, trixy::lique::TensorType::tensor>> : std::true_type {};
+
+template <typename> struct is_lmatrix : std::false_type {};
+template <typename Precision>
+struct is_lmatrix<trixy::lique::Tensor<Precision, trixy::lique::TensorType::matrix>> : std::true_type {};
+
+template <typename> struct is_lvector : std::false_type {};
+template <typename Precision>
+struct is_lvector<trixy::lique::Tensor<Precision, trixy::lique::TensorType::vector>> : std::true_type {};
+
 template <class Vector,
-    trixy::meta::require<trixy::lique::meta::is_lvector<Vector>::value> = 0>
+    trixy::meta::require<is_lvector<Vector>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Vector& vector)
 {
     out << '[';
     for (std::size_t i = 0; i < vector.size(); ++i)
-        out << vector(i) << ", ";
+        out << vector(i) << (i == vector.size() - 1 ? "" : " ");
     out << ']';
 
     return out;
 }
 
 template <class Matrix,
-    trixy::meta::require<trixy::lique::meta::is_lmatrix<Matrix>::value> = 0>
+    trixy::meta::require<is_lmatrix<Matrix>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 {
     out << '[';
@@ -73,8 +85,8 @@ std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
     {
         out << '[';
         for (std::size_t j = 0; j < matrix.shape().width; ++j)
-            out << matrix(i, j) << ", ";
-        out << "],\n";
+            out << matrix(i, j) << (j == matrix.shape().width - 1 ? "" : " ");
+        out << ']';
     }
     out << ']';
 
@@ -82,7 +94,7 @@ std::ostream& operator<< (std::ostream& out, const Matrix& matrix)
 }
 
 template <class Tensor,
-    trixy::meta::require<trixy::lique::meta::is_ltensor<Tensor>::value> = 0>
+    trixy::meta::require<is_ltensor<Tensor>::value> = 0>
 std::ostream& operator<< (std::ostream& out, const Tensor& tensor)
 {
     out << '[';
@@ -93,10 +105,10 @@ std::ostream& operator<< (std::ostream& out, const Tensor& tensor)
         {
             out << '[';
             for (std::size_t k = 0; k < tensor.shape().width; ++k)
-                out << tensor(i, j, k) << ", ";
-            out << "],";
+                out << tensor(i, j, k) << (k == tensor.shape().width - 1 ? "" : " ");
+            out << ']';
         }
-        out << "], ";
+        out << ']';
     }
     out << ']';
 

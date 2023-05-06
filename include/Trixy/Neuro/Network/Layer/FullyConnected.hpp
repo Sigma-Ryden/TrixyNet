@@ -4,6 +4,8 @@
 #include <Trixy/Neuro/Network/Layer/Base.hpp>
 #include <Trixy/Neuro/Network/Layer/Volume.hpp>
 
+#include <Trixy/Neuro/Functional/Function/Activation.hpp>
+
 #include <Trixy/Detail/TrixyMeta.hpp>
 
 #include <Trixy/Neuro/Network/Layer/Detail/MacroScope.hpp>
@@ -25,37 +27,48 @@ template <class Net>
 class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
-    TRIXY_RAW_LAYER_BODY()
+    TRIXY_LAYER_BODY(ILayer<Net>)
     SERIALIZABLE(Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Raw>)
 
 protected:
-    Tensor value_;
+    shape_type isize_;
+    shape_type osize_;
+
     Vector B_;
     Matrix W_;
 
-    shape_type isize_;
-    shape_type osize_;
+    Tensor value_;
 
     IActivation* activation_;
 
     Linear linear;
 
 public:
-    Layer() : activation_(nullptr) {} // temp
+    Layer() : activation_(nullptr) {}
 
-    Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
+    Layer(const set::Input& input, const set::Output& output, IActivation* activation = new Identity)
+        : Layer(input.size, output.size, activation)
+    {
+    }
+
+    Layer(size_type isize, size_type osize, IActivation* activation = new Identity)
         : Base()
-        , value_(1, 1, osize), B_(osize), W_(isize, osize)
         , isize_(1, 1, isize), osize_(1, 1, osize)
         , activation_(activation)
     {
+        B_.resize(osize).fill(0.f);
+        W_.resize(isize, osize).fll(0.f);
+
+        prepare();
     }
 
-    Layer(const set::Input& input, IActivation* activation = nullptr)
-        : Layer(input.width(), input.height(), activation)
+protected:
+    void prepare()
     {
+        value_.resize(osize_).fill(0.f);
     }
 
+public:
     virtual ~Layer() { delete activation_; }
 
     void connect(IActivation* activation) override
@@ -87,15 +100,18 @@ template <class Net>
 class Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
-    TRIXY_TRAIN_LAYER_BODY()
+    TRIXY_LAYER_BODY(ITrainLayer<Net>)
     SERIALIZABLE(Layer<trixy::LayerType::FullyConnected, Net, LayerMode::Train>)
 
 protected:
-    Tensor value_;
-    Vector buff_;
+    shape_type isize_;
+    shape_type osize_;
 
     Vector B_;
     Matrix W_;
+
+    Tensor value_;
+    Vector buff_;
 
     Vector gradB_;
     Matrix gradW_;
@@ -105,9 +121,6 @@ protected:
 
     Tensor delta_;
 
-    shape_type isize_;
-    shape_type osize_;
-
     bool accumulated_;
 
     IActivation* activation_;
@@ -116,25 +129,39 @@ public:
     Linear linear;
 
 public:
-    Layer() : activation_(nullptr) {} // temp
+    Layer() : activation_(nullptr) {}
+
+    Layer(const set::Input& input, const set::Output& output, IActivation* activation = new Identity)
+        : Layer(input.size, output.size, activation)
+    {
+    }
 
     // maybe change in the future release
-    Layer(size_type isize, size_type osize, IActivation* activation = nullptr)
+    Layer(size_type isize, size_type osize, IActivation* activation = new Identity)
         : Base()
-        , buff_(osize), value_(1, 1, osize), B_(osize), W_(isize, osize)
-        , gradBs_(osize), gradWs_(isize, osize)
-        , gradB_(osize), gradW_(isize, osize), delta_(1, 1, isize)
         , isize_(1, 1, isize), osize_(1, 1, osize)
-        , accumulated_(false)
         , activation_(activation)
     {
+        B_.resize(osize).fill(0.f);
+        W_.resize(isize, osize).fill(0.f);
+
+        prepare();
     }
 
-    Layer(const set::Input& input, IActivation* activation = nullptr)
-        : Layer(input.width(), input.height(), activation)
+protected:
+    void prepare()
     {
+        value_.resize(osize_).fill(0.f);
+        buff_.resize(osize_).fill(0.f);
+        gradBs_.resize(osize_).fill(0.f);
+        gradWs_.resize(isize_.width, osize_.width).fill(0.f);
+        gradB_.resize(osize_).fill(0.f);
+        gradW_.resize(isize_.width, osize_.width).fill(0.f);
+        delta_.resize(isize_).fill(0.f);
+        accumulated_ = false;
     }
 
+public:
     virtual ~Layer() { delete activation_; }
 
     void init(Generator& generation) noexcept override
@@ -228,33 +255,20 @@ namespace meta
 {
 
 template <typename T> struct is_fully_connected_layer : std::false_type {};
-template <class Net>
-struct is_fully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, LayerMode::Train>> : std::true_type {};
-
-template <typename T> struct is_xfully_connected_layer : std::false_type {};
-template <class Net>
-struct is_xfully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, LayerMode::Raw>> : std::true_type {};
+template <class Net, typename LayerMode>
+struct is_fully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, LayerMode>> : std::true_type {};
 
 } // namespace meta
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_xfully_connected_layer<T>::value)
-{
-    archive & self.value_
-            & self.B_ & self.W_
-            & self.isize_ & self.osize_
-            & self.activation_;
-}
-
 CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_fully_connected_layer<T>::value)
 {
-    archive & self.value_ & self.buff_
+    archive & self.isize_ & self.osize_
             & self.B_ & self.W_
-            & self.gradB_ & self.gradW_
-            & self.gradBs_ & self.gradWs_ & self.delta_
-            & self.isize_ & self.osize_
             & self.activation_;
+
+    self.prepare();
 }
 
 #endif // TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP
