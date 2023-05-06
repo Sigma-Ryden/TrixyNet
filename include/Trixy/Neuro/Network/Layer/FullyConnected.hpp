@@ -37,10 +37,13 @@ protected:
     Vector B_;
     Matrix W_;
 
-    Tensor value_;
-
     IActivation* activation_;
 
+protected:
+    // cache
+    Tensor value_;
+
+public:
     Linear linear;
 
 public:
@@ -110,6 +113,10 @@ protected:
     Vector B_;
     Matrix W_;
 
+    IActivation* activation_;
+
+protected:
+    // cache
     Tensor value_;
     Vector buff_;
 
@@ -122,8 +129,6 @@ protected:
     Tensor delta_;
 
     bool accumulated_;
-
-    IActivation* activation_;
 
 public:
     Linear linear;

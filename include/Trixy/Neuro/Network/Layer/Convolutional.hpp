@@ -34,13 +34,17 @@ protected:
     shape_type osize_;
 
     size_type padding_;
-    size_type stride_;
 
-    size_type filter_count_;
-    shape_type filter_size_;
+    size_type vertical_stride_;
+    size_type horizontal_stride_;
 
     Vector B_;
     Container<Tensor> Ws_;
+
+protected:
+    // cache
+    size_type filter_count_;
+    shape_type filter_size_;
 
     Tensor value_;
 
@@ -54,25 +58,24 @@ public:
         : Layer(input,
                 filter.depth, filter.height, filter.width,
                 padding.height,
-                stride.height) {}
+                stride.height, stride.width) {}
 
     Layer(shape_type size,
           size_type filter_count, size_type filter_height, size_type filter_width,
-          size_type padding, size_type stride)
+          size_type padding, size_type vertical_stride, size_type horizontal_stride)
         : Base()
         , isize_(size)
         , osize_(filter_count,
-                 (size.height - filter_height + 2 * padding) / stride + 1,
-                 (size.width - filter_width + 2 * padding) / stride + 1)
+                 (size.height - filter_height + 2 * padding) / vertical_stride + 1,
+                 (size.width - filter_width + 2 * padding) / horizontal_stride + 1)
         , padding_(padding)
-        , stride_(stride)
-        , filter_count_(filter_count)
-        , filter_size_(size.depth, filter_height, filter_width)
+        , vertical_stride_(vertical_stride)
+        , horizontal_stride_(horizontal_stride)
     {
-        B_.resize(filter_count_).fill(0.f);
+        B_.resize(filter_count).fill(0.f);
 
-        Ws_.resize(filter_count_);
-        for (auto& W : Ws_) W.resize(filter_size_).fill(0.f);
+        Ws_.resize(filter_count);
+        for (auto& W : Ws_) W.resize(size.depth, filter_height, filter_width).fill(0.f);
 
         prepare();
     }
@@ -80,6 +83,9 @@ public:
 protected:
     void prepare()
     {
+        filter_count_ = Ws_.size();
+        filter_size_ = Ws_.front().shape();
+
         value_.resize(osize_).fill(0.f);
     }
 
@@ -105,8 +111,8 @@ protected:
                     {
                         for (size_type j = 0; j < filter_size_.width; ++j)
                         {
-                            size_type i0 = stride_ * y + i - padding_;
-                            size_type j0 = stride_ * x + j - padding_;
+                            size_type i0 = vertical_stride_ * y + i - padding_;
+                            size_type j0 = horizontal_stride_ * x + j - padding_;
 
                             // negative value will be bigger than bounds
                             if (i0 >= isize_.height || j0 >= isize_.width)
@@ -141,13 +147,17 @@ protected:
     shape_type osize_;
 
     size_type padding_;
-    size_type stride_;
 
-    size_type filter_count_;
-    shape_type filter_size_;
+    size_type vertical_stride_;
+    size_type horizontal_stride_;
 
     Vector B_;
     Container<Tensor> Ws_;
+
+protected:
+    // cache
+    size_type filter_count_;
+    shape_type filter_size_;
 
     Tensor value_;
 
@@ -156,7 +166,6 @@ protected:
 
     Tensor delta_;
     Tensor buff_;
-
 
 public:
     Linear linear;
@@ -171,25 +180,24 @@ public:
         : Layer(input,
                 filter.depth, filter.height, filter.width,
                 padding.height,
-                stride.height) {}
+                stride.height, stride.width) {}
 
     Layer(shape_type size,
           size_type filter_count, size_type filter_height, size_type filter_width,
-          size_type padding, size_type stride)
+          size_type padding, size_type vertical_stride, size_type horizontal_stride)
         : Base()
         , isize_(size)
         , osize_(filter_count,
-                 (size.height - filter_height + 2 * padding) / stride + 1,
-                 (size.width - filter_width + 2 * padding) / stride + 1)
+                 (size.height - filter_height + 2 * padding) / vertical_stride + 1,
+                 (size.width - filter_width + 2 * padding) / horizontal_stride + 1)
         , padding_(padding)
-        , stride_(stride)
-        , filter_count_(filter_count)
-        , filter_size_(size.depth, filter_height, filter_width)
+        , vertical_stride_(vertical_stride)
+        , horizontal_stride_(horizontal_stride)
     {
-        B_.resize(filter_count_).fill(0.f);
+        B_.resize(filter_count).fill(0.f);
 
-        Ws_.resize(filter_count_);
-        for (auto& W : Ws_) W.resize(filter_size_).fill(0.f);
+        Ws_.resize(filter_count);
+        for (auto& W : Ws_) W.resize(size.depth, filter_height, filter_width).fill(0.f);
 
         prepare();
     }
@@ -197,6 +205,9 @@ public:
 protected:
     void prepare()
     {
+        filter_count_ = Ws_.size();
+        filter_size_ = Ws_.front().shape();
+
         value_.resize(osize_).fill(0.f);
 
         gradWs_.resize(filter_count_);
@@ -209,8 +220,8 @@ protected:
         auto buff_size = shape_type
         (
             osize_.depth,
-            stride_ * (osize_.height - 1) + 1,
-            stride_ * (osize_.width - 1) + 1
+            vertical_stride_ * (osize_.height - 1) + 1,
+            horizontal_stride_ * (osize_.width - 1) + 1
         );
 
         buff_.resize(buff_size).fill(0.f);
@@ -239,8 +250,8 @@ public:
                     {
                         for (size_type j = 0; j < filter_size_.width; ++j)
                         {
-                            size_type i0 = stride_ * y + i - padding_;
-                            size_type j0 = stride_ * x + j - padding_;
+                            size_type i0 = vertical_stride_ * y + i - padding_;
+                            size_type j0 = horizontal_stride_ * x + j - padding_;
 
                             // negative value will be bigger than bounds
                             if (i0 >= isize_.height || j0 >= isize_.width)
@@ -264,7 +275,7 @@ public:
         for (size_type d = 0; d < size.depth; d++)
             for (size_type i = 0; i < osize_.height; ++i)
                 for (size_type j = 0; j < osize_.width; ++j)
-                    buff_(d, i * stride_, j * stride_) = idelta(d, i, j);
+                    buff_(d, i * vertical_stride_, j * horizontal_stride_) = idelta(d, i, j);
 
         for (size_type f = 0; f < filter_count_; ++f)
         {
@@ -357,9 +368,8 @@ struct is_convolutional_layer<layer::Layer<LayerType::Convolutional, Net, LayerM
 CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_convolutional_layer<T>::value)
 {
     archive & self.isize_ & self.osize_
-            & self.padding_ & self.stride_
-            & self.filter_count_
-            & self.filter_size_
+            & self.padding_
+            & self.vertical_stride_ & self.horizontal_stride_
             & self.B_ & self.Ws_;
 
     self.prepare();

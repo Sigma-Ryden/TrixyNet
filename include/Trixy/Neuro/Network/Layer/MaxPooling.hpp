@@ -36,12 +36,14 @@ protected:
     shape_type isize_;
     shape_type osize_;
 
-    size_type horizontal_stride_;
     size_type vertical_stride_;
-
-    Tensor value_;
+    size_type horizontal_stride_;
 
     IActivation* activation_;
+
+protected:
+    // cache
+    Tensor value_;
 
 public:
     Linear linear;
@@ -52,23 +54,23 @@ public:
     Layer(const set::Input& input,
           const set::Stride& stride = set::Stride(1),
           IActivation* activation = new Identity)
-        : Layer(input.width, input.height, input.depth,
-                stride.width, stride.height,
+        : Layer(input.depth, input.height, input.width,
+                stride.height, stride.width,
                 activation)
     {
     }
 
 public:
-    Layer(size_type in_width, size_type in_height, size_type channel_depth,
-          size_type horizontal_stride, size_type vertical_stride,
+    Layer(size_type channel_depth, size_type in_height, size_type in_width,
+          size_type vertical_stride, size_type horizontal_stride,
           IActivation* activation = new Identity)
         : Base()
         , isize_(channel_depth, in_height, in_width)
         , osize_(channel_depth,
                  in_height / vertical_stride,
                  in_width / horizontal_stride)
-        , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
+        , horizontal_stride_(horizontal_stride)
         , activation_(activation)
     {
         value_.resize(osize_).fill(0.f);
@@ -92,22 +94,22 @@ public:
     {
         for (size_type d = 0; d < isize_.depth; ++d)
         {
-            for (size_type i = 0; i < isize_.height; i += horizontal_stride_)
+            for (size_type i = 0; i < isize_.height; i += vertical_stride_)
             {
-                for (size_type j = 0; j < isize_.width; j += vertical_stride_)
+                for (size_type j = 0; j < isize_.width; j += horizontal_stride_)
                 {
                     precision_type max = input(d, i, j);
 
-                    for (size_type y = i; y < i + horizontal_stride_; ++y)
+                    for (size_type y = i; y < i + vertical_stride_; ++y)
                     {
-                        for (size_type x = j; x < j + vertical_stride_; ++x)
+                        for (size_type x = j; x < j + horizontal_stride_; ++x)
                         {
                             precision_type value = input(d, y, x);
                             if (value > max) max = value;
                         }
                     }
 
-                    value_(d, i / horizontal_stride_, j / vertical_stride_) = max;
+                    value_(d, i / vertical_stride_, j / horizontal_stride_) = max;
                 }
             }
         }
@@ -133,11 +135,13 @@ protected:
     shape_type isize_;
     shape_type osize_;
 
-    size_type horizontal_stride_;
     size_type vertical_stride_;
+    size_type horizontal_stride_;
 
     IActivation* activation_;
 
+protected:
+    // cache
     Tensor value_;
     Tensor buff_;
     Tensor mask_;
@@ -153,22 +157,23 @@ public:
     Layer(const set::Input& input,
           const set::Stride& stride = set::Stride(1),
           IActivation* activation = new Identity)
-        : Layer(input.width, input.height, input.depth,
-                stride.width, stride.height,
+        : Layer(input.depth, input.height, input.width,
+                stride.height, stride.width,
                 activation)
     {
     }
 
-    Layer(size_type in_width, size_type in_height, size_type channel_depth,
-          size_type horizontal_stride, size_type vertical_stride,
+public:
+    Layer(size_type channel_depth, size_type in_height, size_type in_width,
+          size_type vertical_stride, size_type horizontal_stride,
           IActivation* activation = new Identity)
         : Base()
         , isize_(channel_depth, in_height, in_width)
         , osize_(channel_depth,
                  in_height / vertical_stride,
                  in_width / horizontal_stride)
-        , horizontal_stride_(horizontal_stride)
         , vertical_stride_(vertical_stride)
+        , horizontal_stride_(horizontal_stride)
         , activation_(activation)
     {
         value_.resize(osize_).fill(0.f);
@@ -201,18 +206,18 @@ public:
 
         for (size_type d = 0; d < isize_.depth; ++d)
         {
-            for (size_type i = 0; i < isize_.height; i += horizontal_stride_)
+            for (size_type i = 0; i < isize_.height; i += vertical_stride_)
             {
-                for (size_type j = 0; j < isize_.width; j += vertical_stride_)
+                for (size_type j = 0; j < isize_.width; j += horizontal_stride_)
                 {
                     size_type imax = i;
                     size_type jmax = j;
 
                     precision_type max = input(d, i, j);
 
-                    for (size_type y = i; y < i + horizontal_stride_; ++y)
+                    for (size_type y = i; y < i + vertical_stride_; ++y)
                     {
-                        for (size_type x = j; x < j + vertical_stride_; ++x)
+                        for (size_type x = j; x < j + horizontal_stride_; ++x)
                         {
                             precision_type value = input(d, y, x);
                             mask_(d, y, x) = 0.f;
@@ -226,7 +231,7 @@ public:
                         }
                     }
 
-                    value_(d, i / horizontal_stride_, j / vertical_stride_) = max;
+                    value_(d, i / vertical_stride_, j / horizontal_stride_) = max;
                     mask_(d, imax, jmax) = 1.f;
                 }
             }
@@ -269,7 +274,7 @@ struct is_max_polling_layer<layer::Layer<LayerType::MaxPooling, Net, LayerMode>>
 CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_max_polling_layer<T>::value)
 {
     archive & self.isize_ & self.osize_
-            & self.horizontal_stride_ & self.horizontal_stride_
+            & self.vertical_stride_ & self.horizontal_stride_
             & self.activation_;
 
     self.prepare();
