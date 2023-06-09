@@ -81,7 +81,9 @@ void simple_test()
 
     trixy::train::Training<Net> train(net);
 
-    train.loss(new CCE);
+    auto cce = new CCE;
+
+    train.loss(cce);
 
     auto optimizer = trixy::train::AdamOptimizer(net, 0.01f);
 
@@ -89,8 +91,7 @@ void simple_test()
     train.batch(idata, odata, optimizer, 1000);
     std::cout << "Train second net time: " << t.elapsed() << '\n';
 
-    statistic(net, idata, odata);
-
+    statistic(net, idata, odata, *cce);
     std::ofstream file("simple_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 

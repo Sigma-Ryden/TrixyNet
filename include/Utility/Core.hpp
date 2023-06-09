@@ -129,11 +129,28 @@ void statistic(
         std::cout << "<" << i << "> "
             << network(idata[i]) << " : " << odata[i] << '\n';
 
-    std::cout << "Network normal accuracy: " << check.accuracy.normal(idata, odata)
+    std::cout << "Network normal accuracy: " << check.accuracy.normal(idata, odata);
               //<< "\nNetwork global accuracy: " << check.accuracy.global(idata, odata, 0.1)
-              //<< "\nNetwork full accuracy: " << check.accuracy(idata, odata)
-              //<< "\nNetwork loss: " << check.loss(idata, odata, network.function.loss().f)
-              << '\n';
+              //<< "\nNetwork full accuracy: " << check.accuracy(idata, odata);
+
+    std::cout << '\n';
+}
+
+template <class TrixyNet,
+          template <typename> class Container = TrixyNet::template Container,
+          typename Sample, typename Target, typename LossFunction>
+void statistic(
+    TrixyNet& network,
+    const Container<Sample>& idata,
+    const Container<Target>& odata,
+    LossFunction loss)
+{
+    statistic(network, idata, odata);
+
+    trixy::Checker<TrixyNet> check(network);
+    std::cout << "Network loss: " << check.loss(idata, odata, loss);
+
+    std::cout << '\n';
 }
 
 #endif // UTILITY_CORE_HPP
