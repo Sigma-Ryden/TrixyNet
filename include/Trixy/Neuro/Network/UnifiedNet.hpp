@@ -62,6 +62,7 @@ public:
     ~TrixyNet();
 
     TrixyNet& add(ILayer* layer);
+    bool remove(ILayer* layer);
 
     const Topology& inner() const noexcept { return inner_; }
     ILayer& layer(size_type i) noexcept { return *inner_[i]; }
@@ -98,6 +99,20 @@ TRIXY_NET_TEMPLATE()
 auto TrixyNet<TypeSet>::add(ILayer* layer) -> TrixyNet&
 {
     inner_.emplace_back(layer);
+    return *this;
+}
+
+TRIXY_NET_TEMPLATE()
+bool TrixyNet<TypeSet>::remove(ILayer* layer)
+{
+    Topology inner;
+    inner.reserve(inner_.capacity());
+
+    for (auto ilayer : inner_)
+        if (ilayer != layer) inner.emplace_back(ilayer);
+
+    inner_ = std::move(inner);
+
     return *this;
 }
 
