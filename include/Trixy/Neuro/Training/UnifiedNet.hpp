@@ -153,7 +153,7 @@ void UnifiedNetTraining<Trainable>::stochastic(
         backprop(idata[sample], odata[sample]);
 
         // Updating the model with dynamic gradients, without their accumulation
-        model_update(optimizer, 1.f);
+        updating(optimizer, 1.f);
     }
 }
 
