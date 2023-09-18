@@ -372,7 +372,7 @@ CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_convolutional_layer<T>::valu
             & self.vertical_stride_ & self.horizontal_stride_
             & self.B_ & self.Ws_;
 
-    self.prepare();
+    if (trixy::meta::is_iarchive(archive)) self.prepare();
 }
 
 #endif // TRIXY_NETWORK_LAYER_CONVOLUTIONAL_HPP

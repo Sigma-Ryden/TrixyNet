@@ -277,7 +277,7 @@ CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_max_polling_layer<T>::value)
             & self.vertical_stride_ & self.horizontal_stride_
             & self.activation_;
 
-    self.prepare();
+    if (trixy::meta::is_iarchive(archive)) self.prepare();
 }
 
 #endif // TRIXY_NETWORK_LAYER_MAX_POOLING_HPP

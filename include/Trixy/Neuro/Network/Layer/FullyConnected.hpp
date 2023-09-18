@@ -273,7 +273,7 @@ CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_fully_connected_layer<T>::va
             & self.B_ & self.W_
             & self.activation_;
 
-    self.prepare();
+    if (trixy::meta::is_iarchive(archive)) self.prepare();
 }
 
 #endif // TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP
