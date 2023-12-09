@@ -11,16 +11,15 @@
 // Test definition
 
 // Allow to hide owner classes within different translation units
-#define TEST_MODULE(test_module)                                                                        \
-    namespace test_module
+#define TEST_SPACE(...)                                                                                 \
+    namespace __VA_ARGS__
 
 #define TEST(test_module, test_name)                                                                    \
-    TEST_MODULE(test_module) {                                                                          \
-        struct test_name : TestingInterface {                                                           \
+    TEST_SPACE(test_module) {                                                                           \
+        static struct test_name : TestingInterface {                                                    \
             test_name() : TestingInterface(#test_module, #test_name) {}                                 \
             void run() override;                                                                        \
-        };                                                                                              \
-        static TestingInterface* s##test_module##test_name = new test_name;                             \
+        } s##test_module##test_name;                                                                    \
     }                                                                                                   \
     void test_module::test_name::run()
 
@@ -57,11 +56,11 @@
 struct TestingInterface
 {
 public:
-    const char* module = nullptr;
-    const char* name = nullptr;
+    const std::string module;
+    const std::string name;
 
 public:
-    TestingInterface(const char* module, const char* name);
+    TestingInterface(const std::string& module, const std::string& name);
 
 public:
     virtual void run() = 0;
@@ -70,12 +69,8 @@ public:
 struct TestingCore
 {
 public:
-    using ModuleName        = std::string;
-    using TestName          = std::string;
-
-    using TestRegistry      = std::map<TestName, TestingInterface*>;
-    using ModuleRegistry    = std::map<ModuleName, TestRegistry>;
-
+    using TestRegistry      = std::map<std::string, TestingInterface*>;
+    using ModuleRegistry    = std::map<std::string, TestRegistry>;
     using TextPrinter       = std::function<void(const std::string&)>;
 
 private:
@@ -88,14 +83,14 @@ public:
     TestingCore& operator= (const TestingCore&) = delete;
 
 public:
-    void check(bool condition, TestingInterface* test, const char* msg);
+    void check(bool condition, TestingInterface* test, const std::string& msg);
 
 public:
     void add(TestingInterface* test);
 
 public:
-    void execute_module(const char* name); // execute test module with specify name
-    void execute_test(const char* name); // execute tests with specify name
+    void execute_module(const std::string& name); // execute test module with specify name
+    void execute_test(const std::string& name); // execute tests with specify name
     void execute_all();
 
 public:
