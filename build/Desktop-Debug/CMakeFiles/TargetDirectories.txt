@@ -1,0 +1,3 @@
+D:/Documents/CppProjects/TrixyNet/build/Desktop-Debug/CMakeFiles/TrixyNet.dir
+D:/Documents/CppProjects/TrixyNet/build/Desktop-Debug/CMakeFiles/edit_cache.dir
+D:/Documents/CppProjects/TrixyNet/build/Desktop-Debug/CMakeFiles/rebuild_cache.dir
