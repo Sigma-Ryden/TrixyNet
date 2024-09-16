@@ -55,9 +55,9 @@ template <typename T> struct is_shape<Shape<T>> : std::true_type {};
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_shape<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, shape, trixy::lique::meta::is_shape<S>::value)
 {
-    archive & self.depth & self.height & self.width & self.size;
+    archive & shape.depth & shape.height & shape.width & shape.size;
 }
 
 #endif // TRIXY_LIQUE_SHAPE_HPP

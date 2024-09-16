@@ -22,10 +22,8 @@ template <typename LayerType, class Net, typename LayerMode>
 class Layer;
 
 template <class Net>
-class ILayer : public sf::Instantiable
+class ILayer : public sf::instantiable_t
 {
-    SERIALIZABLE(ILayer)
-
 public:
     template <typename T>
     using Container             = typename Net::template Container<T>;
@@ -65,8 +63,6 @@ public:
 template <class Net>
 class ITrainLayer : public ILayer<Net>
 {
-    SERIALIZABLE(ITrainLayer)
-
     using Base = ILayer<Net>;
 
 public:
@@ -120,7 +116,7 @@ template <class Net> struct is_itrain_layer<layer::ITrainLayer<Net>> : std::true
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_ilayer<T>::value) {}
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_itrain_layer<T>::value) {}
+CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_ilayer<S>::value) {}
+CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_itrain_layer<S>::value) {}
 
 #endif // TRIXY_NETWORK_LAYER_BASE_HPP

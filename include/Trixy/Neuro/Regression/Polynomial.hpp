@@ -125,9 +125,9 @@ auto Regression<TypeSet>::feedforward(
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_polynomial_regression<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, regression, trixy::meta::is_polynomial_regression<S>::value)
 {
-    archive & self.W & self.N;
+    archive & regression.W & regression.N;
 }
 
 #endif // TRIXY_REGRESSION_POLYNOMIAL_HPP

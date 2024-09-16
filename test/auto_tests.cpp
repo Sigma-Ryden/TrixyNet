@@ -1,13 +1,5 @@
 #include <Automation/Core.hpp>
 
-int main()
-{
-    TRY_CATCH(EXECUTE_ALL());
-    TESTING_STAT();
-
-    return 0;
-}
-
 #define protected public
 
 #include <Trixy/Core.hpp>

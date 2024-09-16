@@ -19,10 +19,8 @@ namespace activation
 {
 
 template <typename Precision>
-class IActivation : public ActivationType, public sf::Instantiable
+class IActivation : public ActivationType, public sf::instantiable_t
 {
-    SERIALIZABLE(IActivation)
-
 public:
     using precision_type = Precision;
     using Range = utility::Range<Precision>;
@@ -42,10 +40,8 @@ namespace loss
 {
 
 template <typename Precision>
-class ILoss : public LossType, public sf::Instantiable
+class ILoss : public LossType, public sf::instantiable_t
 {
-    SERIALIZABLE(ILoss)
-
 public:
     using precision_type = Precision;
     using Range = utility::Range<Precision>;
@@ -71,7 +67,7 @@ template <typename T> struct is_iloss : std::is_base_of<functional::LossType, T>
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_iactivation<T>::value) {}
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_iloss<T>::value) {}
+CONDITIONAL_SERIALIZATION(saveload, activation, trixy::meta::is_iactivation<S>::value) {}
+CONDITIONAL_SERIALIZATION(saveload, loss, trixy::meta::is_iloss<S>::value) {}
 
 #endif // TRIXY_FUNCTION_BASE_HPP

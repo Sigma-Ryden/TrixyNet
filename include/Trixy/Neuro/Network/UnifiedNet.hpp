@@ -148,7 +148,7 @@ void TrixyNet<TypeSet>::init(
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_unified_net<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, self, trixy::meta::is_unified_net<S>::value)
 {
     archive & self.inner_;
 }

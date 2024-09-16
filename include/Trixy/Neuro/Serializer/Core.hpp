@@ -14,19 +14,33 @@ class Serializer
 {
 public:
     template <class OutStream,
-              class SreamWrapper = sf::wrapper::OFileStream<OutStream>>
+              class SreamWrapper = sf::wrapper::ofile_stream_t<OutStream>>
     static void serialize(OutStream& out, Serializable& serializable)
     {
-        auto archive = sf::oarchive<SreamWrapper>(out);
-        archive & serializable;
+        std::vector<unsigned char> storage;
+        {
+            auto archive = sf::oarchive(storage);
+            archive & serializable;
+        }
+        {
+            auto archive = sf::oarchive<SreamWrapper>(out);
+            archive & storage;
+        }
     }
 
     template <class InStream,
-              class SreamWrapper = sf::wrapper::IFileStream<InStream>>
+              class SreamWrapper = sf::wrapper::ifile_stream_t<InStream>>
     static void deserialize(InStream& in, Serializable& serializable)
     {
-        auto archive = sf::iarchive<SreamWrapper>(in);
-        archive & serializable;
+        std::vector<unsigned char> storage;
+        {
+            auto archive = sf::iarchive<SreamWrapper>(in);
+            archive & storage;
+        }
+        {
+            auto archive = sf::iarchive(storage);
+            archive & serializable;
+        }
     }
 };
 

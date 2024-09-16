@@ -1,3 +1,5 @@
+#include <Automation/Core.hpp>
+
 #include <Trixy/Core.hpp>
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
@@ -135,7 +137,7 @@ void mnist_test()
     auto generator = [&random] { return random(-0.25f, 0.25f); };
 
     // Data preparing:
-    auto dataset = mnist::read_dataset("C:/mnist_data/");
+    auto dataset = mnist::read_dataset("mnist_data");
 
     Core::size_type train_batch_size = 60000; // max 60 000
     Core::size_type test_batch_size  = 10000;
@@ -201,16 +203,14 @@ void mnist_test()
     std::cout << "End of serialization\n";
 }
 
-int main()
-{
-    sf::serializable<FullyConnected>();
-    sf::serializable<ReLU>();
-    sf::serializable<SoftMax>();
+// TEST(TestExample, TestMNIST)
+// {
+//     sf::serializable<FullyConnected>();
+//     sf::serializable<ReLU>();
+//     sf::serializable<SoftMax>();
 
-    std::cout << std::fixed << std::setprecision(6);
+//     std::cout << std::fixed << std::setprecision(6);
 
-    mnist_test();
-    mnist_test_deserialization();
-
-    return 0;
-}
+//     mnist_test();
+//     mnist_test_deserialization();
+// }

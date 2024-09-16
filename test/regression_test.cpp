@@ -1,3 +1,5 @@
+#include <Automation/Core.hpp>
+
 #include <Trixy/Core.hpp>
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
@@ -72,7 +74,7 @@ Core::Vector get_linear_odata()
 
 void polynomial_regression_test_deserialization()
 {
-    std::ifstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
+    std::ifstream file("polynomial_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     PolynomialRegression reg;
@@ -108,7 +110,7 @@ void polynomial_regression_test()
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, MSE()) << '\n';
 
-    std::ofstream file("D:\\Serialized\\polynomial_regression_test.bin", std::ios::binary);
+    std::ofstream file("polynomial_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     trixy::Serializer<PolynomialRegression> sr;
@@ -121,7 +123,7 @@ void polynomial_regression_test()
 
 void linear_regression_test_deserialization()
 {
-    std::ifstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
+    std::ifstream file("linear_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     LinearRegression reg;
@@ -157,7 +159,7 @@ void linear_regression_test()
               << "Test:\n" << reg.feedforward(X) << "\n\n"
               << "Loss:\n" << check.loss(X, Y, MSE()) << '\n';
 
-    std::ofstream file("D:\\Serialized\\linear_regression_test.bin", std::ios::binary);
+    std::ofstream file("linear_regression_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     trixy::Serializer<LinearRegression> sr;
@@ -168,7 +170,7 @@ void linear_regression_test()
     std::cout << "End of serialization\n";
 }
 
-int main()
+TEST(TestExample, TestRegression)
 {
     std::cout << std::fixed << std::setprecision(6);
 
@@ -176,6 +178,4 @@ int main()
     //linear_regression_test();
     polynomial_regression_test_deserialization();
     linear_regression_test_deserialization();
-
-    return 0;
 }

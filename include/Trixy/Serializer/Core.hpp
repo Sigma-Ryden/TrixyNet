@@ -3,7 +3,9 @@
 
 #define SF_GARBAGE_CHECK_DISABLE
 
-#include <Trixy/Serializer/SerializationFixture.hpp>
+#include <SerializationFixture/Core.hpp>
+#include <SerializationFixture/Utility/Span.hpp>
+#include <SerializationFixture/BuiltIn/vector.hpp>
 
 namespace trixy
 {

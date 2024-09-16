@@ -353,10 +353,10 @@ template <typename Type> struct is_container<utility::Container<Type>> : std::tr
 
 } // namepace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_container<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, tensor, trixy::meta::is_container<S>::value)
 {
-    archive & sf::span(self.data_, self.size_);
-    self.capacity_ = self.size_;
+    archive & sf::span(tensor.data_, tensor.size_);
+    tensor.capacity_ = tensor.size_;
 }
 
 #endif // TRIXY_CONTAINER_HPP

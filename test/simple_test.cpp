@@ -1,3 +1,5 @@
+#include <Automation/Core.hpp>
+
 #include <Trixy/Core.hpp>
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
@@ -101,7 +103,7 @@ void simple_test()
     file.close();
 }
 
-int main()
+TEST(TestExample, TestSimple)
 {
     sf::serializable<FullyConnected>();
     sf::serializable<ReLU>();
@@ -111,6 +113,4 @@ int main()
 
     simple_test();
     simple_test_deserialization();
-
-    return 0;
 }

@@ -456,10 +456,10 @@ inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> co
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::lique::meta::is_tensor_type<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, tensor, trixy::lique::meta::is_tensor_type<S>::value)
 {
-    archive & self.shape_;
-    archive & sf::span(self.data_, self.shape_.size);
+    archive & tensor.shape_;
+    archive & sf::span(tensor.data_, tensor.shape_.size);
 }
 
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

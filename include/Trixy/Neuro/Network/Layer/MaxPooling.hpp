@@ -30,7 +30,6 @@ class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Raw>
     : public ILayer<Net>
 {
     TRIXY_LAYER_BODY(ILayer<Net>)
-    SERIALIZABLE(Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Raw>)
 
 protected:
     shape_type isize_;
@@ -128,7 +127,6 @@ class Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Train>
     : public ITrainLayer<Net>
 {
     TRIXY_LAYER_BODY(ITrainLayer<Net>)
-    SERIALIZABLE(Layer<trixy::LayerType::MaxPooling, Net, LayerMode::Train>)
 
 protected:
 
@@ -271,13 +269,13 @@ struct is_max_polling_layer<layer::Layer<LayerType::MaxPooling, Net, LayerMode>>
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_max_polling_layer<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_max_polling_layer<S>::value)
 {
-    archive & self.isize_ & self.osize_
-            & self.vertical_stride_ & self.horizontal_stride_
-            & self.activation_;
+    archive & layer.isize_ & layer.osize_
+            & layer.vertical_stride_ & layer.horizontal_stride_
+            & layer.activation_;
 
-    if (trixy::meta::is_iarchive(archive)) self.prepare();
+    if (trixy::meta::is_iarchive(archive)) layer.prepare();
 }
 
 #endif // TRIXY_NETWORK_LAYER_MAX_POOLING_HPP

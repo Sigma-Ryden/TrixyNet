@@ -24,9 +24,9 @@ struct locker_trait<memory::Locker<Lockable, LockerType>>
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_locker<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, self, trixy::meta::is_locker<S>::value)
 {
-    using lockable = typename trixy::meta::locker_trait<T>::lockable;
+    using lockable = typename trixy::meta::locker_trait<S>::lockable;
     archive & sf::base<lockable>(self);
 }
 

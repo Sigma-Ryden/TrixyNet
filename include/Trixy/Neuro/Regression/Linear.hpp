@@ -112,9 +112,9 @@ auto LinearRegression<TypeSet>::feedforward(
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(SaveLoad, trixy::meta::is_linear_regression<T>::value)
+CONDITIONAL_SERIALIZATION(saveload, regression, trixy::meta::is_linear_regression<S>::value)
 {
-    archive & self.W & self.N;
+    archive & regression.W & regression.N;
 }
 
 #endif // TRIXY_REGRESSION_LINEAR_HPP
