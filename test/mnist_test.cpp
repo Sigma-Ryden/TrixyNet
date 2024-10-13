@@ -88,7 +88,7 @@ Core::Container<Core::Tensor> get_odata(
 void mnist_test_deserialization()
 {
     // Data preparing:
-    auto dataset = mnist::read_dataset("C:/mnist_data/");
+    auto dataset = mnist::read_dataset("mnist");
 
     Core::size_type train_batch_size = 60000; // max 60 000
     Core::size_type test_batch_size  = 10000;
@@ -103,7 +103,7 @@ void mnist_test_deserialization()
     auto test_idata = get_idata(dataset.test_images, test_batch_size, input_size);
     auto test_odata = get_odata(dataset.test_labels, test_batch_size, output_size);
 
-    std::ifstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
+    std::ifstream file("mnist_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     // NeuralNetwork preparing:
@@ -137,7 +137,7 @@ void mnist_test()
     auto generator = [&random] { return random(-0.25f, 0.25f); };
 
     // Data preparing:
-    auto dataset = mnist::read_dataset("mnist_data");
+    auto dataset = mnist::read_dataset("mnist");
 
     Core::size_type train_batch_size = 60000; // max 60 000
     Core::size_type test_batch_size  = 10000;
@@ -171,13 +171,14 @@ void mnist_test()
 
     auto optimizer = trixy::train::AdamOptimizer(net, 0.01f);
 
+
     Timer t;
     //
     Core::size_type times = 10;
     for (Core::size_type i = 1; i <= times; ++i)
     {
         std::cout << "start train [" << i << "]:\n";
-        teach.mini_batch(train_idata, train_odata, optimizer, 1, 40);
+        teach.mini_batch(train_idata, train_odata, optimizer, 1, 10);
         std::cout << "Accuracy: " << check.accuracy(train_idata, train_odata) << '\n';
     }
     std::cout << "Train time: " << t.elapsed() << '\n';
@@ -192,7 +193,7 @@ void mnist_test()
         << "Network test set normal accuracy: " << check.accuracy(test_idata, test_odata) << '\n'
         << "Check time: " << t.elapsed() << '\n';
 
-    std::ofstream file("D:\\Serialized\\mnist_test.bin", std::ios::binary);
+    std::ofstream file("mnist_test.bin", std::ios::binary);
     if (not file.is_open()) return;
 
     trixy::Serializer<Net> sr;
@@ -203,14 +204,14 @@ void mnist_test()
     std::cout << "End of serialization\n";
 }
 
-// TEST(TestExample, TestMNIST)
-// {
-//     sf::serializable<FullyConnected>();
-//     sf::serializable<ReLU>();
-//     sf::serializable<SoftMax>();
+TEST(TestExample, TestMNIST)
+{
+    sf::serializable<FullyConnected>();
+    sf::serializable<ReLU>();
+    sf::serializable<SoftMax>();
 
-//     std::cout << std::fixed << std::setprecision(6);
+    std::cout << std::fixed << std::setprecision(6);
 
-//     mnist_test();
-//     mnist_test_deserialization();
-// }
+    mnist_test();
+    mnist_test_deserialization();
+}

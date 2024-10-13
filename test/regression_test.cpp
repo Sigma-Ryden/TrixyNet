@@ -174,8 +174,8 @@ TEST(TestExample, TestRegression)
 {
     std::cout << std::fixed << std::setprecision(6);
 
-    //polynomial_regression_test();
-    //linear_regression_test();
+    polynomial_regression_test();
+    linear_regression_test();
     polynomial_regression_test_deserialization();
     linear_regression_test_deserialization();
 }

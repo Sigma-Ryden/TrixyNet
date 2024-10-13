@@ -30,5 +30,5 @@ add_executable(${PROJECT_NAME}
     ${SerializationFixture_HEADER_FILES} # optionaly
     ${TrixyNet_HEADER_FILES} # optionaly
 )
-target_link_libraries(${PROJECT_NAME} Automation)
+target_link_libraries(${PROJECT_NAME} Automation SerializationFixture)
 # ~test
