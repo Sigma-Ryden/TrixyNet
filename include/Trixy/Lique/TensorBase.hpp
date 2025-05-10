@@ -49,7 +49,7 @@ using TensorBase = Tensor<Precision, TensorType::base, TensorMode::view>;
 template <typename Precision>
 class Tensor<Precision, TensorType::base, TensorMode::view> : public TensorType::base
 {
-    SERIALIZATION_ACCESS()
+    SERIALIZABLE_ACCESS()
 
     static constexpr bool require = std::is_arithmetic<Precision>::value;
 
@@ -74,392 +74,246 @@ protected:
     shape_type shape_;
 
 public:
-    Tensor() noexcept;
-    ~Tensor();
+    Tensor() noexcept : data_(nullptr), shape_(0, 0, 0) {}
+    ~Tensor() {}
 
-    explicit Tensor(const shape_type& shape, pointer data = nullptr) noexcept;
+    explicit Tensor(const shape_type& shape, pointer data = nullptr) noexcept
+        : data_(data), shape_(shape) {}
 
-    Tensor(size_type d, size_type h, size_type w, pointer data = nullptr) noexcept;
-    Tensor(size_type h, size_type w, pointer data = nullptr) noexcept;
-    Tensor(size_type w, pointer data = nullptr) noexcept;
+    Tensor(size_type d, size_type h, size_type w, pointer data = nullptr) noexcept
+        : data_(data), shape_(d, h, w) {}
 
-    Tensor(const Tensor& tensor) noexcept;
-    Tensor(Tensor&& tensor) noexcept;
+    Tensor(size_type h, size_type w, pointer data = nullptr) noexcept
+        : data_(data), shape_(h, w) {}
 
-    Tensor& operator= (const Tensor& tensor) noexcept;
-    Tensor& operator= (Tensor&& tensor) noexcept;
+    Tensor(size_type w, pointer data = nullptr) noexcept
+        : data_(data), shape_(w) {}
 
-    Tensor& copy(const_pointer src) noexcept;
-    Tensor& copy(const Tensor&) noexcept;
-    Tensor& copy(std::initializer_list<precision_type>) noexcept;
-
-    template <class Generator,
-              trixy::meta::require<trixy::meta::is_callable<Generator>::value> = 0>
-    Tensor& fill(Generator generator) noexcept;
-
-    Tensor& fill(precision_type value) noexcept;
-
-    template <class Function>
-    Tensor apply(Function func) const;
-
-    template <class Function>
-    Tensor& apply(Function func) noexcept;
-
-    template <class Function>
-    Tensor& apply(Function func, const_pointer src) noexcept;
-
-    template <class Function>
-    Tensor& apply(Function func, const Tensor& rhs) noexcept;
-
-    Tensor add(const Tensor& rhs) const;
-    Tensor& add(const Tensor& rhs) noexcept;
-    Tensor& add(const Tensor& lhs, const Tensor& rhs) noexcept;
-
-    Tensor sub(const Tensor& rhs) const;
-    Tensor& sub(const Tensor& rhs) noexcept;
-    Tensor& sub(const Tensor& lhs, const Tensor& rhs) noexcept;
-
-    Tensor mul(const Tensor& rhs) const;
-    Tensor& mul(const Tensor& rhs) noexcept;
-    Tensor& mul(const Tensor& lhs, const Tensor& rhs) noexcept;
-
-    Tensor join(precision_type value) const;
-    Tensor& join(precision_type value) noexcept;
-    Tensor& join(precision_type value, const Tensor&) noexcept;
-
-    pointer data() noexcept;
-    const_pointer data() const noexcept;
-
-    size_type size() const noexcept;
-    const shape_type& shape() const noexcept;
-
-    void swap(Tensor& tensor) noexcept;
-
-    operator range_view() const noexcept;
-
-    pointer at(size_type i) noexcept;
-    const_pointer at(size_type i) const noexcept;
-
-    reference operator() (size_type i) noexcept;
-    const_reference operator() (size_type i) const noexcept;
-};
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor() noexcept : data_(nullptr), shape_(0, 0, 0) {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::~Tensor() {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
-: data_(data), shape_(shape) {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(size_type d, size_type h, size_type w, pointer data) noexcept
-: data_(data), shape_(d, h, w) {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(size_type h, size_type w, pointer data) noexcept
-: data_(data), shape_(h, w) {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(size_type w, pointer data) noexcept
-: data_(data), shape_(w) {}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(const Tensor& tensor) noexcept
-{
-    data_ = tensor.data_;
-    shape_ = tensor.shape_;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>::Tensor(Tensor&& tensor) noexcept
-{
-    data_ = tensor.data_;
-    shape_ = tensor.shape_;
-
-    tensor.data_ = nullptr;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::operator= (const Tensor& tensor) noexcept
-{
-    if (this != &tensor)
+    Tensor(const Tensor& tensor) noexcept
     {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
     }
 
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::operator= (Tensor&& tensor) noexcept
-{
-    if (this != &tensor)
+    Tensor(Tensor&& tensor) noexcept
     {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
-
         tensor.data_ = nullptr;
     }
 
-    return *this;
-}
+    Tensor& operator= (const Tensor& tensor) noexcept
+    {
+        if (this != &tensor)
+        {
+            data_ = tensor.data_;
+            shape_ = tensor.shape_;
+        }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::copy(const_pointer src) noexcept
-{
-    lique::detail::copy(data_, data_ + shape_.size, src);
+        return *this;
+    }
 
-    return *this;
-}
+    Tensor& operator= (Tensor&& tensor) noexcept
+    {
+        if (this != &tensor)
+        {
+            data_ = tensor.data_;
+            shape_ = tensor.shape_;
+            tensor.data_ = nullptr;
+        }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::copy(const Tensor& vector) noexcept
-{
-    if (this != &vector)
-        lique::detail::copy(data_, data_ + shape_.size, vector.data_);
+        return *this;
+    }
 
-    return *this;
-}
+    Tensor& copy(const_pointer src) noexcept
+    {
+        lique::detail::copy(data_, data_ + shape_.size, src);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::copy(
-    std::initializer_list<precision_type> init) noexcept
-{
-    lique::detail::copy(data_, data_ + shape_.size, init.begin());
+    Tensor& copy(const Tensor& tensor) noexcept
+    {
+        if (this != &tensor)
+            lique::detail::copy(data_, data_ + shape_.size, tensor.data_);
 
-    return *this;
-}
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-template <class Generator, trixy::meta::require<trixy::meta::is_callable<Generator>::value>>
-TensorBase<Precision>& TensorBase<Precision>::fill(Generator generator) noexcept
-{
-    lique::detail::fill(data_, data_ + shape_.size, generator);
+    Tensor& copy(std::initializer_list<precision_type> list) noexcept
+    {
+        lique::detail::copy(data_, data_ + shape_.size, list.begin());
+        return *this;
+    }
 
-    return *this;
-}
+    template <class Generator,
+              TRREQUIRE(trixy::meta::is_callable<Generator>::value)>
+    Tensor& fill(Generator generator) noexcept
+    {
+        lique::detail::fill(data_, data_ + shape_.size, generator);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::fill(precision_type value) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::cpy(), value);
+    Tensor& fill(precision_type value) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::cpy(), value);
+        return *this;
+    }
 
-    return *this;
-}
+    template <class Function>
+    Tensor apply(Function func) const
+    {
+        Tensor vector(shape_.size);
+        vector.apply(func, data_);
+        return vector;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-template <class Function>
-TensorBase<Precision> TensorBase<Precision>::apply(Function func) const
-{
-    Tensor vector(shape_.size);
+    template <class Function>
+    Tensor& apply(Function func) noexcept
+    {
+        lique::detail::apply(data_, data_ + shape_.size, func);
+        return *this;
+    }
 
-    vector.apply(func, data_);
+    template <class Function>
+    Tensor& apply(Function func, const_pointer src) noexcept
+    {
+        lique::detail::apply(data_, data_ + shape_.size, func, src);
+        return *this;
+    }
 
-    return vector;
-}
+    template <class Function>
+    Tensor& apply(Function func, const Tensor& rhs) noexcept
+    {
+        return apply(func, rhs.data_);
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-template <class Function>
-TensorBase<Precision>& TensorBase<Precision>::apply(Function func) noexcept
-{
-    lique::detail::apply(data_, data_ + shape_.size, func);
+    Tensor add(const Tensor& rhs) const
+    {
+        Tensor vector(shape_.size);
+        vector.add(*this, rhs);
+        return vector;
+    }
 
-    return *this;
-}
+    Tensor& add(const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::add(), rhs.data_);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-template <class Function>
-TensorBase<Precision>& TensorBase<Precision>::apply(Function func, const_pointer src) noexcept
-{
-    lique::detail::apply(data_, data_ + shape_.size, func, src);
+    Tensor& add(const Tensor& lhs, const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::add(), lhs.data_, rhs.data_);
+        return *this;
+    }
 
-    return *this;
-}
+    Tensor sub(const Tensor& rhs) const
+    {
+        Tensor vector(shape_.size);
+        vector.sub(*this, rhs);
+        return vector;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-template <class Function>
-TensorBase<Precision>& TensorBase<Precision>::apply(Function func, const Tensor& vector) noexcept
-{
-    return apply(func, vector.data_);
-}
+    Tensor& sub(const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::sub(), rhs.data_);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision> TensorBase<Precision>::add(const Tensor& rhs) const
-{
-    Tensor vector(shape_.size);
+    Tensor& sub(const Tensor& lhs, const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::sub(), lhs.data_, rhs.data_);
+        return *this;
+    }
 
-    vector.add(*this, rhs);
+    Tensor mul(const Tensor& rhs) const
+    {
+        Tensor vector(shape_.size);
+        vector.mul(*this, rhs);
+        return vector;
+    }
 
-    return vector;
-}
+    Tensor& mul(const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), rhs.data_);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::add(const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::add(), rhs.data_);
+    Tensor& mul(const Tensor& lhs, const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), lhs.data_, rhs.data_);
+        return *this;
+    }
 
-    return *this;
-}
+    Tensor join(precision_type value) const
+    {
+        Tensor tensor(shape_.size);
+        tensor.join(value, *this);
+        return tensor;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::add(const Tensor& lhs, const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::add(), lhs.data_, rhs.data_);
+    Tensor& join(precision_type value) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), value);
+        return *this;
+    }
 
-    return *this;
-}
+    Tensor& join(precision_type value, const Tensor& rhs) noexcept
+    {
+        lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), value, rhs.data_);
+        return *this;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision> TensorBase<Precision>::sub(const Tensor& rhs) const
-{
-    Tensor vector(shape_.size);
+    pointer data() noexcept { return data_; }
+    const_pointer data() const noexcept { return data_; }
 
-    vector.sub(*this, rhs);
+    size_type size() const noexcept { return shape_.size; }
+    const shape_type& shape() const noexcept { return shape_; }
 
-    return vector;
-}
+    void swap(Tensor& tensor) noexcept
+    {
+        std::swap(data_, tensor.data_);
+        std::swap(shape_, tensor.shape_);
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::sub(const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::sub(), rhs.data_);
+    operator range_view() const noexcept
+    {
+        return range_view(data_, data_ + shape_.size);
+    }
 
-    return *this;
-}
+    pointer at(size_type i) noexcept
+    {
+        return data_ + i;
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::sub(const Tensor& lhs, const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::sub(), lhs.data_, rhs.data_);
+    const_pointer at(size_type i) const noexcept
+    {
+        return data_ + i;
+    }
 
-    return *this;
-}
+    reference operator() (size_type i) noexcept
+    {
+        return *at(i); // dereferencing
+    }
 
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision> TensorBase<Precision>::mul(const Tensor& rhs) const
-{
-    Tensor vector(shape_.size);
-
-    vector.mul(*this, rhs);
-
-    return vector;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::mul(const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::mul(const Tensor& lhs, const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), lhs.data_, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision> TensorBase<Precision>::join(precision_type value) const
-{
-    Tensor tensor(shape_.size);
-
-    tensor.join(value, *this);
-
-    return tensor;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::join(precision_type value) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), value);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-TensorBase<Precision>& TensorBase<Precision>::join(precision_type value, const Tensor& rhs) noexcept
-{
-    lique::detail::assign(data_, data_ + shape_.size, lique::detail::mul(), value, rhs.data_);
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::data() noexcept -> pointer
-{
-    return data_;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::data() const noexcept -> const_pointer
-{
-    return data_;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::size() const noexcept -> size_type
-{
-    return shape_.size;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::shape() const noexcept -> const shape_type&
-{
-    return shape_;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-void TensorBase<Precision>::swap(Tensor& tensor) noexcept
-{
-    std::swap(data_, tensor.data_);
-    std::swap(shape_, tensor.shape_);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline TensorBase<Precision>::operator range_view() const noexcept
-{
-    return range_view(data_, data_ + shape_.size);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::at(size_type i) noexcept -> pointer
-{
-    return data_ + i;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::at(size_type i) const noexcept -> const_pointer
-{
-    return data_ + i;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::operator() (size_type i) noexcept -> reference
-{
-    return *at(i); // dereferencing
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto TensorBase<Precision>::operator() (size_type i) const noexcept -> const_reference
-{
-    return *at(i); // dereferencing
-}
+    const_reference operator() (size_type i) const noexcept
+    {
+        return *at(i); // dereferencing
+    }
+};
 
 } // namespace lique
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, tensor, trixy::lique::meta::is_tensor_type<S>::value)
-{
-    archive & tensor.shape_;
-    archive & sf::span(tensor.data_, tensor.shape_.size);
-}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::lique::meta::is_tensor_type<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, tensor, trixy::lique::meta::is_tensor_type<S>::value)
+    SERIALIZATION
+    (
+        archive & tensor.shape_;
+        archive & sf::span(tensor.data_, tensor.shape_.size);
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_LIQUE_BASE_TENSOR_HPP

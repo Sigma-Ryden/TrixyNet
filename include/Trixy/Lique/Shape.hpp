@@ -43,21 +43,18 @@ public:
     : depth(1), height(1), width(w), size(w) {}
 };
 
-namespace meta
-{
-
-template <typename T> struct is_shape : std::false_type {};
-template <typename T> struct is_shape<Shape<T>> : std::true_type {};
-
-} // namespace meta
-
 } // namespace lique
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, shape, trixy::lique::meta::is_shape<S>::value)
-{
-    archive & shape.depth & shape.height & shape.width & shape.size;
-}
+TEMPLATE_SERIALIZABLE_DECLARATION(template <typename T>, trixy::lique::Shape<T>)
+SERIALIZABLE_DECLARATION_INIT()
+
+TEMPLATE_SERIALIZABLE(saveload, shape, template <typename T>, trixy::lique::Shape<T>)
+    SERIALIZATION
+    (
+        archive & shape.depth & shape.height & shape.width & shape.size;
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_LIQUE_SHAPE_HPP

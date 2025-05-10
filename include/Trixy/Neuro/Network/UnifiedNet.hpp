@@ -23,7 +23,7 @@ TRIXY_NET_TEMPLATE()
 class TrixyNet<TypeSet>
     : public guard::TrixyNetRequire<TypeSet>::type
 {
-    SERIALIZATION_ACCESS()
+    SERIALIZABLE_ACCESS()
 
 public:
     template <typename T>
@@ -57,100 +57,81 @@ public:
     Linear linear;
 
 public:
-    TrixyNet(size_type reserve_size = 8);
-    TrixyNet(const Topology& topology);
-    ~TrixyNet();
+    TrixyNet(size_type reserve_size = 8)
+    {
+        inner_.reserve(reserve_size);
+    }
 
-    TrixyNet& add(ILayer* layer);
-    bool remove(ILayer* layer);
+    TrixyNet(const Topology& topology)
+    {
+        inner_ = topology;
+    }
+
+    ~TrixyNet()
+    {
+        for (size_type i = 0; i < inner_.size(); ++i)
+            delete inner_[i];
+    }
+
+    TrixyNet& add(ILayer* layer)
+    {
+        inner_.emplace_back(layer);
+        return *this;
+    }
+
+    bool remove(ILayer* layer)
+    {
+        Topology inner;
+        inner.reserve(inner_.capacity());
+
+        for (auto ilayer : inner_)
+            if (ilayer != layer) inner.emplace_back(ilayer);
+
+        inner_ = std::move(inner);
+
+        return *this;
+    }
 
     const Topology& inner() const noexcept { return inner_; }
     ILayer& layer(size_type i) noexcept { return *inner_[i]; }
 
     size_type size() const noexcept { return inner_.size(); }
 
-    const Tensor& feedforward(const Tensor& sample) noexcept;
-    const Tensor& operator() (const Tensor& sample) noexcept;
+    const Tensor& feedforward(const Tensor& sample) noexcept
+    {
+        layer(0).forward(sample);
+
+        for (size_type i = 1; i < inner_.size(); ++i)
+            layer(i).forward(layer(i - 1).value());
+
+        return layer(inner_.size() - 1).value();
+    }
+
+    const Tensor& operator() (const Tensor& sample) noexcept
+    {
+        return feedforward(sample);
+    }
 
     template <class FloatGenerator>
-    void init(FloatGenerator generator) noexcept;
+    void init(FloatGenerator functor) noexcept
+    {
+        typename ILayer::Generator generator{functor};
+
+        for (size_type i = 0; i < inner_.size(); ++i)
+            layer(i).init(generator);
+    }
 };
-
-TRIXY_NET_TEMPLATE()
-TrixyNet<TypeSet>::TrixyNet(size_type reserve_size)
-{
-    inner_.reserve(reserve_size);
-}
-
-TRIXY_NET_TEMPLATE()
-TrixyNet<TypeSet>::TrixyNet(const Topology& topology)
-{
-    inner_ = topology;
-}
-
-TRIXY_NET_TEMPLATE()
-TrixyNet<TypeSet>::~TrixyNet()
-{
-    for (size_type i = 0; i < inner_.size(); ++i)
-        delete inner_[i];
-}
-
-TRIXY_NET_TEMPLATE()
-auto TrixyNet<TypeSet>::add(ILayer* layer) -> TrixyNet&
-{
-    inner_.emplace_back(layer);
-    return *this;
-}
-
-TRIXY_NET_TEMPLATE()
-bool TrixyNet<TypeSet>::remove(ILayer* layer)
-{
-    Topology inner;
-    inner.reserve(inner_.capacity());
-
-    for (auto ilayer : inner_)
-        if (ilayer != layer) inner.emplace_back(ilayer);
-
-    inner_ = std::move(inner);
-
-    return *this;
-}
-
-TRIXY_NET_TEMPLATE()
-auto TrixyNet<TypeSet>::feedforward(
-    const Tensor& sample) noexcept -> const Tensor&
-{
-    layer(0).forward(sample);
-
-    for (size_type i = 1; i < inner_.size(); ++i)
-        layer(i).forward(layer(i - 1).value());
-
-    return layer(inner_.size() - 1).value();
-}
-
-TRIXY_NET_TEMPLATE()
-auto TrixyNet<TypeSet>::operator() (
-    const Tensor& sample) noexcept -> const Tensor&
-{
-    return feedforward(sample);
-}
-
-TRIXY_NET_TEMPLATE()
-template <class TopologyGenerator>
-void TrixyNet<TypeSet>::init(
-    TopologyGenerator functor) noexcept
-{
-    typename ILayer::Generator generator{functor};
-
-    for (size_type i = 0; i < inner_.size(); ++i)
-        layer(i).init(generator);
-}
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, self, trixy::meta::is_unified_net<S>::value)
-{
-    archive & self.inner_;
-}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_unified_net<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, self, trixy::meta::is_unified_net<S>::value)
+    SERIALIZATION
+    (
+        archive & self.inner_;
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_NETWORK_UNIFIED_NET_HPP

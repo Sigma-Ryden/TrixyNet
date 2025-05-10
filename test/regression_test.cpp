@@ -4,7 +4,7 @@
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/Core.hpp> // operator<<
+#include <debug_tools.hpp> // operator<<
 
 #include <fstream> // ifstream, ofstream
 #include <iostream> // cin, cout

@@ -22,7 +22,7 @@ using MatrixLocker = Locker<Tensor, LockerType::matrix>;
 template <class Tensor>
 class Locker<Tensor, LockerType::matrix> : protected Tensor
 {
-    SERIALIZATION_ACCESS()
+    SERIALIZABLE_ACCESS()
 
 protected:
     using require = Tensor;

@@ -4,7 +4,7 @@
 #define TRIXY_NEURO_NETWORK_LAYER_DETAIL_MACRO_SCOPE_HPP
 
 #define TRIXY_LAYER_BODY(...)                                                                           \
-    SERIALIZATION_ACCESS()                                                                              \
+    SERIALIZABLE_ACCESS()                                                                              \
     public:                                                                                             \
         using Base = __VA_ARGS__;                                                                       \
         using typename Base::IOptimizer;                                                                \

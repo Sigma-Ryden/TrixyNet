@@ -25,7 +25,7 @@ TRIXY_REGRESSION_TEMPLATE()
 class Regression<TypeSet> :
     public guard::RegressionRequire<TypeSet>::type
 {
-    SERIALIZATION_ACCESS()
+    SERIALIZABLE_ACCESS()
 
 friend train::Training<PolynomialRegression<TypeSet>>;
 
@@ -45,89 +45,78 @@ private:
     Linear linear;
 
 public:
-    explicit Regression(size_type power = 0);
+    explicit Regression(size_type power = 0)
+        : W(power + 1), N(power + 1)
+    {
+    }
 
-    void init(Vector weight) noexcept;
+    void init(Vector weight) noexcept
+    {
+        W.copy(weight);
+    }
 
-    void reset(size_type new_power);
+    void reset(size_type new_power)
+    {
+        N = new_power + 1;
+        W.resize(N);
+    }
 
-    precision_type feedforward(precision_type sample) const noexcept;
-    Vector feedforward(const Vector& idata) const;
+    precision_type feedforward(precision_type sample) const noexcept
+    {
+        precision_type result = W(0);
+        precision_type power  = 1.;
+
+        for (size_type i = 1; i < N; ++i)
+        {
+            power  *= sample;
+            result += power * W(i);
+        }
+
+        return result;
+    }
+
+    Vector feedforward(const Vector& idata) const
+    {
+        Matrix X(idata.size(), N);
+
+        precision_type sample;
+        precision_type power;
+
+        for (size_type i = 0; i < idata.size(); ++i)
+        {
+            sample  = idata(i);
+            power   = 1.;
+
+            X(i, 0) = 1.;
+            for (size_type j = 1; j < N; ++j)
+            {
+                power  *= sample;
+                X(i, j) = power;
+            }
+        }
+
+        return linear.dot(X, W);
+    }
 
     Vector operator() (const Vector& idata) const
-    { return feedforward(idata); }
+    {
+        return feedforward(idata);
+    }
 
     const Vector& weight() const noexcept { return W; }
     size_type power() const noexcept { return N - 1; }
 };
 
-TRIXY_REGRESSION_TEMPLATE()
-Regression<TypeSet>::Regression(size_type power)
-    : W(power + 1), N(power + 1)
-{
-}
-
-TRIXY_REGRESSION_TEMPLATE()
-void Regression<TypeSet>::init(
-    Vector weight) noexcept
-{
-    W.copy(weight);
-}
-
-TRIXY_REGRESSION_TEMPLATE()
-void Regression<TypeSet>::reset(
-    size_type new_power)
-{
-    N = new_power + 1;
-    W.resize(N);
-}
-
-TRIXY_REGRESSION_TEMPLATE()
-auto Regression<TypeSet>::feedforward(
-    precision_type sample) const noexcept -> precision_type
-{
-    precision_type result = W(0);
-    precision_type power  = 1.;
-
-    for (size_type i = 1; i < N; ++i)
-    {
-        power  *= sample;
-        result += power * W(i);
-    }
-
-    return result;
-}
-
-TRIXY_REGRESSION_TEMPLATE()
-auto Regression<TypeSet>::feedforward(
-    const Vector& idata) const -> Vector
-{
-    Matrix X(idata.size(), N);
-
-    precision_type sample;
-    precision_type power;
-
-    for (size_type i = 0; i < idata.size(); ++i)
-    {
-        sample  = idata(i);
-        power   = 1.;
-
-        X(i, 0) = 1.;
-        for (size_type j = 1; j < N; ++j)
-        {
-            power  *= sample;
-            X(i, j) = power;
-        }
-    }
-
-    return linear.dot(X, W);
-}
-
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, regression, trixy::meta::is_polynomial_regression<S>::value)
-{
-    archive & regression.W & regression.N;
-}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_polynomial_regression<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, regression, trixy::meta::is_polynomial_regression<S>::value)
+    SERIALIZATION
+    (
+        archive & regression.W & regression.N;
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_REGRESSION_POLYNOMIAL_HPP

@@ -265,13 +265,18 @@ struct is_fully_connected_layer<layer::Layer<LayerType::FullyConnected, Net, Lay
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_fully_connected_layer<S>::value)
-{
-    archive & layer.isize_ & layer.osize_
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_fully_connected_layer<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, layer, trixy::meta::is_fully_connected_layer<S>::value)
+    SERIALIZATION
+    (
+        archive & layer.isize_ & layer.osize_
             & layer.B_ & layer.W_
             & layer.activation_;
 
-    if (trixy::meta::is_iarchive(archive)) layer.prepare();
-}
+        if (trixy::meta::is_iarchive(archive)) layer.prepare();
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_NETWORK_LAYER_FULLY_CONNECTED_HPP

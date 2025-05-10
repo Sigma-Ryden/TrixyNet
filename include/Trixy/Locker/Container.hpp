@@ -23,7 +23,7 @@ using ContainerLocker = Locker<Container, LockerType::container>;
 template <class Container>
 class Locker<Container, LockerType::container> : protected Container
 {
-    SERIALIZATION_ACCESS()
+    SERIALIZABLE_ACCESS()
 
 protected:
     using require = Container;

@@ -36,7 +36,7 @@ public:
 
     template <template <typename, typename...> class Container,
               class Sample, class Target, class LossFunction>
-    long double loss(const Container<Sample>& idata,
+    double loss(const Container<Sample>& idata,
                      const Container<Target>& odata,
                      LossFunction loss_function) noexcept
     {
@@ -49,11 +49,11 @@ public:
             result += error;
         }
 
-        return result / static_cast<long double>(odata.size());
+        return result / static_cast<double>(odata.size());
     }
 
     template <class Sample, class Target, class LossFunction>
-    long double loss(const Sample& sample,
+    double loss(const Sample& sample,
                      const Target& target,
                      LossFunction loss_function) noexcept
     {

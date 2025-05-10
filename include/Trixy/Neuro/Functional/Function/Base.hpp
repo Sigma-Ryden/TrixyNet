@@ -67,7 +67,18 @@ template <typename T> struct is_iloss : std::is_base_of<functional::LossType, T>
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, activation, trixy::meta::is_iactivation<S>::value) {}
-CONDITIONAL_SERIALIZATION(saveload, loss, trixy::meta::is_iloss<S>::value) {}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_iactivation<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, activation, trixy::meta::is_iactivation<S>::value)
+    SERIALIZATION()
+SERIALIZABLE_INIT()
+
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_iloss<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, loss, trixy::meta::is_iloss<S>::value)
+    SERIALIZATION()
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_FUNCTION_BASE_HPP

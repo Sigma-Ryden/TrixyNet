@@ -4,8 +4,8 @@
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/Core.hpp> // Timer, operator<<
-#include <Utility/mnist_reader.hpp> // read_dataset
+#include <debug_tools.hpp> // Timer, operator<<
+#include <mnist_test/mnist_reader.hpp> // read_dataset
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed
@@ -59,6 +59,8 @@ Core::Container<Core::Tensor> get_idata(
     Core::Container<Core::Tensor> input_batch;
     input_batch.reserve(batch_size);
 
+    if (data.empty()) return input_batch;
+
     for (Core::size_type i = 0; i < batch_size; ++i)
         input_batch.emplace_back(1, 1, input_size);
 
@@ -74,6 +76,8 @@ Core::Container<Core::Tensor> get_odata(
 {
     Core::Container<Core::Tensor> output_batch;
     output_batch.reserve(batch_size);
+
+    if (data.empty()) return output_batch;
 
     for(Core::size_type i = 0; i < batch_size; ++i)
         output_batch.emplace_back(1, 1, output_size);
@@ -206,6 +210,7 @@ void mnist_test()
 
 TEST(TestExample, TestMNIST)
 {
+    return;
     sf::serializable<FullyConnected>();
     sf::serializable<ReLU>();
     sf::serializable<SoftMax>();

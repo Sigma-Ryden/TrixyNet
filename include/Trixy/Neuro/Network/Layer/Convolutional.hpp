@@ -363,14 +363,19 @@ struct is_convolutional_layer<layer::Layer<LayerType::Convolutional, Net, LayerM
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_convolutional_layer<S>::value)
-{
-    archive & layer.isize_ & layer.osize_
-            & layer.padding_
-            & layer.vertical_stride_ & layer.horizontal_stride_
-            & layer.B_ & layer.Ws_;
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_convolutional_layer<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
 
-    if (trixy::meta::is_iarchive(archive)) layer.prepare();
-}
+CONDITIONAL_SERIALIZABLE(saveload, layer, trixy::meta::is_convolutional_layer<S>::value)
+    SERIALIZATION
+    (
+        archive & layer.isize_ & layer.osize_
+                & layer.padding_
+                & layer.vertical_stride_ & layer.horizontal_stride_
+                & layer.B_ & layer.Ws_;
+
+        if (trixy::meta::is_iarchive(archive)) layer.prepare();
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_NETWORK_LAYER_CONVOLUTIONAL_HPP

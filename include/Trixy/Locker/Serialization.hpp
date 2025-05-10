@@ -24,10 +24,15 @@ struct locker_trait<memory::Locker<Lockable, LockerType>>
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, self, trixy::meta::is_locker<S>::value)
-{
-    using lockable = typename trixy::meta::locker_trait<S>::lockable;
-    archive & sf::base<lockable>(self);
-}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_locker<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, self, trixy::meta::is_locker<S>::value)
+    SERIALIZATION
+    (
+        using lockable = typename trixy::meta::locker_trait<S>::lockable;
+        archive & sf::base<lockable>(self);
+    )
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_LOCKER_SERIALIZATION_HPP

@@ -56,8 +56,15 @@ private:
     ILoss* loss_;
 
 public:
-    explicit Training(Net& network);
-    ~Training();
+    explicit Training(Net& network)
+        : net(network), delta(network.inner().back()->osize()), loss_(nullptr)
+    {
+    }
+
+    ~Training()
+    {
+        delete loss_;
+    }
 
     // operator= for copy and move Training object will not implicit generate
     Training(const Training&) = default;
@@ -68,229 +75,161 @@ public:
                     const Container<Tensor>& odata,
                     IOptimizer& optimizer,
                     size_type iteration_scale,
-                    GeneratorInteger generator) noexcept;
+                    GeneratorInteger generator) noexcept
+    {
+        for (size_type iteration = 0, sample; iteration < iteration_scale; ++iteration)
+        {
+            sample = generator() % idata.size();
+
+            feedforward(idata[sample]);
+            backprop(idata[sample], odata[sample]);
+
+            // Updating the model with dynamic gradients, without their accumulation
+            updating(optimizer, 1.f);
+        }
+    }
 
     void batch(const Container<Tensor>& idata,
                const Container<Tensor>& odata,
                IOptimizer& optimizer,
-               size_type number_of_epochs) noexcept;
-
-    void mini_batch(const Container<Tensor>& idata,
-                    const Container<Tensor>& odata,
-                    IOptimizer& optimizer,
-                    size_type number_of_epochs,
-                    size_type mini_batch_size) noexcept;
-
-    void feedforward(const Tensor& sample) noexcept;
-
-    void backprop(const Tensor& sample,
-                  const Tensor& target) noexcept;
-
-    void loss(ILoss* loss);
-
-    bool update();
-
-    long double loss(const Container<Tensor>& idata,
-                     const Container<Tensor>& odata) const noexcept;
-
-private:
-    ITrainLayer& layer(size_type i) noexcept;
-
-private:
-    // only for model
-    void updating(IOptimizer& optimizer, precision_type alpha) noexcept;
-
-    void reseting() noexcept;
-    void accumulating() noexcept;
-};
-
-TRIXY_TRAINING_TEMPLATE()
-UnifiedNetTraining<Trainable>::Training(Trainable& network)
-    : net(network), delta(network.inner().back()->osize()), loss_(nullptr)
-{
-}
-
-TRIXY_TRAINING_TEMPLATE()
-UnifiedNetTraining<Trainable>::~Training()
-{
-    delete loss_;
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::loss(ILoss* loss)
-{
-    delete loss_;
-    loss_ = loss;
-}
-
-TRIXY_TRAINING_TEMPLATE()
-bool UnifiedNetTraining<Trainable>::update()
-{
-    auto& shape = net.inner.back()->osize();
-
-    bool is_changing = delta.shape().size != shape.size;
-
-    if (is_changing) delta.resize(shape);
-    else delta.reshape(shape);
-
-    return is_changing;
-}
-
-TRIXY_TRAINING_TEMPLATE()
-template <class GeneratorInteger>
-void UnifiedNetTraining<Trainable>::stochastic(
-    const Container<Tensor>& idata,
-    const Container<Tensor>& odata,
-    IOptimizer& optimizer,
-    size_type iteration_scale,
-    GeneratorInteger generator) noexcept
-{
-    for (size_type iteration = 0, sample; iteration < iteration_scale; ++iteration)
+               size_type number_of_epochs) noexcept
     {
-        sample = generator() % idata.size();
+        precision_type alpha = 1. / static_cast<precision_type>(idata.size());
 
-        feedforward(idata[sample]);
-        backprop(idata[sample], odata[sample]);
-
-        // Updating the model with dynamic gradients, without their accumulation
-        updating(optimizer, 1.f);
-    }
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::batch(
-    const Container<Tensor>& idata,
-    const Container<Tensor>& odata,
-    IOptimizer& optimizer,
-    size_type number_of_epochs) noexcept
-{
-    precision_type alpha = 1. / static_cast<precision_type>(idata.size());
-
-    for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
-    {
-        reseting();
-
-        for (sample = 0; sample < idata.size(); ++sample)
+        for (size_type epoch = 0, sample; epoch < number_of_epochs; ++epoch)
         {
-            feedforward(idata[sample]);
-            backprop(idata[sample], odata[sample]);
-
-            accumulating();
-        }
-
-        updating(optimizer, alpha);
-    }
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::mini_batch(
-    const Container<Tensor>& idata,
-    const Container<Tensor>& odata,
-    IOptimizer& optimizer,
-    size_type number_of_epochs,
-    size_type mini_batch_size) noexcept
-{
-    precision_type alpha = 1. / static_cast<precision_type>(mini_batch_size);
-
-    // number of iterations per full batch
-    size_type iteration_scale = idata.size() / mini_batch_size; // implicit drop floating part
-
-    size_type sample;
-    size_type sample_limit;
-
-    for (size_type epoch = 0, iteration; epoch < number_of_epochs; ++epoch)
-    {
-        sample = 0;
-        sample_limit = 0;
-
-        for (iteration = 0; iteration < iteration_scale; ++iteration)
-        {
-            sample_limit += mini_batch_size;
-
             reseting();
 
-            // accumulating deltas for one mini-batch
-            while (sample < sample_limit)
+            for (sample = 0; sample < idata.size(); ++sample)
             {
                 feedforward(idata[sample]);
                 backprop(idata[sample], odata[sample]);
 
                 accumulating();
-
-                ++sample;
             }
-            // averaging deltas for one mini-batch
+
             updating(optimizer, alpha);
         }
     }
-}
 
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::feedforward(
-    const Tensor& sample) noexcept
-{
-    net.feedforward(sample);
-}
-
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::backprop(
-    const Tensor& sample,
-    const Tensor& target) noexcept
-{
-    const size_type N = net.size();
-
-    loss_->df(delta, target, layer(N - 1).value());
-
-    layer(N - 1).backward(layer(N - 2).value(), delta);
-
-    for (size_type i = N - 2; i > 0; --i)
-        layer(i).backward(layer(i - 1).value(), layer(i + 1).delta());
-
-    layer(0).backward(sample, layer(1).delta(), false);
-}
-
-TRIXY_TRAINING_TEMPLATE()
-long double UnifiedNetTraining<Trainable>::loss(
-    const Container<Tensor>& idata,
-    const Container<Tensor>& odata) const noexcept
-{
-    precision_type result = 0.;
-    precision_type error  = 0.;
-
-    for (size_type i = 0; i < odata.size(); ++i)
+    void mini_batch(const Container<Tensor>& idata,
+                    const Container<Tensor>& odata,
+                    IOptimizer& optimizer,
+                    size_type number_of_epochs,
+                    size_type mini_batch_size) noexcept
     {
-        loss_->f(error, odata[i], net.feedforward(idata[i]));
-        result += error;
+        precision_type alpha = 1. / static_cast<precision_type>(mini_batch_size);
+
+        // number of iterations per full batch
+        size_type iteration_scale = idata.size() / mini_batch_size; // implicit drop floating part
+
+        size_type sample;
+        size_type sample_limit;
+
+        for (size_type epoch = 0, iteration; epoch < number_of_epochs; ++epoch)
+        {
+            sample = 0;
+            sample_limit = 0;
+
+            for (iteration = 0; iteration < iteration_scale; ++iteration)
+            {
+                sample_limit += mini_batch_size;
+
+                reseting();
+
+                // accumulating deltas for one mini-batch
+                while (sample < sample_limit)
+                {
+                    feedforward(idata[sample]);
+                    backprop(idata[sample], odata[sample]);
+
+                    accumulating();
+
+                    ++sample;
+                }
+                // averaging deltas for one mini-batch
+                updating(optimizer, alpha);
+            }
+        }
     }
 
-    return result / static_cast<long double>(odata.size());
-}
+    void feedforward(const Tensor& sample) noexcept
+    {
+        net.feedforward(sample);
+    }
 
-TRIXY_TRAINING_TEMPLATE()
-typename UnifiedNetTraining<Trainable>::ITrainLayer&
-    UnifiedNetTraining<Trainable>::layer(size_type i) noexcept
-{
-    // Provides access to the layer's training interface
-    return static_cast<ITrainLayer&>(net.layer(i));
-}
+    void backprop(const Tensor& sample,
+                  const Tensor& target) noexcept
+    {
+        const size_type N = net.size();
 
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::updating(IOptimizer& optimizer, precision_type alpha) noexcept
-{
-    for (size_type i = 0; i < net.size(); ++i) layer(i).update(optimizer, alpha);
-}
+        loss_->df(delta, target, layer(N - 1).value());
 
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::reseting() noexcept
-{
-    for (size_type i = 0; i < net.size(); ++i) layer(i).reset();
-}
+        layer(N - 1).backward(layer(N - 2).value(), delta);
 
-TRIXY_TRAINING_TEMPLATE()
-void UnifiedNetTraining<Trainable>::accumulating() noexcept
-{
-    for (size_type i = 0; i < net.size(); ++i) layer(i).accumulate();
-}
+        for (size_type i = N - 2; i > 0; --i)
+            layer(i).backward(layer(i - 1).value(), layer(i + 1).delta());
+
+        layer(0).backward(sample, layer(1).delta(), false);
+    }
+
+    void loss(ILoss* loss)
+    {
+        delete loss_;
+        loss_ = loss;
+    }
+
+    bool update()
+    {
+        auto& shape = net.inner.back()->osize();
+
+        bool is_changing = delta.shape().size != shape.size;
+
+        if (is_changing) delta.resize(shape);
+        else delta.reshape(shape);
+
+        return is_changing;
+    }
+
+    double loss(const Container<Tensor>& idata,
+                     const Container<Tensor>& odata) const noexcept
+    {
+        precision_type result = 0.;
+        precision_type error  = 0.;
+
+        for (size_type i = 0; i < odata.size(); ++i)
+        {
+            loss_->f(error, odata[i], net.feedforward(idata[i]));
+            result += error;
+        }
+
+        return result / static_cast<double>(odata.size());
+    }
+
+private:
+    ITrainLayer& layer(size_type i) noexcept
+    {
+        // Provides access to the layer's training interface
+        return static_cast<ITrainLayer&>(net.layer(i));
+    }
+
+private:
+    // only for model
+    void updating(IOptimizer& optimizer, precision_type alpha) noexcept
+    {
+        for (size_type i = 0; i < net.size(); ++i) layer(i).update(optimizer, alpha);
+    }
+
+    void reseting() noexcept
+    {
+        for (size_type i = 0; i < net.size(); ++i) layer(i).reset();
+    }
+
+    void accumulating() noexcept
+    {
+        for (size_type i = 0; i < net.size(); ++i) layer(i).accumulate();
+    }
+};
 
 } // namespace train
 

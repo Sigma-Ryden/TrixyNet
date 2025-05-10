@@ -116,7 +116,18 @@ template <class Net> struct is_itrain_layer<layer::ITrainLayer<Net>> : std::true
 
 } // namespace trixy
 
-CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_ilayer<S>::value) {}
-CONDITIONAL_SERIALIZATION(saveload, layer, trixy::meta::is_itrain_layer<S>::value) {}
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_ilayer<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, layer, trixy::meta::is_ilayer<S>::value)
+    SERIALIZATION()
+SERIALIZABLE_INIT()
+
+CONDITIONAL_SERIALIZABLE_DECLARATION(trixy::meta::is_itrain_layer<S>::value)
+SERIALIZABLE_DECLARATION_INIT()
+
+CONDITIONAL_SERIALIZABLE(saveload, layer, trixy::meta::is_itrain_layer<S>::value)
+    SERIALIZATION()
+SERIALIZABLE_INIT()
 
 #endif // TRIXY_NETWORK_LAYER_BASE_HPP

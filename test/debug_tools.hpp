@@ -1,5 +1,5 @@
-#ifndef UTILITY_HPP
-#define UTILITY_HPP
+#ifndef TEST_DEBUG_TOOLS_HPP
+#define TEST_DEBUG_TOOLS_HPP
 
 #include <cstddef> // size_t
 #include <iostream> // ostream
@@ -153,4 +153,4 @@ void statistic(
     std::cout << '\n';
 }
 
-#endif // UTILITY_CORE_HPP
+#endif // TEST_DEBUG_TOOLS_HPP

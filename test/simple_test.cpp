@@ -4,7 +4,7 @@
 // TrixyNet, Functional, Optimizer, Training
 // Serializer, Tensor, Linear, Container, Random
 
-#include <Utility/Core.hpp> // Timer, statistic
+#include <debug_tools.hpp> // Timer, statistic
 
 #include <iostream> // cin, cout
 #include <iomanip> // setprecision, fixed

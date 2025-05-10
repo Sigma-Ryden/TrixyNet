@@ -31,34 +31,144 @@ class Tensor<Precision, TensorType::matrix, TensorMode::own>
 
 public:
     Tensor() noexcept = default;
-    ~Tensor();
+    ~Tensor()
+    {
+        delete[] this->data_;
+    }
 
-    explicit Tensor(const shape_type& shape, const_pointer data);
-    explicit Tensor(const shape_type& shape, precision_type value);
-    explicit Tensor(const shape_type& shape);
+    explicit Tensor(const shape_type& shape, const_pointer data)
+        : Base(shape.depth * shape.height, shape.width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+        this->copy(data);
+    }
 
-    Tensor(size_type height, size_type width, const_pointer data);
-    Tensor(size_type height, size_type width, precision_type value);
-    Tensor(size_type height, size_type width);
+    explicit Tensor(const shape_type& shape, precision_type value)
+        : Base(shape.depth * shape.height, shape.width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+        this->fill(value);
+    }
 
-    Tensor(const_pointer first, const_pointer last);
+    explicit Tensor(const shape_type& shape)
+        : Base(shape.depth * shape.height, shape.width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+    }
 
-    Tensor(const Tensor& tensor);
-    Tensor(Tensor&& tensor) noexcept;
+    Tensor(size_type height, size_type width, const_pointer data)
+        : Base(height, width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+        this->copy(data);
+    }
 
-    Tensor& operator= (const Tensor& tensor);
-    Tensor& operator= (Tensor&& tensor) noexcept;
+    Tensor(size_type height, size_type width, precision_type value)
+        : Base(height, width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+        this->fill(value);
+    }
 
-    pointer at(size_type i, size_type j) noexcept;
-    const_pointer at(size_type i , size_type j) const noexcept;
+    Tensor(size_type height, size_type width)
+        : Base(height, width)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+    }
 
-    reference operator() (size_type i, size_type j) noexcept;
-    const_reference operator() (size_type i, size_type j) const noexcept;
+    Tensor(const_pointer first, const_pointer last)
+        : Base(1, last - first)
+    {
+        this->data_ = new precision_type [this->shape_.size];
+        this->copy(first);
+    }
 
-    Tensor& resize(const shape_type& shape);
-    Tensor& resize(size_type height, size_type width);
+    Tensor(const Tensor& tensor)
+        : Base(tensor.shape_.depth * tensor.shape_.height, tensor.shape_.width)
+    {
+        this->data_ = new precision_type [tensor.shape_.size];
+        this->copy(tensor.data_);
+    }
 
-    Tensor& reshape(size_type height, size_type width) noexcept;
+    Tensor(Tensor&& tensor) noexcept : Base(std::move(tensor)) {}
+
+    Tensor& operator= (const Tensor& tensor)
+    {
+        if (this != &tensor)
+        {
+            delete[] this->data_;
+
+            this->data_ = new precision_type [tensor.shape_.size];
+            this->copy(tensor.data_);
+            this->shape_.height = tensor.shape_.height;
+            this->shape_.width = tensor.shape_.width;
+            this->shape_.size = tensor.shape_.size;
+        }
+
+        return *this;
+    }
+
+    Tensor& operator= (Tensor&& tensor) noexcept
+    {
+       if (this != &tensor)
+        {
+            delete[] this->data_;
+
+            this->data_ = tensor.data_;
+            this->shape_.height = tensor.shape_.height;
+            this->shape_.width = tensor.shape_.width;
+            this->shape_.size = tensor.shape_.size;
+            tensor.data_ = nullptr;
+        }
+
+        return *this;
+    }
+
+    pointer at(size_type i, size_type j) noexcept
+    {
+        return this->data_ + i * this->shape_.width + j;
+    }
+
+    const_pointer at(size_type i , size_type j) const noexcept
+    {
+        return this->data_ + i * this->shape_.width + j;
+    }
+
+    reference operator() (size_type i, size_type j) noexcept
+    {
+        return *at(i, j); // dereferencing
+    }
+
+    const_reference operator() (size_type i, size_type j) const noexcept
+    {
+        return *at(i, j); // dereferencing
+    }
+
+    Tensor& resize(const shape_type& shape)
+    {
+        resize(shape.height, shape.width);
+        return *this;
+    }
+
+    Tensor& resize(size_type height, size_type width)
+    {
+        delete[] this->data_;
+
+        this->shape_.height = height;
+        this->shape_.width = width;
+        this->shape_.size = height * width;
+        this->data_ = new precision_type [this->shape_.size];
+
+        return *this;
+    }
+
+    Tensor& reshape(size_type height, size_type width) noexcept
+    {
+        this->shape_.height = height;
+        this->shape_.width = width;
+
+        return *this;
+    }
 };
 
 LIQUE_TENSOR_TEMPLATE()
@@ -72,284 +182,79 @@ public:
     Tensor() noexcept = default;
     ~Tensor() = default;
 
-    Tensor(const shape_type& shape, pointer data) noexcept;
-    Tensor(size_type height, size_type width, pointer data) noexcept;
-    Tensor(pointer first, pointer last) noexcept;
+    Tensor(const shape_type& shape, pointer data) noexcept
+        : Base(shape.depth * shape.height, shape.width, data)
+    {
+    }
+
+    Tensor(size_type height, size_type width, pointer data) noexcept
+        : Base(height, width, data)
+    {
+    }
+
+    Tensor(pointer first, pointer last) noexcept
+    : Base(1, last - first, first)
+    {
+    }
 
     Tensor(const Tensor& tensor) noexcept = default;
     Tensor(Tensor&& tensor) noexcept = default;
 
-    Tensor& operator= (const Tensor& tensor) noexcept;
-    Tensor& operator= (Tensor&& tensor) noexcept;
+    Tensor& operator= (const Tensor& tensor) noexcept
+    {
+        if (this != &tensor)
+        {
+            this->data_ = tensor.data_;
+            this->shape_.height = tensor.shape_.height;
+            this->shape_.width = tensor.shape_.width;
+            this->shape_.size = tensor.shape_.size;
+        }
 
-    pointer at(size_type i, size_type j) noexcept;
-    const_pointer at(size_type i , size_type j) const noexcept;
+        return *this;
+    }
 
-    reference operator() (size_type i, size_type j) noexcept;
-    const_reference operator() (size_type i, size_type j) const noexcept;
+    Tensor& operator= (Tensor&& tensor) noexcept
+    {
+        if (this != &tensor)
+        {
+            this->data_ = tensor.data_;
+            this->shape_.height = tensor.shape_.height;
+            this->shape_.width = tensor.shape_.width;
+            this->shape_.size = tensor.shape_.size;
+            tensor.data_ = nullptr;
+        }
 
-    Tensor& reshape(size_type height, size_type width) noexcept;
+        return *this;
+    }
+
+    pointer at(size_type i, size_type j) noexcept
+    {
+        return this->data_ + i * this->shape_.width + j;
+    }
+
+    const_pointer at(size_type i , size_type j) const noexcept
+    {
+        return this->data_ + i * this->shape_.width + j;
+    }
+
+    reference operator() (size_type i, size_type j) noexcept
+    {
+        return *at(i, j); // dereferencing
+    }
+
+    const_reference operator() (size_type i, size_type j) const noexcept
+    {
+        return *at(i, j); // dereferencing
+    }
+
+    Tensor& reshape(size_type height, size_type width) noexcept
+    {
+        this->shape_.height = height;
+        this->shape_.width = width;
+
+        return *this;
+    }
 };
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::~Tensor()
-{
-    delete[] this->data_;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(const shape_type& shape, const_pointer data)
-    : Base(shape.depth * shape.height, shape.width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-
-    this->copy(data);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(const shape_type& shape, precision_type value)
-    : Base(shape.depth * shape.height, shape.width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-
-    this->fill(value);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(const shape_type& shape)
-    : Base(shape.depth * shape.height, shape.width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(size_type height, size_type width, const_pointer data)
-    : Base(height, width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-
-    this->copy(data);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(size_type height, size_type width, precision_type value)
-    : Base(height, width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-
-    this->fill(value);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(size_type height, size_type width)
-    : Base(height, width)
-{
-    this->data_ = new precision_type [this->shape_.size];
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(const_pointer first, const_pointer last)
-    : Base(1, last - first)
-{
-    this->data_ = new precision_type [this->shape_.size];
-
-    this->copy(first);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(const Tensor& tensor)
-    : Base(tensor.shape_.depth * tensor.shape_.height, tensor.shape_.width)
-{
-    this->data_ = new precision_type [tensor.shape_.size];
-
-    this->copy(tensor.data_);
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>::Tensor(Tensor&& tensor) noexcept
-    : Base(std::move(tensor))
-{
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>& Matrix<Precision>::operator= (const Tensor& tensor)
-{
-    if (this != &tensor)
-    {
-        delete[] this->data_;
-
-        this->data_ = new precision_type [tensor.shape_.size];
-
-        this->copy(tensor.data_);
-
-        this->shape_.height = tensor.shape_.height;
-        this->shape_.width = tensor.shape_.width;
-
-        this->shape_.size = tensor.shape_.size;
-    }
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-Matrix<Precision>& Matrix<Precision>::operator= (Tensor&& tensor) noexcept
-{
-    if (this != &tensor)
-    {
-        delete[] this->data_;
-
-        this->data_ = tensor.data_;
-
-        this->shape_.height = tensor.shape_.height;
-        this->shape_.width = tensor.shape_.width;
-
-        this->shape_.size = tensor.shape_.size;
-
-        tensor.data_ = nullptr;
-    }
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto Matrix<Precision>::at(size_type i, size_type j) noexcept -> pointer
-{
-    return this->data_ + i * this->shape_.width + j;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto Matrix<Precision>::at(size_type i, size_type j) const noexcept -> const_pointer
-{
-    return this->data_ + i * this->shape_.width + j;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto Matrix<Precision>::operator() (size_type i, size_type j) noexcept -> reference
-{
-    return *at(i, j); // dereferencing
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto Matrix<Precision>::operator() (size_type i, size_type j) const noexcept -> const_reference
-{
-    return *at(i, j); // dereferencing
-}
-
-LIQUE_TENSOR_TEMPLATE()
-auto Matrix<Precision>::resize(const shape_type& shape) -> Tensor&
-{
-    resize(shape.height, shape.width);
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-auto Matrix<Precision>::resize(size_type height, size_type width) -> Tensor&
-{
-    delete[] this->data_;
-
-    this->shape_.height = height;
-    this->shape_.width = width;
-
-    this->shape_.size = height * width;
-
-    this->data_ = new precision_type [this->shape_.size];
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-auto Matrix<Precision>::reshape(size_type height, size_type width) noexcept -> Tensor&
-{
-    this->shape_.height = height;
-    this->shape_.width = width;
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-MatrixView<Precision>::Tensor(const shape_type& shape, pointer data) noexcept
-    : Base(shape.depth * shape.height, shape.width, data)
-{
-}
-
-LIQUE_TENSOR_TEMPLATE()
-MatrixView<Precision>::Tensor(size_type height, size_type width, pointer data) noexcept
-    : Base(height, width, data)
-{
-}
-
-LIQUE_TENSOR_TEMPLATE()
-MatrixView<Precision>::Tensor(pointer first, pointer last) noexcept
-    : Base(1, last - first, first)
-{
-}
-
-LIQUE_TENSOR_TEMPLATE()
-MatrixView<Precision>& MatrixView<Precision>::operator= (const Tensor& tensor) noexcept
-{
-    if (this != &tensor)
-    {
-        this->data_ = tensor.data_;
-
-        this->shape_.height = tensor.shape_.height;
-        this->shape_.width = tensor.shape_.width;
-
-        this->shape_.size = tensor.shape_.size;
-    }
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-MatrixView<Precision>& MatrixView<Precision>::operator= (Tensor&& tensor) noexcept
-{
-    if (this != &tensor)
-    {
-        this->data_ = tensor.data_;
-
-        this->shape_.height = tensor.shape_.height;
-        this->shape_.width = tensor.shape_.width;
-
-        this->shape_.size = tensor.shape_.size;
-
-        tensor.data_ = nullptr;
-    }
-
-    return *this;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto MatrixView<Precision>::at(size_type i, size_type j) noexcept -> pointer
-{
-    return this->data_ + i * this->shape_.width + j;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto MatrixView<Precision>::at(size_type i, size_type j) const noexcept -> const_pointer
-{
-    return this->data_ + i * this->shape_.width + j;
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto MatrixView<Precision>::operator() (size_type i, size_type j) noexcept -> reference
-{
-    return *at(i, j); // dereferencing
-}
-
-LIQUE_TENSOR_TEMPLATE()
-inline auto MatrixView<Precision>::operator() (size_type i, size_type j) const noexcept -> const_reference
-{
-    return *at(i, j); // dereferencing
-}
-
-LIQUE_TENSOR_TEMPLATE()
-auto MatrixView<Precision>::reshape(size_type height, size_type width) noexcept -> Tensor&
-{
-    this->shape_.height = height;
-    this->shape_.width = width;
-
-    return *this;
-}
 
 } // namespace lique
 

@@ -31,7 +31,7 @@ public:
     Accuracy(Accuracy&&) noexcept = default;
 
     TRIXY_ACCURACY_TEMPLATE()
-    long double normal(const Container<Sample>& idata,
+    double normal(const Container<Sample>& idata,
                        const Container<Target>& odata) noexcept
     {
         size_type count = 0;
@@ -40,11 +40,11 @@ public:
             if (Guide::normal(odata[i], net.feedforward(idata[i])))
                 ++count;
 
-        return static_cast<long double>(count) / odata.size();
+        return static_cast<double>(count) / odata.size();
     }
 
     TRIXY_ACCURACY_TEMPLATE()
-    long double full(const Container<Sample>& idata,
+    double full(const Container<Sample>& idata,
                      const Container<Target>& odata,
                      precision_type range_rate) noexcept
     {
@@ -54,11 +54,11 @@ public:
             if (Guide::full(odata[i], net.feedforward(idata[i]), range_rate))
                 ++count;
 
-        return static_cast<long double>(count) / odata.size();
+        return static_cast<double>(count) / odata.size();
     }
 
     TRIXY_ACCURACY_TEMPLATE()
-    long double global(const Container<Sample>& idata,
+    double global(const Container<Sample>& idata,
                        const Container<Target>& odata,
                        precision_type range_rate) noexcept
     {
@@ -67,11 +67,11 @@ public:
         for (size_type i = 0; i < odata.size(); ++i)
             count += Guide::global(odata[i], net.feedforward(idata[i]), range_rate);
 
-        return static_cast<long double>(count) / (odata.size() * odata.front().size());
+        return static_cast<double>(count) / (odata.size() * odata.front().size());
     }
 
     TRIXY_ACCURACY_TEMPLATE()
-    long double operator() (const Container<Sample>& idata,
+    double operator() (const Container<Sample>& idata,
                             const Container<Target>& odata) noexcept
     {
         return normal(idata, odata);
