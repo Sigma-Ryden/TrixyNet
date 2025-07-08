@@ -54,7 +54,7 @@ Is a header-only library implemented purely in C++11.
 ```Performance```: We use the best solutions available. Do you want more perfomance? Please refer to item with Flexibility!
 
 # Quick start:
-Warning! This is a simple minimal example. You can see real applied examples [here](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test).
+Warning! This is a simple minimal example. You can see real applied examples [here](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test/src).
 
 Including of common headers for library use:
 ```C++
@@ -211,7 +211,7 @@ Output:
 <5> [0.999970, 0.000030, 0.000000] : [1.000000, 0.000000, 0.000000]
 Network normal accuracy: 1.000000
 ```
-See full example here: [simple_test](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test/simple_test.cpp).
+See full example here: [simple_test](https://github.com/Sigma-Ryden/TrixyNet/tree/master/test/src/simple_test.cpp).
 
 #### Notes:
 Most of the time, you will be preparing data as well as neural networks for training and running.

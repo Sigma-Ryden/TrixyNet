@@ -1,4 +1,4 @@
-#include <Automation/Core.hpp>
+#include <TrixyTestingBase.hpp>
 
 #include <Trixy/Core.hpp>
 // TrixyNet, Functional, Optimizer, Training

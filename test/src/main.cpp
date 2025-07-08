@@ -1,4 +1,4 @@
-#include <Automation/Core.hpp>
+#include <TrixyTestingBase.hpp>
 
 int main()
 {
